@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/pic">
+        <file alias="bg">WP_20131020_023.jpg</file>
+        <file alias="test">shop80.png</file>
+        <file alias="drag">1386123290_tap_and_hold.png</file>
+        <file alias="drag1">1386123215_tap.png</file>
+    </qresource>
+</RCC>
