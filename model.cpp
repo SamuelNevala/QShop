@@ -6,9 +6,11 @@
 Model::Model(QObject *parent)
     : QAbstractListModel(parent)
 {
-    m_roleNames.insert(Qt::UserRole, "item");
+    m_roleNames.insert(Qt::DisplayRole, "itemText");
     m_roleNames.insert(Qt::CheckStateRole, "selected");
+    m_roleNames.insert(Qt::EditRole, "editor");
     load();
+    removeEditor();
 }
 
 int Model::rowCount(const QModelIndex & parent) const
@@ -20,10 +22,14 @@ int Model::rowCount(const QModelIndex & parent) const
 QVariant Model::data(const QModelIndex & index, int role) const
 {
     if (!index.isValid()) return QVariant();
-    if (role == Qt::UserRole)
+    if (role == Qt::DisplayRole)
         return m_items[index.row()];
-    else
+    else if (role == Qt::CheckStateRole)
         return m_selection[index.row()];
+    else if (role == Qt::EditRole)
+        return m_editor[index.row()];
+    else
+        return QVariant();
 }
 
 QHash<int, QByteArray> Model::roleNames() const
@@ -41,6 +47,7 @@ void Model::append(QString item)
     beginInsertRows(QModelIndex(), m_items.count(), m_items.count());
     m_items.append(item);
     m_selection.append(false);
+    m_editor.append(false);
     endInsertRows();
     Q_EMIT countChanged();
     save();
@@ -52,16 +59,25 @@ void Model::insert(int index, QString item)
     beginInsertRows(QModelIndex(), boundIndex, boundIndex);
     m_items.insert(boundIndex, item);
     m_selection.insert(boundIndex, false);
+    m_editor.insert(boundIndex, false);
     endInsertRows();
     Q_EMIT countChanged();
     save();
 }
 
+void Model::remove(QString item) {
+    remove(m_items.indexOf(item));
+}
+
 void Model::remove(int index)
 {
+    if (index <0 || index > m_items.count())
+        return;
+
     beginRemoveRows(QModelIndex(), index, index);
     m_items.removeAt(index);
     m_selection.removeAt(index);
+    m_editor.removeAt(index);
     endRemoveRows();
     Q_EMIT countChanged();
     save();
@@ -72,6 +88,7 @@ void Model::removeAll()
     beginRemoveRows(QModelIndex(), 0, m_items.count() - 1);
     m_items.clear();
     m_selection.clear();
+    m_editor.clear();
     endRemoveRows();
     Q_EMIT countChanged();
     save();
@@ -88,17 +105,28 @@ void Model::reset()
 void Model::move(int source, int destination)
 {
     if (source == destination) return;
-    int selection = m_selection.indexOf(true);
-
-    //qDebug()<<"wer"<<destination<<" "<<selection;
-    m_selection[source] = destination >= selection;
-    Q_EMIT dataChanged(index(source,0), index(source,0), QVector<int>() << Qt::CheckStateRole);
-
     beginMoveRows(QModelIndex(), source, source, QModelIndex(), destination + (destination > source ? 1 : 0));
     m_items.move(source, destination);
     m_selection.move(source, destination);
+    m_editor.move(source, destination);
     endMoveRows();
     save();
+}
+
+void Model::addEditor()
+{
+    beginInsertRows(QModelIndex(), 0, 0);
+    m_items.insert(0,"editor");
+    m_selection.insert(0, false);
+    m_editor.insert(0, true);
+    endInsertRows();
+    Q_EMIT countChanged();
+}
+
+void Model::removeEditor()
+{
+    while (m_editor.contains(true))
+        remove(m_editor.indexOf(true));
 }
 
 void Model::setSelected(int index, bool selected)
@@ -131,6 +159,7 @@ void Model::moveToEnd(int from)
         beginMoveRows(QModelIndex(), from, from, QModelIndex(), to+1);
         m_items.move(from, to);
         m_selection.move(from, to);
+        m_editor.move(from, to);
         endMoveRows();
     }
 }
@@ -141,6 +170,7 @@ void Model::moveToStart(int from)
     beginMoveRows(QModelIndex(), from, from, QModelIndex(), 0);
     m_items.move(from, 0);
     m_selection.move(from, 0);
+    m_editor.move(from, 0);
     endMoveRows();
 }
 
@@ -153,7 +183,7 @@ void Model::save()
     QDataStream out(&file);
     out << m_items.count();
     for (int index = 0; index < m_items.count(); ++index) {
-        out << m_items[index] << m_selection[index];
+        out << m_items[index] << m_selection[index]<<m_editor[index];
     }
     file.close();
 }
@@ -168,10 +198,11 @@ void Model::load()
     QDataStream in(&file);
     in >> count;
     for (int index = 0; index < count; ++index) {
-        QString item; bool selected;
-        in >> item >> selected;
+        QString item; bool selected; bool editor;
+        in >> item >> selected >> editor;
         m_items.append(item);
         m_selection.append(selected);
+        m_editor.append(editor);
     }
     file.close();
 }

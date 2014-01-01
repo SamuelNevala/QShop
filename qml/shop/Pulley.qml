@@ -1,6 +1,6 @@
 import QtQuick 2.0
 
-Rectangle {
+Item {
     id: root
 
     property string pullHint
@@ -14,10 +14,15 @@ Rectangle {
         top: parent.top
         left: parent.left; right: parent.right
     }
-    color: "black"
+
     height: -parent.contentY - parent.headerItem.height
-    opacity: 0.8
     z: -1
+
+    Rectangle {
+        anchors.fill: parent
+        color: "black"
+        opacity: 0.8
+    }
 
     Text {
         anchors {
@@ -33,10 +38,6 @@ Rectangle {
 
     Connections {
         target: root.parent
-        onDragEnded:{
-            //console.log(root.height, actionThreshold, root.height > actionThreshold)
-            if (root.height > actionThreshold) root.action()
-        }
+        onDragEnded: if (root.height > actionThreshold) root.action()
     }
-
 }

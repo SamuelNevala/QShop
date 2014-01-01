@@ -30,4 +30,5 @@ HEADERS += \
     weekmodel.h \
     model.h
 
-OTHER_FILES +=
+OTHER_FILES += \
+    qml/shop/SelectableItem.qml

@@ -45,11 +45,7 @@ MouseArea {
         origin.y: target.height/2
         axis.x: 0; axis.y: 1; axis.z: 0
         angle: drag.active ? 0 : (root.active ? root.angle : targetAngle)
-        Behavior on angle { RotationAnimation {
-                id:anim; direction: RotationAnimation.Shortest
-                onRunningChanged: console.log(running)
-            }
-        }
+        Behavior on angle { RotationAnimation { id:anim; direction: RotationAnimation.Shortest } }
         onAngleChanged: {
             if (Math.abs(angle) == 180 && Math.abs(root.angle) == 250
              || Math.abs(angle) == 0 && Math.abs(root.angle) == 70)

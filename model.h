@@ -23,9 +23,12 @@ public:
     Q_INVOKABLE void append(QString item);
     Q_INVOKABLE void insert(int index, QString item);
     Q_INVOKABLE void remove(int index);
+    Q_INVOKABLE void remove(QString item);
     Q_INVOKABLE void removeAll();
     Q_INVOKABLE void reset();
     Q_INVOKABLE void move(int source, int destination);
+    Q_INVOKABLE void addEditor();
+    Q_INVOKABLE void removeEditor();
 
 Q_SIGNALS:
     void countChanged();
@@ -37,6 +40,7 @@ private:
     void load();
     QList<QString> m_items;
     QList<bool> m_selection;
+    QList<bool> m_editor;
     QHash<int, QByteArray> m_roleNames;
 };
 

@@ -4,32 +4,19 @@ Item {
     property Item target
     property bool dragEnabled
     property alias dragArea: dragArea
+    property alias pressed: dragArea.pressed
 
-    opacity: dragArea.enabled //&& !dragArea.drag.active ? 1.0 : 0.0
+    opacity: dragArea.enabled ? 1.0 : 0.0
     visible: opacity > 0.0
 
     Behavior on opacity { NumberAnimation {} }
-
-    /*Image {
-        id: icon
-        anchors.fill: parent
-        source: "qrc:/pic/drag1"
-        smooth: true
-        opacity: dragArea.pressed ? 0.0: 1.0
-        visible: opacity > 0.0
-        Behavior on opacity { NumberAnimation {} }
-    }*/
 
     Rectangle {
         id: icon
         anchors.fill: parent
         color: "darkred"
-        smooth: true
-        opacity: dragArea.pressed ? 0.0: 0.8
-        visible: opacity > 0.0
-        Behavior on opacity { NumberAnimation {} }
+        opacity: 0.8
     }
-
 
     MouseArea {
         id: dragArea
@@ -37,15 +24,5 @@ Item {
         enabled: dragEnabled
         drag { target: target }
         width: height
-        /*        Rectangle {
-            anchors {
-                fill: parent
-                //margins: 10
-            }
-            color: "green"
-            opacity: dragArea.enabled && !dragArea.drag.active ? 1.0 : 0.0
-            visible: opacity > 0.0
-            Behavior on opacity { NumberAnimation {} }
-        }*/
     }
 }

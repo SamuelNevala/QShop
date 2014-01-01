@@ -3,49 +3,86 @@ import QtQuick.Controls 1.0
 
 Item {
     id: root
-    signal accepted()
-    property Item itemUnder
-    property int itemUnderCenterY: itemUnder ? itemUnder.y + itemUnder.height / 2 - displacement : 0
-    property int centerY: y + (height / 2)
-    property int maxDrag
-    property int displacement
-    property bool atBottom: itemUnderCenterY - centerY <= 0
+
     property alias text: input.text
     property alias enabled: input.enabled
 
-    height: 70
+    signal accepted()
+    signal dropAreaEntered(Item dragSource)
+
+    height: 90
     opacity: enabled ? 1.0 : 0.0
     visible: opacity > 0.0
 
-    TextField {
-        id: input
-        anchors { left: parent.left; right: parent.right; margins: 20; verticalCenter: parent.verticalCenter }
-        font.pixelSize: 25
-        horizontalAlignment: Text.AlignHCenter
-        height: parent.height * 0.62
-        onAccepted: root.accepted()
-        opacity: 1
-        z:1
+    Item {
+        id: testme
+        anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
+        height: dragSpot.pressed ? 90 * 1.3 : 90
+        width: parent.width
+
+        Drag.active: dragSpot.dragArea.drag.active
+        Drag.source: dragSpot
+        Drag.hotSpot.y: Math.round( height / 2 )
+        Drag.hotSpot.x:  width - 50
+
+        TextField {
+            id: input
+            anchors { left: parent.left; right: parent.right; margins: 20; verticalCenter: parent.verticalCenter }
+            font.pixelSize: 25
+            focus: true
+            horizontalAlignment: Text.AlignHCenter
+            height: parent.height * 0.62
+            onAccepted: root.accepted()
+            opacity: 1
+            z:1
+        }
+
+        Rectangle {
+            id: background
+            anchors.fill: parent
+            color: "black"
+            opacity: 0.8
+        }
+
+        DragSpot {
+            id: dragSpot
+
+            property int itemIndex: index
+
+            anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
+            width: height; target: parent
+            dragEnabled: true
+        }
     }
 
-    Rectangle {
-        id: background
-        anchors.fill: parent
-        color: "black"
-        opacity: 0.6
+    DropArea {
+        anchors { fill: parent }
+        onEntered:  root.dropAreaEntered(drag.source)
+        enabled: true
     }
 
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        enabled: root.enabled
-        propagateComposedEvents: true
-        drag.target: parent
-        drag.axis: Drag.YAxis
-        drag.minimumY: 0
-        drag.maximumY: root.maxDrag
-        z: 1
-    }
+    states: [
+        State {
+            name: "drag"; when: testme.Drag.active
+            ParentChange { target: testme; parent: root.parent.parent.parent }
+            PropertyChanges { target: testme; z: 1}
+            AnchorChanges {
+                target: testme;
+                anchors.horizontalCenter: undefined;
+                anchors.verticalCenter: undefined
+                anchors.left: parent.left
+                anchors.right: parent.right
+            }
+        }
+    ]
+
+    transitions:  [
+        Transition {
+            from: "drag"
+            ParentAnimation { }
+            AnchorAnimation { }
+        }
+    ]
 
     Behavior on opacity { NumberAnimation { easing.type: Easing.InOutQuad } }
 }
