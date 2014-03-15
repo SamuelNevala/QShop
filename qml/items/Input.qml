@@ -10,7 +10,7 @@ Item {
     signal accepted()
     signal dropAreaEntered(Item dragSource)
 
-    height: 90
+    height: constants.delegateHeight
     opacity: enabled ? 1.0 : 0.0
     visible: opacity > 0.0
 

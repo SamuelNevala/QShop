@@ -1,27 +1,11 @@
-# Add more folders to ship with the application, here
-folder_01.source = qml/shop
-folder_01.target = qml
-DEPLOYMENTFOLDERS = folder_01
+QT += qml quick
+TARGET = shop
+TEMPLATE = app
 
-# Additional import path used to resolve QML modules in Creator's code model
-QML_IMPORT_PATH =
-
-# If your application uses the Qt Mobility libraries, uncomment the following
-# lines and add the respective components to the MOBILITY variable.
-# CONFIG += mobility
-# MOBILITY +=
-
-# The .cpp file which was generated for your project. Feel free to hack it.
-SOURCES += main.cpp \
+SOURCES += \
+    main.cpp \
     weekmodel.cpp \
     model.cpp
-
-# Installation path
-# target.path =
-
-# Please do not modify the following two lines. Required for deployment.
-include(qtquick2applicationviewer/qtquick2applicationviewer.pri)
-qtcAddDeployment()
 
 RESOURCES += \
     res.qrc
@@ -31,4 +15,16 @@ HEADERS += \
     model.h
 
 OTHER_FILES += \
-    qml/shop/SelectableItem.qml
+    qml/main.qml \
+    qml/items/Delegate.qml \
+    qml/items/DragSpot.qml\
+    qml/items/FlippingDelegate.qml \
+    qml/items/Input.qml \
+    qml/items/InputDelegate.qml \
+    qml/items/Pulley.qml \
+    qml/items/SelectableItem.qml \
+    qml/items/Swipeable.qml \
+    qml/items/SelectableItem.qml \
+    qml/views/ShopView.qml \
+    qml/views/EditView.qml \
+    qml/items/Weekdays.qml

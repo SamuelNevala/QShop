@@ -8,7 +8,7 @@ Swipeable {
 
     signal dropAreaEntered(Item dragSource)
 
-    height: 90
+    height: constants.delegateHeight
     target: rect
 
     Component.onCompleted: root.setStartSide(selected)
@@ -17,7 +17,7 @@ Swipeable {
         id: rect
 
         anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
-        height: dragSpot.pressed ? 90 * 1.3 : 90
+        height: dragSpot.pressed ? constants.delegateHeight * 1.3 : constants.delegateHeight
         transform: root.rotation
         width: parent.width
 
@@ -32,7 +32,7 @@ Swipeable {
             anchors { fill: parent }
             flip: root.preventStealing
             text { text: itemText; color: "white" }
-            color: "black"
+            color: rect.Drag.active ? "darkred" : "black"
             Behavior on color { ColorAnimation { } }
 
             DragSpot {
@@ -51,10 +51,11 @@ Swipeable {
                 font.strikeout: true
                 color: "darkgray"
             }
-            color: "black"
+            color: rect.remove ||  rect.Drag.active ? "darkred" : "black"
             Behavior on color { ColorAnimation { duration: 250 } }
         }
 
+        onStateChanged: console.log("del", root.parent.parent.parent)
         states: [
             State {
                 name: "drag"; when: rect.Drag.active
@@ -85,5 +86,3 @@ Swipeable {
         enabled: root.dragEnabled && !selected
     }
 }
-
-

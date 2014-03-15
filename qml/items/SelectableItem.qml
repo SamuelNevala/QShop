@@ -1,13 +1,13 @@
 import QtQuick 2.0
 
 Delegate {
-    dragThreshold: root.dragDistance
-    dragEnabled: root.state === "edit"
+    dragThreshold: applicationWindow.dragDistance
+    //dragEnabled: list.state === "edit"
 
     onSideChanged: {
-        if (root.state === "edit")
+      /*  if (list.state === "edit")
             itemModel.remove(index)
-        else
+        else*/
             itemModel.toggleSelected(index)
     }
 
@@ -15,5 +15,7 @@ Delegate {
         root.skipMoveTransition = true
         itemModel.move(dragSource.itemIndex, index)
     }
+
+    //onDoubleClicked: if (list.state === "edit") itemModel.moveEditor(index)
 }
 

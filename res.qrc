@@ -2,7 +2,19 @@
     <qresource prefix="/pic">
         <file alias="bg">WP_20131020_023.jpg</file>
         <file alias="test">shop80.png</file>
-        <file alias="drag">1386123290_tap_and_hold.png</file>
-        <file alias="drag1">1386123215_tap.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/items/Delegate.qml</file>
+        <file>qml/items/DragSpot.qml</file>
+        <file>qml/items/FlippingDelegate.qml</file>
+        <file>qml/items/Input.qml</file>
+        <file>qml/items/InputDelegate.qml</file>
+        <file>qml/items/Pulley.qml</file>
+        <file>qml/items/SelectableItem.qml</file>
+        <file>qml/items/Swipeable.qml</file>
+        <file>qml/views/ShopView.qml</file>
+        <file>qml/views/EditView.qml</file>
+        <file>qml/items/Weekdays.qml</file>
     </qresource>
 </RCC>

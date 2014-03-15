@@ -5,9 +5,7 @@ import Shop.models 1.0
 Item {
     id: root
 
-    property bool hide
-
-    height: 70
+    height: constants.delegateHeight
 
     Rectangle {
         anchors.fill: parent;
@@ -31,7 +29,7 @@ Item {
                     font.pixelSize: parent.height/2.4
                     font.bold: true
                     text: dayName
-                    color: "white"
+                    color: index == 0 ? "#33B5E5" : "white"
                     horizontalAlignment: Text.AlignHCenter
                 }
                 Text {
@@ -39,32 +37,10 @@ Item {
                     font.pixelSize: parent.height/2.4
                     font.bold: true
                     text: dayNumber
-                    color: "white"
+                    color: index == 0 ? "#33B5E5" : "white"
                     horizontalAlignment: Text.AlignHCenter
                 }
             }
         }
     }
-
-    states: State {
-        name: "hidden"; when: hide
-        PropertyChanges { target: root; height: 0; opacity: 0.0 }
-    }
-
-    transitions:  [
-        Transition {
-            to: "hidden"
-            SequentialAnimation {
-                NumberAnimation { property: "opacity" }
-                NumberAnimation { property: "height" }
-           }
-        },
-        Transition {
-            from: "hidden"
-            SequentialAnimation {
-                NumberAnimation { property: "height" }
-                NumberAnimation { property: "opacity" }
-           }
-        }
-    ]
 }

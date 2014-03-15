@@ -29,6 +29,8 @@ public:
     Q_INVOKABLE void move(int source, int destination);
     Q_INVOKABLE void addEditor();
     Q_INVOKABLE void removeEditor();
+    Q_INVOKABLE void moveEditor(int index);
+
 
 Q_SIGNALS:
     void countChanged();

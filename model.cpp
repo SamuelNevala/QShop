@@ -2,6 +2,8 @@
 #include <QDebug>
 #include <QtCore/QDataStream>
 #include <QtCore/QFile>
+#include <QtCore/QStandardPaths>
+#include <QtCore/QDir>
 
 Model::Model(QObject *parent)
     : QAbstractListModel(parent)
@@ -129,6 +131,15 @@ void Model::removeEditor()
         remove(m_editor.indexOf(true));
 }
 
+void Model::moveEditor(int index)
+{
+    int editorIndex = m_editor.indexOf(true);
+    if (index + 1  == editorIndex)
+        return;
+
+    move(editorIndex, index + (editorIndex > index ? 1 : 0));
+}
+
 void Model::setSelected(int index, bool selected)
 {
     if (m_selection[index] == selected)
@@ -176,9 +187,19 @@ void Model::moveToStart(int from)
 
 void Model::save()
 {
-    QFile file("store.dat");
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+
+    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QDir dir(path);
+    if (!dir.exists() && !dir.mkpath(path)) {
+        qWarning("Could not create dir");
         return;
+    }
+
+    QFile file(QString("%1/store.dat").arg(path));
+            if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        qWarning("On save couldn't open file.");
+        return;
+    }
 
     QDataStream out(&file);
     out << m_items.count();
@@ -193,8 +214,14 @@ void Model::load()
     m_items.clear();
     m_selection.clear();
     int count = 0;
-    QFile file("store.dat");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QFile file(QString("%1/store.dat").arg(path));
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning("On load couldn't open file.");
+        return;
+    }
+
     QDataStream in(&file);
     in >> count;
     for (int index = 0; index < count; ++index) {
