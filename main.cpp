@@ -1,7 +1,7 @@
 #include <QtQml>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QStyleHints>
-//#include <QtQuick/QQuickItem>
+#include "sortfiltermodel.h"
 #include <QtQuick/QQuickView>
 #include <QtCore/QString>
 #include <QDebug>
@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<WeekModel>("Shop.models", 1, 0, "WeekModel");
     qmlRegisterType<Model>("Shop.models", 1, 0, "ItemModel");
+    qmlRegisterType<SortFilterModel>("Shop.models", 1, 0, "SortFilterModel");
 
     QQmlComponent component(&engine);
     component.loadUrl(QUrl("qrc:/qml/main.qml"));

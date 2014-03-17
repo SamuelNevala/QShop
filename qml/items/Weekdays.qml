@@ -5,7 +5,7 @@ import Shop.models 1.0
 Item {
     id: root
 
-    height: constants.delegateHeight
+    height: constants.maxHeight
 
     Rectangle {
         anchors.fill: parent;

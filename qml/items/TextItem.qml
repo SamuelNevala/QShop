@@ -1,17 +1,9 @@
 import QtQuick 2.0
 
-Item {
+BackgroundItem {
     id: root
-    property alias text: text
-    property bool flip
-    property alias color: background.color
 
-    Rectangle {
-        id: background
-        anchors.fill: parent
-        color: "black"
-        opacity: 0.8
-    }
+    property alias text: text
 
     Text {
         id: text
@@ -23,7 +15,6 @@ Item {
         font {
             bold: true
             pixelSize: parent.height - 20
-
         }
         color: "white"
         scale: parent.width / (paintedWidth + 20) < 1 ? parent.width / (paintedWidth + 20) : 1

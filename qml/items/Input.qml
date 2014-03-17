@@ -1,50 +1,47 @@
 import QtQuick 2.0
-import QtQuick.Controls 1.0
+import QtQuick.Controls 1.1
+import QtQuick.Controls.Styles 1.1
+import "../styles"
 
 Item {
     id: root
 
     property alias text: input.text
-    property alias enabled: input.enabled
+    property real leftMargin: 20
 
     signal accepted()
     signal dropAreaEntered(Item dragSource)
 
-    height: constants.delegateHeight
-    opacity: enabled ? 1.0 : 0.0
-    visible: opacity > 0.0
+    height: constants.maxHeight
 
-    Item {
-        id: testme
-        anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
-        height: dragSpot.pressed ? 90 * 1.3 : 90
-        width: parent.width
+    BackgroundItem {
+        id: background
+        anchors.fill: parent
+        //anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
+        //height: dragSpot.pressed ? constants.maxHeight * 1.3 : constants.maxHeight
+        //width: parent.width
+        color: "white"
 
-        Drag.active: dragSpot.dragArea.drag.active
-        Drag.source: dragSpot
-        Drag.hotSpot.y: Math.round( height / 2 )
-        Drag.hotSpot.x:  width - 50
+        //Drag.active: dragSpot.dragArea.drag.active
+        //Drag.source: dragSpot
+        //Drag.hotSpot.y: Math.round(height / 2)
+        //Drag.hotSpot.x:  width - 50
 
         TextField {
             id: input
-            anchors { left: parent.left; right: parent.right; margins: 20; verticalCenter: parent.verticalCenter }
-            font.pixelSize: 25
+
+            anchors { left: parent.left; right: parent.right; margins: 20; verticalCenter: parent.verticalCenter; leftMargin: root.leftMargin }
+            font.pixelSize: Math.round(background.height / 3)
             focus: true
             horizontalAlignment: Text.AlignHCenter
-            height: parent.height * 0.62
-            onAccepted: root.accepted()
-            opacity: 1
+            height: parent.height * 0.66
+            style: TextFieldStyleAndroid { focus: input.activeFocus }
             z:1
+
+            onAccepted: root.accepted()
         }
 
-        Rectangle {
-            id: background
-            anchors.fill: parent
-            color: "black"
-            opacity: 0.8
-        }
-
-        DragSpot {
+        /*DragSpot {
             id: dragSpot
 
             property int itemIndex: index
@@ -52,22 +49,22 @@ Item {
             anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
             width: height; target: parent
             dragEnabled: true
-        }
+        }*/
     }
 
     DropArea {
         anchors { fill: parent }
-        onEntered:  root.dropAreaEntered(drag.source)
+        onEntered: root.dropAreaEntered(drag.source)
         enabled: true
     }
 
-    states: [
+    /*states: [
         State {
-            name: "drag"; when: testme.Drag.active
-            ParentChange { target: testme; parent: root.parent.parent.parent }
-            PropertyChanges { target: testme; z: 1}
+            name: "drag"; when: background.Drag.active
+            ParentChange { target: background; parent: root.parent.parent.parent }
+            PropertyChanges { target: background; z: 1}
             AnchorChanges {
-                target: testme;
+                target: background;
                 anchors.horizontalCenter: undefined;
                 anchors.verticalCenter: undefined
                 anchors.left: parent.left
@@ -82,7 +79,5 @@ Item {
             ParentAnimation { }
             AnchorAnimation { }
         }
-    ]
-
-    Behavior on opacity { NumberAnimation { easing.type: Easing.InOutQuad } }
+    ]*/
 }

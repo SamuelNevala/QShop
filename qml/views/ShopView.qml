@@ -10,7 +10,7 @@ ListView {
         anchors { top: parent.top; left: parent.left; right: parent.right }
         height: -parent.contentY - weekdays.height
         pullHint: qsTr("Pull to edit")
-        onAction: pageSwitcher.push(Qt.resolvedUrl("EditView.qml"))
+        onAction: pageSwitcher.push({"item": Qt.resolvedUrl("EditView.qml"), properties: {model: itemModel}})
     }
 
     Weekdays {
@@ -24,7 +24,7 @@ ListView {
         color: "black"
         opacity: visible ? 0.8 : 0.0
         y: -root.contentY
-        visible: root.count >= 0
+        visible: root.count <= 0
         width:  root.width
     }
 
@@ -36,37 +36,41 @@ ListView {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         opacity: visible ? 1.0 : 0.0
-        visible: root.count >= 0
+        visible: root.count <= 0
     }
 
     cacheBuffer: root.height * 2
     delegate: Component {
         Loader {
             anchors { right: parent.right; left: parent.left }
-            source: Qt.resolvedUrl("../items/SelectableItem.qml")
+            source: editor ? "" : Qt.resolvedUrl("../items/SelectableItem.qml")
         }
     }
 
-    add: Transition {
-        NumberAnimation { properties: "x, y"; easing.type: Easing.InOutQuad; duration: 500 }
-        NumberAnimation { property: "opacity"; from: 0; to: 1.0; duration: 400 }
+    /*add: Transition {
+        NumberAnimation { properties: "y"; easing.type: Easing.InOutQuad; duration: 500 }
+        NumberAnimation { property: "opacity"; from: 0; to: 1.0; duration:  400}
         NumberAnimation { property: "scale"; from: 0.5; to: 1.0; duration: 400 }
-    }
+    }*/
 
     displaced: Transition {
         PropertyAction { property: "z"; value: 1 }
-        NumberAnimation { properties: "y"; easing.type: Easing.InOutQuad; duration: 400 }
-        NumberAnimation { property: "opacity"; to: 1.0; duration: 400 }
-        NumberAnimation { property: "scale"; to: 1.0; duration: 400 }
+        NumberAnimation { properties: "y"; easing.type: Easing.InOutQuad; duration: constants.mediumTime }
+        NumberAnimation { property: "opacity"; to: 1.0; duration: constants.mediumTime }
+        NumberAnimation { property: "scale"; to: 1.0; duration: constants.mediumTime }
     }
 
     move: Transition {
         PropertyAction { property: "z"; value: -1 }
-        NumberAnimation { properties: "x, y"; easing.type: Easing.InOutQuad; duration: root.skipMoveTransition ? 0 : 1000 }
-        ScriptAction { script: { root.skipMoveTransition = false } }
+        SequentialAnimation {
+            NumberAnimation { property: "scale"; to: 0.90 }
+            NumberAnimation { properties: "y"; easing.type: Easing.InOutQuad; duration: constants.longTime }
+            NumberAnimation { property: "scale"; to: 1.0 }
+        }
+        //ScriptAction { script: { root.skipMoveTransition = false } }
     }
 
-    remove: Transition {
+    /*remove: Transition {
         NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; duration: 400 }
-        NumberAnimation { property: "scale"; from: 1.0; to: 0.0; duration: 400 } }
+        NumberAnimation { property: "scale"; from: 1.0; to: 0.0; duration: 400 } }*/
 }

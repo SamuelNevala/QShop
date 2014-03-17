@@ -1,14 +1,13 @@
 import QtQuick 2.0
-import QtGraphicalEffects 1.0
 
 Swipeable {
     id: root
 
-    property alias dragEnabled: dragSpot.dragEnabled
+    //property alias dragEnabled: dragSpot.dragEnabled
 
-    signal dropAreaEntered(Item dragSource)
+    //signal dropAreaEntered(Item dragSource)
 
-    height: constants.delegateHeight
+    height: constants.maxHeight
     target: rect
 
     Component.onCompleted: root.setStartSide(selected)
@@ -17,30 +16,31 @@ Swipeable {
         id: rect
 
         anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
-        height: dragSpot.pressed ? constants.delegateHeight * 1.3 : constants.delegateHeight
+        //height: dragSpot.pressed ? constants.maxHeight * 1.3 : constants.maxHeight
+        height: constants.maxHeight
         transform: root.rotation
         width: parent.width
 
-        Drag.active: dragSpot.dragArea.drag.active
-        Drag.hotSpot.y: Math.round( height / 2 )
-        Drag.hotSpot.x:  width - 50
-        Drag.source: dragSpot
+        //Drag.active: dragSpot.dragArea.drag.active
+        //Drag.hotSpot.y: Math.round( height / 2 )
+        //Drag.hotSpot.x:  width - 50
+        //Drag.source: dragSpot
 
-        Behavior on height { NumberAnimation { easing.type: Easing.InOutQuad } }
+        //Behavior on height { NumberAnimation { easing.type: Easing.InOutQuad } }
 
         front: FlippingDelegate {
             anchors { fill: parent }
             flip: root.preventStealing
             text { text: itemText; color: "white" }
-            color: rect.Drag.active ? "darkred" : "black"
+            //color: rect.Drag.active ? "darkred" : "black"
             Behavior on color { ColorAnimation { } }
 
-            DragSpot {
+          /*  DragSpot {
                 id: dragSpot
                 property int itemIndex: index
                 anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
                 target: rect; width: height
-            }
+            }*/
         }
 
         back: FlippingDelegate {
@@ -51,11 +51,11 @@ Swipeable {
                 font.strikeout: true
                 color: "darkgray"
             }
-            color: rect.remove ||  rect.Drag.active ? "darkred" : "black"
-            Behavior on color { ColorAnimation { duration: 250 } }
+            //color: rect.remove ||  rect.Drag.active ? "darkred" : "black"
+            Behavior on color { ColorAnimation { } }
         }
 
-        onStateChanged: console.log("del", root.parent.parent.parent)
+        /*onStateChanged: console.log("del", root.parent.parent.parent)
         states: [
             State {
                 name: "drag"; when: rect.Drag.active
@@ -77,12 +77,12 @@ Swipeable {
                 ParentAnimation { }
                 AnchorAnimation { }
             }
-        ]
+        ]*/
     }
 
-    DropArea {
+    /*DropArea {
         anchors { fill: parent }
         onEntered: root.dropAreaEntered(drag.source)
         enabled: root.dragEnabled && !selected
-    }
+    }*/
 }

@@ -2,19 +2,23 @@
     <qresource prefix="/pic">
         <file alias="bg">WP_20131020_023.jpg</file>
         <file alias="test">shop80.png</file>
+        <file alias="previous">ic_action_previous_item.png</file>
     </qresource>
     <qresource prefix="/">
         <file>qml/main.qml</file>
         <file>qml/items/Delegate.qml</file>
         <file>qml/items/DragSpot.qml</file>
-        <file>qml/items/FlippingDelegate.qml</file>
         <file>qml/items/Input.qml</file>
-        <file>qml/items/InputDelegate.qml</file>
         <file>qml/items/Pulley.qml</file>
         <file>qml/items/SelectableItem.qml</file>
         <file>qml/items/Swipeable.qml</file>
         <file>qml/views/ShopView.qml</file>
         <file>qml/views/EditView.qml</file>
         <file>qml/items/Weekdays.qml</file>
+        <file>qml/items/BackgroundItem.qml</file>
+        <file>qml/items/TextItem.qml</file>
+        <file>qml/items/InputItem.qml</file>
+        <file>qml/styles/TextFieldStyleAndroid.qml</file>
+        <file>qml/items/BackButton.qml</file>
     </qresource>
 </RCC>

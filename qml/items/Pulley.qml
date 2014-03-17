@@ -7,7 +7,6 @@ Item {
     property string actionText
     property real actionThreshold: parent.height * 0.1
     property bool active: height > 0.0
-    property bool trickered: false
 
     signal action()
 
@@ -66,8 +65,12 @@ Item {
 
     Connections {
         target: root.parent
-        onDragEnded: if (root.height > actionThreshold) trickered = true
+        onDragEnded: if (root.height > actionThreshold) dealayAction.restart()
     }
 
-    onActiveChanged: if (!active && trickered) { root.action(); trickered = false }
+    Timer {
+        id: dealayAction
+        interval: 260
+        onTriggered: root.action()
+    }
 }
