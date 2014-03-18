@@ -6,8 +6,6 @@
     </qresource>
     <qresource prefix="/">
         <file>qml/main.qml</file>
-        <file>qml/items/Delegate.qml</file>
-        <file>qml/items/DragSpot.qml</file>
         <file>qml/items/Input.qml</file>
         <file>qml/items/Pulley.qml</file>
         <file>qml/items/SelectableItem.qml</file>
@@ -20,5 +18,6 @@
         <file>qml/items/InputItem.qml</file>
         <file>qml/styles/TextFieldStyleAndroid.qml</file>
         <file>qml/items/BackButton.qml</file>
+        <file>qml/items/DragableItem.qml</file>
     </qresource>
 </RCC>

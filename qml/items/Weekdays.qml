@@ -22,11 +22,11 @@ Item {
 
             Column {
                 height: root.height
-                width: root.width / repeater.count
+                width: Math.round(root.width / repeater.count)
 
                 Text {
                     anchors { left: parent.left; right: parent.right }
-                    font.pixelSize: parent.height/2.4
+                    font.pixelSize: Math.round(parent.height / 2.4)
                     font.bold: true
                     text: dayName
                     color: index == 0 ? "#33B5E5" : "white"
@@ -34,7 +34,7 @@ Item {
                 }
                 Text {
                     anchors { left: parent.left; right: parent.right }
-                    font.pixelSize: parent.height/2.4
+                    font.pixelSize: Math.round(parent.height / 2.4)
                     font.bold: true
                     text: dayNumber
                     color: index == 0 ? "#33B5E5" : "white"

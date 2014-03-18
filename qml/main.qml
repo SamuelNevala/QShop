@@ -10,7 +10,8 @@ ApplicationWindow {
     id: applicationWindow
 
     property int dragDistance
-    property bool stopAnimation
+    property bool animate: true
+    property bool animateMove: true
 
     height: 1280; width: 768
 
@@ -19,8 +20,8 @@ ApplicationWindow {
         property int pixelDensity: Screen.pixelDensity > 0 ? Screen.pixelDensity : 332
         property real maxHeight: pixelDensity * 0.37
         property real minHeight: pixelDensity * 0.27
-        property int mediumTime: stopAnimation ? 0 : 250
-        property int longTime: stopAnimation ? 0 : 500
+        property int mediumTime:  250
+        property int longTime: 500
     }
 
     ItemModel { id: itemModel }
@@ -31,9 +32,8 @@ ApplicationWindow {
         id: pageSwitcher
         anchors.fill: parent
         initialItem: {"item": Qt.resolvedUrl("views/ShopView.qml"), properties: {model: itemModel}}
-        Component.onCompleted: if (itemModel.count == 1) pageSwitcher.push({
-                                                            "item": Qt.resolvedUrl("views/EditView.qml"),
-                                                            properties: {model: itemModel},
-                                                            immediate: true})
+        Component.onCompleted: if (itemModel.count == 1) pageSwitcher.push({ "item": Qt.resolvedUrl("views/EditView.qml"),
+                                                                             properties: {model: itemModel},
+                                                                             immediate: true})
     }
 }

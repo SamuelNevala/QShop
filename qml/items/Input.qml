@@ -17,15 +17,7 @@ Item {
     BackgroundItem {
         id: background
         anchors.fill: parent
-        //anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
-        //height: dragSpot.pressed ? constants.maxHeight * 1.3 : constants.maxHeight
-        //width: parent.width
         color: "white"
-
-        //Drag.active: dragSpot.dragArea.drag.active
-        //Drag.source: dragSpot
-        //Drag.hotSpot.y: Math.round(height / 2)
-        //Drag.hotSpot.x:  width - 50
 
         TextField {
             id: input
@@ -40,16 +32,6 @@ Item {
 
             onAccepted: root.accepted()
         }
-
-        /*DragSpot {
-            id: dragSpot
-
-            property int itemIndex: index
-
-            anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
-            width: height; target: parent
-            dragEnabled: true
-        }*/
     }
 
     DropArea {
@@ -57,27 +39,4 @@ Item {
         onEntered: root.dropAreaEntered(drag.source)
         enabled: true
     }
-
-    /*states: [
-        State {
-            name: "drag"; when: background.Drag.active
-            ParentChange { target: background; parent: root.parent.parent.parent }
-            PropertyChanges { target: background; z: 1}
-            AnchorChanges {
-                target: background;
-                anchors.horizontalCenter: undefined;
-                anchors.verticalCenter: undefined
-                anchors.left: parent.left
-                anchors.right: parent.right
-            }
-        }
-    ]
-
-    transitions:  [
-        Transition {
-            from: "drag"
-            ParentAnimation { }
-            AnchorAnimation { }
-        }
-    ]*/
 }

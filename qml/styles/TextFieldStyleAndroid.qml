@@ -24,7 +24,7 @@ TextFieldStyle {
                 color: "transparent"
                 border.color: borerColor
                 border.width: borderWidth
-                Behavior on border.color { ColorAnimation { } }
+                Behavior on border.color { ColorAnimation { easing.type: Easing.InOutQuad } }
             }
         }
 
@@ -42,7 +42,7 @@ TextFieldStyle {
                 color: "transparent"
                 border.color: borerColor
                 border.width: borderWidth
-                Behavior on border.color { ColorAnimation { } }
+                Behavior on border.color { ColorAnimation { easing.type: Easing.InOutQuad } }
             }
         }
     }

@@ -8,7 +8,7 @@ ListView {
     Pulley {
         actionText: qsTr("Release to edit")
         anchors { top: parent.top; left: parent.left; right: parent.right }
-        height: -parent.contentY - weekdays.height
+        height: -parent.contentY + parent.originY - weekdays.height
         pullHint: qsTr("Pull to edit")
         onAction: pageSwitcher.push({"item": Qt.resolvedUrl("EditView.qml"), properties: {model: itemModel}})
     }
@@ -16,7 +16,7 @@ ListView {
     Weekdays {
         id: weekdays
         anchors { right: parent.right; left: parent.left }
-        y: -parent.contentY - height
+        y: -parent.contentY - height + parent.originY
     }
 
     Rectangle {
@@ -47,13 +47,8 @@ ListView {
         }
     }
 
-    /*add: Transition {
-        NumberAnimation { properties: "y"; easing.type: Easing.InOutQuad; duration: 500 }
-        NumberAnimation { property: "opacity"; from: 0; to: 1.0; duration:  400}
-        NumberAnimation { property: "scale"; from: 0.5; to: 1.0; duration: 400 }
-    }*/
-
     displaced: Transition {
+        enabled: applicationWindow.animate
         PropertyAction { property: "z"; value: 1 }
         NumberAnimation { properties: "y"; easing.type: Easing.InOutQuad; duration: constants.mediumTime }
         NumberAnimation { property: "opacity"; to: 1.0; duration: constants.mediumTime }
@@ -61,16 +56,13 @@ ListView {
     }
 
     move: Transition {
+        enabled: applicationWindow.animate
         PropertyAction { property: "z"; value: -1 }
         SequentialAnimation {
             NumberAnimation { property: "scale"; to: 0.90 }
             NumberAnimation { properties: "y"; easing.type: Easing.InOutQuad; duration: constants.longTime }
             NumberAnimation { property: "scale"; to: 1.0 }
         }
-        //ScriptAction { script: { root.skipMoveTransition = false } }
+        ScriptAction {script: root.returnToBounds()}
     }
-
-    /*remove: Transition {
-        NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; duration: 400 }
-        NumberAnimation { property: "scale"; from: 1.0; to: 0.0; duration: 400 } }*/
 }

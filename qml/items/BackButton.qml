@@ -21,6 +21,6 @@ Item {
         source: button
         opacity: button.pressed ? 1.0 : 0.0
         visible: opacity > 0.0
-        Behavior on opacity { NumberAnimation {duration: 150; easing.type: Easing.InOutQuad } }
+        Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.InOutQuad } }
     }
 }
