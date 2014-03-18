@@ -18,6 +18,7 @@ Item {
 
         anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
         height: constants.maxHeight
+        scale: dragSpot.pressed ? 1.15 : 1
         start: Qt.point(0, Math.round(height / 2))
         end: Qt.point(width, Math.round(height / 2))
         opacity: 0.8
@@ -41,14 +42,6 @@ Item {
                 Behavior on color { ColorAnimation { easing.type: Easing.InOutQuad } }
             }
         }
-
-        transform: Rotation {
-            origin.x: Math.round(backgound.width / 2)
-            origin.y: Math.round(backgound.height / 2)
-            axis.x: 0; axis.y: 1; axis.z: 0; angle: dragSpot.pressed ? 10 : 0
-            Behavior on angle { RotationAnimation { direction: RotationAnimation.Shortest; easing.type: Easing.InOutQuad } }
-        }
-
         states: [
             State {
                 name: "drag"; when: backgound.Drag.active
@@ -96,6 +89,7 @@ Item {
             scale: parent.width / (paintedWidth + 20) < 1 ? parent.width / (paintedWidth + 20) : 1
             text: itemText
         }
+        Behavior on scale { NumberAnimation { easing.type: Easing.InOutQuad } }
     }
 
     DropArea {
