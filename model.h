@@ -25,6 +25,7 @@ public:
     Q_INVOKABLE void remove(int index);
     Q_INVOKABLE void remove(QString item);
     Q_INVOKABLE void removeAll();
+    Q_INVOKABLE void removeSelected();
     Q_INVOKABLE void reset();
     Q_INVOKABLE void move(int source, int destination);
     Q_INVOKABLE void addEditor();

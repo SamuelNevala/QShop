@@ -6,6 +6,7 @@
 #include <QDebug>
 #include "weekmodel.h"
 #include "model.h"
+#include "hwkeywatcher.h"
 
 int main(int argc, char *argv[])
 {
@@ -17,6 +18,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<WeekModel>("Shop.models", 1, 0, "WeekModel");
     qmlRegisterType<Model>("Shop.models", 1, 0, "ItemModel");
+    qmlRegisterType<HwKeyWatcher>("Shop.extra", 1, 0, "HwKeyWatcher");
 
     QQmlComponent component(&engine);
     component.loadUrl(QUrl("qrc:/qml/main.qml"));

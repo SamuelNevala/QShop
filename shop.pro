@@ -5,14 +5,16 @@ TEMPLATE = app
 SOURCES += \
     main.cpp \
     weekmodel.cpp \
-    model.cpp
+    model.cpp \
+    hwkeywatcher.cpp
 
 RESOURCES += \
     res.qrc
 
 HEADERS += \
     weekmodel.h \
-    model.h
+    model.h \
+    hwkeywatcher.h
 
 OTHER_FILES += \
     qml/main.qml \

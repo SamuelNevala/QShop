@@ -3,6 +3,7 @@ import QtQuick.Controls 1.1
 import QtQuick.Window 2.1
 import QtGraphicalEffects 1.0
 import Shop.models 1.0
+import Shop.extra 1.0
 import "views"
 import "styles"
 
@@ -27,6 +28,53 @@ ApplicationWindow {
     ItemModel { id: itemModel }
 
     Image { anchors.fill: parent; source: "qrc:/pic/bg" }
+
+    Menu {
+        id: menu
+        title: qsTr("Choose action")
+
+        MenuItem {
+            text: qsTr("Remove all items")
+            onTriggered: {
+                itemModel.removeAll()
+                itemModel.addEditor()
+            }
+        }
+
+        MenuItem {
+            text: qsTr("Remove shopped items")
+            onTriggered: itemModel.removeSelected()
+        }
+
+        MenuItem {
+            text: qsTr("Reset shopped items")
+            onTriggered: itemModel.reset()
+        }
+
+        MenuItem {
+            text: qsTr("To the shop list")
+            onTriggered: pageSwitcher.pop()
+        }
+    }
+
+    HwKeyWatcher {
+        target: applicationWindow
+        onMenuClicked: {
+            if (pageSwitcher.depth == 1)
+                return;
+
+            menu.popup()
+        }
+
+        onBackClicked: {
+            if (pageSwitcher.depth == 1) {
+                Qt.quit();
+            } else {
+                pageSwitcher.pop()
+            }
+        }
+
+    }
 
     StackView {
         id: pageSwitcher

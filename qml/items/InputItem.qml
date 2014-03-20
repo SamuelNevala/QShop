@@ -4,6 +4,8 @@ Input {
     id: input
 
     leftMargin: constants.minHeight
+    placeholderText: qsTr("Tap to insert items")
+    placeholderTextFocus: qsTr("Write new item")
 
     BackButton {
         anchors { verticalCenter: parent.verticalCenter; left: parent.left }

@@ -1,16 +1,29 @@
 import QtQuick 2.0
 import QtGraphicalEffects 1.0
+import QtQuick.Controls 1.1
 
 Item {
     id: root
 
     height: constants.maxHeight
 
+
+    Menu {
+        id: itemMenu
+        title: itemText
+
+        MenuItem {
+            text: qsTr("Remove")
+            onTriggered: itemModel.remove(index)
+        }
+    }
+
     MouseArea {
         id: bottomMouseArea
         anchors.fill: parent
         enabled: !selected
         onClicked: itemModel.moveEditor(index)
+        onPressAndHold: itemMenu.popup()
     }
 
     LinearGradient {

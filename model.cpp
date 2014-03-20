@@ -96,6 +96,12 @@ void Model::removeAll()
     save();
 }
 
+void Model::removeSelected()
+{
+    while (m_selection.contains(true))
+        remove(m_selection.indexOf(true));
+}
+
 void Model::reset()
 {
     beginResetModel();

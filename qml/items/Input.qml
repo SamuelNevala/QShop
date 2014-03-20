@@ -7,6 +7,10 @@ Item {
     id: root
 
     property alias text: input.text
+
+    property string placeholderText
+    property string placeholderTextFocus
+
     property real leftMargin: 20
 
     signal accepted()
@@ -28,8 +32,8 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             height: parent.height * 0.66
             style: TextFieldStyleAndroid { focus: input.activeFocus }
+            placeholderText: activeFocus ?  root.placeholderTextFocus : root.placeholderText
             z:1
-
             onAccepted: root.accepted()
         }
     }

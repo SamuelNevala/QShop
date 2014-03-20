@@ -24,11 +24,12 @@ ListView {
         color: "black"
         opacity: visible ? 0.8 : 0.0
         y: -root.contentY
-        visible: root.count <= 0
+        visible: emptyState.visible
         width:  root.width
     }
 
     Text {
+        id: emptyState
         anchors { fill: parent; margins: 30 }
         font { pixelSize: Math.round(parent.height * 0.1 / 3); bold: true }
         color: "#33B5E5"
@@ -36,7 +37,7 @@ ListView {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         opacity: visible ? 1.0 : 0.0
-        visible: root.count <= 0
+        visible: root.count <= 0 || pageSwitcher.depth === 2 && root.count <= 1
     }
 
     cacheBuffer: root.height * 2
