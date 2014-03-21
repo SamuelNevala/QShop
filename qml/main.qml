@@ -6,6 +6,7 @@ import Shop.models 1.0
 import Shop.extra 1.0
 import "views"
 import "styles"
+import "items"
 
 ApplicationWindow {
     id: applicationWindow
@@ -29,26 +30,88 @@ ApplicationWindow {
 
     Image { anchors.fill: parent; source: "qrc:/pic/bg" }
 
+    RemorseItem {
+        id: remorse
+        height: constants.maxHeight
+        label: qsTr("Tap to cancel")
+        opacity: 0.0
+        maximumValue: 4
+        visible: opacity > 0.0
+        width: parent.width
+        y: -height
+
+        states: [
+            State {
+                name: "removeAll"
+                StateChangeScript { script: remorse.title = qsTr("Removing all items") }
+                PropertyChanges { target: remorse; opacity: 0.8; y: 0;  }
+            },
+            State {
+                name: "removeShopped";
+                extend: "removeAll"
+                StateChangeScript { script: remorse.title = qsTr("Removing shopped items") }
+            },
+            State {
+                name: "reset";
+                extend: "removeAll"
+                StateChangeScript { script: remorse.title = qsTr("Reseting shopped items") }
+            }
+        ]
+
+        transitions: [
+            Transition {
+                from: ""
+                SequentialAnimation {
+                    ParallelAnimation {
+                        NumberAnimation { property: "opacity"; easing.type: Easing.InOutQuad; duration: 500 }
+                        NumberAnimation { property: "y"; easing.type: Easing.InOutQuad; duration: 500 }
+                    }
+                    ScriptAction { script: remorse.value = 0 }
+                }
+            },
+            Transition {
+                to: ""
+                SequentialAnimation {
+                    ParallelAnimation {
+                        NumberAnimation { property: "opacity"; easing.type: Easing.InOutQuad; duration: 500 }
+                        NumberAnimation { property: "y"; easing.type: Easing.InOutQuad; duration: 500 }
+                    }
+                    ScriptAction { script: remorse.reset() }
+                }
+            }
+        ]
+        onCancelled: remorse.state = ""
+        onDone: {
+            if (state == "removeAll") {
+                itemModel.removeAll()
+                itemModel.addEditor()
+            } else if(state == "removeShopped") {
+                itemModel.removeSelected()
+            } else if(state == "reset") {
+                itemModel.reset()
+            }
+            remorse.state = ""
+        }
+    }
+
+
     Menu {
         id: menu
         title: qsTr("Choose action")
 
         MenuItem {
             text: qsTr("Remove all items")
-            onTriggered: {
-                itemModel.removeAll()
-                itemModel.addEditor()
-            }
+            onTriggered: remorse.state = "removeAll"
         }
 
         MenuItem {
             text: qsTr("Remove shopped items")
-            onTriggered: itemModel.removeSelected()
+            onTriggered: remorse.state = "removeShopped"
         }
 
         MenuItem {
             text: qsTr("Reset shopped items")
-            onTriggered: itemModel.reset()
+            onTriggered: remorse.state = "reset"
         }
 
         MenuItem {
@@ -73,14 +136,17 @@ ApplicationWindow {
                 pageSwitcher.pop()
             }
         }
-
     }
 
     StackView {
         id: pageSwitcher
-        anchors.fill: parent
+        anchors {
+            topMargin: remorse.state == "" ? 0 : remorse.height
+            fill: parent
+        }
+        Behavior on anchors.topMargin { NumberAnimation { easing.type: Easing.InOutQuad; duration: 500 } }
         initialItem: {"item": Qt.resolvedUrl("views/ShopView.qml"), properties: {model: itemModel}}
-        Component.onCompleted: if (itemModel.count == 1) pageSwitcher.push({ "item": Qt.resolvedUrl("views/EditView.qml"),
+        Component.onCompleted: if (itemModel.count == 0) pageSwitcher.push({ "item": Qt.resolvedUrl("views/EditView.qml"),
                                                                              properties: {model: itemModel},
                                                                              immediate: true})
     }

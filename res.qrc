@@ -19,5 +19,6 @@
         <file>qml/styles/TextFieldStyleAndroid.qml</file>
         <file>qml/items/BackButton.qml</file>
         <file>qml/items/DragableItem.qml</file>
+        <file>qml/items/RemorseItem.qml</file>
     </qresource>
 </RCC>

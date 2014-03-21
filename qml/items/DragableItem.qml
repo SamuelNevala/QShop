@@ -1,12 +1,12 @@
 import QtQuick 2.0
 import QtGraphicalEffects 1.0
 import QtQuick.Controls 1.1
+import QtQuick.Controls.Styles 1.1
 
 Item {
     id: root
 
     height: constants.maxHeight
-
 
     Menu {
         id: itemMenu
@@ -14,14 +14,14 @@ Item {
 
         MenuItem {
             text: qsTr("Remove")
-            onTriggered: itemModel.remove(index)
+            onTriggered: remorse.state = "remorse"
         }
     }
 
     MouseArea {
         id: bottomMouseArea
         anchors.fill: parent
-        enabled: !selected
+        enabled: !selected && !remorse.visible
         onClicked: itemModel.moveEditor(index)
         onPressAndHold: itemMenu.popup()
     }
@@ -101,13 +101,59 @@ Item {
             color: selected ? "darkgray" : "white"
             scale: parent.width / (paintedWidth + 20) < 1 ? parent.width / (paintedWidth + 20) : 1
             text: itemText
+            opacity: remorse.state == "remorse" ? 0.0 : 1.0
+            Behavior on opacity { NumberAnimation { easing.type: Easing.InOutQuad } }
         }
         Behavior on scale { NumberAnimation { easing.type: Easing.InOutQuad } }
+
     }
 
     DropArea {
         anchors { fill: parent }
         enabled: !selected
+
         onEntered: itemModel.move(drag.source.itemIndex, index)
+    }
+
+    RemorseItem {
+        id: remorse
+        height: parent.height
+        opacity: 0.0
+        title: qsTr("Removing %1").arg(itemText)
+        label: qsTr("Tap to cancel")
+        maximumValue: 4
+        visible: opacity > 0.0
+        width: parent.width
+        x: parent.width
+
+        states: State {
+            name: "remorse"
+            PropertyChanges { target: remorse; opacity: 0.8; x: 0 }
+        }
+
+        transitions: [
+            Transition {
+                to: "remorse"
+                SequentialAnimation {
+                    ParallelAnimation {
+                        NumberAnimation { property: "opacity"; easing.type: Easing.InOutQuad; duration: 500 }
+                        NumberAnimation { property: "x"; easing.type: Easing.InOutQuad; duration: 500 }
+                    }
+                    ScriptAction { script: remorse.value = 0 }
+                }
+            },
+            Transition {
+                from: "remorse"
+                SequentialAnimation {
+                    ParallelAnimation {
+                        NumberAnimation { property: "opacity"; easing.type: Easing.InOutQuad; duration: 500 }
+                        NumberAnimation { property: "x"; easing.type: Easing.InOutQuad; duration: 500 }
+                    }
+                    ScriptAction { script: remorse.reset() }
+                }
+            }
+        ]
+        onCancelled: remorse.state = ""
+        onDone: itemModel.remove(index)
     }
 }
