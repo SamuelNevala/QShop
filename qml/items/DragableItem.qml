@@ -88,18 +88,20 @@ Item {
 
         Text {
             id: text
-            anchors {
-                right: parent.right; left: parent.left; margins: 10
-                verticalCenter: parent.verticalCenter
-            }
+            anchors.centerIn: parent
+            height: parent.height
+            width: parent.width
             horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            color: selected ? "darkgray" : "white"
             font {
                 bold: true
-                pixelSize: parent.height - 20
+                pixelSize: parent.height * 0.8
                 strikeout: selected
             }
-            color: selected ? "darkgray" : "white"
-            scale: parent.width / (paintedWidth + 20) < 1 ? parent.width / (paintedWidth + 20) : 1
+            fontSizeMode: Text.Fit
+            maximumLineCount: 2
+            wrapMode: Text.Wrap
             text: itemText
             opacity: remorse.state == "remorse" ? 0.0 : 1.0
             Behavior on opacity { NumberAnimation { easing.type: Easing.InOutQuad } }

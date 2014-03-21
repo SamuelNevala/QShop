@@ -7,16 +7,18 @@ BackgroundItem {
 
     Text {
         id: text
-        anchors {
-            right: parent.right; left: parent.left; margins: 10
-            verticalCenter: parent.verticalCenter
-        }
+        anchors.centerIn: parent
+        height: parent.height
+        width: parent.width
         horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        color: "white"
         font {
             bold: true
-            pixelSize: parent.height - 20
+            pixelSize: parent.height * 0.8
         }
-        color: "white"
-        scale: parent.width / (paintedWidth + 20) < 1 ? parent.width / (paintedWidth + 20) : 1
+        fontSizeMode: Text.Fit
+        maximumLineCount: 2
+        wrapMode: Text.Wrap
     }
 }
