@@ -34,6 +34,12 @@ int main(int argc, char *argv[])
     }
     window->setProperty("dragDistance", app.styleHints()->startDragDistance());
     QObject::connect(&engine, SIGNAL(quit()), &app, SLOT(quit()));
+
+#if defined(Q_OS_ANDROID)
+    window->showFullScreen();
+#else
     window->show();
+#endif
+
     return app.exec();
 }
