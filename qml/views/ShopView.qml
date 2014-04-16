@@ -40,7 +40,6 @@ ListView {
         visible: root.count <= 0 || pageSwitcher.depth === 2 && root.count <= 1
     }
 
-    cacheBuffer: root.height * 2
     delegate: Component {
         Loader {
             anchors { right: parent.right; left: parent.left }

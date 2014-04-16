@@ -12,6 +12,7 @@ Item {
     property string placeholderTextFocus
 
     property real leftMargin: 20
+    property real rightMargin: 20
 
     signal accepted()
     signal dropAreaEntered(Item dragSource)
@@ -25,8 +26,7 @@ Item {
 
         TextField {
             id: input
-
-            anchors { left: parent.left; right: parent.right; margins: 20; verticalCenter: parent.verticalCenter; leftMargin: root.leftMargin }
+            anchors { left: parent.left; right: parent.right; margins: 20; verticalCenter: parent.verticalCenter; leftMargin: root.leftMargin; rightMargin: root.rightMargin }
             font.pixelSize: Math.round(background.height / 3)
             focus: true
             horizontalAlignment: Text.AlignHCenter

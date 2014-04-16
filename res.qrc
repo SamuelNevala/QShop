@@ -3,6 +3,7 @@
         <file alias="bg">WP_20131020_023.jpg</file>
         <file alias="test">shop80.png</file>
         <file alias="previous">ic_action_previous_item.png</file>
+        <file alias="new">ic_action_new.png</file>
     </qresource>
     <qresource prefix="/">
         <file>qml/main.qml</file>
@@ -17,8 +18,8 @@
         <file>qml/items/TextItem.qml</file>
         <file>qml/items/InputItem.qml</file>
         <file>qml/styles/TextFieldStyleAndroid.qml</file>
-        <file>qml/items/BackButton.qml</file>
         <file>qml/items/DragableItem.qml</file>
         <file>qml/items/RemorseItem.qml</file>
+        <file>qml/items/IconButton.qml</file>
     </qresource>
 </RCC>

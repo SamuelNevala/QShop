@@ -31,5 +31,5 @@ OTHER_FILES += \
     qml/items/InputItem.qml \
     qml/items/DragableItem.qml \
     qml/styles/TextFieldStyleAndroid.qml \
-    qml/items/BackButton.qml \
-    qml/items/RemorseItem.qml
+    qml/items/RemorseItem.qml \
+    qml/items/IconButton.qml

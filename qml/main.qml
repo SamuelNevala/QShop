@@ -17,18 +17,30 @@ ApplicationWindow {
 
     height: 1280; width: 768
 
+    Component.onCompleted: {
+        var pixelDensity = Screen.pixelDensity < 3.9 ? 13.1 : Screen.pixelDensity
+        constants.maxHeight = Math.round(pixelDensity * 9.4)
+        constants.minHeight = Math.round(pixelDensity * 6.9)
+    }
+
     QtObject {
         id: constants
-        property int pixelDensity: Screen.pixelDensity > 0 ? Screen.pixelDensity : 332
-        property real maxHeight: pixelDensity * 0.37
-        property real minHeight: pixelDensity * 0.27
+        property int maxHeight
+        property int minHeight
         property int mediumTime:  250
         property int longTime: 500
     }
 
     ItemModel { id: itemModel }
 
-    Image { anchors.fill: parent; source: "qrc:/pic/bg" }
+    Image {
+        anchors.fill: parent
+        asynchronous: true
+        source: "qrc:/pic/bg"
+        opacity: status == Image.Ready ? 1.0 : 0.0
+        visible: opacity > 0.0
+        Behavior on opacity { NumberAnimation { easing.type: Easing.InOutQuad } }
+    }
 
     RemorseItem {
         id: remorse

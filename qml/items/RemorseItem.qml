@@ -37,11 +37,11 @@ ProgressBar {
     }
 
     Text {
-        id:title
+        id: title
         property bool fitted: parent.width - (contentWidth + seconds.width*2) < 0
         anchors {
             horizontalCenter: parent.horizontalCenter
-            horizontalCenterOffset: fitted < 0 ? seconds.width / 2 : 0
+            horizontalCenterOffset: fitted ? seconds.width / 2 : 0
             top: parent.top;
             bottom: parent.verticalCenter
             bottomMargin: -(parent.height / 2 * 0.3 / 2)
@@ -51,6 +51,7 @@ ProgressBar {
         fontSizeMode: Text.Fit
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
+        width: parent.width - (fitted ? (seconds.width) : 0)
     }
 
     Text {
@@ -82,6 +83,7 @@ ProgressBar {
     }
 
     onValueChanged: if (value == 0) root.done()
+
     Behavior on value {
         NumberAnimation {
             id: animation

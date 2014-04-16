@@ -5,7 +5,7 @@ Item {
 
     property string pullHint
     property string actionText
-    property real actionThreshold: parent.height * 0.1
+    property real actionThreshold: parent.height * 0.08
     property bool active: height > 0.0
 
     signal action()

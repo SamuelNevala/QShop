@@ -6,8 +6,7 @@ import "../items"
 ListView {
     id: editList
 
-    cacheBuffer: editList.height * 2
-    delegate:Component {
+    delegate: Component {
         Loader {
             anchors { right: parent.right; left: parent.left }
             source: editor ? Qt.resolvedUrl("../items/InputItem.qml") : Qt.resolvedUrl("../items/DragableItem.qml")
@@ -30,7 +29,6 @@ ListView {
     }
 
     move: Transition {
-        id: test
         enabled: applicationWindow.animate
         PropertyAction { property: "z"; value: -1 }
         NumberAnimation { properties: "y"; easing.type: Easing.InOutQuad; duration: constants.mediumTime }

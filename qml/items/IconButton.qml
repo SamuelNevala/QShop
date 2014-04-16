@@ -5,22 +5,32 @@ import QtGraphicalEffects 1.0
 
 Item {
     id: root
+
+    property alias source: button.source
+
     signal clicked()
 
-    ToolButton {
+    Image {
         id: button
         anchors.fill: parent
-        iconSource: "qrc:/pic/previous"
-        style: ButtonStyle { background: Item {} }
-        onClicked: root.clicked()
+        asynchronous: true
+        opacity: status == Image.Ready ? 1.0 : 0.0
+        visible: opacity > 0.0
+        Behavior on opacity { NumberAnimation { easing.type: Easing.InOutQuad } }
     }
 
     ColorOverlay {
         anchors { fill: button }
         color: "#33B5E5"
         source: button
-        opacity: button.pressed ? 1.0 : 0.0
+        opacity: mouseArea.pressed ? 1.0 : 0.0
         visible: opacity > 0.0
         Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.InOutQuad } }
+    }
+
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        onClicked: root.clicked()
     }
 }
