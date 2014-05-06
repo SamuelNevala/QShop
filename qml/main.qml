@@ -36,6 +36,7 @@ ApplicationWindow {
     Image {
         anchors.fill: parent
         asynchronous: true
+        fillMode: Image.PreserveAspectCrop
         source: "qrc:/pic/bg"
         opacity: status == Image.Ready ? 1.0 : 0.0
         visible: opacity > 0.0
@@ -128,7 +129,10 @@ ApplicationWindow {
 
         MenuItem {
             text: qsTr("To the shop list")
-            onTriggered: pageSwitcher.pop()
+            onTriggered: {
+                Qt.inputMethod.hide()
+                pageSwitcher.pop()
+            }
         }
     }
 
@@ -145,6 +149,7 @@ ApplicationWindow {
             if (pageSwitcher.depth == 1) {
                 Qt.quit();
             } else {
+                Qt.inputMethod.hide()
                 pageSwitcher.pop()
             }
         }

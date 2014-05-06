@@ -21,7 +21,10 @@ Input {
         height: constants.minHeight
         source: "qrc:/pic/previous"
         width: height
-        onClicked: pageSwitcher.pop()
+        onClicked: {
+            Qt.inputMethod.hide()
+            pageSwitcher.pop()
+        }
     }
 
     IconButton {
@@ -29,7 +32,11 @@ Input {
         height: constants.minHeight
         width: height
         source: "qrc:/pic/new"
-        onClicked: addItem()
+        onClicked: {
+            Qt.inputMethod.commit()
+            Qt.inputMethod.reset()
+            addItem()
+        }
     }
 
     onAccepted: addItem()

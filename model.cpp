@@ -193,7 +193,6 @@ void Model::moveToStart(int from)
 
 void Model::save()
 {
-
     QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QDir dir(path);
     if (!dir.exists() && !dir.mkpath(path)) {
@@ -202,7 +201,7 @@ void Model::save()
     }
 
     QFile file(QString("%1/store.dat").arg(path));
-            if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         qWarning("On save couldn't open file.");
         return;
     }

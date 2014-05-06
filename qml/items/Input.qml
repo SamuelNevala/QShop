@@ -28,13 +28,13 @@ Item {
             id: input
             anchors { left: parent.left; right: parent.right; margins: 20; verticalCenter: parent.verticalCenter; leftMargin: root.leftMargin; rightMargin: root.rightMargin }
             font.pixelSize: Math.round(background.height / 3)
-            focus: true
             horizontalAlignment: Text.AlignHCenter
             height: parent.height * 0.66
             style: TextFieldStyleAndroid { focus: input.activeFocus }
             placeholderText: activeFocus ?  root.placeholderTextFocus : root.placeholderText
             z:1
             onAccepted: root.accepted()
+            onActiveFocusChanged: if(!activeFocus) input.forceActiveFocus()
         }
     }
 
