@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.2
 import Shop.models 1.0
 import QtQuick.Controls 1.1
 import "../items"
@@ -40,15 +40,25 @@ ListView {
         NumberAnimation { property: "scale"; from: 1.0; to: 0.0; duration: constants.mediumTime }
     }
 
-    Stack.onStatusChanged: {
-        if (Stack.status == Stack.Activating) {
+    Timer {
+        id: addEditor; interval: 1
+        onTriggered: {
             applicationWindow.animate = false
             itemModel.addEditor()
-            applicationWindow.animate = true
+            delayAnimation.start()
+        }
+    }
+
+    Timer {
+        id: delayAnimation
+        interval: 1; onTriggered: applicationWindow.animate = true
+    }
+
+    Stack.onStatusChanged: {
+        if (Stack.status == Stack.Activating) {
+            addEditor.start()
         } else if (Stack.status == Stack.Inactive) {
-            applicationWindow.animate = false
             itemModel.removeEditor()
-            applicationWindow.animate = true
         }
     }
 }

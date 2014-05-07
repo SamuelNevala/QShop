@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Window 2.1
 import QtGraphicalEffects 1.0
@@ -16,19 +16,23 @@ ApplicationWindow {
     property bool animateMove: true
 
     height: 1280; width: 768
+    visible: true
+    visibility: Qt.platform.os === "android" ? Window.FullScreen : Window.Windowed
 
     Component.onCompleted: {
+
         var pixelDensity = Screen.pixelDensity < 3.9 ? 13.1 : Screen.pixelDensity
         constants.maxHeight = Math.round(pixelDensity * 9.4)
         constants.minHeight = Math.round(pixelDensity * 6.9)
+        console.log(pixelDensity)
     }
 
     QtObject {
         id: constants
         property int maxHeight
         property int minHeight
-        property int mediumTime:  250
-        property int longTime: 500
+        property int mediumTime: animate ? 250 : 0
+        property int longTime: animate ? 500 : 0
     }
 
     ItemModel { id: itemModel }
@@ -107,31 +111,34 @@ ApplicationWindow {
         }
     }
 
+    menuBar: MenuBar {
 
-    Menu {
-        id: menu
-        title: qsTr("Choose action")
+        Menu {
+            visible: pageSwitcher.depth == 2
+            id: menu
+            title: qsTr("Choose action")
 
-        MenuItem {
-            text: qsTr("Remove all items")
-            onTriggered: remorse.state = "removeAll"
-        }
+            MenuItem {
+                text: qsTr("Remove all items")
+                onTriggered: remorse.state = "removeAll"
+            }
 
-        MenuItem {
-            text: qsTr("Remove shopped items")
-            onTriggered: remorse.state = "removeShopped"
-        }
+            MenuItem {
+                text: qsTr("Remove shopped items")
+                onTriggered: remorse.state = "removeShopped"
+            }
 
-        MenuItem {
-            text: qsTr("Reset shopped items")
-            onTriggered: remorse.state = "reset"
-        }
+            MenuItem {
+                text: qsTr("Reset shopped items")
+                onTriggered: remorse.state = "reset"
+            }
 
-        MenuItem {
-            text: qsTr("To the shop list")
-            onTriggered: {
-                Qt.inputMethod.hide()
-                pageSwitcher.pop()
+            MenuItem {
+                text: qsTr("To the shop list")
+                onTriggered: {
+                    Qt.inputMethod.hide()
+                    pageSwitcher.pop()
+                }
             }
         }
     }

@@ -31,14 +31,16 @@ void HwKeyWatcher::setTarget(QObject* target)
 
 bool HwKeyWatcher::eventFilter(QObject *obj, QEvent *event)
 {
-    QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-    if (event->type() != QEvent::KeyRelease || (keyEvent->key() != Qt::Key_Menu && keyEvent->key() != Qt::Key_Back))
-        return QObject::eventFilter(obj, event);
-
-    if (keyEvent->key() == Qt::Key_Menu)
-        Q_EMIT menuClicked();
-    else if (keyEvent->key() == Qt::Key_Back)
-        Q_EMIT backClicked();
-
-    return true;
+    Q_UNUSED(obj);
+    if (event && event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if (keyEvent->key() == Qt::Key_Menu) {
+            Q_EMIT menuClicked();
+            return true;
+        } else if (keyEvent->key() == Qt::Key_Back) {
+            Q_EMIT backClicked();
+            return true;
+        }
+    }
+    return QObject::eventFilter(obj, event);
 }

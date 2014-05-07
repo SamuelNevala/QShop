@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
 import "../styles"
@@ -23,7 +23,6 @@ Item {
         id: background
         anchors.fill: parent
         color: "white"
-
         TextField {
             id: input
             anchors { left: parent.left; right: parent.right; margins: 20; verticalCenter: parent.verticalCenter; leftMargin: root.leftMargin; rightMargin: root.rightMargin }
@@ -33,10 +32,17 @@ Item {
             style: TextFieldStyleAndroid { focus: input.activeFocus }
             placeholderText: activeFocus ?  root.placeholderTextFocus : root.placeholderText
             z:1
+
             onAccepted: root.accepted()
-            onActiveFocusChanged: if(!activeFocus) input.forceActiveFocus()
+            onActiveFocusChanged: recoverActiveFocus.start()
+
+            Timer {
+                id: recoverActiveFocus; interval: 1
+                onTriggered: if(!input.activeFocus && (Qt.platform.os === "android"  ? Qt.inputMethod.visible : true)) input.forceActiveFocus()
+            }
         }
     }
+
 
     DropArea {
         anchors { fill: parent }
