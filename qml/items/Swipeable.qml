@@ -1,55 +1,41 @@
-import QtQuick 2.2
+import QtQuick 2.3
 
 MouseArea {
     id: root
 
-    property real dragThreshold: 30
-    property real maxThreshold: 150
-    property int startAngle: 0
-    property int maxAngle: 70
-    property real angle: Math.max(Math.min(Math.min(distance, maxThreshold) / ratio, maxAngle), -maxAngle) + startAngle
-    property real distance: mouseX - startX
-    property real ratio: maxThreshold / maxAngle
-    property real startX
-    property bool finished: pressed && Math.abs(mouseX - startX) >= maxThreshold
-    property alias active: root.preventStealing
-    property bool directionLeft: mouseX - startX >= 0
-    property alias rotation: rot
-    property Item target
+    function resetX() { animate.to(0) }
 
-    signal sideChanged
+    property int actionTreshold: Math.round(width / 2)
+    property real opacityEnd: 0.6
 
-    function setStartSide(back) {
-        if (Math.abs(rot.angle) === back ? 180 : 0) return
-        anim.duration = 0
-        startAngle = rot.targetAngle = back ? 180 : 0
-        anim.duration = 250
-    }
+    signal action(bool rightSide)
 
+    drag.target: root
+    drag.axis: Drag.XAxis
+    drag.minimumX: -width
+    drag.maximumX: width
+    opacity: Math.max(opacityEnd,
+                      1 - (Math.abs(x) / actionTreshold * opacityEnd))
 
-
-    enabled: !anim.running
-    preventStealing: pressed && Math.abs(distance) >= dragThreshold
-    onPressed: startX = mouseX
     onReleased: {
-        if (!active || !finished) { return }
-        startAngle = rot.targetAngle = finished && rot.targetAngle == 0 ? (directionLeft  ? 180 : -180) : 0
+        if (Math.abs(x) >= actionTreshold)
+            animate.to(x > 0 ? drag.maximumX : drag.minimumX)
+        else
+            animate.to(0)
     }
 
-    z: preventStealing ? 1 : 0
+    SequentialAnimation {
+        id: animate
 
-    Rotation {
-        id: rot
-        property int targetAngle: 0
-        origin.x: target.width/2
-        origin.y: target.height/2
-        axis.x: 0; axis.y: 1; axis.z: 0
-        angle: drag.active ? 0 : (root.active ? root.angle : targetAngle)
-        Behavior on angle { RotationAnimation { id:anim; direction: RotationAnimation.Shortest } }
-        onAngleChanged: {
-            if (Math.abs(angle) == 180 && Math.abs(root.angle) == 250
-             || Math.abs(angle) == 0 && Math.abs(root.angle) == 70)
-                root.sideChanged();
+        function to(x) {
+            xAnimation.from = drag.target.x
+            xAnimation.to = x
+            animate.restart()
         }
+
+        NumberAnimation { id: xAnimation; target: drag.target; property: "x"; easing.type: Easing.InOutQuad }
+        ScriptAction { script: if (drag.target.x != 0) root.action(drag.target.x > 0) }
     }
+    propagateComposedEvents: mainView.editMode
+    onClicked: mouse.accepted = !mainView.editMode
 }

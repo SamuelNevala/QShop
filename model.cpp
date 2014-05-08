@@ -34,6 +34,20 @@ QVariant Model::data(const QModelIndex & index, int role) const
         return QVariant();
 }
 
+bool Model::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+    if (!index.isValid() || role != Qt::CheckStateRole)
+        return false;
+
+    bool state = value.toBool();
+    if (m_selection[index.row()] == state)
+        return false;
+
+    m_selection[index.row()] = state;
+    Q_EMIT dataChanged(index, index);
+    return true;
+}
+
 QHash<int, QByteArray> Model::roleNames() const
 {
     return m_roleNames;
@@ -123,6 +137,9 @@ void Model::move(int source, int destination)
 
 void Model::addEditor()
 {
+    if (m_editor.contains(true))
+        return;
+
     beginInsertRows(QModelIndex(), 0, 0);
     m_items.insert(0,"editor");
     m_selection.insert(0, false);
@@ -137,21 +154,18 @@ void Model::removeEditor()
         remove(m_editor.indexOf(true));
 }
 
-void Model::moveEditor(int index)
+void Model::moveEditor(int index, bool force)
 {
     int editorIndex = m_editor.indexOf(true);
-    if (index + 1  == editorIndex)
-        return;
-
-    move(editorIndex, index + (editorIndex > index ? 1 : 0));
+    int moveTo = qBound(0, index, count());
+    move(editorIndex, moveTo + (!force && editorIndex >= index && editorIndex !=1 ? 1 : 0));
 }
 
 void Model::setSelected(int index, bool selected)
 {
-    if (m_selection[index] == selected)
+    if (!setData(this->index(index,0), selected, Qt::CheckStateRole))
         return;
 
-    m_selection[index] = selected;
     if (m_selection[index])
         moveToEnd(index);
     else
@@ -161,7 +175,9 @@ void Model::setSelected(int index, bool selected)
 
 void Model::toggleSelected(int index)
 {
-    m_selection[index] = !m_selection[index];
+    if (!setData(this->index(index,0), !m_selection[index], Qt::CheckStateRole))
+        return;
+
     if (m_selection[index])
         moveToEnd(index);
     else
@@ -171,7 +187,7 @@ void Model::toggleSelected(int index)
 
 void Model::moveToEnd(int from)
 {
-    int to = m_selection.count(true) == 1 ? m_selection.count() - 1 : m_selection.indexOf(true, from+1) - 1;
+    int to = m_selection.count(true) == 1 ? m_selection.count() - 1 : m_selection.indexOf(true, from + 1) - 1;
     if (from != to) {
         beginMoveRows(QModelIndex(), from, from, QModelIndex(), to+1);
         m_items.move(from, to);
@@ -183,12 +199,13 @@ void Model::moveToEnd(int from)
 
 void Model::moveToStart(int from)
 {
-    if (from == 0) return;
-    beginMoveRows(QModelIndex(), from, from, QModelIndex(), 0);
-    m_items.move(from, 0);
-    m_selection.move(from, 0);
-    m_editor.move(from, 0);
-    endMoveRows();
+    if (from != 0) {
+        beginMoveRows(QModelIndex(), from, from, QModelIndex(), 0);
+        m_items.move(from, 0);
+        m_selection.move(from, 0);
+        m_editor.move(from, 0);
+        endMoveRows();
+    }
 }
 
 void Model::save()

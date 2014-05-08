@@ -15,6 +15,7 @@ public:
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
     QHash<int, QByteArray> roleNames() const;
+    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
 
     int count() const;
 
@@ -30,8 +31,7 @@ public:
     Q_INVOKABLE void move(int source, int destination);
     Q_INVOKABLE void addEditor();
     Q_INVOKABLE void removeEditor();
-    Q_INVOKABLE void moveEditor(int index);
-
+    Q_INVOKABLE void moveEditor(int index, bool force = false);
 
 Q_SIGNALS:
     void countChanged();

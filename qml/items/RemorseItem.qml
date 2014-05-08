@@ -1,5 +1,5 @@
-import QtQuick 2.2
-import QtQuick.Controls 1.1
+import QtQuick 2.3
+import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.1
 
 ProgressBar {
@@ -25,51 +25,32 @@ ProgressBar {
     }
 
     Text {
-        id: seconds
-        anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
-        color: "white"
-        text: Math.round(root.value)
-        font{ pixelSize: height }
-        fontSizeMode: Text.Fit
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignHCenter
-        width: height
-    }
-
-    Text {
         id: title
-        property bool fitted: parent.width - (contentWidth + seconds.width*2) < 0
         anchors {
-            horizontalCenter: parent.horizontalCenter
-            horizontalCenterOffset: fitted ? seconds.width / 2 : 0
-            top: parent.top;
-            bottom: parent.verticalCenter
-            bottomMargin: -(parent.height / 2 * 0.3 / 2)
+            top: parent.top;bottom: parent.verticalCenter
+            bottomMargin: -constants.margin
+            left: parent.left; right: parent.right
         }
         color: "white"
         font{ pixelSize: height * 0.7 }
         fontSizeMode: Text.Fit
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
-        width: parent.width - (fitted ? (seconds.width) : 0)
     }
 
     Text {
         id: label
-        property bool fitted: parent.width - (contentWidth + seconds.width*2) < 0
         anchors {
-            horizontalCenter: parent.horizontalCenter
-            horizontalCenterOffset: fitted < 0 ? seconds.width / 2 : 0
-            topMargin: -(parent.height / 2 * 0.3 / 2)
-            top: parent.verticalCenter;
-            bottom: parent.bottom
+            top: parent.verticalCenter; bottom: parent.bottom
+            topMargin: -constants.margin
+            left: parent.left; right: parent.right
         }
         color: "white"
         font{ pixelSize: height * 0.5 }
         fontSizeMode: Text.Fit
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
-        width: parent.width - seconds.width
+
     }
 
     MouseArea {
@@ -79,7 +60,6 @@ ProgressBar {
             root.value = root.value
             root.cancelled()
         }
-
     }
 
     onValueChanged: if (value == 0) root.done()

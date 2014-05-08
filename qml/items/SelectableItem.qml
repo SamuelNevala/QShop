@@ -1,32 +1,19 @@
-import QtQuick 2.2
+import QtQuick 2.3
 
 Swipeable {
     id: root
 
-    dragThreshold: applicationWindow.dragDistance
     height: constants.maxHeight
-    target: rect
 
-    Flipable {
-        id: rect
-        anchors.fill: parent
-        transform: root.rotation
-
-        front: TextItem {
-            anchors { fill: rect }
-            text { text: itemText; color: "white" }
-        }
-
-        back: TextItem {
-            anchors.fill: rect
-            text {
-                text: itemText
-                font.strikeout: true
-                color: "darkgray"
-            }
-        }
+    TextItem {
+        id: text
+        height: parent.height
+        width: parent.width
     }
 
-    onSideChanged: itemModel.toggleSelected(index)
-    Component.onCompleted: root.setStartSide(selected)
+    onAction: {
+        var tmpIndex = index;
+        itemModel.toggleSelected(index)
+        if (tmpIndex == index) resetX()
+    }
 }

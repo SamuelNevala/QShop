@@ -19,6 +19,13 @@ void HwKeyWatcher::setTarget(QObject* target)
     if (target == m_target)
         return;
 
+   /* foreach (QObject *item, target->children()) {
+        if (item->metaObject()->className() == QString("QQuickTextInput")) {
+            item->installEventFilter(this);
+            break;
+        }
+    }*/
+
     if (m_target != NULL) {
         m_target->removeEventFilter(this);
         m_target = NULL;
@@ -32,15 +39,19 @@ void HwKeyWatcher::setTarget(QObject* target)
 bool HwKeyWatcher::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);
-    if (event && event->type() == QEvent::KeyPress) {
+    //qDebug()<<event;
+    if (event && event->type() == QEvent::KeyRelease) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if (keyEvent->key() == Qt::Key_Menu) {
-            Q_EMIT menuClicked();
-            return true;
-        } else if (keyEvent->key() == Qt::Key_Back) {
+        if (keyEvent->key() == Qt::Key_Back) {
             Q_EMIT backClicked();
             return true;
         }
     }
+   /* if (event && event->type() == QEvent::InputMethod) {
+        QInputMethodEvent *imEvent = static_cast<QInputMethodEvent *>(event);
+        qDebug()<<imEvent<<imEvent->commitString();
+
+    }*/
+
     return QObject::eventFilter(obj, event);
 }

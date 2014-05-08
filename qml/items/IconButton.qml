@@ -1,5 +1,5 @@
-import QtQuick 2.2
-import QtQuick.Controls 1.1
+import QtQuick 2.3
+import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.1
 import QtGraphicalEffects 1.0
 
@@ -7,8 +7,13 @@ Item {
     id: root
 
     property alias source: button.source
+    property alias drag: mouseArea.drag
+    property alias pressed: mouseArea.pressed
+    property bool overlayVisible: false
 
-    signal clicked()
+    signal clicked(QtObject mouse)
+
+    visible: enabled
 
     Image {
         id: button
@@ -23,7 +28,7 @@ Item {
         anchors { fill: button }
         color: "#33B5E5"
         source: button
-        opacity: mouseArea.pressed ? 1.0 : 0.0
+        opacity: mouseArea.pressed || overlayVisible ? 1.0 : 0.0
         visible: opacity > 0.0
         Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.InOutQuad } }
     }
@@ -31,6 +36,7 @@ Item {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        onClicked: root.clicked()
+        enabled: root.enabled
+        onClicked: root.clicked(mouse)
     }
 }

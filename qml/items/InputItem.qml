@@ -1,4 +1,4 @@
-import QtQuick 2.2
+import QtQuick 2.3
 import QtQuick.Controls 1.1
 
 Input {
@@ -8,7 +8,7 @@ Input {
         if (input.text === "") return
         itemModel.insert(index, input.text)
         input.text = ""
-        editList.positionViewAtIndex(index, ListView.Contain)
+        mainView.positionViewAtIndex(index, ListView.Contain)
     }
 
     leftMargin: constants.minHeight
@@ -19,11 +19,10 @@ Input {
     IconButton {
         anchors { verticalCenter: parent.verticalCenter; left: parent.left }
         height: constants.minHeight
-        source: "qrc:/pic/previous"
+        source: "qrc:/pic/menu"
         width: height
         onClicked: {
-            Qt.inputMethod.hide()
-            pageSwitcher.pop()
+            sideBar.open()
         }
     }
 
@@ -34,7 +33,6 @@ Input {
         source: "qrc:/pic/new"
         onClicked: {
             Qt.inputMethod.commit()
-            Qt.inputMethod.reset()
             addItem()
         }
     }

@@ -1,9 +1,10 @@
-import QtQuick 2.2
+import QtQuick 2.3
 
 Item {
     id: root
 
     property alias color: background.color
+    property alias border: background.border
 
     height: constants.maxHeight
 

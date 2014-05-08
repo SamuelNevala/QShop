@@ -1,6 +1,6 @@
-import QtQuick 2.2
-import QtQuick.Controls 1.1
-import QtQuick.Window 2.1
+import QtQuick 2.3
+import QtQuick.Controls 1.2
+import QtQuick.Window 2.2
 import QtGraphicalEffects 1.0
 import Shop.models 1.0
 import Shop.extra 1.0
@@ -8,14 +8,7 @@ import "views"
 import "styles"
 import "items"
 
-// Blocking bugs:
-// https://bugreports.qt-project.org/browse/QTBUG-38850
-// https://bugreports.qt-project.org/browse/QTBUG-34089
-// https://bugreports.qt-project.org/browse/QTBUG-33713
-
-// Can be worked a round
-// https://bugreports.qt-project.org/browse/QTBUG-38282
-// https://bugreports.qt-project.org/browse/QTBUG-38851
+//https://bugreports.qt-project.org/browse/QTBUG-32399
 
 ApplicationWindow {
     id: applicationWindow
@@ -23,28 +16,46 @@ ApplicationWindow {
     property int dragDistance
     property bool animate: true
     property bool animateMove: true
+    property Item previourAcItem
 
-    height: 1280; width: 768
+    height: 800; width: 600
     visible: true
-    visibility: Qt.platform.os === "android" ? Window.FullScreen : Window.Windowed
 
-    Component.onCompleted: {
-        var pixelDensity = Screen.pixelDensity < 3.9 ? 13.1 : Screen.pixelDensity
-        constants.maxHeight = Math.round(pixelDensity * 9.4)
-        constants.minHeight = Math.round(pixelDensity * 6.9)
-    }
+    // Disable for now
+    //visibility: Qt.platform.os === "android" && !view.editMode ? Window.FullScreen : Window.Maximized
 
     QtObject {
         id: constants
-        property int maxHeight
-        property int minHeight
+        property real pixelDensity: Screen.pixelDensity < 3.9 ? 13.1 : Screen.pixelDensity
+        property real maxHeight: pixelDensity * 10
+        property real minHeight: pixelDensity * 7
+        property real largeMargin: pixelDensity * 3
+        property real margin: pixelDensity * 1
         property int mediumTime: animate ? 250 : 0
         property int longTime: animate ? 500 : 0
+        property real trickerDistance: Math.round(applicationWindow.height / 4)
     }
 
     ItemModel { id: itemModel }
 
+    Rectangle {
+        id: focusHolder
+        color: "black"
+        anchors.fill: parent
+        HwKeyWatcher {
+            target: focusHolder
+            onBackClicked: {
+                if (view.editMode && itemModel.count > 1)
+                    view.setEditMode(false)
+                else
+                    Qt.quit()
+            }
+        }
+        Component.onCompleted: forceActiveFocus()
+    }
+
     Image {
+        id: bg
         anchors.fill: parent
         asynchronous: true
         fillMode: Image.PreserveAspectCrop
@@ -59,16 +70,16 @@ ApplicationWindow {
         height: constants.maxHeight
         label: qsTr("Tap to cancel")
         opacity: 0.0
-        maximumValue: 4
+        maximumValue: 6
         visible: opacity > 0.0
         width: parent.width
-        y: -height
+        x: width
 
         states: [
             State {
                 name: "removeAll"
                 StateChangeScript { script: remorse.title = qsTr("Removing all items") }
-                PropertyChanges { target: remorse; opacity: 0.8; y: 0;  }
+                PropertyChanges { target: remorse; opacity: 0.8; x: 0;  }
             },
             State {
                 name: "removeShopped";
@@ -86,9 +97,11 @@ ApplicationWindow {
             Transition {
                 from: ""
                 SequentialAnimation {
+                    PauseAnimation { duration: constants.mediumTime }
+                    ScriptAction { script: view.anchors.topMargin = remorse.height }
                     ParallelAnimation {
-                        NumberAnimation { property: "opacity"; easing.type: Easing.InOutQuad; duration: 500 }
-                        NumberAnimation { property: "y"; easing.type: Easing.InOutQuad; duration: 500 }
+                        NumberAnimation { property: "opacity"; easing.type: Easing.InOutQuad; duration: constants.longTime }
+                        NumberAnimation { property: "x"; easing.type: Easing.InOutQuad; duration: constants.longTime }
                     }
                     ScriptAction { script: remorse.value = 0 }
                 }
@@ -97,9 +110,10 @@ ApplicationWindow {
                 to: ""
                 SequentialAnimation {
                     ParallelAnimation {
-                        NumberAnimation { property: "opacity"; easing.type: Easing.InOutQuad; duration: 500 }
-                        NumberAnimation { property: "y"; easing.type: Easing.InOutQuad; duration: 500 }
+                        NumberAnimation { property: "opacity"; easing.type: Easing.InOutQuad; duration: constants.longTime }
+                        NumberAnimation { property: "x"; easing.type: Easing.InOutQuad; duration: constants.longTime }
                     }
+                    ScriptAction { script: view.anchors.topMargin = 0 }
                     ScriptAction { script: remorse.reset() }
                 }
             }
@@ -118,67 +132,64 @@ ApplicationWindow {
         }
     }
 
-    menuBar: MenuBar {
+    View {
+        id: view
+        anchors {
+            fill: parent
+            bottomMargin: Qt.inputMethod.visible ? Qt.inputMethod.keyboardRectangle.height : 0
+        }
+        model: itemModel
+         Behavior on anchors.topMargin { NumberAnimation { easing.type: Easing.InOutQuad; duration: constants.longTime } }
+        Component.onCompleted: if (itemModel.count == 0) setEditMode(true)
+    }
 
-        Menu {
-            visible: pageSwitcher.depth == 2
-            id: menu
-            title: qsTr("Choose action")
+    SideBar {
+        id: sideBar
+        enabled: view.editMode
+        height: parent.height
+        width: parent.width * 5 / 6
+        x: -width + constants.margin
 
-            MenuItem {
+        Column {
+            anchors.fill: parent
+            Setting {
+                width: parent.width
+                source: "qrc:/pic/remove"
                 text: qsTr("Remove all items")
-                onTriggered: remorse.state = "removeAll"
+                onClicked: {
+                    sideBar.close()
+                    remorse.state = "removeAll"
+                }
             }
-
-            MenuItem {
+            Setting {
+                width: parent.width
+                source: "qrc:/pic/remove"
                 text: qsTr("Remove shopped items")
-                onTriggered: remorse.state = "removeShopped"
-            }
+                onClicked: {
+                    sideBar.close()
+                    remorse.state = "removeShopped"
+                }
 
-            MenuItem {
+            }
+            Setting {
+                width: parent.width
+                source: "qrc:/pic/refresh"
                 text: qsTr("Reset shopped items")
-                onTriggered: remorse.state = "reset"
-            }
+                onClicked: {
+                    sideBar.close()
+                    remorse.state = "reset"
+                }
 
-            MenuItem {
-                text: qsTr("To the shop list")
-                onTriggered: {
-                    Qt.inputMethod.hide()
-                    pageSwitcher.pop()
+            }
+            Setting {
+                width: parent.width
+                source: "qrc:/pic/back"
+                text: qsTr("Continue shopping")
+                onClicked: {
+                    sideBar.close()
+                    view.setEditMode(false)
                 }
             }
         }
-    }
-
-    HwKeyWatcher {
-        target: applicationWindow
-        onMenuClicked: {
-            if (pageSwitcher.depth == 1)
-                return;
-
-            menu.popup()
-        }
-
-        onBackClicked: {
-            if (pageSwitcher.depth == 1) {
-                Qt.quit();
-            } else {
-                Qt.inputMethod.hide()
-                pageSwitcher.pop()
-            }
-        }
-    }
-
-    StackView {
-        id: pageSwitcher
-        anchors {
-            topMargin: remorse.state == "" ? 0 : remorse.height
-            fill: parent
-        }
-        Behavior on anchors.topMargin { NumberAnimation { easing.type: Easing.InOutQuad; duration: 500 } }
-        initialItem: {"item": Qt.resolvedUrl("views/ShopView.qml"), properties: {model: itemModel}}
-        Component.onCompleted: if (itemModel.count == 0) pageSwitcher.push({ "item": Qt.resolvedUrl("views/EditView.qml"),
-                                                                             properties: {model: itemModel},
-                                                                             immediate: true})
     }
 }

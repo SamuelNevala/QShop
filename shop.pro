@@ -2,6 +2,8 @@ QT += qml quick
 TARGET = shop
 TEMPLATE = app
 
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
 SOURCES += \
     main.cpp \
     weekmodel.cpp \
@@ -23,8 +25,6 @@ OTHER_FILES += \
     qml/items/SelectableItem.qml \
     qml/items/Swipeable.qml \
     qml/items/SelectableItem.qml \
-    qml/views/ShopView.qml \
-    qml/views/EditView.qml \
     qml/items/Weekdays.qml \
     qml/items/BackgroundItem.qml \
     qml/items/TextItem.qml \
@@ -32,4 +32,10 @@ OTHER_FILES += \
     qml/items/DragableItem.qml \
     qml/styles/TextFieldStyleAndroid.qml \
     qml/items/RemorseItem.qml \
-    qml/items/IconButton.qml
+    qml/items/IconButton.qml \
+    qml/views/View.qml \
+    qml/items/SideBar.qml \
+    qml/items/Setting.qml
+
+OTHER_FILES += \
+    android/AndroidManifest.xml

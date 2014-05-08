@@ -1,11 +1,11 @@
-import QtQuick 2.2
+import QtQuick 2.3
 
 Item {
     id: root
 
     property string pullHint
     property string actionText
-    property real actionThreshold: parent.height * 0.08
+    property real actionThreshold: Math.round(applicationWindow.height / 5)
     property bool active: height > 0.0
 
     signal action()
@@ -30,7 +30,7 @@ Item {
 
         front: Text {
             anchors.fill: parent
-            font { pixelSize: Math.round(actionThreshold / 3); bold: true }
+            font { pixelSize: Math.round(actionThreshold / 4); bold: true }
             color: "white"
             text: pullHint
             horizontalAlignment: Text.AlignHCenter
@@ -38,7 +38,7 @@ Item {
 
         back: Text {
             anchors.fill: parent
-            font { pixelSize: Math.round(actionThreshold / 3); bold: true }
+            font { pixelSize: Math.round(actionThreshold / 4); bold: true }
             color: "#33B5E5"
             text: actionText
             horizontalAlignment: Text.AlignHCenter
@@ -64,7 +64,7 @@ Item {
     }
 
     Connections {
-        target: root.parent
+        target: root.visible ? root.parent : null
         onDragEnded: if (root.height > actionThreshold) dealayAction.restart()
     }
 

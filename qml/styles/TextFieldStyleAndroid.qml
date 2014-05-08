@@ -1,5 +1,5 @@
-import QtQuick 2.2
-import QtQuick.Controls.Styles 1.1
+import QtQuick 2.3
+import QtQuick.Controls.Styles 1.2
 
 TextFieldStyle {
     id: root
