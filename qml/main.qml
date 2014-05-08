@@ -8,6 +8,15 @@ import "views"
 import "styles"
 import "items"
 
+// Blocking bugs:
+// https://bugreports.qt-project.org/browse/QTBUG-38850
+// https://bugreports.qt-project.org/browse/QTBUG-34089
+// https://bugreports.qt-project.org/browse/QTBUG-33713
+
+// Can be worked a round
+// https://bugreports.qt-project.org/browse/QTBUG-38282
+// https://bugreports.qt-project.org/browse/QTBUG-38851
+
 ApplicationWindow {
     id: applicationWindow
 
@@ -20,11 +29,9 @@ ApplicationWindow {
     visibility: Qt.platform.os === "android" ? Window.FullScreen : Window.Windowed
 
     Component.onCompleted: {
-
         var pixelDensity = Screen.pixelDensity < 3.9 ? 13.1 : Screen.pixelDensity
         constants.maxHeight = Math.round(pixelDensity * 9.4)
         constants.minHeight = Math.round(pixelDensity * 6.9)
-        console.log(pixelDensity)
     }
 
     QtObject {
