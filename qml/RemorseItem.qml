@@ -1,6 +1,6 @@
-import QtQuick 2.3
-import QtQuick.Controls 1.2
-import QtQuick.Controls.Styles 1.1
+import QtQuick 2.4
+import QtQuick.Controls 1.3
+import QtQuick.Controls.Styles 1.3
 
 ProgressBar {
     id: root
@@ -28,12 +28,11 @@ ProgressBar {
         id: title
         anchors {
             top: parent.top;bottom: parent.verticalCenter
-            bottomMargin: -constants.margin
+            bottomMargin: -theme.margins.medium
             left: parent.left; right: parent.right
         }
         color: "white"
-        font{ pixelSize: height * 0.7 }
-        fontSizeMode: Text.Fit
+        font{ pixelSize: theme.fonts.medium }
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
     }
@@ -42,12 +41,11 @@ ProgressBar {
         id: label
         anchors {
             top: parent.verticalCenter; bottom: parent.bottom
-            topMargin: -constants.margin
+            topMargin: -theme.margins.medium
             left: parent.left; right: parent.right
         }
         color: "white"
-        font{ pixelSize: height * 0.5 }
-        fontSizeMode: Text.Fit
+        font{ pixelSize: theme.fonts.small }
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
 

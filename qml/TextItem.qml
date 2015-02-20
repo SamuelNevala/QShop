@@ -1,4 +1,4 @@
-import QtQuick 2.3
+import QtQuick 2.4
 
 BackgroundItem {
     id: root
@@ -12,14 +12,14 @@ BackgroundItem {
 
         anchors {
             fill: parent
-            rightMargin: needMargin ? constants.largeMargin : 0
+            rightMargin: needMargin ? theme.margins.large : 0
         }
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         color: selected ? "black" : "white"
         font {
             bold: true
-            pixelSize: parent.height * 0.8
+            pixelSize: theme.fonts.large
             strikeout: selected
         }
         fontSizeMode: Text.Fit

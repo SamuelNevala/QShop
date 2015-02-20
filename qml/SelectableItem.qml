@@ -1,9 +1,9 @@
-import QtQuick 2.3
+import QtQuick 2.4
 
 Swipeable {
     id: root
 
-    height: constants.maxHeight
+    height: theme.heights.large
 
     TextItem {
         id: text
@@ -14,6 +14,6 @@ Swipeable {
     onAction: {
         var tmpIndex = index;
         itemModel.toggleSelected(index)
-        if (tmpIndex == index) resetX()
+        resetX(tmpIndex == index ? 0 : constants.mediumTime )
     }
 }

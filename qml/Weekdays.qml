@@ -1,11 +1,11 @@
-import QtQuick 2.3
-import QtQuick.Controls 1.2
+import QtQuick 2.4
+import QtQuick.Controls 1.3
 import Shop.models 1.0
 
 Item {
     id: root
 
-    height: constants.maxHeight
+    height: theme.heights.large
 
     Rectangle {
         anchors.fill: parent;
@@ -26,7 +26,7 @@ Item {
 
                 Text {
                     anchors { left: parent.left; right: parent.right }
-                    font.pixelSize: Math.round(parent.height / 2.4)
+                    font.pixelSize: theme.fonts.medium
                     font.bold: true
                     text: dayName
                     color: index == 0 ? "#33B5E5" : "white"
@@ -34,7 +34,7 @@ Item {
                 }
                 Text {
                     anchors { left: parent.left; right: parent.right }
-                    font.pixelSize: Math.round(parent.height / 2.4)
+                    font.pixelSize: theme.fonts.medium
                     font.bold: true
                     text: dayNumber
                     color: index == 0 ? "#33B5E5" : "white"

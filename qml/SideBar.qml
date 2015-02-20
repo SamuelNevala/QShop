@@ -1,4 +1,4 @@
-import QtQuick 2.3
+import QtQuick 2.4
 import Shop.extra 1.0
 
 MouseArea {
@@ -18,14 +18,14 @@ MouseArea {
 
     drag.target: root
     drag.axis: Drag.XAxis
-    drag.minimumX: -width + constants.margin
+    drag.minimumX: -width + theme.margins.medium
     drag.maximumX: 0
 
     Rectangle {
         id: menu
         anchors {
             fill: parent
-            rightMargin: constants.margin
+            rightMargin: theme.margins.medium
         }
         color: "white"
     }
@@ -36,11 +36,11 @@ MouseArea {
             top: parent.top
             bottom: parent.bottom
             left: parent.right
-            leftMargin: -constants.margin
+            leftMargin: -theme.margins.medium
         }
         width: applicationWindow.width
         color: "black"
-        opacity: Math.max(0.0, 0.8 - Math.abs(root.x) / (root.width + constants.margin))
+        opacity: Math.max(0.0, 0.8 - Math.abs(root.x) / (root.width + theme.margins.medium))
         visible: opacity
 
         MouseArea {

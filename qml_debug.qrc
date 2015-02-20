@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/View.qml</file>
+        <file>qml/Weekdays.qml</file>
+        <file>qml/SelectableItem.qml</file>
+        <file>qml/Input.qml</file>
+        <file>qml/DragableItem.qml</file>
+        <file>qml/BackgroundItem.qml</file>
+        <file>qml/InputItem.qml</file>
+        <file>qml/Setting.qml</file>
+        <file>qml/SideBar.qml</file>
+        <file>qml/TextItem.qml</file>
+        <file>qml/Swipeable.qml</file>
+        <file>qml/RemorseItem.qml</file>
+        <file>qml/Pulley.qml</file>
+        <file>qml/IconButton.qml</file>
+        <file>qml/main_debug.qml</file>
+    </qresource>
+</RCC>

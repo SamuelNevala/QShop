@@ -1,4 +1,4 @@
-import QtQuick 2.3
+import QtQuick 2.4
 
 MouseArea {
     id: root
@@ -6,7 +6,7 @@ MouseArea {
     property alias source: icon.source
     property alias text: text.text
 
-    height: constants.minHeight
+    height: theme.heights.medium
 
     BackgroundItem {
         anchors.fill: parent
@@ -34,15 +34,14 @@ MouseArea {
         anchors {
             fill: parent
             leftMargin: icon.width
-            rightMargin: constants.margin
+            rightMargin: theme.margins.medium
         }
         verticalAlignment: Text.AlignVCenter
         color: "gray"
         font {
             bold: true
-            pixelSize: parent.height * 0.8
+            pixelSize: theme.fonts.medium
         }
-        fontSizeMode: Text.Fit
         maximumLineCount: 2
         wrapMode: Text.Wrap
     }

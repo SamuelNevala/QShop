@@ -1,6 +1,5 @@
-import QtQuick 2.3
+import QtQuick 2.4
 import Shop.models 1.0
-import "../items"
 
 ListView {
     id: mainView
@@ -44,14 +43,14 @@ ListView {
         z: -1
     }
 
-    cacheBuffer: constants.maxHeight * 40
+    cacheBuffer: theme.heights.large * 40
     currentIndex: -1
     delegate: Component {
         Loader {
             width: parent.width
-            source: editor ? Qt.resolvedUrl("../items/InputItem.qml")
-                           : editMode ? Qt.resolvedUrl("../items/DragableItem.qml")
-                                      : Qt.resolvedUrl("../items/SelectableItem.qml")
+            source: editor ? Qt.resolvedUrl("InputItem.qml")
+                           : editMode ? Qt.resolvedUrl("DragableItem.qml")
+                                      : Qt.resolvedUrl("SelectableItem.qml")
         }
     }
 
@@ -80,7 +79,7 @@ ListView {
         id: moveTransition
         enabled: applicationWindow.animate
         SequentialAnimation {
-            NumberAnimation { properties: "y"; easing.type: Easing.InOutQuad; duration: constants.mediumTime }
+            PauseAnimation { duration: constants.mediumTime }
             NumberAnimation {
                 target: moveTransition.ViewTransition.item.item
                 properties: "x"; to: 0

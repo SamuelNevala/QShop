@@ -1,5 +1,5 @@
-import QtQuick 2.3
-import QtQuick.Controls 1.1
+import QtQuick 2.4
+import QtQuick.Controls 1.3
 
 Input {
     id: input
@@ -11,15 +11,15 @@ Input {
         mainView.positionViewAtIndex(index, ListView.Contain)
     }
 
-    leftMargin: constants.minHeight
-    rightMargin: constants.minHeight
+    leftMargin: theme.heights.medium
+    rightMargin: theme.heights.medium
     placeholderText: qsTr("Tap to insert items")
     placeholderTextFocus: qsTr("Write new item")
 
     IconButton {
         anchors { verticalCenter: parent.verticalCenter; left: parent.left }
-        height: constants.minHeight
-        source: "qrc:/pic/menu"
+        height: theme.heights.medium
+        source: "qrc:/menu"
         width: height
         onClicked: {
             sideBar.open()
@@ -28,9 +28,9 @@ Input {
 
     IconButton {
         anchors { verticalCenter: parent.verticalCenter; right: parent.right}
-        height: constants.minHeight
+        height: theme.heights.medium
         width: height
-        source: "qrc:/pic/new"
+        source: "qrc:/new"
         onClicked: {
             Qt.inputMethod.commit()
             addItem()

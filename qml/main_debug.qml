@@ -10,8 +10,11 @@ Window {
     property bool animate: true
     property bool animateMove: true
 
-    height: 960; width: 640
+    title: theme.title
+    height: theme.height; width: theme.width
     visible: true
+
+
 
     QtObject {
         id: constants
@@ -36,6 +39,8 @@ Window {
                     Qt.quit()
             }
         }
+        Keys.onUpPressed: theme.index--
+        Keys.onDownPressed: theme.index++
         Component.onCompleted: forceActiveFocus()
     }
 

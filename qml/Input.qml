@@ -1,8 +1,5 @@
-import QtQuick 2.3
-import QtQuick.Controls 1.2
-import QtQuick.Controls.Styles 1.1
-import Shop.extra 1.0
-import "../styles"
+import QtQuick 2.4
+import QtQuick.Controls 1.3
 
 FocusScope {
     id: root
@@ -18,7 +15,7 @@ FocusScope {
     signal accepted()
     signal dropAreaEntered(Item dragSource)
 
-    height: constants.maxHeight
+    height: theme.heights.large
 
     BackgroundItem {
         id: background
@@ -28,17 +25,15 @@ FocusScope {
             id: input
             focus: true
             anchors { left: parent.left; right: parent.right; margins: 20; verticalCenter: parent.verticalCenter; leftMargin: root.leftMargin; rightMargin: root.rightMargin }
-            font.pixelSize: Math.round(background.height / 3)
             horizontalAlignment: Text.AlignHCenter
-            height: parent.height * 0.66
-            inputMethodHints: Qt.ImhMultiLine
-            style: TextFieldStyleAndroid { focus: input.activeFocus }
-            placeholderText: activeFocus && displayText == ""  ? root.placeholderTextFocus : root.placeholderText
-            z:1
+            placeholderText: activeFocus && displayText == "" ? root.placeholderTextFocus : root.placeholderText
+            z: 1
 
             onAccepted: root.accepted()
-
-            onDisplayTextChanged: console.log(displayText, displayText == "")
+            Keys.onReturnPressed: {
+                Qt.inputMethod.commit()
+                root.accepted()
+            }
         }
 
         Connections {

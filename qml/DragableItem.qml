@@ -1,11 +1,10 @@
-import QtQuick 2.3
-import QtQuick.Controls 1.2
-import QtQuick.Controls.Styles 1.1
+import QtQuick 2.4
+import QtQuick.Controls 1.3
 
 Swipeable {
     id: root
 
-    height: constants.maxHeight
+    implicitHeight: theme.heights.large
 
     property RemorseItem remorse
 
@@ -24,7 +23,7 @@ Swipeable {
             verticalCenter: parent.verticalCenter
         }
 
-        height: constants.maxHeight
+        height: theme.heights.large
         scale: dragSpot.pressed ? 1.15 : 1
         width: parent.width
 
@@ -62,11 +61,11 @@ Swipeable {
         IconButton {
             id: dragSpot
             property int itemIndex: index
-            anchors { verticalCenter: parent.verticalCenter; right: parent.right; rightMargin: -constants.minHeight / 5 }
+            anchors { verticalCenter: parent.verticalCenter; right: parent.right; rightMargin: -theme.heights.medium / 5 }
             drag { target: backgound }
             enabled: !selected && !(remorse && remorse.state == "remorse")
-            height: constants.minHeight
-            source: "qrc:/pic/drag"
+            height: theme.heights.medium
+            source: "qrc:/drag"
             width: height
         }
 
@@ -79,11 +78,11 @@ Swipeable {
                 remorse = remorseComponent.createObject(root);
             }
             remorse.state = "remorse"
-            resetX()
+            resetX(0)
         } else {
             var tmpIndex = index;
             itemModel.toggleSelected(index)
-            if (tmpIndex == index) resetX()
+            resetX(tmpIndex == index ? 0 : constants.mediumTime )
         }
     }
 

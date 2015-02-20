@@ -1,14 +1,4 @@
 <RCC>
-    <qresource prefix="/pic">
-        <file alias="bg">WP_20131020_023.jpg</file>
-        <file alias="test">shop80.png</file>
-        <file alias="new">ic_action_new.png</file>
-        <file alias="menu">ic_drawer.png</file>
-        <file alias="drag">ic_action_overflow.png</file>
-        <file alias="remove">ic_action_discard.png</file>
-        <file alias="back">ic_action_previous_item.png</file>
-        <file alias="refresh">ic_action_refresh.png</file>
-    </qresource>
     <qresource prefix="/">
         <file>qml/main.qml</file>
         <file>qml/items/Input.qml</file>

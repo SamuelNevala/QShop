@@ -1,4 +1,4 @@
-import QtQuick 2.3
+import QtQuick 2.4
 
 Item {
     id: root
@@ -6,7 +6,7 @@ Item {
     property alias color: background.color
     property alias border: background.border
 
-    height: constants.maxHeight
+    implicitHeight: theme.heights.large
 
     Rectangle {
         id: background

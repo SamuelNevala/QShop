@@ -1,11 +1,10 @@
-import QtQuick 2.3
+import QtQuick 2.4
 
 Item {
     id: root
 
     property string pullHint
     property string actionText
-    property real actionThreshold: Math.round(applicationWindow.height / 5)
     property bool active: height > 0.0
 
     signal action()
@@ -24,13 +23,13 @@ Item {
         anchors {
             left: parent.left; right: parent.right
             bottom: parent.bottom
-            bottomMargin: Math.round(actionThreshold / 3) - Math.round(height / 2)
+            bottomMargin: theme.fonts.medium - Math.round(height / 2)
         }
-        height: Math.round(actionThreshold / 3)
+        height: theme.fonts.medium
 
         front: Text {
             anchors.fill: parent
-            font { pixelSize: Math.round(actionThreshold / 4); bold: true }
+            font { pixelSize: theme.fonts.medium; bold: true }
             color: "white"
             text: pullHint
             horizontalAlignment: Text.AlignHCenter
@@ -38,7 +37,7 @@ Item {
 
         back: Text {
             anchors.fill: parent
-            font { pixelSize: Math.round(actionThreshold / 4); bold: true }
+            font { pixelSize: theme.fonts.medium; bold: true }
             color: "#33B5E5"
             text: actionText
             horizontalAlignment: Text.AlignHCenter
@@ -55,7 +54,7 @@ Item {
         states: State {
             name: "back"
             PropertyChanges { target: rotation; angle: -180 }
-            when: root.height > actionThreshold
+            when: root.height > theme.constants.actionThreshold
         }
 
         transitions: Transition {
@@ -65,7 +64,7 @@ Item {
 
     Connections {
         target: root.visible ? root.parent : null
-        onDragEnded: if (root.height > actionThreshold) dealayAction.restart()
+        onDragEnded: if (root.height > theme.constants.actionThreshold) dealayAction.restart()
     }
 
     Timer {
