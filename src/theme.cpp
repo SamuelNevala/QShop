@@ -42,7 +42,7 @@ void Theme::calculate()
     m_fonts->insert(QLatin1String("medium"), QVariant(3.5 * m_ratio * m_pixelDensity));
     m_fonts->insert(QLatin1String("small"), QVariant(2 * m_ratio * m_pixelDensity));
 
-    m_constants->insert(QLatin1String("actionThreshold"), QVariant(m_displays.at(m_index).value("height").toInt() / 5));
+    m_constants->insert(QLatin1String("actionThreshold"), QVariant(m_displays.at(m_index).value("height").toInt() / 6));
 }
 
 QString Theme::title() const
@@ -124,6 +124,6 @@ void Theme::calculate()
     m_fonts->insert(QLatin1String("large"), QVariant(7 * m_ratio * m_pixelDensity));
     m_fonts->insert(QLatin1String("medium"), QVariant(3.5 * m_ratio * m_pixelDensity));
     m_fonts->insert(QLatin1String("small"), QVariant(2 * m_ratio * m_pixelDensity));
-    m_constants->insert(QLatin1String("actionThreshold"), QVariant(screen->size().height() / 5));
+    m_constants->insert(QLatin1String("actionThreshold"), QVariant(screen->size().height() / 6));
 }
 #endif

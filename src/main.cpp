@@ -8,6 +8,7 @@
 #include "model.h"
 #include "hwkeywatcher.h"
 #include "theme.h"
+#include "qmlelapsedtimer.h"
 
 int main(int argc, char *argv[])
 {
@@ -19,6 +20,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Model>("Shop.models", 1, 0, "ItemModel");
     qmlRegisterType<HwKeyWatcher>("Shop.extra", 1, 0, "HwKeyWatcher");
     qmlRegisterType<Theme>("Shop.extra", 1, 0, "Theme");
+    qmlRegisterType<QmlElapsedTimer>("Shop.timer", 1, 0, "ElapsedTimer");
 
     QQmlApplicationEngine engine;
 #ifdef QT_DEBUG
