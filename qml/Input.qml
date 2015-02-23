@@ -36,10 +36,11 @@ FocusScope {
             }
         }
 
-        Connections {
-            target: Qt.inputMethod
-            onVisibleChanged: if (!Qt.inputMethod.visible && input.activeFocus) focusHolder.forceActiveFocus()
-        }
+        // https://bugreports.qt.io/browse/QTBUG-42444
+        //Connections {
+        //    target: Qt.inputMethod
+        //    onVisibleChanged: if (!Qt.inputMethod.visible && input.activeFocus) focusHolder.forceActiveFocus()
+        //}
     }
 
     DropArea {
