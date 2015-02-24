@@ -1,5 +1,6 @@
 import QtQuick 2.4
 import QtQuick.Controls 1.3
+import Shop.extra 1.0
 
 FocusScope {
     id: root
@@ -36,6 +37,16 @@ FocusScope {
             }
         }
 
+        EventFilter {
+            onAdd: {
+                input.text = text
+                Qt.inputMethod.commit()
+                root.accepted()
+            }
+            onClear: input.text = ""
+            onRemove: itemModel.remove(index -1)
+
+        }
         // https://bugreports.qt.io/browse/QTBUG-42444
         //Connections {
         //    target: Qt.inputMethod

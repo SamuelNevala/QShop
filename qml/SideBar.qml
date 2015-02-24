@@ -73,9 +73,4 @@ MouseArea {
         property: "x"
         easing.type: Easing.InOutQuad
     }
-
-    HwKeyWatcher {
-        target: root
-        onBackClicked: close()
-    }
 }

@@ -6,7 +6,7 @@
 #include <QDebug>
 #include "weekmodel.h"
 #include "model.h"
-#include "hwkeywatcher.h"
+#include "eventfilter.h"
 #include "theme.h"
 #include "qmlelapsedtimer.h"
 
@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<WeekModel>("Shop.models", 1, 0, "WeekModel");
     qmlRegisterType<Model>("Shop.models", 1, 0, "ItemModel");
-    qmlRegisterType<HwKeyWatcher>("Shop.extra", 1, 0, "HwKeyWatcher");
+    qmlRegisterType<EventFilter>("Shop.extra", 1, 0, "EventFilter");
     qmlRegisterType<Theme>("Shop.extra", 1, 0, "Theme");
     qmlRegisterType<QmlElapsedTimer>("Shop.timer", 1, 0, "ElapsedTimer");
 

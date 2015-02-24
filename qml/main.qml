@@ -27,16 +27,15 @@ Window {
         id: focusHolder
         color: "black"
         anchors.fill: parent
-        HwKeyWatcher {
-            target: focusHolder
-            onBackClicked: {
-                if (view.editMode && itemModel.count > 1)
-                    view.setEditMode(false)
-                else
-                    Qt.quit()
-            }
+    }
+
+    EventFilter {
+        onBackClicked: {
+            if (view.editMode && itemModel.count > 1)
+                view.setEditMode(false)
+            else
+                Qt.quit()
         }
-        Component.onCompleted: forceActiveFocus()
     }
 
     Image {

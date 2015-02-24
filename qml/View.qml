@@ -79,7 +79,7 @@ ListView {
         id: moveTransition
         enabled: applicationWindow.animate
         SequentialAnimation {
-            PauseAnimation { duration: constants.mediumTime }
+            NumberAnimation { properties: "y"; easing.type: Easing.InOutQuad; duration: constants.mediumTime }
             NumberAnimation {
                 target: moveTransition.ViewTransition.item.item
                 properties: "x"; to: 0

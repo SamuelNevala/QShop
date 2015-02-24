@@ -26,19 +26,20 @@ Window {
 
     ItemModel { id: itemModel }
 
+    EventFilter {
+        onBackClicked: {
+            if (view.editMode && itemModel.count > 1)
+                view.setEditMode(false)
+            else
+                Qt.quit()
+        }
+    }
+
     Rectangle {
         id: focusHolder
         color: "black"
         anchors.fill: parent
-        HwKeyWatcher {
-            target: focusHolder
-            onBackClicked: {
-                if (view.editMode && itemModel.count > 1)
-                    view.setEditMode(false)
-                else
-                    Qt.quit()
-            }
-        }
+
         Keys.onUpPressed: theme.index--
         Keys.onDownPressed: theme.index++
         Component.onCompleted: forceActiveFocus()
