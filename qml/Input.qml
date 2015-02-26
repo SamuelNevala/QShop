@@ -9,9 +9,7 @@ FocusScope {
 
     property string placeholderText
     property string placeholderTextFocus
-
-    property real leftMargin: 20
-    property real rightMargin: 20
+    property int padding
 
     signal accepted()
     signal dropAreaEntered(Item dragSource)
@@ -20,12 +18,12 @@ FocusScope {
 
     BackgroundItem {
         id: background
-        anchors.fill: parent
+        anchors { fill: parent }
         color: "white"
         TextField {
             id: input
             focus: true
-            anchors { left: parent.left; right: parent.right; margins: 20; verticalCenter: parent.verticalCenter; leftMargin: root.leftMargin; rightMargin: root.rightMargin }
+            anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; leftMargin: root.padding; rightMargin: root.padding }
             horizontalAlignment: Text.AlignHCenter
             placeholderText: activeFocus && displayText == "" ? root.placeholderTextFocus : root.placeholderText
             z: 1
@@ -47,6 +45,7 @@ FocusScope {
             onRemove: itemModel.remove(index -1)
 
         }
+
         // https://bugreports.qt.io/browse/QTBUG-42444
         //Connections {
         //    target: Qt.inputMethod

@@ -11,8 +11,7 @@ Input {
         mainView.positionViewAtIndex(index, ListView.Contain)
     }
 
-    leftMargin: theme.heights.medium
-    rightMargin: theme.heights.medium
+    padding: theme.heights.medium
     placeholderText: qsTr("Tap to insert items")
     placeholderTextFocus: qsTr("Write new item")
 
@@ -21,9 +20,7 @@ Input {
         height: theme.heights.medium
         source: "qrc:/menu"
         width: height
-        onClicked: {
-            sideBar.open()
-        }
+        onClicked: sideBar.open()
     }
 
     IconButton {
@@ -38,6 +35,5 @@ Input {
     }
 
     onAccepted: addItem()
-
     onDropAreaEntered: itemModel.move(dragSource.itemIndex, index)
 }

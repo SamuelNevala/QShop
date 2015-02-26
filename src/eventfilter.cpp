@@ -15,13 +15,6 @@ bool EventFilter::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);
     //qDebug()<<event;
-    if (event && event->type() == QEvent::KeyRelease) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if (keyEvent->key() == Qt::Key_Back) {
-            Q_EMIT backClicked();
-            return true;
-        }
-    }
 
     if (event && event->type() == QEvent::InputMethod) {
         QInputMethodEvent *imEvent = static_cast<QInputMethodEvent *>(event);

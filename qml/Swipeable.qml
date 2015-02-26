@@ -21,9 +21,7 @@ MouseArea {
     drag.axis: Drag.XAxis
     drag.minimumX: -width
     drag.maximumX: width
-    opacity: Math.max(opacityEnd,
-                      1 - (Math.abs(x) / actionTreshold * opacityEnd))
-
+    opacity: Math.max(opacityEnd, 1 - (Math.abs(x) / actionTreshold * opacityEnd))
 
     onPressed: {
         startPos = x
@@ -35,8 +33,8 @@ MouseArea {
         endPos = x
 
         var velocity = Math.abs((endPos - startPos) / theme.pixelDensity) / Math.abs(elapsedTime / 1000)
-        // Grativy of this program is 215 mm/s2
-        var selected = velocity * velocity / 215 >= widthmm
+        // Grativy of this program is 205 mm/s2
+        var selected = velocity * velocity / 205 >= widthmm
 
         if (selected || Math.abs(x) >= actionTreshold)
             animate.to(x > 0 ? drag.maximumX : drag.minimumX, 0)
@@ -57,7 +55,7 @@ MouseArea {
         }
 
         PauseAnimation { id: pause }
-        NumberAnimation { id: xAnimation; target: drag.target; property: "x"; easing.type: Easing.InOutQuad }
+        DefaultAnimation { id: xAnimation; target: drag.target; property: "x" }
         ScriptAction { script: {
                 if (drag.target.x != 0) root.action(drag.target.x > 0)
                 pause.duration = 0

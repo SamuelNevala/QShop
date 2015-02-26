@@ -4,18 +4,19 @@ import Shop.extra 1.0
 MouseArea {
     id: root
 
-    function open() {
+    function open()
+    {
         animate.toX(drag.maximumX)
     }
 
 
     function close() {
         animate.toX(drag.minimumX)
-        focusHolder.forceActiveFocus()
     }
 
     default property alias content: menu.children
 
+    enabled: x == 0
     drag.target: root
     drag.axis: Drag.XAxis
     drag.minimumX: -width + theme.margins.medium
@@ -23,28 +24,23 @@ MouseArea {
 
     Rectangle {
         id: menu
-        anchors {
-            fill: parent
-            rightMargin: theme.margins.medium
-        }
+        anchors { fill: parent; rightMargin: theme.margins.medium }
         color: "white"
     }
 
     Rectangle {
         id: dimmer
         anchors {
-            top: parent.top
-            bottom: parent.bottom
-            left: parent.right
-            leftMargin: -theme.margins.medium
+            top: parent.top; bottom: parent.bottom
+            left: parent.right; leftMargin: -theme.margins.medium
         }
         width: applicationWindow.width
         color: "black"
         opacity: Math.max(0.0, 0.8 - Math.abs(root.x) / (root.width + theme.margins.medium))
-        visible: opacity
+        visible: opacity > 0.0
 
         MouseArea {
-            anchors.fill: parent
+            anchors { fill: parent }
             preventStealing: true
             propagateComposedEvents: false
             enabled: dimmer.visible
@@ -59,10 +55,11 @@ MouseArea {
             animate.toX(drag.minimumX)
     }
 
-    NumberAnimation {
+    DefaultAnimation {
         id: animate;
 
-        function toX(x) {
+        function toX(x)
+        {
             if (x === drag.maximumX) root.forceActiveFocus()
             animate.from = drag.target.x
             animate.to = x
@@ -71,6 +68,5 @@ MouseArea {
 
         target: drag.target
         property: "x"
-        easing.type: Easing.InOutQuad
     }
 }

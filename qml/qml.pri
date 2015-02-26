@@ -15,3 +15,6 @@ OTHER_FILES += \
     $$PWD/TextItem.qml \
     $$PWD/View.qml \
     $$PWD/Weekdays.qml
+
+DISTFILES += \
+    $$PWD/DefaultAnimation.qml

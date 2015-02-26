@@ -9,6 +9,7 @@
 #include "eventfilter.h"
 #include "theme.h"
 #include "qmlelapsedtimer.h"
+#include "backkey.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +21,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Model>("Shop.models", 1, 0, "ItemModel");
     qmlRegisterType<EventFilter>("Shop.extra", 1, 0, "EventFilter");
     qmlRegisterType<Theme>("Shop.extra", 1, 0, "Theme");
+    qmlRegisterType<BackKey>("Shop.extra", 1, 0, "BackKey");
     qmlRegisterType<QmlElapsedTimer>("Shop.timer", 1, 0, "ElapsedTimer");
 
     QQmlApplicationEngine engine;
@@ -28,6 +30,5 @@ int main(int argc, char *argv[])
 #else
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 #endif
-    engine.rootObjects()[0]->setProperty("dragDistance", app.styleHints()->startDragDistance());
     return app.exec();
 }

@@ -6,24 +6,16 @@ MouseArea {
     property alias source: icon.source
     property alias text: text.text
 
-    height: theme.heights.medium
+    implicitHeight: theme.heights.medium
 
     BackgroundItem {
         anchors.fill: parent
         color: root.pressed || icon.pressed ? "lightgray" : "white"
-        border {
-            color: "gray"
-            width: 1
-        }
     }
 
     IconButton {
         id: icon
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-            left: parent.left
-        }
+        anchors { top: parent.top; bottom: parent.bottom; left: parent.left }
         overlayVisible: root.pressed
         width: height
         onClicked: root.clicked(mouse)
@@ -31,18 +23,12 @@ MouseArea {
 
     Text {
         id: text
-        anchors {
-            fill: parent
-            leftMargin: icon.width
-            rightMargin: theme.margins.medium
-        }
+        anchors { fill: parent; leftMargin: icon.width; rightMargin: theme.margins.medium }
         verticalAlignment: Text.AlignVCenter
-        color: "gray"
+        elide: Text.ElideRight
         font {
             bold: true
             pixelSize: theme.fonts.medium
         }
-        maximumLineCount: 2
-        wrapMode: Text.Wrap
     }
 }

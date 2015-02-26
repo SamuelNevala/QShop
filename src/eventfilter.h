@@ -11,7 +11,6 @@ public:
     explicit EventFilter(QObject *parent = 0);
 
 Q_SIGNALS:
-    void backClicked();
     void add(QString text);
     void clear();
     void remove();

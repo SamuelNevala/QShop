@@ -15,5 +15,6 @@
         <file>qml/RemorseItem.qml</file>
         <file>qml/Pulley.qml</file>
         <file>qml/IconButton.qml</file>
+        <file>qml/DefaultAnimation.qml</file>
     </qresource>
 </RCC>

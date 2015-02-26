@@ -7,10 +7,11 @@
 
 Theme::Theme(QObject *parent)
     : QObject(parent)
-    , m_height( new QQmlPropertyMap(this))
-    , m_fonts( new QQmlPropertyMap(this))
-    , m_margins( new QQmlPropertyMap(this))
-    , m_constants( new QQmlPropertyMap(this))
+    , m_height(new QQmlPropertyMap(this))
+    , m_fonts(new QQmlPropertyMap(this))
+    , m_margins(new QQmlPropertyMap(this))
+    , m_constants(new QQmlPropertyMap(this))
+    , m_time(new QQmlPropertyMap(this))
     , m_factor(0.0)
     , m_pixelDensity(0.0)
 {
@@ -37,12 +38,17 @@ void Theme::calculate()
 
     m_margins->insert(QLatin1String("large"), QVariant(3 * m_ratio * m_pixelDensity));
     m_margins->insert(QLatin1String("medium"), QVariant(1 * m_ratio * m_pixelDensity));
+    m_margins->insert(QLatin1String("small"), QVariant(0.5 * m_ratio * m_pixelDensity));
 
     m_fonts->insert(QLatin1String("large"), QVariant(7 * m_ratio * m_pixelDensity));
     m_fonts->insert(QLatin1String("medium"), QVariant(3.5 * m_ratio * m_pixelDensity));
     m_fonts->insert(QLatin1String("small"), QVariant(2 * m_ratio * m_pixelDensity));
 
     m_constants->insert(QLatin1String("actionThreshold"), QVariant(m_displays.at(m_index).value("height").toInt() / 6));
+    m_constants->insert(QLatin1String("menuWidth"), QVariant(m_displays.at(m_index).value("width").toInt() * 0.833));
+
+    m_time->insert(QLatin1String("long"), QVariant(500));
+    m_time->insert(QLatin1String("medium"), QVariant(250));
 }
 
 QString Theme::title() const
@@ -121,9 +127,13 @@ void Theme::calculate()
     m_height->insert(QLatin1String("large"), QVariant(9.5 * m_ratio * m_pixelDensity));
     m_margins->insert(QLatin1String("large"), QVariant(3 * m_ratio * m_pixelDensity));
     m_margins->insert(QLatin1String("medium"), QVariant(1 * m_ratio * m_pixelDensity));
+    m_margins->insert(QLatin1String("small"), QVariant(0.5 * m_ratio * m_pixelDensity));
     m_fonts->insert(QLatin1String("large"), QVariant(7 * m_ratio * m_pixelDensity));
     m_fonts->insert(QLatin1String("medium"), QVariant(3.5 * m_ratio * m_pixelDensity));
     m_fonts->insert(QLatin1String("small"), QVariant(2 * m_ratio * m_pixelDensity));
     m_constants->insert(QLatin1String("actionThreshold"), QVariant(screen->size().height() / 6));
+    m_constants->insert(QLatin1String("menuWidth"), QVariant(screen->size().width() * 0.833));
+    m_time->insert(QLatin1String("long"), QVariant(500));
+    m_time->insert(QLatin1String("medium"), QVariant(250));
 }
 #endif

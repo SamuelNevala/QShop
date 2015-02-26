@@ -16,6 +16,7 @@ class Theme : public QObject
     Q_PROPERTY(QObject *fonts READ fonts CONSTANT)
     Q_PROPERTY(QObject *margins READ margins CONSTANT)
     Q_PROPERTY(QObject *constants READ constants CONSTANT)
+    Q_PROPERTY(QObject *time READ time CONSTANT)
     Q_PROPERTY(qreal pixelDensity READ pixelDensity NOTIFY pixelDensityChanged)
     Q_PROPERTY(qreal factor READ factor NOTIFY factorChanged)
 
@@ -33,6 +34,7 @@ public:
     QQmlPropertyMap *fonts() const { return m_fonts; }
     QQmlPropertyMap *margins() const { return m_margins; }
     QQmlPropertyMap *constants() const { return m_constants; }
+    QQmlPropertyMap *time() const { return m_time; }
     qreal pixelDensity() const { return m_pixelDensity; }
     qreal factor() const { return m_factor; }
 
@@ -58,6 +60,7 @@ private:
     QQmlPropertyMap *m_fonts;
     QQmlPropertyMap *m_margins;
     QQmlPropertyMap *m_constants;
+    QQmlPropertyMap *m_time;
     qreal m_factor;
     qreal m_pixelDensity;
 

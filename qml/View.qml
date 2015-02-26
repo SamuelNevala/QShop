@@ -4,7 +4,8 @@ import Shop.models 1.0
 ListView {
     id: mainView
 
-    function setEditMode(mode) {
+    function setEditMode(mode)
+    {
         if (editMode === mode) return
         editMode = mode
         if (editMode)
@@ -23,24 +24,20 @@ ListView {
         height: -parent.contentY + parent.originY - weekdays.height
         pullHint: editMode ? qsTr("Pull to shop") : qsTr("Pull to edit")
         onAction: setEditMode(!editMode)
-        visible: mainView.count > editMode ? 1 : 0
     }
 
     Weekdays {
         id: weekdays
         anchors { right: parent.right; left: parent.left }
-        visible: mainView.count > editMode ? 1 : 0
         y: -parent.contentY - height + parent.originY - mainView.anchors.topMargin
     }
 
     Rectangle {
-        height: Math.max(mainView.height - mainView.contentHeight, 0)
         color: "black"
+        height: Math.max(mainView.height - mainView.contentHeight, 0)
         opacity: visible ? 0.8 : 0.0
-        y: -mainView.contentY + mainView.contentHeight
-        visible: height
-        width:  mainView.width
-        z: -1
+        visible: height; width:  mainView.width
+        y: -mainView.contentY + mainView.contentHeight; z: -1
     }
 
     cacheBuffer: theme.heights.large * 40
@@ -55,36 +52,35 @@ ListView {
     }
 
     add: Transition {
-        enabled: applicationWindow.animate
         ParallelAnimation {
-            NumberAnimation { properties: "x"; from: -mainView.width; to: 0; easing.type: Easing.InOutQuad; duration: constants.mediumTime }
-            NumberAnimation { properties: "opacity"; from: 0.5; to: 1.0; easing.type: Easing.InOutQuad; duration: constants.mediumTime }
+            DefaultAnimation { properties: "x"; from: -mainView.width; to: 0 }
+            DefaultAnimation { properties: "opacity"; from: 0.5; to: 1.0 }
         }
     }
 
     remove: Transition {
-        enabled: applicationWindow.animate
         ParallelAnimation {
-            NumberAnimation { properties: "x"; from: 0; to: mainView.width; easing.type: Easing.InOutQuad; duration: constants.mediumTime }
-            NumberAnimation { properties: "opacity"; from: 1.0; to: 0.5; easing.type: Easing.InOutQuad; duration: constants.mediumTime }
+            DefaultAnimation { properties: "x"; from: 0; to: mainView.width }
+            DefaultAnimation { properties: "opacity"; from: 1.0; to: 0.5 }
         }
     }
 
     displaced: Transition {
-        enabled: applicationWindow.animate
-        NumberAnimation { properties: "y"; easing.type: Easing.InOutQuad; duration: constants.mediumTime }
+        DefaultAnimation { properties: "y" }
+    }
+
+    removeDisplaced: Transition {
+        SequentialAnimation {
+            PauseAnimation { duration: theme.time.medium }
+            DefaultAnimation { properties: "y" }
+        }
     }
 
     move: Transition {
         id: moveTransition
-        enabled: applicationWindow.animate
         SequentialAnimation {
-            NumberAnimation { properties: "y"; easing.type: Easing.InOutQuad; duration: constants.mediumTime }
-            NumberAnimation {
-                target: moveTransition.ViewTransition.item.item
-                properties: "x"; to: 0
-                easing.type: Easing.InOutQuad; duration: constants.mediumTime
-            }
+            DefaultAnimation { properties: "y" }
+            DefaultAnimation { target: moveTransition.ViewTransition.item.item; properties: "x"; to: 0 }
         }
     }
 }

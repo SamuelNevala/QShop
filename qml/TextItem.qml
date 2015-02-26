@@ -3,19 +3,14 @@ import QtQuick 2.4
 BackgroundItem {
     id: root
 
+    property alias textWidth: text.implicitWidth
+    property int padding: theme.margins.small
+
     color: selected ? "white" : "black"
 
     Text {
         id: text
-
-        property bool needMargin: mainView.editMode && !(!truncated && root.width > implicitWidth && lineCount <= 1)
-
-        anchors {
-            fill: parent
-            rightMargin: needMargin ? theme.margins.large : 0
-        }
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
+        anchors { fill: parent; leftMargin: root.padding; rightMargin: root.padding; margins: theme.margins.small }
         color: selected ? "black" : "white"
         font {
             bold: true
@@ -23,8 +18,11 @@ BackgroundItem {
             strikeout: selected
         }
         fontSizeMode: Text.Fit
+        elide: Text.ElideRight
+        horizontalAlignment: Text.AlignHCenter
         maximumLineCount: 2
         text: itemText
+        verticalAlignment: Text.AlignVCenter
         wrapMode: Text.Wrap
     }
 }

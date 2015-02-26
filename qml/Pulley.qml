@@ -12,7 +12,7 @@ Item {
     z: -1
 
     Rectangle {
-        anchors.fill: parent
+        anchors { fill: parent }
         color: "black"
         opacity: 0.8
     }
@@ -58,7 +58,7 @@ Item {
         }
 
         transitions: Transition {
-            NumberAnimation { target: rotation; property: "angle"; easing.type: Easing.InOutQuad }
+            DefaultAnimation { target: rotation; property: "angle" }
         }
     }
 
@@ -69,7 +69,7 @@ Item {
 
     Timer {
         id: dealayAction
-        interval: 260
+        interval: theme.time.medium
         onTriggered: root.action()
     }
 }
