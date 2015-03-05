@@ -6,9 +6,9 @@
 #include <QDebug>
 #include "weekmodel.h"
 #include "model.h"
-#include "eventfilter.h"
+#include "voice.h"
 #include "theme.h"
-#include "qmlelapsedtimer.h"
+#include "elapsedtimer.h"
 #include "backkey.h"
 
 int main(int argc, char *argv[])
@@ -19,10 +19,10 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<WeekModel>("Shop.models", 1, 0, "WeekModel");
     qmlRegisterType<Model>("Shop.models", 1, 0, "ItemModel");
-    qmlRegisterType<EventFilter>("Shop.extra", 1, 0, "EventFilter");
+    qmlRegisterType<Voice>("Shop.extra", 1, 0, "Voice");
     qmlRegisterType<Theme>("Shop.extra", 1, 0, "Theme");
     qmlRegisterType<BackKey>("Shop.extra", 1, 0, "BackKey");
-    qmlRegisterType<QmlElapsedTimer>("Shop.timer", 1, 0, "ElapsedTimer");
+    qmlRegisterType<ElapsedTimer>("Shop.timer", 1, 0, "ElapsedTimer");
 
     QQmlApplicationEngine engine;
 #ifdef QT_DEBUG

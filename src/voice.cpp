@@ -2,33 +2,32 @@
 #include <QtCore/QDebug>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QGuiApplication>
-#include "eventfilter.h"
+#include "voice.h"
 
-EventFilter::EventFilter(QObject *parent)
+Voice::Voice(QObject *parent)
     : QObject(parent)
-    , m_more(true)
+    , m_continious(false)
 {
     qApp->installEventFilter(this);
 }
 
-bool EventFilter::eventFilter(QObject *obj, QEvent *event)
+bool Voice::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);
-    //qDebug()<<event;
 
     if (event && event->type() == QEvent::InputMethod) {
         QInputMethodEvent *imEvent = static_cast<QInputMethodEvent *>(event);
         qDebug()<<imEvent<<imEvent->commitString();
 
         if (imEvent->commitString().contains("monta", Qt::CaseInsensitive)) {
-            m_more = true;
+            m_continious = true;
         }
 
         if (imEvent->commitString().contains("lopeta", Qt::CaseInsensitive)) {
-            m_more = false;
+            m_continious = false;
         }
 
-        if (m_more && imEvent->commitString().startsWith(" ")) {
+        if (m_continious && imEvent->commitString().startsWith(" ")) {
             QString copyStr = imEvent->commitString();
             if (copyStr.startsWith(" ")) {
                 copyStr = copyStr.remove(0, 1);

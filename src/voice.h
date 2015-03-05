@@ -1,14 +1,14 @@
-#ifndef EVENTFILTER_H
-#define EVENTFILTER_H
+#ifndef VOICECOMMANDS_H
+#define VOICECOMMANDS_H
 
 #include <QtCore/QObject>
 
-class EventFilter : public QObject
+class Voice : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit EventFilter(QObject *parent = 0);
+    explicit Voice(QObject *parent = 0);
 
 Q_SIGNALS:
     void add(QString text);
@@ -19,7 +19,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 private:
-    bool m_more;
+    bool m_continious;
 };
 
-#endif // EVENTFILTER_H
+#endif // VOICECOMMANDS_H

@@ -35,7 +35,7 @@ FocusScope {
             }
         }
 
-        EventFilter {
+        Voice {
             onAdd: {
                 input.text = text
                 Qt.inputMethod.commit()

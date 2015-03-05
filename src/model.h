@@ -12,19 +12,19 @@ public:
     explicit Model(QObject *parent = 0);
 
     // from QAbstractItemModel
-    int rowCount(const QModelIndex & parent = QModelIndex()) const;
-    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QHash<int, QByteArray> roleNames() const;
-    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
     int count() const;
 
     Q_INVOKABLE void setSelected(int index, bool selected);
     Q_INVOKABLE void toggleSelected(int index);
-    Q_INVOKABLE void append(QString item);
-    Q_INVOKABLE void insert(int index, QString item);
+    Q_INVOKABLE void append(const QString &item);
+    Q_INVOKABLE void insert(int index, const QString &item);
     Q_INVOKABLE void remove(int index);
-    Q_INVOKABLE void remove(QString item);
+    Q_INVOKABLE void remove(const QString &item);
     Q_INVOKABLE void removeAll();
     Q_INVOKABLE void removeSelected();
     Q_INVOKABLE void reset();
@@ -41,10 +41,10 @@ private:
     void moveToStart(int from);
     void save();
     void load();
+
     QList<QString> m_items;
     QList<bool> m_selection;
     QList<bool> m_editor;
-    QHash<int, QByteArray> m_roleNames;
 };
 
 #endif // MODEL_H

@@ -16,8 +16,8 @@ public:
     WeekModel(QObject *parent = 0);
 
     // from QAbstractItemModel
-    int rowCount(const QModelIndex & parent = QModelIndex()) const;
-    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QHash<int, QByteArray> roleNames() const;
 
     int count() const;
@@ -34,7 +34,6 @@ private:
     int m_timerId;
     QList<QPair<QString, QString> > m_data;
     QDateTime m_today;
-    QHash<int, QByteArray> m_roleNames;
 };
 
 #endif // WEEKMODEL_H

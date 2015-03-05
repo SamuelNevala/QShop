@@ -1,5 +1,4 @@
 #include "model.h"
-#include <QDebug>
 #include <QtCore/QDataStream>
 #include <QtCore/QFile>
 #include <QtCore/QStandardPaths>
@@ -8,40 +7,47 @@
 Model::Model(QObject *parent)
     : QAbstractListModel(parent)
 {
-    m_roleNames.insert(Qt::DisplayRole, "itemText");
-    m_roleNames.insert(Qt::CheckStateRole, "selected");
-    m_roleNames.insert(Qt::EditRole, "editor");
     load();
     removeEditor();
 }
 
-int Model::rowCount(const QModelIndex & parent) const
+int Model::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return m_items.count();
 }
 
-QVariant Model::data(const QModelIndex & index, int role) const
+QVariant Model::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid()) return QVariant();
-    if (role == Qt::DisplayRole)
+    if (!index.isValid()
+      || index.row() < 0
+      || index.row() >= rowCount()) {
+        return QVariant();
+    }
+
+    if (role == Qt::DisplayRole) {
         return m_items[index.row()];
-    else if (role == Qt::CheckStateRole)
+    } else if (role == Qt::CheckStateRole) {
         return m_selection[index.row()];
-    else if (role == Qt::EditRole)
+    } else if (role == Qt::EditRole) {
         return m_editor[index.row()];
-    else
+    } else
         return QVariant();
 }
 
-bool Model::setData(const QModelIndex& index, const QVariant& value, int role)
+bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid() || role != Qt::CheckStateRole)
+    if (!index.isValid()
+      || index.row() < 0
+      || index.row() >= rowCount()
+      || role != Qt::CheckStateRole) {
         return false;
+    }
 
     bool state = value.toBool();
-    if (m_selection[index.row()] == state)
+    if (m_selection[index.row()] == state) {
         return false;
+    }
 
     m_selection[index.row()] = state;
     Q_EMIT dataChanged(index, index);
@@ -50,7 +56,11 @@ bool Model::setData(const QModelIndex& index, const QVariant& value, int role)
 
 QHash<int, QByteArray> Model::roleNames() const
 {
-    return m_roleNames;
+    QHash<int, QByteArray> names;
+    names.insert(Qt::DisplayRole, "itemText");
+    names.insert(Qt::CheckStateRole, "selected");
+    names.insert(Qt::EditRole, "editor");
+    return names;
 }
 
 int Model::count() const
@@ -58,7 +68,7 @@ int Model::count() const
     return m_items.count();
 }
 
-void Model::append(QString item)
+void Model::append(const QString &item)
 {
     beginInsertRows(QModelIndex(), m_items.count(), m_items.count());
     m_items.append(item);
@@ -69,7 +79,7 @@ void Model::append(QString item)
     save();
 }
 
-void Model::insert(int index, QString item)
+void Model::insert(int index, const QString &item)
 {
     int boundIndex = qBound(0, index, m_items.count());
     beginInsertRows(QModelIndex(), boundIndex, boundIndex);
@@ -81,14 +91,16 @@ void Model::insert(int index, QString item)
     save();
 }
 
-void Model::remove(QString item) {
+void Model::remove(const QString &item)
+{
     remove(m_items.indexOf(item));
 }
 
 void Model::remove(int index)
 {
-    if (index <0 || index > m_items.count())
+    if (index < 0 || index >= m_items.count()) {
         return;
+    }
 
     beginRemoveRows(QModelIndex(), index, index);
     m_items.removeAt(index);
@@ -112,8 +124,9 @@ void Model::removeAll()
 
 void Model::removeSelected()
 {
-    while (m_selection.contains(true))
+    while (m_selection.contains(true)) {
         remove(m_selection.indexOf(true));
+    }
 }
 
 void Model::reset()
@@ -126,7 +139,10 @@ void Model::reset()
 
 void Model::move(int source, int destination)
 {
-    if (source == destination) return;
+    if (source == destination) {
+        return;
+    }
+
     beginMoveRows(QModelIndex(), source, source, QModelIndex(), destination + (destination > source ? 1 : 0));
     m_items.move(source, destination);
     m_selection.move(source, destination);
@@ -137,11 +153,12 @@ void Model::move(int source, int destination)
 
 void Model::addEditor()
 {
-    if (m_editor.contains(true))
+    if (m_editor.contains(true)) {
         return;
+    }
 
     beginInsertRows(QModelIndex(), 0, 0);
-    m_items.insert(0,"editor");
+    m_items.insert(0, "editor");
     m_selection.insert(0, false);
     m_editor.insert(0, true);
     endInsertRows();
@@ -150,21 +167,23 @@ void Model::addEditor()
 
 void Model::removeEditor()
 {
-    while (m_editor.contains(true))
+    while (m_editor.contains(true)) {
         remove(m_editor.indexOf(true));
+    }
 }
 
 void Model::moveEditor(int index, bool force)
 {
     int editorIndex = m_editor.indexOf(true);
     int moveTo = qBound(0, index, count());
-    move(editorIndex, moveTo + (!force && editorIndex >= index && editorIndex !=1 ? 1 : 0));
+    move(editorIndex, moveTo + (!force && editorIndex >= index && editorIndex != 1 ? 1 : 0));
 }
 
 void Model::setSelected(int index, bool selected)
 {
-    if (!setData(this->index(index,0), selected, Qt::CheckStateRole))
+    if (!setData(this->index(index, 0), selected, Qt::CheckStateRole)) {
         return;
+    }
 
     if (m_selection[index])
         moveToEnd(index);
@@ -175,8 +194,9 @@ void Model::setSelected(int index, bool selected)
 
 void Model::toggleSelected(int index)
 {
-    if (!setData(this->index(index,0), !m_selection[index], Qt::CheckStateRole))
+    if (setData(this->index(index,0), !m_selection[index], Qt::CheckStateRole)) {
         return;
+    }
 
     if (m_selection[index])
         moveToEnd(index);
@@ -189,7 +209,7 @@ void Model::moveToEnd(int from)
 {
     int to = m_selection.count(true) == 1 ? m_selection.count() - 1 : m_selection.indexOf(true, from + 1) - 1;
     if (from != to) {
-        beginMoveRows(QModelIndex(), from, from, QModelIndex(), to+1);
+        beginMoveRows(QModelIndex(), from, from, QModelIndex(), to + 1);
         m_items.move(from, to);
         m_selection.move(from, to);
         m_editor.move(from, to);
@@ -226,7 +246,7 @@ void Model::save()
     QDataStream out(&file);
     out << m_items.count();
     for (int index = 0; index < m_items.count(); ++index) {
-        out << m_items[index] << m_selection[index]<<m_editor[index];
+        out << m_items[index] << m_selection[index] << m_editor[index];
     }
     file.close();
 }

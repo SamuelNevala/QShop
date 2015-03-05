@@ -4,11 +4,11 @@
 #include <QtCore/QObject>
 #include <QtCore/QElapsedTimer>
 
-class QmlElapsedTimer : public QObject
+class ElapsedTimer : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlElapsedTimer(QObject *parent = 0);
+    explicit ElapsedTimer(QObject *parent = 0);
 
     Q_INVOKABLE void start();
     Q_INVOKABLE qint64 elapsed() const;

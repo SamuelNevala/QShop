@@ -3,14 +3,14 @@ SOURCES += \
     $$PWD/model.cpp \
     $$PWD/theme.cpp \
     $$PWD/weekmodel.cpp \
-    $$PWD/qmlelapsedtimer.cpp \
-    $$PWD/eventfilter.cpp \
-    $$PWD/backkey.cpp
+    $$PWD/backkey.cpp \
+    $$PWD/voice.cpp \
+    $$PWD/elapsedtimer.cpp
 
 HEADERS += \
     $$PWD/model.h \
     $$PWD/theme.h \
     $$PWD/weekmodel.h \
-    $$PWD/qmlelapsedtimer.h \
-    $$PWD/eventfilter.h \
-    $$PWD/backkey.h
+    $$PWD/backkey.h \
+    $$PWD/voice.h \
+    $$PWD/elapsedtimer.h

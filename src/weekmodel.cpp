@@ -5,33 +5,39 @@ WeekModel::WeekModel(QObject *parent)
     : QAbstractListModel(parent)
     , m_timerId(0)
 {
-    m_roleNames.insert(Qt::UserRole, "dayName");
-    m_roleNames.insert(Qt::UserRole + 1, "dayNumber");
     populateModel();
     m_timerId = startTimer(60000);
 }
 
-int WeekModel::rowCount(const QModelIndex & parent) const
+int WeekModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return m_data.count();
 }
 
-QVariant WeekModel::data(const QModelIndex & index, int role) const
+QVariant WeekModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid()) return QVariant();
-
-    if (role == Qt::UserRole)
-        return m_data[index.row()].first;
-    else if (role == Qt::UserRole +1)
-        return m_data[index.row()].second;
-    else
+    if (!index.isValid()
+      || index.row() < 0
+      || index.row() >= rowCount()) {
         return QVariant();
+    }
+
+    if (role == Qt::UserRole) {
+        return m_data[index.row()].first;
+    } else if (role == Qt::UserRole +1) {
+        return m_data[index.row()].second;
+    } else {
+        return QVariant();
+    }
 }
 
 QHash<int, QByteArray> WeekModel::roleNames() const
 {
-    return m_roleNames;
+    QHash<int, QByteArray> roles;
+    roles.insert(Qt::UserRole, "dayName");
+    roles.insert(Qt::UserRole + 1, "dayNumber");
+    return roles;
 }
 
 int WeekModel::count() const
@@ -42,16 +48,17 @@ int WeekModel::count() const
 void WeekModel::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event);
-    if (QDateTime::currentDateTime().date().day() != m_today.date().day())
+    if (QDateTime::currentDateTime().date().day() != m_today.date().day()) {
         populateModel();
+    }
 }
 
 void WeekModel::populateModel()
 {
     if (m_data.count() != 0) {
-    beginRemoveRows(QModelIndex(), 0, m_data.count() - 1);
-    m_data.clear();
-    endRemoveRows();
+        beginRemoveRows(QModelIndex(), 0, m_data.count() - 1);
+        m_data.clear();
+        endRemoveRows();
     }
 
     beginResetModel();
