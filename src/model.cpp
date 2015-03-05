@@ -131,10 +131,9 @@ void Model::removeSelected()
 
 void Model::reset()
 {
-    beginResetModel();
-    for (int index = 0; index < m_selection.count(); ++index)
-        m_selection[index] = false;
-    endResetModel();
+    for (int index = 0; index < m_selection.count(); ++index) {
+        setSelected(index, false);
+    }
 }
 
 void Model::move(int source, int destination)
@@ -194,7 +193,7 @@ void Model::setSelected(int index, bool selected)
 
 void Model::toggleSelected(int index)
 {
-    if (setData(this->index(index,0), !m_selection[index], Qt::CheckStateRole)) {
+    if (!setData(this->index(index ,0), !m_selection[index], Qt::CheckStateRole)) {
         return;
     }
 
