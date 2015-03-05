@@ -13,28 +13,36 @@ Item {
         opacity: 0.8
     }
 
+    FontMetrics {
+        id: metrics
+        font { pixelSize: theme.fonts.medium; bold: true }
+    }
+
     RowLayout {
-        anchors { fill: parent }
+        anchors { fill: parent; margins: theme.margins.small }
 
         Repeater {
             id: repeater
             model: WeekModel { id: model }
 
             ColumnLayout {
+                id: layout
                 Text {
                     font { pixelSize: theme.fonts.medium; bold: true }
                     text: dayName
                     color: index == 0 ? "#33B5E5" : "white"
                     horizontalAlignment: Text.AlignHCenter
+                    Layout.fillWidth: true
                 }
                 Text {
                     font { pixelSize: theme.fonts.medium; bold: true }
                     text: dayNumber
                     color: index == 0 ? "#33B5E5" : "white"
                     horizontalAlignment: Text.AlignHCenter
-                    Layout.alignment: Qt.AlignCenter
+                    Layout.fillWidth: true
                 }
                 Layout.fillHeight: true
+                Layout.preferredWidth:  metrics.advanceWidth("00") + theme.margins.small * 2
                 Layout.alignment: Qt.AlignCenter
             }
         }
