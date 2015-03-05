@@ -58,6 +58,7 @@ Window {
 
     SideBar {
         id: sideBar
+        enabled: view.editMode
         height: parent.height
         width: theme.constants.menuWidth
         x: -width + theme.margins.medium
@@ -65,7 +66,7 @@ Window {
         Column {
             anchors { fill: parent }
             Setting {
-                enabled: sideBar.enabled
+                enabled: sideBar.opened
                 source: "qrc:/remove"
                 text: qsTr("Remove all items")
                 width: parent.width
@@ -76,6 +77,7 @@ Window {
                 }
             }
             Setting {
+                enabled: sideBar.opened
                 source: "qrc:/remove"
                 text: qsTr("Remove shopped items")
                 width: parent.width
@@ -87,6 +89,7 @@ Window {
 
             }
             Setting {
+                enabled: sideBar.opened
                 source: "qrc:/refresh"
                 text: qsTr("Reset shopped items")
                 width: parent.width
@@ -98,6 +101,7 @@ Window {
 
             }
             Setting {
+                enabled: sideBar.opened
                 source: "qrc:/back"
                 text: qsTr("Continue shopping")
                 width: parent.width

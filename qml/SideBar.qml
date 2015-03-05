@@ -15,8 +15,8 @@ MouseArea {
     }
 
     default property alias content: menu.children
+    property bool opened: x == 0
 
-    enabled: x == 0
     drag.target: root
     drag.axis: Drag.XAxis
     drag.minimumX: -width + theme.margins.medium

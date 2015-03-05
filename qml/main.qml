@@ -58,6 +58,7 @@ Window {
         Column {
             anchors { fill: parent }
             Setting {
+                enabled: sideBar.opened
                 width: parent.width
                 source: "qrc:/remove"
                 text: qsTr("Remove all items")
@@ -68,6 +69,7 @@ Window {
                 }
             }
             Setting {
+                enabled: sideBar.opened
                 width: parent.width
                 source: "qrc:/remove"
                 text: qsTr("Remove shopped items")
@@ -79,6 +81,7 @@ Window {
 
             }
             Setting {
+                enabled: sideBar.opened
                 width: parent.width
                 source: "qrc:/refresh"
                 text: qsTr("Reset shopped items")
@@ -90,6 +93,7 @@ Window {
 
             }
             Setting {
+                enabled: sideBar.opened
                 width: parent.width
                 source: "qrc:/back"
                 text: qsTr("Continue shopping")
