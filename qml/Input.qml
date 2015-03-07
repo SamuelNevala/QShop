@@ -42,7 +42,7 @@ FocusScope {
                 root.accepted()
             }
             onClear: input.text = ""
-            onRemove: itemModel.remove(index -1)
+            onRemove: mainView.deleteIndex = index - 1
 
         }
 

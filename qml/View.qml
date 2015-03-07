@@ -17,6 +17,7 @@ ListView {
     }
 
     property bool editMode: false
+    property int deleteIndex: -1
 
     Pulley {
         actionText: editMode ? qsTr("Release to shop") : qsTr("Release to edit")
@@ -42,6 +43,7 @@ ListView {
 
     cacheBuffer: theme.heights.large * 40
     currentIndex: -1
+    clip: applicationWindow.remorse
     delegate: Component {
         Loader {
             width: parent.width
@@ -79,8 +81,15 @@ ListView {
     move: Transition {
         id: moveTransition
         SequentialAnimation {
-            DefaultAnimation { properties: "y" }
+            SmoothedAnimation { properties: "y"; velocity: 400; duration: 800 }
             DefaultAnimation { target: moveTransition.ViewTransition.item.item; properties: "x"; to: 0 }
         }
+    }
+
+    onHeightChanged: {
+        if (!editMode || applicationWindow.remorse ) {
+            return
+        }
+        positionViewAtIndex(itemModel.editorIndex, ListView.Contain)
     }
 }

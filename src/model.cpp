@@ -68,6 +68,11 @@ int Model::count() const
     return m_items.count();
 }
 
+int Model::editorIndex() const
+{
+    return m_editor.indexOf(true);
+}
+
 void Model::append(const QString &item)
 {
     beginInsertRows(QModelIndex(), m_items.count(), m_items.count());
@@ -162,6 +167,7 @@ void Model::addEditor()
     m_editor.insert(0, true);
     endInsertRows();
     Q_EMIT countChanged();
+    Q_EMIT editorIndexChanged();
 }
 
 void Model::removeEditor()
@@ -169,6 +175,7 @@ void Model::removeEditor()
     while (m_editor.contains(true)) {
         remove(m_editor.indexOf(true));
     }
+    Q_EMIT editorIndexChanged();
 }
 
 void Model::moveEditor(int index, bool force)
@@ -176,6 +183,7 @@ void Model::moveEditor(int index, bool force)
     int editorIndex = m_editor.indexOf(true);
     int moveTo = qBound(0, index, count());
     move(editorIndex, moveTo + (!force && editorIndex >= index && editorIndex != 1 ? 1 : 0));
+    Q_EMIT editorIndexChanged();
 }
 
 void Model::setSelected(int index, bool selected)

@@ -4,6 +4,14 @@ import QtQuick.Controls 1.3
 Swipeable {
     id: root
 
+    function remove() {
+        if (!remorse) {
+            remorse = remorseComponent.createObject(root);
+        }
+        remorse.state = "remorse"
+        resetX(0)
+    }
+
     implicitHeight: theme.heights.large
 
     property RemorseItem remorse
@@ -21,6 +29,7 @@ Swipeable {
         anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
         height: theme.heights.large
         scale: dragSpot.pressed ? 1.15 : 1
+
         states: State {
             name: "drag"; when: backgound.Drag.active
             ParentChange { target: backgound; parent: root.parent.parent }
@@ -64,11 +73,7 @@ Swipeable {
 
     onAction: {
         if (rightSide) {
-            if (!remorse) {
-                remorse = remorseComponent.createObject(root);
-            }
-            remorse.state = "remorse"
-            resetX(0)
+            remove()
         } else {
             var tmpIndex = index;
             itemModel.toggleSelected(index)
@@ -84,6 +89,15 @@ Swipeable {
 
     Component {
         id: remorseComponent
-        RemorseItem { title: qsTr("Removing %1").arg(itemText); done: (function() { itemModel.remove(index) })}
+        RemorseItem {
+            title: qsTr("Removing %1").arg(itemText)
+            cancel: (function() { mainView.deleteIndex = -1 })
+            done: (function() { itemModel.remove(index); mainView.deleteIndex = -1 })
+        }
+    }
+
+    Connections {
+        target: mainView
+        onDeleteIndexChanged: if (mainView.deleteIndex === index) remove()
     }
 }

@@ -13,11 +13,11 @@ Voice::Voice(QObject *parent)
 
 bool Voice::eventFilter(QObject *obj, QEvent *event)
 {
-    Q_UNUSED(obj);
+    //Q_UNUSED(obj);
 
     if (event && event->type() == QEvent::InputMethod) {
         QInputMethodEvent *imEvent = static_cast<QInputMethodEvent *>(event);
-        qDebug()<<imEvent<<imEvent->commitString();
+        qDebug()<<obj<<imEvent->commitString();
 
         if (imEvent->commitString().contains("monta", Qt::CaseInsensitive)) {
             m_continious = true;

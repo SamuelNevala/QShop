@@ -13,13 +13,14 @@ Window {
 
     Rectangle { id: focusHolder; anchors { fill: parent } color: "black" }
     Image {
-        anchors { fill: parent }
+        anchors { top: parent.top; left: parent.left; right: parent.right }
         asynchronous: true
         fillMode: Image.PreserveAspectCrop
         source: "qrc:/bg"
         opacity: status == Image.Ready ? 1.0 : 0.0
         visible: opacity > 0.0
         Behavior on opacity { DefaultAnimation{ } }
+        Component.onCompleted: height = Screen.height
     }
     Theme { id: theme }
     ItemModel { id: itemModel }

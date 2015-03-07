@@ -7,6 +7,7 @@ class Model : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(int editorIndex READ editorIndex NOTIFY editorIndexChanged)
 
 public:
     explicit Model(QObject *parent = 0);
@@ -18,6 +19,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
     int count() const;
+    int editorIndex() const;
 
     Q_INVOKABLE void setSelected(int index, bool selected);
     Q_INVOKABLE void toggleSelected(int index);
@@ -35,6 +37,7 @@ public:
 
 Q_SIGNALS:
     void countChanged();
+    void editorIndexChanged();
 
 private:
     void moveToEnd(int from);
