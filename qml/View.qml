@@ -46,6 +46,7 @@ ListView {
     clip: applicationWindow.remorse
     delegate: Component {
         Loader {
+            property bool isEditor: editor
             width: parent.width
             source: editor ? Qt.resolvedUrl("InputItem.qml")
                            : editMode ? Qt.resolvedUrl("DragableItem.qml")
@@ -80,10 +81,8 @@ ListView {
 
     move: Transition {
         id: moveTransition
-        SequentialAnimation {
-            SmoothedAnimation { properties: "y"; velocity: 400; duration: 800 }
-            DefaultAnimation { target: moveTransition.ViewTransition.item.item; properties: "x"; to: 0 }
-        }
+        DefaultAnimation { properties: "y"; duration: moveTransition.ViewTransition.item.isEditor ? 0 : theme.time.medium }
+        SmoothedAnimation { properties: "y"; velocity: 400; duration: moveTransition.ViewTransition.item.isEditor ? 800 : 0 }
     }
 
     onHeightChanged: {
