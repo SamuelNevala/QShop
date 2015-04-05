@@ -32,7 +32,7 @@ Swipeable {
 
         states: State {
             name: "drag"; when: backgound.Drag.active
-            ParentChange { target: backgound; parent: root.parent.parent }
+            ParentChange { target: backgound; parent: mainView }
             PropertyChanges { target: backgound; z: 1 }
             AnchorChanges {
                 target: backgound;
