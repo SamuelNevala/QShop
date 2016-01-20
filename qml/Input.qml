@@ -20,12 +20,16 @@ FocusScope {
         id: background
         anchors { fill: parent }
         color: "white"
+
+        MouseArea { anchors { fill: parent } onClicked: input.forceActiveFocus() }
+
         TextField {
             id: input
             focus: true
             anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; leftMargin: root.padding; rightMargin: root.padding }
             horizontalAlignment: Text.AlignHCenter
             placeholderText: activeFocus && displayText == "" ? root.placeholderTextFocus : root.placeholderText
+            textColor: "black"
             z: 1
 
             onAccepted: root.accepted()
