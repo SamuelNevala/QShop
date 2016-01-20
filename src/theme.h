@@ -3,11 +3,17 @@
 
 #include <QtCore/QObject>
 #include <QtQml/QQmlPropertyMap>
-
-#ifdef QT_DEBUG
 #include <QtCore/QVector>
-#include <QtCore/QHash>
-#endif
+
+struct Display {
+    Display(QString name, int height, int width, qreal density)
+        : name(name), height(height), width(width), density(density)
+    {}
+    QString name;
+    int height;
+    int width;
+    qreal density;
+};
 
 class Theme : public QObject
 {
@@ -17,15 +23,11 @@ class Theme : public QObject
     Q_PROPERTY(QObject *margins READ margins CONSTANT)
     Q_PROPERTY(QObject *constants READ constants CONSTANT)
     Q_PROPERTY(QObject *time READ time CONSTANT)
-    Q_PROPERTY(qreal pixelDensity READ pixelDensity NOTIFY pixelDensityChanged)
-    Q_PROPERTY(qreal factor READ factor NOTIFY factorChanged)
-
-#ifdef QT_DEBUG
     Q_PROPERTY(QString title READ title NOTIFY indexChanged)
     Q_PROPERTY(int height READ height NOTIFY indexChanged)
     Q_PROPERTY(int width READ width NOTIFY indexChanged)
-    Q_PROPERTY(int index READ index WRITE setIndex NOTIFY indexChanged)
-#endif
+    Q_PROPERTY(int index MEMBER m_index WRITE setIndex NOTIFY indexChanged)
+    Q_PROPERTY(qreal pixelDensity READ pixelDensity NOTIFY pixelDensityChanged)
 
 public:
     explicit Theme(QObject *parent = 0);
@@ -35,27 +37,21 @@ public:
     QQmlPropertyMap *margins() const { return m_margins; }
     QQmlPropertyMap *constants() const { return m_constants; }
     QQmlPropertyMap *time() const { return m_time; }
-    qreal pixelDensity() const { return m_pixelDensity; }
-    qreal factor() const { return m_factor; }
 
-#ifdef QT_DEBUG
     QString title() const;
     int height() const;
     int width() const;
-    int index() const { return m_index; }
     void setIndex(int index);
-#endif
+    qreal pixelDensity() const { return m_pixelDensity; }
 
 Q_SIGNALS:
     void pixelDensityChanged();
-    void factorChanged();
-
-#ifdef QT_DEBUG
     void indexChanged();
-#endif
 
 private:
     void calculate();
+    void initDisplays();
+
     QQmlPropertyMap *m_height;
     QQmlPropertyMap *m_fonts;
     QQmlPropertyMap *m_margins;
@@ -63,12 +59,8 @@ private:
     QQmlPropertyMap *m_time;
     qreal m_factor;
     qreal m_pixelDensity;
-
-#ifdef QT_DEBUG
-    void initDisplays();
-    QVector<QHash<QString,QVariant> > m_displays;
     int m_index;
-#endif
+    QVector<Display> m_displays;
 };
 
 #endif // THEME_H

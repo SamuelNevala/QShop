@@ -1,11 +1,11 @@
 OTHER_FILES += \
     $$PWD/BackgroundItem.qml \
+    $$PWD/DefaultAnimation.qml \
     $$PWD/DragableItem.qml \
     $$PWD/IconButton.qml \
     $$PWD/Input.qml \
     $$PWD/InputItem.qml \
     $$PWD/main.qml \
-    $$PWD/main_debug.qml \
     $$PWD/Pulley.qml \
     $$PWD/RemorseItem.qml \
     $$PWD/SelectableItem.qml \
@@ -15,6 +15,3 @@ OTHER_FILES += \
     $$PWD/TextItem.qml \
     $$PWD/View.qml \
     $$PWD/Weekdays.qml
-
-DISTFILES += \
-    $$PWD/DefaultAnimation.qml

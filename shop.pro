@@ -6,6 +6,5 @@ include(src/src.pri)
 include(qml/qml.pri)
 include(android.pri)
 
-debug: RESOURCES += qml_debug.qrc
-release: RESOURCES += qml.qrc
+RESOURCES += qml.qrc
 RESOURCES += images.qrc

@@ -1,4 +1,4 @@
-import QtQuick 2.4
+import QtQuick 2.5
 import QtQuick.Window 2.2
 import Shop.models 1.0
 import Shop.extra 1.0
@@ -8,10 +8,19 @@ Window {
 
     property RemorseItem remorse
 
-    height: 960; width: 640
+    color: "black"
+    title: theme.title
+    height: theme.height; width: theme.width
     visible: true
 
-    Rectangle { id: focusHolder; anchors { fill: parent } color: "black" }
+    Item {
+        id: focusHolder
+        anchors { fill: parent }
+        focus: true
+        Keys.onUpPressed: theme.index--
+        Keys.onDownPressed: theme.index++
+    }
+
     Image {
         anchors { top: parent.top; left: parent.left; right: parent.right }
         asynchronous: true
@@ -20,9 +29,11 @@ Window {
         opacity: status == Image.Ready ? 1.0 : 0.0
         visible: opacity > 0.0
         Behavior on opacity { DefaultAnimation{ } }
-        Component.onCompleted: height = Screen.height
+        Component.onCompleted: height = theme.height
     }
+
     Theme { id: theme }
+
     ItemModel { id: itemModel }
 
     BackKey {
@@ -60,9 +71,9 @@ Window {
             anchors { fill: parent }
             Setting {
                 enabled: sideBar.opened
-                width: parent.width
                 source: "qrc:/remove"
                 text: qsTr("Remove all items")
+                width: parent.width
                 onClicked: {
                     sideBar.close()
                     remorse = removAllComponent.createObject(applicationWindow);
@@ -71,9 +82,9 @@ Window {
             }
             Setting {
                 enabled: sideBar.opened
-                width: parent.width
                 source: "qrc:/remove"
                 text: qsTr("Remove shopped items")
+                width: parent.width
                 onClicked: {
                     sideBar.close()
                     remorse = removSelectedComponent.createObject(applicationWindow);
@@ -83,9 +94,9 @@ Window {
             }
             Setting {
                 enabled: sideBar.opened
-                width: parent.width
                 source: "qrc:/refresh"
                 text: qsTr("Reset shopped items")
+                width: parent.width
                 onClicked: {
                     sideBar.close()
                     remorse = resetComponent.createObject(applicationWindow);
@@ -95,9 +106,9 @@ Window {
             }
             Setting {
                 enabled: sideBar.opened
-                width: parent.width
                 source: "qrc:/back"
                 text: qsTr("Continue shopping")
+                width: parent.width
                 onClicked: {
                     sideBar.close()
                     view.setEditMode(false)

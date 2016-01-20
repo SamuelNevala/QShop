@@ -25,10 +25,6 @@ int main(int argc, char *argv[])
     qmlRegisterType<ElapsedTimer>("Shop.timer", 1, 0, "ElapsedTimer");
 
     QQmlApplicationEngine engine;
-#ifdef QT_DEBUG
-    engine.load(QUrl(QStringLiteral("qrc:/qml/main_debug.qml")));
-#else
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
-#endif
     return app.exec();
 }

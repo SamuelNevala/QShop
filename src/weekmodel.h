@@ -13,7 +13,7 @@ class WeekModel : public QAbstractListModel
     Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 public:
-    WeekModel(QObject *parent = 0);
+    explicit WeekModel(QObject *parent = 0);
 
     // from QAbstractItemModel
     int rowCount(const QModelIndex &parent = QModelIndex()) const;

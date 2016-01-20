@@ -10,7 +10,6 @@ BackKey::BackKey(QObject *parent)
 
 BackKey::~BackKey()
 {
-
 }
 
 bool BackKey::eventFilter(QObject *obj, QEvent *event)
