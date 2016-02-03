@@ -9,7 +9,7 @@ Swipeable {
 
     onAction: {
         var tmpIndex = index;
-        itemModel.toggleSelected(index)
+        itemModel.toggleChecked(index)
         resetX(tmpIndex == index ? 0 : theme.time.medium)
     }
 }

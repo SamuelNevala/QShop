@@ -20,7 +20,7 @@ Swipeable {
         id: bottomMouseArea
         anchors { fill: parent }
         propagateComposedEvents: true
-        onClicked: if (!selected) itemModel.moveEditor(index)
+        onClicked: if (!checked) itemModel.moveEditor(index)
         onPressed: mouse.accepted = false
     }
 
@@ -57,7 +57,7 @@ Swipeable {
             property int itemIndex: index
             anchors { verticalCenter: parent.verticalCenter; right: parent.right }
             drag { target: backgound }
-            enabled: !selected && !(remorse && remorse.state == "remorse")
+            enabled: !checked && !(remorse && remorse.state == "remorse")
             height: theme.heights.medium
             source: "qrc:/drag"
             width: height
@@ -76,21 +76,21 @@ Swipeable {
             remove()
         } else {
             var tmpIndex = index;
-            itemModel.toggleSelected(index)
+            itemModel.toggleChecked(index)
             resetX(tmpIndex == index ? 0 : theme.time.medium)
         }
     }
 
     DropArea {
         anchors { fill: parent }
-        enabled: !selected
+        enabled: !checked
         onEntered: itemModel.move(drag.source.itemIndex, index)
     }
 
     Component {
         id: remorseComponent
         RemorseItem {
-            title: qsTr("Removing %1").arg(itemText)
+            title: qsTr("Removing %1").arg(name)
             cancel: (function() { mainView.deleteIndex = -1 })
             done: (function() { itemModel.remove(index); mainView.deleteIndex = -1 })
         }

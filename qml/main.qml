@@ -133,7 +133,7 @@ Window {
             title: qsTr("Removing shopped items")
             cancel: (function() { destroy(theme.time.medium) })
             delay: theme.time.medium
-            done: (function() { itemModel.removeSelected(); destroy(theme.time.medium) })
+            done: (function() { itemModel.removeChecked(); destroy(theme.time.medium) })
         }
     }
 

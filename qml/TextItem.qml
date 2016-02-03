@@ -6,22 +6,22 @@ BackgroundItem {
     property alias textWidth: text.implicitWidth
     property int padding: theme.margins.small
 
-    color: selected ? "white" : "black"
+    color: checked ? "white" : "black"
 
     Text {
         id: text
         anchors { fill: parent; leftMargin: root.padding; rightMargin: root.padding; margins: theme.margins.small }
-        color: selected ? "black" : "white"
+        color: checked ? "black" : "white"
         font {
             bold: true
             pixelSize: theme.fonts.large
-            strikeout: selected
+            strikeout: checked
         }
         fontSizeMode: Text.Fit
         elide: Text.ElideRight
         horizontalAlignment: Text.AlignHCenter
         maximumLineCount: 2
-        text: itemText
+        text: name
         verticalAlignment: Text.AlignVCenter
         wrapMode: Text.Wrap
     }

@@ -4,17 +4,17 @@
 #include <QtCore/QStandardPaths>
 #include <QtCore/QDir>
 
+inline bool operator==(const Item& left, const Item& right)
+{
+    return left.name == right.name && left.checked == right.checked;
+}
+
 Model::Model(QObject *parent)
     : QAbstractListModel(parent)
 {
     load();
-    removeEditor();
-}
-
-int Model::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return m_items.count();
+    QVector<Item>::iterator end = m_items.end();
+    m_items.erase(std::remove_if(m_items.begin(), end, [](const Item &value) { return value.name.isEmpty(); }), end);
 }
 
 QVariant Model::data(const QModelIndex &index, int role) const
@@ -26,13 +26,14 @@ QVariant Model::data(const QModelIndex &index, int role) const
     }
 
     if (role == Qt::DisplayRole) {
-        return m_items[index.row()];
+        return m_items[index.row()].name;
     } else if (role == Qt::CheckStateRole) {
-        return m_selection[index.row()];
+        return m_items[index.row()].checked;
     } else if (role == Qt::EditRole) {
-        return m_editor[index.row()];
-    } else
+        return m_items[index.row()].name.isEmpty();
+    } else {
         return QVariant();
+    }
 }
 
 bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -44,61 +45,37 @@ bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
         return false;
     }
 
-    bool state = value.toBool();
-    if (m_selection[index.row()] == state) {
+    const bool checked = value.toBool();
+    if (m_items[index.row()].checked == checked) {
         return false;
     }
 
-    m_selection[index.row()] = state;
-    Q_EMIT dataChanged(index, index);
+    m_items[index.row()].checked = checked;
+    Q_EMIT dataChanged(index, index, {{ Qt::CheckStateRole }});
     return true;
 }
 
 QHash<int, QByteArray> Model::roleNames() const
 {
-    QHash<int, QByteArray> names;
-    names.insert(Qt::DisplayRole, "itemText");
-    names.insert(Qt::CheckStateRole, "selected");
-    names.insert(Qt::EditRole, "editor");
-    return names;
+    return QHash<int, QByteArray> {{ Qt::DisplayRole, "name" },
+                                   { Qt::CheckStateRole, "checked" },
+                                   { Qt::EditRole, "editor" }};
 }
 
-int Model::count() const
+int Model::rowCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
     return m_items.count();
 }
 
-int Model::editorIndex() const
+void Model::insert(int index, const QString &name)
 {
-    return m_editor.indexOf(true);
-}
-
-void Model::append(const QString &item)
-{
-    beginInsertRows(QModelIndex(), m_items.count(), m_items.count());
-    m_items.append(item);
-    m_selection.append(false);
-    m_editor.append(false);
+    const int bound = qBound(0, index, m_items.count());
+    beginInsertRows(QModelIndex(), bound, bound);
+    m_items.insert(bound, 1, Item(name));
     endInsertRows();
     Q_EMIT countChanged();
     save();
-}
-
-void Model::insert(int index, const QString &item)
-{
-    int boundIndex = qBound(0, index, m_items.count());
-    beginInsertRows(QModelIndex(), boundIndex, boundIndex);
-    m_items.insert(boundIndex, item);
-    m_selection.insert(boundIndex, false);
-    m_editor.insert(boundIndex, false);
-    endInsertRows();
-    Q_EMIT countChanged();
-    save();
-}
-
-void Model::remove(const QString &item)
-{
-    remove(m_items.indexOf(item));
 }
 
 void Model::remove(int index)
@@ -108,9 +85,7 @@ void Model::remove(int index)
     }
 
     beginRemoveRows(QModelIndex(), index, index);
-    m_items.removeAt(index);
-    m_selection.removeAt(index);
-    m_editor.removeAt(index);
+    m_items.remove(index);
     endRemoveRows();
     Q_EMIT countChanged();
     save();
@@ -120,51 +95,72 @@ void Model::removeAll()
 {
     beginRemoveRows(QModelIndex(), 0, m_items.count() - 1);
     m_items.clear();
-    m_selection.clear();
-    m_editor.clear();
     endRemoveRows();
     Q_EMIT countChanged();
     save();
 }
 
-void Model::removeSelected()
+void Model::removeChecked()
 {
-    while (m_selection.contains(true)) {
-        remove(m_selection.indexOf(true));
+    QVector<Item>::iterator begin = m_items.begin();
+    QVector<Item>::iterator end = m_items.end();
+    QVector<Item>::iterator first = std::find_if(begin, end, [] (const Item& value) { return value.checked; });
+
+    if (first == end) {
+        return;
     }
+
+    const int position = std::distance(begin, first);
+    beginRemoveRows(QModelIndex(), position, m_items.count() - 1);
+    m_items.erase(std::remove_if(begin, end, [](const Item &value) { return value.checked; }), end);
+    endRemoveRows();
+    Q_EMIT countChanged();
+    save();
+}
+
+void Model::setChecked(int index, bool checked)
+{
+    if (!setData(this->index(index, 0), checked, Qt::CheckStateRole)) {
+        return;
+    }
+
+    move(index, checked ? checkedIndex(index) - 1 : 0);
+    save();
+}
+
+void Model::toggleChecked(int index)
+{
+    setChecked(index, !m_items[index].checked);
 }
 
 void Model::reset()
 {
-    for (int index = 0; index < m_selection.count(); ++index) {
-        setSelected(index, false);
+    while (m_items.last().checked) {
+        setChecked(m_items.count() - 1, false);
     }
 }
 
 void Model::move(int source, int destination)
 {
-    if (source == destination) {
+    if (source == destination || source < 0 || destination < 0) {
         return;
     }
 
     beginMoveRows(QModelIndex(), source, source, QModelIndex(), destination + (destination > source ? 1 : 0));
-    m_items.move(source, destination);
-    m_selection.move(source, destination);
-    m_editor.move(source, destination);
+    Item moved = m_items.takeAt(source);
+    m_items.insert(destination, 1, moved);
     endMoveRows();
     save();
 }
 
 void Model::addEditor()
 {
-    if (m_editor.contains(true)) {
+    if (editorIndex() != -1) {
         return;
     }
 
     beginInsertRows(QModelIndex(), 0, 0);
-    m_items.insert(0, "editor");
-    m_selection.insert(0, false);
-    m_editor.insert(0, true);
+    m_items.insert(0, 1, Item());
     endInsertRows();
     Q_EMIT countChanged();
     Q_EMIT editorIndexChanged();
@@ -172,67 +168,45 @@ void Model::addEditor()
 
 void Model::removeEditor()
 {
-    while (m_editor.contains(true)) {
-        remove(m_editor.indexOf(true));
+    while (editorIndex() != -1) {
+        remove(editorIndex());
     }
-    Q_EMIT editorIndexChanged();
 }
 
-void Model::moveEditor(int index, bool force)
+void Model::moveEditor(int destination, bool force)
 {
-    int editorIndex = m_editor.indexOf(true);
-    int moveTo = qBound(0, index, count());
-    move(editorIndex, moveTo + (!force && editorIndex >= index && editorIndex != 1 ? 1 : 0));
-    Q_EMIT editorIndexChanged();
-}
-
-void Model::setSelected(int index, bool selected)
-{
-    if (!setData(this->index(index, 0), selected, Qt::CheckStateRole)) {
+    const int source = editorIndex();
+    if (source == -1) {
         return;
     }
 
-    if (m_selection[index])
-        moveToEnd(index);
-    else
-        moveToStart(index);
-    save();
+    destination = qBound(0, destination, m_items.count());
+    move(source, destination + (!force && source >= destination && source != 1 ? 1 : 0));
+    Q_EMIT editorIndexChanged();
 }
 
-void Model::toggleSelected(int index)
+int Model::editorIndex() const
 {
-    if (!setData(this->index(index ,0), !m_selection[index], Qt::CheckStateRole)) {
-        return;
-    }
-
-    if (m_selection[index])
-        moveToEnd(index);
-    else
-        moveToStart(index);
-    save();
+    QVector<Item>::const_iterator begin = m_items.constBegin();
+    QVector<Item>::const_iterator end = m_items.constEnd();
+    QVector<Item>::const_iterator editor = std::find_if(begin, end, [](const Item &value) { return value.name.isEmpty(); });
+    return editor == end ? -1 : std::distance(begin, editor);
 }
 
-void Model::moveToEnd(int from)
+void Model::append(const Item &item)
 {
-    int to = m_selection.count(true) == 1 ? m_selection.count() - 1 : m_selection.indexOf(true, from + 1) - 1;
-    if (from != to) {
-        beginMoveRows(QModelIndex(), from, from, QModelIndex(), to + 1);
-        m_items.move(from, to);
-        m_selection.move(from, to);
-        m_editor.move(from, to);
-        endMoveRows();
-    }
+    beginInsertRows(QModelIndex(), m_items.count(), m_items.count());
+    m_items.append(item);
+    endInsertRows();
+    Q_EMIT countChanged();
 }
 
-void Model::moveToStart(int from)
+int Model::checkedIndex(int index) const
 {
-    if (from != 0) {
-        beginMoveRows(QModelIndex(), from, from, QModelIndex(), 0);
-        m_items.move(from, 0);
-        m_selection.move(from, 0);
-        m_editor.move(from, 0);
-        endMoveRows();
-    }
+    QVector<Item>::const_iterator begin = m_items.constBegin();
+    QVector<Item>::const_iterator end = m_items.constEnd();
+    QVector<Item>::const_iterator checked = std::find_if(begin + index + 1, end, [](const Item &value) { return value.checked; });
+    return checked == end ? m_items.count() : std::distance(begin, checked);
 }
 
 void Model::save()
@@ -251,9 +225,8 @@ void Model::save()
     }
 
     QDataStream out(&file);
-    out << m_items.count();
-    for (int index = 0; index < m_items.count(); ++index) {
-        out << m_items[index] << m_selection[index] << m_editor[index];
+    for (const Item &item : m_items) {
+        out << item.name << item.checked;
     }
     file.close();
 }
@@ -261,8 +234,6 @@ void Model::save()
 void Model::load()
 {
     m_items.clear();
-    m_selection.clear();
-    int count = 0;
 
     QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QFile file(QString("%1/store.dat").arg(path));
@@ -272,13 +243,10 @@ void Model::load()
     }
 
     QDataStream in(&file);
-    in >> count;
-    for (int index = 0; index < count; ++index) {
-        QString item; bool selected; bool editor;
-        in >> item >> selected >> editor;
-        m_items.append(item);
-        m_selection.append(selected);
-        m_editor.append(editor);
+    while(!in.atEnd()) {
+        QString name; bool checked;
+        in >> name >> checked;
+        append(Item(name, checked));
     }
     file.close();
 }
