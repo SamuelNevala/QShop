@@ -23,20 +23,20 @@ Item {
 
         Repeater {
             id: repeater
-            model: WeekModel { id: model }
+            model: WeekModel { }
 
             ColumnLayout {
                 id: layout
                 Text {
                     font { pixelSize: theme.fonts.medium; bold: true }
-                    text: dayName
+                    text: name
                     color: index == 0 ? "#33B5E5" : "white"
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                 }
                 Text {
                     font { pixelSize: theme.fonts.medium; bold: true }
-                    text: dayNumber
+                    text: number
                     color: index == 0 ? "#33B5E5" : "white"
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true

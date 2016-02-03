@@ -2,37 +2,38 @@
 #define WEEKMODEL_H
 
 #include <QtCore/QAbstractListModel>
-#include <QtCore/QList>
-#include <QtCore/QPair>
-#include <QtCore/QString>
 #include <QtCore/QDateTime>
+
+struct Day {
+    Day() {}
+    Day(const QString &name, const QString &number) : name(name), number(number) {}
+    QString name;
+    QString number;
+};
+
+Q_DECLARE_TYPEINFO(Day, Q_MOVABLE_TYPE);
 
 class WeekModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 public:
     explicit WeekModel(QObject *parent = 0);
 
     // from QAbstractItemModel
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QHash<int, QByteArray> roleNames() const;
-
-    int count() const;
-
-Q_SIGNALS:
-    void countChanged();
+    int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+    QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
 
 protected:
-    void timerEvent(QTimerEvent *event);
+    // from QObject
+    void timerEvent(QTimerEvent *event) Q_DECL_OVERRIDE;
 
 private:
     void populateModel();
 
     int m_timerId;
-    QList<QPair<QString, QString> > m_data;
+    QVector<Day> m_week;
     QDateTime m_today;
 };
 

@@ -1,5 +1,4 @@
 #include "weekmodel.h"
-#include <QtCore/QDateTime>
 
 WeekModel::WeekModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -12,7 +11,7 @@ WeekModel::WeekModel(QObject *parent)
 int WeekModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return m_data.count();
+    return m_week.count();
 }
 
 QVariant WeekModel::data(const QModelIndex &index, int role) const
@@ -24,9 +23,9 @@ QVariant WeekModel::data(const QModelIndex &index, int role) const
     }
 
     if (role == Qt::UserRole) {
-        return m_data[index.row()].first;
+        return m_week[index.row()].name;
     } else if (role == Qt::UserRole +1) {
-        return m_data[index.row()].second;
+        return m_week[index.row()].number;
     } else {
         return QVariant();
     }
@@ -34,15 +33,8 @@ QVariant WeekModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> WeekModel::roleNames() const
 {
-    QHash<int, QByteArray> roles;
-    roles.insert(Qt::UserRole, "dayName");
-    roles.insert(Qt::UserRole + 1, "dayNumber");
-    return roles;
-}
-
-int WeekModel::count() const
-{
-    return m_data.count();
+    return QHash<int, QByteArray> {{ Qt::UserRole, "name" },
+                                   { Qt::UserRole + 1, "number" }};
 }
 
 void WeekModel::timerEvent(QTimerEvent *event)
@@ -55,21 +47,17 @@ void WeekModel::timerEvent(QTimerEvent *event)
 
 void WeekModel::populateModel()
 {
-    if (m_data.count() != 0) {
-        beginRemoveRows(QModelIndex(), 0, m_data.count() - 1);
-        m_data.clear();
+    if (m_week.count()) {
+        beginRemoveRows(QModelIndex(), 0, m_week.count() - 1);
+        m_week.clear();
         endRemoveRows();
     }
 
     beginResetModel();
     QDateTime m_today = QDateTime::currentDateTime();
     for (int days = 0; days <= 6; ++days) {
-        QPair<QString, QString> item;
-        item.first = m_today.addDays(days).toString("ddd");
-        item.second = m_today.addDays(days).toString("d");
-        m_data.append(item);
+        m_week.append(Day(m_today.addDays(days).toString("ddd"),
+                          m_today.addDays(days).toString("d")));
     }
     endResetModel();
-    Q_EMIT dataChanged(index(0), index(m_data.count()));
-    Q_EMIT countChanged();
 }
