@@ -2,6 +2,7 @@
 #include <QtCore/qmath.h>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
+#include <QtGui/QStyleHints>
 #include <QtQml/QQmlPropertyMap>
 #include <QDebug>
 
@@ -46,6 +47,8 @@ void Theme::calculate()
 
     m_time->insert(QLatin1String("long"), QVariant(500));
     m_time->insert(QLatin1String("medium"), QVariant(250));
+
+    QGuiApplication::styleHints()->setStartDragDistance(3 * ratio);
 }
 
 QString Theme::title() const
