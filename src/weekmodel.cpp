@@ -1,6 +1,6 @@
 #include "weekmodel.h"
 
-WeekModel::WeekModel(QObject *parent)
+WeekModel::WeekModel(QObject *parent) Q_DECL_NOTHROW
     : QAbstractListModel(parent)
     , m_timerId(0)
 {

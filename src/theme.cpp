@@ -8,7 +8,7 @@
 
 #define REFERENCE_HIGHT 102.0
 
-Theme::Theme(QObject *parent)
+Theme::Theme(QObject *parent) Q_DECL_NOTHROW
     : QObject(parent)
     , m_height(new QQmlPropertyMap(this))
     , m_fonts(new QQmlPropertyMap(this))

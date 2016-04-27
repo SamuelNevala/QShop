@@ -2,7 +2,7 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QGuiApplication>
 
-BackKey::BackKey(QObject *parent)
+BackKey::BackKey(QObject *parent) Q_DECL_NOTHROW
     : QObject(parent)
 {
     qApp->installEventFilter(this);

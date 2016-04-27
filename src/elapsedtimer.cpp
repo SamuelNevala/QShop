@@ -1,6 +1,6 @@
 #include "elapsedtimer.h"
 
-ElapsedTimer::ElapsedTimer(QObject *parent)
+ElapsedTimer::ElapsedTimer(QObject *parent) Q_DECL_NOTHROW
     : QObject(parent)
 {
 }

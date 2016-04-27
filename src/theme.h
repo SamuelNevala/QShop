@@ -30,7 +30,7 @@ class Theme : public QObject
     Q_PROPERTY(qreal pixelDensity READ pixelDensity NOTIFY pixelDensityChanged)
 
 public:
-    explicit Theme(QObject *parent = 0);
+    explicit Theme(QObject *parent = 0) Q_DECL_NOTHROW;
 
     QQmlPropertyMap *heights() const { return m_height; }
     QQmlPropertyMap *fonts() const { return m_fonts; }

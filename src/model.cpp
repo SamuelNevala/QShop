@@ -9,7 +9,7 @@ inline bool operator==(const Item& left, const Item& right)
     return left.name == right.name && left.checked == right.checked;
 }
 
-Model::Model(QObject *parent)
+Model::Model(QObject *parent) Q_DECL_NOTHROW
     : QAbstractListModel(parent)
 {
     load();

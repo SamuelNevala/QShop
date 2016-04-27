@@ -8,7 +8,7 @@ class ElapsedTimer : public QObject
 {
     Q_OBJECT
 public:
-    explicit ElapsedTimer(QObject *parent = 0);
+    explicit ElapsedTimer(QObject *parent = 0) Q_DECL_NOTHROW;
 
     Q_INVOKABLE void start();
     Q_INVOKABLE qint64 elapsed() const;

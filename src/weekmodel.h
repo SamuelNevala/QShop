@@ -18,7 +18,7 @@ class WeekModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    explicit WeekModel(QObject *parent = 0);
+    explicit WeekModel(QObject *parent = 0) Q_DECL_NOTHROW;
 
     // from QAbstractItemModel
     int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;

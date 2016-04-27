@@ -10,7 +10,7 @@ class Voice : public QObject
      Q_PROPERTY(bool continuous READ continuous NOTIFY continuousChanged)
 
 public:
-    explicit Voice(QObject *parent = 0);
+    explicit Voice(QObject *parent = 0) Q_DECL_NOTHROW;
     bool continuous() const;
 
 Q_SIGNALS:

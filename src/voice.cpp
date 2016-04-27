@@ -4,7 +4,7 @@
 #include <QtGui/QGuiApplication>
 #include "voice.h"
 
-Voice::Voice(QObject *parent)
+Voice::Voice(QObject *parent) Q_DECL_NOTHROW
     : QObject(parent)
     , m_continuous(false)
 {
