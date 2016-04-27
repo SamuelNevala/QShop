@@ -25,12 +25,11 @@ protected:
 private:
     bool m_continuous;
 
-    QString m_add;
-    QString m_clean;
-    QString m_end;
-    QString m_remove;
-    QString m_start;
-    QStringList m_history;
+    QStringList m_add;
+    QStringList m_clean;
+    QStringList m_end;
+    QStringList m_remove;
+    QStringList m_start;
 };
 
 #endif // VOICECOMMANDS_H
