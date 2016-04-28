@@ -5,6 +5,7 @@
         <file alias="menu">img/ic_drawer.png</file>
         <file alias="new">img/ic_action_new.png</file>
         <file alias="bg">img/WP_20131020_023.jpg</file>
+        <file>img/fontawesome-webfont.ttf</file>
         <file alias="back">img/ic_action_previous_item.png</file>
         <file alias="remove">img/ic_action_discard.png</file>
     </qresource>

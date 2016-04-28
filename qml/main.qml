@@ -13,6 +13,10 @@ Window {
     height: theme.height; width: theme.width
     visible: true
 
+    FontLoader {
+        source: "qrc:/img/fontawesome-webfont.ttf"
+    }
+
     Item {
         id: focusHolder
         anchors { fill: parent }
