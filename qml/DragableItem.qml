@@ -40,7 +40,7 @@ Swipeable {
 
         TextItem {
             anchors { fill: parent }
-            padding: textWidth >= root.width ? dragSpot.width : 0
+            padding: lineCount > 1 && mainView.editMode && dragSpot.enabled ? theme.margins.large
             opacity: remorse && remorse.state == "remorse" ? 0.0 : 1.0
             Behavior on opacity { DefaultAnimation { } }
         }
@@ -62,7 +62,7 @@ Swipeable {
 
         Drag.active: dragSpot.drag.active
         Drag.hotSpot.y: Math.round(root.height / 2)
-        Drag.hotSpot.x:  Math.round(root.width / 2)
+        Drag.hotSpot.x: Math.round(root.width / 2)
         Drag.source: dragSpot
 
         Behavior on scale { DefaultAnimation { } }

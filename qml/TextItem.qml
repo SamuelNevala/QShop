@@ -4,6 +4,7 @@ BackgroundItem {
     id: root
 
     property alias textWidth: text.implicitWidth
+    property alias lineCount: text.lineCount
     property int padding: theme.margins.small
 
     color: checked ? "white" : "black"
