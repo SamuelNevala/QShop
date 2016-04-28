@@ -1,5 +1,6 @@
 OTHER_FILES += \
     $$PWD/BackgroundItem.qml \
+    $$PWD/Button.qml \
     $$PWD/DefaultAnimation.qml \
     $$PWD/DragableItem.qml \
     $$PWD/IconButton.qml \

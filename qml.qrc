@@ -16,5 +16,6 @@
         <file>qml/Pulley.qml</file>
         <file>qml/IconButton.qml</file>
         <file>qml/DefaultAnimation.qml</file>
+        <file>qml/Button.qml</file>
     </qresource>
 </RCC>
