@@ -3,13 +3,10 @@ OTHER_FILES += \
     $$PWD/Button.qml \
     $$PWD/DefaultAnimation.qml \
     $$PWD/DragableItem.qml \
-    $$PWD/IconButton.qml \
-    $$PWD/Input.qml \
     $$PWD/InputItem.qml \
     $$PWD/main.qml \
     $$PWD/Pulley.qml \
     $$PWD/RemorseItem.qml \
-    $$PWD/SelectableItem.qml \
     $$PWD/Setting.qml \
     $$PWD/SideBar.qml \
     $$PWD/Swipeable.qml \
