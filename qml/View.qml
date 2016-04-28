@@ -19,6 +19,7 @@ ListView {
     property bool editMode: false
     property int deleteIndex: -1
 
+
     Pulley {
         actionText: editMode ? qsTr("Release to shop") : qsTr("Release to edit")
         anchors { top: parent.top; left: parent.left; right: parent.right }
@@ -44,14 +45,11 @@ ListView {
     cacheBuffer: theme.heights.large * 40
     currentIndex: -1
     clip: applicationWindow.remorse
-    delegate: Component {
-        Loader {
-            property bool isEditor: editor
-            width: parent.width
-            source: editor ? Qt.resolvedUrl("InputItem.qml")
-                           : editMode ? Qt.resolvedUrl("DragableItem.qml")
-                                      : Qt.resolvedUrl("SelectableItem.qml")
-        }
+    delegate: Loader {
+        property bool isEditor: editor
+        width: parent.width
+        source: editor ? Qt.resolvedUrl("InputItem.qml")
+                       : Qt.resolvedUrl("DragableItem.qml")
     }
 
     add: Transition {

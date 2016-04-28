@@ -70,7 +70,7 @@ Swipeable {
     }
 
     onAction: {
-        if (rightSide) {
+        if (rightSide && mainView.editMode) {
             remove()
         } else {
             var tmpIndex = index;
@@ -81,7 +81,7 @@ Swipeable {
 
     DropArea {
         anchors { fill: parent }
-        enabled: !checked
+        enabled: !checked && mainView.editMode
         onEntered: itemModel.move(drag.source.itemIndex, index)
     }
 
