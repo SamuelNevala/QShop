@@ -3,7 +3,7 @@ import QtQuick 2.6
 MouseArea {
     id: root
 
-    property alias source: icon.source
+    property alias source: icon.icon
     property alias text: text.text
 
     implicitHeight: theme.heights.medium
@@ -13,10 +13,10 @@ MouseArea {
         color: root.pressed || icon.pressed ? "lightgray" : "white"
     }
 
-    IconButton {
+    Button {
         id: icon
         anchors { top: parent.top; bottom: parent.bottom; left: parent.left }
-        overlayVisible: root.pressed
+        color: pressed || root.pressed ? "#33B5E5" : "black"
         width: height
         onClicked: root.clicked(mouse)
     }

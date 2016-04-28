@@ -45,15 +45,19 @@ Swipeable {
             Behavior on opacity { DefaultAnimation { } }
         }
 
-        IconButton {
+        Button {
             id: dragSpot
             property int itemIndex: index
             anchors { verticalCenter: parent.verticalCenter; right: parent.right }
+            color: pressed ? "#33B5E5" : "white"
             drag { target: backgound }
             enabled: !checked && !(remorse && remorse.state == "remorse")
-            height: theme.heights.medium
-            source: "qrc:/drag"
-            width: height
+            height: parent.height
+            icon: "\uf142"
+            opacity: mainView.editMode && enabled ? 1.0 : 0.0
+            visible: opacity > 0.0
+            width: theme.margins.large
+            Behavior on opacity { DefaultAnimation { } }
         }
 
         Drag.active: dragSpot.drag.active
