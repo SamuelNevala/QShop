@@ -15,13 +15,7 @@ Swipeable {
 
     property RemorseItem remorse
 
-    MouseArea {
-        id: bottomMouseArea
-        anchors { fill: parent }
-        propagateComposedEvents: true
-        onClicked: if (!checked) itemModel.moveEditor(index)
-        onPressed: mouse.accepted = false
-    }
+    onClicked: if (!checked) itemModel.moveEditor(index)
 
     Item {
         id: backgound

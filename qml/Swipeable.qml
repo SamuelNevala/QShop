@@ -62,7 +62,4 @@ MouseArea {
             }
         }
     }
-
-    propagateComposedEvents: mainView.editMode
-    onClicked: mouse.accepted = !mainView.editMode
 }
