@@ -41,6 +41,7 @@ Swipeable {
         TextItem {
             anchors { fill: parent }
             padding: lineCount > 1 && mainView.editMode && dragSpot.enabled ? theme.margins.large
+                                                                            : theme.margins.small
             opacity: remorse && remorse.state == "remorse" ? 0.0 : 1.0
             Behavior on opacity { DefaultAnimation { } }
         }
