@@ -1,4 +1,4 @@
-import QtQuick 2.4
+import QtQuick 2.6
 import Shop.timer 1.0
 
 MouseArea {

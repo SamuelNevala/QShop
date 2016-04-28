@@ -1,4 +1,4 @@
-import QtQuick 2.5
+import QtQuick 2.6
 import QtQuick.Window 2.2
 import Shop.models 1.0
 import Shop.extra 1.0

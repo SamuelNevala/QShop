@@ -1,5 +1,6 @@
-import QtQuick 2.4
-import QtQuick.Controls 1.3
+import QtQuick 2.6
+import Qt.labs.controls 1.0 as Controls
+import Shop.extra 1.0
 
 Input {
     id: input
