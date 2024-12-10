@@ -1,0 +1,6 @@
+[submodule "QuickDynamics"]
+	path = QuickDynamics
+	url = git@github.com:SamuelNevala/QuickDynamics.git
+[submodule "QDynamics"]
+	path = QDynamics
+	url = git@github.com:SamuelNevala/QDynamics.git
