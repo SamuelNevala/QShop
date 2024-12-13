@@ -48,6 +48,7 @@ qt_add_qml_module(application
         IconChoser.qml
         InputDelegate.qml
         main.qml
+        Menu.qml
         View.qml
         OpacityAnimation.qml
         Pulley.qml

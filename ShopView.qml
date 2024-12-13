@@ -7,6 +7,8 @@ pragma ComponentBehavior: Bound
 ListView {
     id: shopView
 
+    signal openMenu()
+
     property Dimensions dimensions
     property string fontFamily
     property bool editMode: false
@@ -107,6 +109,7 @@ ListView {
                 itemModel.insert(index, text)
                 shopView.positionViewAtIndex(index, ListView.Contain)
             }
+            onBarsTapped: shopView.openMenu()
             onTimeout: itemModel.clearUndoStack();
             onUndo: itemModel.undo();
         }
