@@ -1,3 +1,4 @@
+import QtQuick.Controls.Material
 import QtQuick
 import QDynamics
 import QShopper
@@ -43,7 +44,7 @@ ListView {
     }
 
     Rectangle {
-        color: "black"
+        color: Material.backgroundColor
         height: parent.height - y; width: parent.width
         opacity: height <= 0 ? 0.0 : 0.8
         y: Math.max(0, shopView.contentItem.childrenRect.height  - shopView.contentY)

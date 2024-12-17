@@ -1,3 +1,4 @@
+import QtQuick.Controls.Material
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -11,7 +12,7 @@ Control {
 
     property Dimensions dimensions
 
-    background: Rectangle { color: "black"; opacity: 0.8 }
+    background: Rectangle { color: Material.backgroundColor; opacity: 0.8 }
     contentItem: RowLayout {
         implicitHeight: root.dimensions.mm(9.27)
 
@@ -27,7 +28,7 @@ Control {
                 Text {
                     font { pixelSize: root.dimensions.mm(3); bold: true }
                     text: layout.name
-                    color: layout.index == 0 ? "#4CAF50" : "white"
+                    color: layout.index == 0 ? Material.accentColor : Material.foreground
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                     fontSizeMode: Text.Fit
@@ -36,7 +37,7 @@ Control {
                 Text {
                     font { pixelSize: root.dimensions.mm(3); bold: true }
                     text: layout.number
-                    color: layout.index == 0 ? "#4CAF50" : "white"
+                    color: layout.index == 0 ? Material.accentColor : Material.foreground
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                     fontSizeMode: Text.Fit

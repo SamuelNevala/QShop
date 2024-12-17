@@ -1,3 +1,4 @@
+import QtQuick.Controls.Material
 import QtQuick
 import QtQuick.Controls
 import QDynamics
@@ -6,7 +7,7 @@ AbstractButton {
     id: root
 
     property Dimensions dimensions
-    property color color: pressed ? "#4CAF50" : "black"
+    property color color: pressed ? Material.accentColor : Material.backgroundColor
 
     contentItem: TextIcon {
         color: root.color

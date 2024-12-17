@@ -1,10 +1,15 @@
+import QtQuick.Controls.Material
+import QtQuick.Controls.Fusion
 import QtQuick
-import QtQuick.Controls.Basic
 import QDynamics
 import QShopper
 
 Delegate {
     id: root
+
+    function inverse(theme) {
+        return theme === Material.Dark ? Material.Light : Material.Dark;
+    }
 
     property bool editor
     property bool canUndo
@@ -31,13 +36,15 @@ Delegate {
             root.timeout();
         }
 
-        background:  Rectangle { color: "white"; opacity: 0.8 }
+        background:  Rectangle { color: Material.backgroundColor; opacity: 0.8 }
+        color: Material.primaryTextColor
+        placeholderTextColor: Material.secondaryTextColor
         focus: true
         font { pixelSize: root.dimensions.mm(3.5) }
         horizontalAlignment: Text.AlignHCenter
         leftPadding: height
         rightPadding: height
-        placeholderText: qsTr("Tap to insert items")
+        placeholderText: qsTr("Tap to add items")
 
         onAccepted: addItem()
 
@@ -64,6 +71,7 @@ Delegate {
                 onClicked: root.undo()
                 onTimeout: root.timeout()
                 z: 3
+                Material.theme: ThemeManager.theme
             }
             front: Icon {
                 anchors { fill: parent }
@@ -73,6 +81,7 @@ Delegate {
                 enabled: !root.canUndo
                 opacity: 1.0
                 onClicked: root.barsTapped();
+                Material.theme: ThemeManager.theme
             }
             height: parent.height; width: height
             states: State {
@@ -102,6 +111,7 @@ Delegate {
                 // Qt.inputMethod.commit()
                 input.clear()
             }
+            Material.theme: ThemeManager.theme
         }
     }
 
@@ -111,4 +121,6 @@ Delegate {
     }
 
     Keys.onEscapePressed: input.focus = false;
+
+    Material.theme: ThemeManager.inverseTheme
 }

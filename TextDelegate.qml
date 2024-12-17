@@ -1,3 +1,4 @@
+import QtQuick.Controls.Material
 import QtQuick
 import QShopper
 import QDynamics
@@ -47,7 +48,10 @@ Delegate {
                 longPressActive = false;
             }
         }
-        onLongPressed: longPressActive = true;
+        onLongPressed: {
+            if (root.checked) return;
+            longPressActive = true;
+        }
         onSingleTapped: root.singleTapped();
     }
 
@@ -75,15 +79,15 @@ Delegate {
     background: Item {
         Rectangle {
             anchors { fill: parent }
-            color: root.checked ? "white" : "black"
+            color: Material.backgroundColor
             opacity: Math.max(0.6, 0.8 - (Math.abs(root.x) / swipeHandler.actionTreshold * 0.6))
             Behavior on color { ColorAnimation { } }
         }
 
         Rectangle {
             anchors { top: parent.top; left: parent.left; right: parent.right }
-            color: tapHandler.longPressActive ? "#4CAF50" : "trasparent"
-            height: 1
+            color: tapHandler.longPressActive ? Material.accentColor : "trasparent"
+            height: root.dimensions.mm(0.4)
             opacity: tapHandler.longPressActive ? 1.0 : 0.0
             Behavior on color { ColorAnimation { } }
             Behavior on opacity { DefaultAnimation { } }
@@ -91,8 +95,8 @@ Delegate {
 
         Rectangle {
             anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
-            color: tapHandler.longPressActive ? "#4CAF50" : "trasparent"
-            height: 1
+            color: tapHandler.longPressActive ? Material.accentColor : "trasparent"
+            height: root.dimensions.mm(0.4)
             opacity: tapHandler.longPressActive ? 1.0 : 0.0
             Behavior on color { ColorAnimation { } }
             Behavior on opacity { DefaultAnimation { } }
@@ -100,9 +104,8 @@ Delegate {
 
         Rectangle {
             id: leftIconBackground
-
             anchors { bottom: parent.bottom; top: parent.top; right: parent.left }
-            color: root.editMode ? "#F44336" : "#4CAF50"
+            color: root.editMode ? Material.color(Material.Red) : Material.color(Material.Green)
             opacity: animateSwipe.running ? 0.0 : 0.8
             width: root.x
             Behavior on color { ColorAnimation { } }
@@ -116,6 +119,7 @@ Delegate {
                 font { family: root.font.family }
                 ratio: root.x / width
                 opacity: animateSwipe.running ? 0.0 : Math.max(0.0, ratio)
+                Material.theme: ThemeManager.theme
             }
             editMode: root.editMode
             icon: CartInIcon {
@@ -127,6 +131,7 @@ Delegate {
                 font { family: root.font.family }
                 ratio: root.x / width
                 opacity: animateSwipe.running ? 0.0 : Math.max(0.0, ratio)
+                Material.theme: ThemeManager.theme
             }
             width: height
         }
@@ -135,7 +140,7 @@ Delegate {
             id: rightIconBackground
 
             anchors { bottom: parent.bottom; top: parent.top; left: parent.right }
-            color: "#4CAF50"
+            color: Material.color(Material.Green)
             opacity: animateSwipe.running ? 0.0 : 0.8
             width: -root.x
             Behavior on color { ColorAnimation { } }
@@ -151,6 +156,7 @@ Delegate {
                 font { family: root.font.family }
                 ratio: root.x / -width
                 opacity: animateSwipe.running ? 0.0 : Math.max(0.0, ratio)
+                Material.theme: ThemeManager.theme
             }
             icon: CartInIcon {
                 font { family: root.font.family }
@@ -164,9 +170,9 @@ Delegate {
 
     contentItem: TextItem {
         checked: root.checked
-        color: root.checked ? "black" : "white"
         dimensions: root.dimensions
         text: root.name
+        Material.theme: ThemeManager.theme
     }
 
     resources: [
@@ -199,4 +205,5 @@ Delegate {
             }
         }
     ]
+    Material.theme: checked ? ThemeManager.inverseTheme : ThemeManager.theme
 }

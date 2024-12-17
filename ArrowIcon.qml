@@ -1,3 +1,4 @@
+import QtQuick.Controls.Material
 import QtQuick
 
 TextIcon {
@@ -30,7 +31,7 @@ TextIcon {
     TextIcon {
         id: arrowIcon
 
-        color: "white"
+        color: Material.primaryTextColor
         font { family: root.font.family }
         height: parent.height * 0.35; width: parent.width
         leftPadding: width * 0.32; rightPadding: width * 0.32

@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(QT_QML_GENERATE_QMLLS_INI ON)
 # set(QML_IMPORT_TRACE  1)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick Sql)
+find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick Sql QuickControls2)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
@@ -33,6 +33,8 @@ qt_add_executable(application
 # # Add the QML import path to the engine in main.cpp
 # target_compile_definitions(MyApp PRIVATE QML_IMPORT_PATH="${QML_IMPORT_PATH}")
 
+set_source_files_properties(ThemeManager.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+
 qt_add_qml_module(application
     URI QShopper
     VERSION 1.0
@@ -42,9 +44,13 @@ qt_add_qml_module(application
         BackgroundImage.qml
         CartInIcon.qml
         CartOutIcon.qml
+        ColorComboBox.qml
+        ColorModel.qml
         Delegate.qml
         DelegateChoser.qml
+        GroupBox.qml
         Icon.qml
+        IconButton.qml
         IconChoser.qml
         InputDelegate.qml
         main.qml
@@ -57,6 +63,7 @@ qt_add_qml_module(application
         TextDelegate.qml
         TextIcon.qml
         TextItem.qml
+        ThemeManager.qml
         TrashIcon.qml
         UndoIcon.qml
         Weekdays.qml
@@ -86,7 +93,7 @@ set_target_properties(application PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-target_link_libraries(application PRIVATE Qt6::Quick Qt6::Sql Qt6::Core Qt6::Qml)
+target_link_libraries(application PRIVATE Qt6::Quick Qt6::Sql Qt6::Core Qt6::Qml Qt6::QuickControls2)
 
 install(TARGETS application
     BUNDLE DESTINATION .

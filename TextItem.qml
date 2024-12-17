@@ -1,13 +1,14 @@
+import QtQuick.Controls.Material
 import QtQuick
 import QDynamics
 
 Text {
     id: root
 
-    property bool checked
+    property bool checked: false
     property Dimensions dimensions
 
-    color: "white"
+    color: checked ? Material.backgroundColor : Material.primaryTextColor
     font {
         bold: true
         pixelSize: dimensions.mm(7)

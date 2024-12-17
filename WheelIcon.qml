@@ -1,9 +1,10 @@
+import QtQuick.Controls.Material
 import QtQuick
 
 TextIcon {
     id: root
 
-    color: "white"
+    color: Material.primaryTextColor
     text: "\uf013"
 
     NumberAnimation {

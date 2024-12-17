@@ -5,8 +5,6 @@ Icon {
 
     signal timeout()
 
-    property color color: pressed ? "#4CAF50" : "black"
-
     background: Canvas {
         id: canvas
 
