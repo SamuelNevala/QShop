@@ -6,7 +6,6 @@ import QDynamics
 
 pragma ComponentBehavior: Bound
 
-
 Style.Control {
     id: root
 
@@ -22,21 +21,17 @@ Style.Control {
             id: menu
 
             contentItem: Quick.ListView {
-                spacing: root.dimensions.mm(1)
-                model: Quick.ListModel {
-                    Quick.ListElement { type: "theme" }
-                    Quick.ListElement { type: "colors" }
-                }
                 delegate: DelegateChooser {
                     role: "type"
 
                     DelegateChoice {
                         roleValue: "theme"
+
                         GroupBox {
-                            id: box
-                            title: qsTr("Theme")
                             dimensions: root.dimensions
+                            title: qsTr("Theme")
                             width: menu.contentItem.width
+
                             RowLayout {
                                 spacing: root.dimensions.mm(0.5)
                                 uniformCellSizes: true
@@ -44,40 +39,32 @@ Style.Control {
 
                                 IconButton {
                                     autoExclusive: true
-                                    checked: true
+                                    checked: ThemeManager.theme === Style.Material.Dark
                                     dimensions: root.dimensions
                                     font { family: awsome.name }
                                     icon { name: "\uf186" }
                                     text: qsTr("Dark")
-                                    onClicked: {
-                                        checked = true
-                                        ThemeManager.theme = Style.Material.Dark
-                                        box.forceActiveFocus()
-                                    }
+                                    onClicked: ThemeManager.theme = Style.Material.Dark
                                     Layout.fillHeight: true; Layout.fillWidth: true
                                 }
                                 IconButton {
                                     autoExclusive: true
+                                    checked: ThemeManager.theme === Style.Material.Light
                                     dimensions: root.dimensions
                                     font { family: awsome.name }
                                     icon { name: "\uf185" }
                                     text: qsTr("Light")
-                                    onClicked: {
-                                        checked = true
-                                        ThemeManager.theme = Style.Material.Light
-                                    }
+                                    onClicked: ThemeManager.theme = Style.Material.Light
                                     Layout.fillHeight: true; Layout.fillWidth: true
                                 }
                                 IconButton {
                                     autoExclusive: true
+                                    checked: ThemeManager.theme === Style.Material.System
                                     dimensions: root.dimensions
                                     font { family: awsome.name }
                                     icon { name: "\uf10a" }
                                     text: qsTr("System")
-                                    onClicked: {
-                                        checked = true
-                                        ThemeManager.theme = Style.Material.System
-                                    }
+                                    onClicked: ThemeManager.theme = Style.Material.System
                                     Layout.fillHeight: true; Layout.fillWidth: true
                                 }
                             }
@@ -85,10 +72,12 @@ Style.Control {
                     }
                     DelegateChoice {
                         roleValue: "colors"
+
                         RowLayout {
                             spacing: root.dimensions.mm(0.5)
                             uniformCellSizes: true
                             width: parent.width
+
                             ColorComboBox {
                                 dimensions: root.dimensions
                                 label: qsTr("Accent")
@@ -106,6 +95,11 @@ Style.Control {
                          }
                     }
                 }
+                model: Quick.ListModel {
+                    Quick.ListElement { type: "theme" }
+                    Quick.ListElement { type: "colors" }
+                }
+                spacing: root.dimensions.mm(1)
             }
 
             dimensions: root.dimensions
