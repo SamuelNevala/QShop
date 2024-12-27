@@ -46,6 +46,7 @@ qt_add_qml_module(application
         CartOutIcon.qml
         ColorComboBox.qml
         ColorModel.qml
+        ComboBox.qml
         Delegate.qml
         DelegateChoser.qml
         GroupBox.qml
@@ -71,6 +72,7 @@ qt_add_qml_module(application
         YAnimation.qml
     SOURCES
         model.h model.cpp
+        sortfilterproxymodel.h sortfilterproxymodel.cpp
         undoremove.h undoremove.cpp
         weekmodel.h weekmodel.cpp
     RESOURCES

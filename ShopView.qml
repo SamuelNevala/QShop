@@ -13,6 +13,7 @@ ListView {
     property Dimensions dimensions
     property string fontFamily
     property bool editMode: false
+    property var lists: itemModel.lists
 
     function setEditMode(mode) {
         if (editMode === mode) {
@@ -116,7 +117,11 @@ ListView {
         }
     }
 
-    model: Model { id: itemModel; Component.onCompleted: shopView.setEditMode(!itemModel.count) }
+    model: Model {
+        id: itemModel;
+        activeList: ThemeManager.activeList
+        Component.onCompleted: shopView.setEditMode(!itemModel.count)
+    }
 
     add: Transition {
         SequentialAnimation {

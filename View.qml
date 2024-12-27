@@ -11,14 +11,27 @@ Style.Control {
 
     property Dimensions dimensions
 
+    SortFilterProxyModel {
+        id: sortedModel
+        sourceModel: Model {
+            id: listsModel
+            activeList: "lists"
+            readOnly: true
+        }
+    }
+
     background: Background {}
     contentItem: ShopView {
+        id: shopView
+
         dimensions: root.dimensions
         fontFamily: awsome.name
         onOpenMenu: menu.open()
 
         Menu {
             id: menu
+
+            onAboutToShow: listsModel.reload()
 
             contentItem: Quick.ListView {
                 delegate: DelegateChooser {
@@ -94,8 +107,31 @@ Style.Control {
                             }
                          }
                     }
+                    DelegateChoice {
+                        roleValue: "lists"
+                           ComboBox {
+                                dimensions: root.dimensions
+                                model: sortedModel
+                                textRole: "name"
+                                valueRole: "id"
+                                label: qsTr("Lists")
+                                width: menu.contentItem.width
+                                onActivated: {
+                                    ThemeManager.activeList = currentValue
+                                    menu.close();
+                                }
+                                onCountChanged: {
+                                    currentIndex = indexOfValue(ThemeManager.activeList)
+                                }
+                                Quick.Component.onCompleted: {
+                                    currentIndex = indexOfValue(ThemeManager.activeList)
+                                }
+                            }
+                    }
+
                 }
                 model: Quick.ListModel {
+                    Quick.ListElement { type: "lists" }
                     Quick.ListElement { type: "theme" }
                     Quick.ListElement { type: "colors" }
                 }
