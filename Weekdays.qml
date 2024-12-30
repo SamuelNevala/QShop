@@ -48,8 +48,8 @@ Control {
 
                     Text {
                         anchors { centerIn: parent; verticalCenterOffset: root.dimensions.mm(1.5) }
-                        color: day.index == 0 ? Material.primaryTextColor : Material.foreground
-                        font { bold: true; pixelSize: root.dimensions.mm(3) }
+                        color: day.index == 0 ? Material.primaryHighlightedTextColor : Material.foreground
+                        font { bold: true; pixelSize: root.dimensions.mm(4.5) }
                         fontSizeMode: Text.Fit
                         horizontalAlignment: Text.AlignHCenter
                         text: day.number

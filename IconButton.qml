@@ -2,37 +2,35 @@ import QtQuick.Controls.Material
 import QtQuick
 import QDynamics
 
-AbstractButton {
+RoundButton {
     id: root
 
     property Dimensions dimensions
 
-    implicitHeight: dimensions.mm(15)
-    implicitWidth: dimensions.mm(15)
-
-    bottomPadding: height * 0.2
-
+    bottomInset: dimensions.mm(3)
     contentItem: Item {
-        Rectangle {
-            anchors { centerIn: parent }
-            height: parent.height * 0.8; width:  parent.height * 0.8
-            color: root.checked ? Material.primary: Material.frameColor
-            radius: Material.FullScale
-            Behavior on color { ColorAnimation {} }
-
-            TextIcon {
-                anchors { centerIn: parent }
-                color: Material.primaryTextColor
-                height: parent.height * 0.8; width: parent.width * 0.8
-                font { family: root.font.family }
-                text: root.icon.name
-            }
+        TextIcon {
+            anchors { centerIn: parent; verticalCenterOffset: -root.dimensions.mm(1.5) }
+            height: parent.height * 0.5; width: parent.width * 0.5
+            font { family: root.font.family }
+            text: root.icon.name
+            color: !root.enabled ? Material.hintTextColor :
+                root.flat && root.highlighted ? Material.accentColor :
+                root.highlighted ? Material.primaryHighlightedTextColor : Material.foreground
+        }
+        TextItem {
+            anchors { centerIn: parent; verticalCenterOffset: root.dimensions.mm(4) }
+            dimensions: root.dimensions
+            color: Material.foreground
+            height: root.dimensions.mm(3)
+            text: root.text
         }
     }
-    background: TextIcon {
-        anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-        color: Material.foreground
-        height: parent.height * 0.2
-        text: root.text
-    }
+    implicitWidth: Math.max(dimensions.mm(8) + leftInset + rightInset, dimensions.mm(8) + leftPadding + rightPadding)
+    implicitHeight: Math.max(dimensions.mm(8) + topInset + bottomInset, dimensions.mm(8) + topPadding + bottomPadding)
+    leftInset: 0
+    padding: 0
+    rightInset: 0
+    spacing: 0
+    topInset: 0
 }

@@ -1,13 +1,25 @@
 #include "undoremove.h"
 
-UndoRemove::UndoRemove(Model &model, Item &&item, size_t index)
-    : m_model(model),
-      m_item(std::move(item)),
-      m_index(index)
+UndoRemove::UndoRemove(Model &model)
+    : m_model(model)
 {
 }
 
 void UndoRemove::undo()
 {
-    m_model.insert(m_index, std::move(m_item));
+    while(!m_items.empty()) {
+        m_model.insert(m_indexs.takeFirst(), std::move(m_items.takeFirst()));
+    }
+}
+
+void UndoRemove::append(Item &&item, qsizetype index)
+{
+    m_items.append(item);
+    m_indexs.append(index);
+}
+
+void UndoRemove::append(const Item &item, qsizetype index)
+{
+    m_items.append(item);
+    m_indexs.append(index);
 }

@@ -27,6 +27,18 @@ ListView {
         itemModel.removeEditor();
     }
 
+    function reset() {
+        itemModel.reset()
+    }
+
+    function removeChecked() {
+        itemModel.removeChecked();
+    }
+
+    function removeAll() {
+        itemModel.removeAll();
+    }
+
     Pulley {
         anchors { left: parent.left; right: parent.right; bottom: weekdays.top }
         bottomPadding: shopView.dimensions.mm(1)

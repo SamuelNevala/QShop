@@ -7,12 +7,14 @@
 class UndoRemove : public QUndoCommand
 {
 public:
-    UndoRemove(Model& model, Item &&item, size_t index);
+    UndoRemove(Model& model);
     void undo() override;
+    void append(Item &&item, qsizetype index);
+    void append(const Item &item, qsizetype index);
 private:
     Model& m_model;
-    Item m_item;
-    const size_t m_index;
+    QVector<Item> m_items;
+    QVector<qsizetype> m_indexs;
 };
 
 #endif // UNDOREMOVE_H

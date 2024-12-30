@@ -134,7 +134,9 @@ void Model::remove(qsizetype index)
     Item &&item = m_items.takeAt(index);
     if (!item.name.isEmpty()) {
         m_stack.clear();
-        m_stack.push(new UndoRemove(*this, std::move(item), index));
+        auto remove = new UndoRemove(*this);
+        remove->append(std::move(item), index);
+        m_stack.push(remove);
     }
     endRemoveRows();
     Q_EMIT countChanged();
@@ -177,9 +179,19 @@ void Model::removeChecked()
         return;
     }
 
-    const auto position = std::distance(begin, first);
+    auto position = std::distance(begin, first);
     beginRemoveRows(QModelIndex(), position, m_items.size() - 1);
-    m_items.removeIf([](const Item &value) { return value.checked; });
+    m_stack.clear();
+    auto remove = new UndoRemove(*this);
+    m_items.removeIf([&remove, &position](const Item &value) {
+        if (value.checked) {
+            remove->append(value, position++);
+            return true;
+        } else {
+            return false;
+        }
+    });
+    m_stack.push(remove);
     endRemoveRows();
     Q_EMIT countChanged();
     save();
@@ -361,15 +373,27 @@ void Model::removeAll(Save changes)
     if (editor) {
         moveEditor(0, Force::YES);
     }
-    beginRemoveRows(QModelIndex(), editor ? 1 : 0, m_items.size() - 1);
+    auto position = editor ? 1 : 0;
+    beginRemoveRows(QModelIndex(), position, m_items.size() - 1);
+    m_stack.clear();
+    auto remove = new UndoRemove(*this);
+    m_items.removeIf([&remove, &position](const Item &value) {
+        if (!value.name.isEmpty()) {
+            remove->append(value, position++);
+            return true;
+        } else {
+            return false;
+        }
+    });
 
-    m_items.removeIf([](const Item &value) { return !value.name.isEmpty(); });
     endRemoveRows();
     Q_EMIT countChanged();
     if (changes == Save::NO) {
+        delete remove;
         return;
     }
     save();
+    m_stack.push(remove);
 }
 
 
