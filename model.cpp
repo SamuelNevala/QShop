@@ -86,11 +86,15 @@ int Model::rowCount(const QModelIndex &parent) const
 
 void Model::classBegin()
 {
+
 }
 
 void Model::componentComplete()
 {
-    load();
+    dropRemovedTables();
+    if (m_active_list_id.isNull()) {
+        load();
+    }
 }
 
 void Model::insert(qsizetype index, Item &&item)
@@ -99,6 +103,14 @@ void Model::insert(qsizetype index, Item &&item)
         return;
     }
     const int clamped = std::clamp(index, qsizetype(0), m_items.size());
+
+    // Renaming list reuse the uuid.
+    const auto editor = editorIndex();
+    if (m_active_list_id.isNull() && editor != -1 && !m_items.at(editor).uuid.isNull()) {
+        item.uuid = m_items[editor].uuid;
+        m_items[editor].uuid = QUuid();
+    }
+
     beginInsertRows(QModelIndex(), clamped, clamped);
     createList(item);
     m_items.insert(clamped, 1, std::move(item));
@@ -138,6 +150,8 @@ QString Model::editItem(qsizetype index)
     beginRemoveRows(QModelIndex(), index, index);
     Item &&item = m_items.takeAt(index);
     endRemoveRows();
+    // Store uuid to input.
+    m_items[editorIndex()].uuid = item.uuid;
     moveEditor(index, Force::YES);
     Q_EMIT countChanged();
     save();
@@ -481,4 +495,42 @@ void Model::setActiveListId(const QUuid &id)
     m_active_list_id = id;
     load();
     Q_EMIT activeListChanged();
+}
+
+void Model::dropRemovedTables()
+{
+    if (m_read_only) {
+        return;
+    }
+
+    QVector<Item> activeLists;
+    QSqlQuery query(kSelectFrom.arg(kListsTable), QSqlDatabase::database());
+    while (query.next()) {
+        activeLists.append(Item(query.value(kName).toString(), query.value(kChecked).toBool(), query.value(kId).toUuid()));
+    }
+
+    if (!query.exec(kSelectAllTables)) {
+        qWarning() << "Failed to all tables. Error:" << query.lastError();
+        return;
+    }
+
+    QVector<QUuid> uuids;
+    while (query.next()) {
+        const auto id = query.value(kName).toUuid();
+        if (!id.isNull()) {
+            uuids.append(id);
+        }
+    }
+
+    const auto begin = activeLists.cbegin();
+    const auto end = activeLists.cend();
+    for (const auto &uuid : uuids) {
+        const auto result = std::find_if(begin, end, [&uuid] (const Item& value) { return value.uuid == uuid; });
+        if (result == end) {
+            qWarning() << "Drop table " << uuid;
+            if (!query.exec(kDrop.arg(uuid.toString(QUuid::WithoutBraces)))) {
+                qWarning() << "Failed to drop table " << uuid << ". Error:" << query.lastError();
+            }
+        }
+    }
 }

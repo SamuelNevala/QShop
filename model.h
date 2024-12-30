@@ -12,10 +12,12 @@ static const QString kCreate = QStringLiteral("CREATE TABLE IF NOT EXISTS \"%1\"
                                                   "id TEXT PRIMARY KEY NOT NULL,"
                                                   "name TEXT NOT NULL,"
                                                   "checked INTEGER NOT NULL DEFAULT 0)");
+static const QString kDrop = QStringLiteral("DROP TABLE IF EXISTS \"%1\"");
 static const QString kDeleteFrom = QStringLiteral("DELETE FROM \"%1\"");
 static const QString kInsertTo = QStringLiteral("INSERT INTO \"%1\" (id, name, checked) VALUES (?, ?, ?)");
 static const QString kSelectFrom = QStringLiteral("SELECT name, checked, id FROM \"%1\"");
 static const QString kSelectFromAscending = QStringLiteral("SELECT name, checked, id FROM \"%1\" ORDER BY name ASC");
+static const QString kSelectAllTables = QStringLiteral("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;");
 static const QString kListsTable = QStringLiteral("lists");
 static const QString kDefaultTable = QStringLiteral("default");
 
@@ -108,6 +110,7 @@ private:
     void createList(const Item &row);
     const QUuid &activeListId() const;
     void setActiveListId(const QUuid &id);
+    void dropRemovedTables();
 
     QUuid m_active_list_id;
     QVector<Item> m_items;
