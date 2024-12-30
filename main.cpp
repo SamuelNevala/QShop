@@ -44,32 +44,34 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    QSqlQuery query;
-    if (!query.exec(kCreate.arg(kListsTable))) {
-        qWarning() << "Failed to create  "<< kListsTable <<" table. Error: " << query.lastError();
-        return -1;
-    }
-
-    if (!query.exec(kSelectFrom.arg(kListsTable))) {
-        qWarning() << "Failed to select rows from "<< kListsTable <<" table. Error:" << query.lastError().text();
-        return -1;
-    }
-
-    if (!query.next()) {
-        const auto defaultTableId = QUuid::createUuid().toString(QUuid::WithoutBraces);
-        if (!query.exec(kCreate.arg(defaultTableId))) {
-            qWarning() << "Failed to create  "<< kDefaultTable <<" table. Error: " << query.lastError();
+    {
+        QSqlQuery query;
+        if (!query.exec(kCreate.arg(kListsTable))) {
+            qWarning() << "Failed to create  "<< kListsTable <<" table. Error: " << query.lastError();
             return -1;
         }
-        query.prepare(kInsertTo.arg(kListsTable));
-        query.addBindValue(defaultTableId);
-        query.addBindValue(kDefaultTable);
-        query.addBindValue(false);
-        if (!query.exec()) {
-            qWarning() << "Failed to insert "<< kDefaultTable <<" table info to "<< kListsTable << " table. Error:" << query.lastError();
+
+        if (!query.exec(kSelectFrom.arg(kListsTable))) {
+            qWarning() << "Failed to select rows from "<< kListsTable <<" table. Error:" << query.lastError().text();
             return -1;
         }
-        qDebug() << kDefaultTable << " table created.";
+
+        if (!query.next()) {
+            const auto defaultTableId = QUuid::createUuid().toString(QUuid::WithoutBraces);
+            if (!query.exec(kCreate.arg(defaultTableId))) {
+                qWarning() << "Failed to create  "<< kDefaultTable <<" table. Error: " << query.lastError();
+                return -1;
+            }
+            query.prepare(kInsertTo.arg(kListsTable));
+            query.addBindValue(defaultTableId);
+            query.addBindValue(kDefaultTable);
+            query.addBindValue(false);
+            if (!query.exec()) {
+                qWarning() << "Failed to insert "<< kDefaultTable <<" table info to "<< kListsTable << " table. Error:" << query.lastError();
+                return -1;
+            }
+            qDebug() << kDefaultTable << " table created.";
+        }
     }
 
     QQmlApplicationEngine engine;
