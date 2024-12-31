@@ -32,6 +32,7 @@ Style.Control {
             id: menu
 
             onAboutToShow: listsModel.reload()
+            onAboutToHide: menu.focus = false
 
             contentItem: Quick.ListView {
                 delegate: DelegateChooser {
@@ -46,7 +47,6 @@ Style.Control {
                             width: menu.contentItem.width
 
                             RowLayout {
-                                uniformCellSizes: false
                                 width: parent.width
                                 Layout.margins: root.dimensions.mm(1)
 
@@ -96,6 +96,7 @@ Style.Control {
 
                             ColorComboBox {
                                 dimensions: root.dimensions
+                                colorFunction: ThemeManager.colorAccent
                                 label: qsTr("Accent")
                                 onActivated: ThemeManager.accent = currentValue
                                 Quick.Component.onCompleted: currentIndex = indexOfValue(ThemeManager.accent)
