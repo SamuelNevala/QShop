@@ -12,7 +12,7 @@ DragHandler {
 
     property int actionTreshold: Math.round(target.width / 2)
     property Dimensions dimensions
-    property real swipeSensitivity: 1.0
+    property real swipeSensitivity: ThemeManager.swipeSensitivity
     property real widthInMillimeters: dimensions.mm(target.width)
 
     xAxis {

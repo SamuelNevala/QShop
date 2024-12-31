@@ -7,10 +7,6 @@ import QShopper
 Delegate {
     id: root
 
-    function inverse(theme) {
-        return theme === Material.Dark ? Material.Light : Material.Dark;
-    }
-
     property bool editor
     property bool canUndo
 

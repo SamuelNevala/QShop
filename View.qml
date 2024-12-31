@@ -95,8 +95,8 @@ Style.Control {
                             Layout.margins: root.dimensions.mm(1)
 
                             ColorComboBox {
-                                dimensions: root.dimensions
                                 colorFunction: ThemeManager.colorAccent
+                                dimensions: root.dimensions
                                 label: qsTr("Accent")
                                 onActivated: ThemeManager.accent = currentValue
                                 Quick.Component.onCompleted: currentIndex = indexOfValue(ThemeManager.accent)
@@ -177,12 +177,32 @@ Style.Control {
                             }
                         }
                     }
+                    DelegateChoice {
+                        roleValue: "controls"
+                        GroupBox {
+                            dimensions: root.dimensions
+                            title: qsTr("Swipe sensitivity ") + Math.round(slider.value*100) + "%"
+                            width: menu.contentItem.width
+
+                            Style.Slider {
+                                id: slider
+                                from: 0.2
+                                stepSize: 0.1
+                                snapMode : Style.Slider.SnapAlways
+                                to: 3
+                                value: ThemeManager.swipeSensitivity
+                                width: parent.width
+                                onValueChanged: ThemeManager.swipeSensitivity = value
+                            }
+                        }
+                    }
                 }
                 model: Quick.ListModel {
                     Quick.ListElement { type: "lists" }
                     Quick.ListElement { type: "operations" }
                     Quick.ListElement { type: "theme" }
                     Quick.ListElement { type: "colors" }
+                    Quick.ListElement { type: "controls" }
                 }
                 spacing: root.dimensions.mm(1)
             }
