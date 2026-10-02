@@ -85,7 +85,7 @@ Delegate {
 
         Rectangle {
             anchors { top: parent.top; left: parent.left; right: parent.right }
-            color: tapHandler.longPressActive ? Material.accentColor : "trasparent"
+            color: tapHandler.longPressActive ? Material.accentColor : "transparent"
             height: root.dimensions.mm(0.4)
             opacity: tapHandler.longPressActive ? 1.0 : 0.0
             Behavior on color { ColorAnimation { } }
@@ -94,7 +94,7 @@ Delegate {
 
         Rectangle {
             anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
-            color: tapHandler.longPressActive ? Material.accentColor : "trasparent"
+            color: tapHandler.longPressActive ? Material.accentColor : "transparent"
             height: root.dimensions.mm(0.4)
             opacity: tapHandler.longPressActive ? 1.0 : 0.0
             Behavior on color { ColorAnimation { } }

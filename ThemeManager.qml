@@ -10,7 +10,7 @@ Settings {
 
     function accentColorLighter() {
         if (accent == Material.Grey || accent == Material.Brown || accent == Material.BlueGrey) {
-            return color(value);
+            return color(accent);
         }
         return Material.color(accent, Material.theme === Material.Dark ? Material.ShadeA100 : Material.ShadeA200)
     }

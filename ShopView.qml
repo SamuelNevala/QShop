@@ -13,7 +13,6 @@ ListView {
     property Dimensions dimensions
     property string fontFamily
     property bool editMode: false
-    property var lists: itemModel.lists
 
     function setEditMode(mode) {
         if (editMode === mode) {
