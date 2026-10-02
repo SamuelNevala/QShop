@@ -471,6 +471,46 @@ private slots:
         QCOMPARE(id(model, itemPosition), originalId);
     }
 
+    void edit_item_tags_adjusted_editor_row_data()
+    {
+        QTest::addColumn<int>("editorPosition");
+        QTest::addColumn<int>("itemPosition");
+        QTest::addColumn<int>("taggedRow");
+
+        QTest::newRow("editor-after-edited-item") << 3 << 0 << 2;
+        QTest::newRow("editor-before-edited-item") << 0 << 2 << 0;
+    }
+
+    void edit_item_tags_adjusted_editor_row()
+    {
+        QFETCH(int, editorPosition);
+        QFETCH(int, itemPosition);
+        QFETCH(int, taggedRow);
+
+        Model model;
+        loadItems(model);
+        model.insert(0, "A");
+        model.insert(1, "B");
+        model.insert(2, "C");
+        const QString originalName = names(model).at(itemPosition);
+        const QString originalId = id(model, itemPosition);
+
+        model.addEditor();
+        model.moveEditor(editorPosition, Model::Force::YES);
+        const int editedRow = itemPosition + (itemPosition >= editorPosition ? 1 : 0);
+
+        QSignalSpy changed(&model, &Model::dataChanged);
+        QCOMPARE(model.editItem(editedRow), originalName);
+        QCOMPARE(changed.count(), 1);
+
+        const auto arguments = changed.takeFirst();
+        QCOMPARE(arguments.at(0).value<QModelIndex>().row(), taggedRow);
+        QCOMPARE(arguments.at(1).value<QModelIndex>().row(), taggedRow);
+        QCOMPARE(arguments.at(2).value<QList<int>>(), QList<int>({ Qt::UserRole + 1 }));
+        QCOMPARE(model.editorIndex(), itemPosition);
+        QCOMPARE(id(model, itemPosition), originalId);
+    }
+
     void edit_item_rejects_missing_editor_and_invalid_rows()
     {
         Model model;

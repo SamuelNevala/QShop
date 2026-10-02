@@ -7,7 +7,8 @@ The test executable compiles only `test_model.cpp` and links to the production
 The suite covers roles, insertion/reordering, check/reset, deletion/undo,
 editors, read-only item mutations, list management, persistence, and rollback.
 Edit regressions cover pending data preservation, cancellation, first/last rows,
-editor positions, invalid calls, identity, checked state, and list switching.
+editor positions, adjusted editor row tagging, invalid calls, identity, checked
+state, and list switching.
 Each test gets fresh in-memory SQLite storage.
 
 Toggle regressions cover empty models, negative and out-of-range indexes,
@@ -57,4 +58,4 @@ coverage of model.cpp + model.h**. Dependencies, tests, QML, and generated code
 are excluded from the summary. Reports are in `tests/coverage/summary.md`,
 `summary.json`, and `model.cobertura.xml` inside the build directory.
 
-Verified with MSVC 19.44 / Qt 6.12: **96.05% (413/430 lines)**.
+Verified with MSVC 19.44 / Qt 6.12: **96.06% (414/431 lines)**.

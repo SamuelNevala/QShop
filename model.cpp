@@ -178,9 +178,10 @@ QString Model::editItem(qsizetype index)
     beginRemoveRows(QModelIndex(), static_cast<int>(index), static_cast<int>(index));
     m_pendingEdit = m_items.takeAt(index);
     endRemoveRows();
+    const auto editorAfterRemoval = editor - (editor > index ? 1 : 0);
     // Associate the placeholder with the original row until submission.
-    const auto editorModelIndex = this->index(static_cast<int>(editorIndex()));
-    m_items[editorModelIndex.row()].uuid = m_pendingEdit->uuid;
+    const auto editorModelIndex = this->index(static_cast<int>(editorAfterRemoval));
+    m_items[editorAfterRemoval].uuid = m_pendingEdit->uuid;
     Q_EMIT dataChanged(editorModelIndex, editorModelIndex, { Qt::UserRole + 1 });
     moveEditor(index - (editor < index ? 1 : 0), Force::YES);
     Q_EMIT countChanged();
