@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(QT_QML_GENERATE_QMLLS_INI ON)
 # set(QML_IMPORT_TRACE  1)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick Sql QuickControls2 Test)
+find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick Sql QuickControls2)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
@@ -35,9 +35,11 @@ qt_add_executable(application
 
 set_source_files_properties(ThemeManager.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
-qt_add_qml_module(application
+qt_add_library(QShopper STATIC)
+qt_add_qml_module(QShopper
     URI QShopper
     VERSION 1.0
+    OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/QShopper
     QML_FILES
         ArrowIcon.qml
         Background.qml
@@ -98,20 +100,14 @@ set_target_properties(application PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-target_link_libraries(application PRIVATE Qt6::Quick Qt6::Sql Qt6::Core Qt6::Qml Qt6::QuickControls2)
+target_link_libraries(QShopper PUBLIC Qt6::Quick Qt6::Sql Qt6::Core Qt6::Qml Qt6::QuickControls2)
+target_include_directories(QShopper PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(application PRIVATE QShopper QShopperplugin)
 
-enable_testing()
-
-add_executable(qshopper_tests
-    tests/test_model.cpp
-    model.cpp
-    undoremove.cpp
-)
-
-target_link_libraries(qshopper_tests PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Sql Qt6::Test)
-target_include_directories(qshopper_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-
-add_test(NAME qshopper_tests COMMAND qshopper_tests)
+include(CTest)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
 
 install(TARGETS application
     BUNDLE DESTINATION .

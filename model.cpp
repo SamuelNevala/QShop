@@ -119,11 +119,15 @@ void Model::insert(qsizetype index, Item &&item)
     }
     const auto clamped = std::clamp(index, static_cast<qsizetype>(0), m_items.size());
 
-    // Renaming list reuse the uuid.
     const auto editor = editorIndex();
-    if (m_activeListId.isNull() && editor != -1 && !m_items.at(editor).uuid.isNull()) {
-        item.uuid = m_items[editor].uuid;
+    if (m_pendingEdit && clamped == editor && !item.name.isEmpty()) {
+        // Preserve item identity, including the table identifier when renaming a list.
+        item.uuid = m_pendingEdit->uuid;
+        item.checked = m_pendingEdit->checked;
+        m_pendingEdit.reset();
         m_items[editor].uuid = QUuid();
+        const auto editorModelIndex = this->index(static_cast<int>(editor));
+        Q_EMIT dataChanged(editorModelIndex, editorModelIndex, { Qt::UserRole + 1 });
     }
 
     beginInsertRows(QModelIndex(), static_cast<int>(clamped), static_cast<int>(clamped));
@@ -145,6 +149,11 @@ void Model::remove(qsizetype index)
         return;
     }
 
+    if (m_pendingEdit && index == editorIndex()) {
+        removeEditor();
+        return;
+    }
+
     beginRemoveRows(QModelIndex(), static_cast<int>(index), static_cast<int>(index));
     Item &&item = m_items.takeAt(index);
     if (!item.name.isEmpty()) {
@@ -160,19 +169,23 @@ void Model::remove(qsizetype index)
 
 QString Model::editItem(qsizetype index)
 {
-    if (m_readOnly || index < 0 || index >= m_items.size() - 1) {
+    const auto editor = editorIndex();
+    if (m_readOnly || index < 0 || index >= m_items.size()
+        || editor == -1 || index == editor || m_pendingEdit) {
         return {};
     }
 
     beginRemoveRows(QModelIndex(), static_cast<int>(index), static_cast<int>(index));
-    Item &&item = m_items.takeAt(index);
+    m_pendingEdit = m_items.takeAt(index);
     endRemoveRows();
-    // Store uuid to input.
-    m_items[editorIndex()].uuid = item.uuid;
-    moveEditor(index, Force::YES);
+    // Associate the placeholder with the original row until submission.
+    const auto editorModelIndex = this->index(static_cast<int>(editorIndex()));
+    m_items[editorModelIndex.row()].uuid = m_pendingEdit->uuid;
+    Q_EMIT dataChanged(editorModelIndex, editorModelIndex, { Qt::UserRole + 1 });
+    moveEditor(index - (editor < index ? 1 : 0), Force::YES);
     Q_EMIT countChanged();
     save();
-    return item.name;
+    return m_pendingEdit->name;
 }
 
 void Model::removeAll()
@@ -223,7 +236,11 @@ void Model::setChecked(qsizetype index, bool checked)
 
 void Model::toggleChecked(qsizetype index)
 {
-    setChecked(index, !m_items[index].checked);
+    if (m_readOnly || index < 0 || index >= m_items.size()) {
+        return;
+    }
+
+    setChecked(index, !m_items.at(index).checked);
 }
 
 void Model::reset()
@@ -262,6 +279,10 @@ void Model::addEditor()
 
 void Model::removeEditor()
 {
+    if (m_readOnly) {
+        return;
+    }
+    restorePendingEdit();
     remove(editorIndex());
 }
 
@@ -381,6 +402,7 @@ void Model::move(qsizetype source, qsizetype destination, Save changes)
 
 void Model::removeAll(Save changes)
 {
+    restorePendingEdit();
     if (m_items.isEmpty()) {
         return;
     }
@@ -417,6 +439,24 @@ void Model::removeAll(Save changes)
     m_stack.push(remove.release());
 }
 
+void Model::restorePendingEdit()
+{
+    if (!m_pendingEdit) {
+        return;
+    }
+
+    const auto editor = editorIndex();
+    m_items[editor].uuid = QUuid();
+    const auto editorModelIndex = index(static_cast<int>(editor));
+    Q_EMIT dataChanged(editorModelIndex, editorModelIndex, { Qt::UserRole + 1 });
+    beginInsertRows(QModelIndex(), static_cast<int>(editor), static_cast<int>(editor));
+    m_items.insert(editor, std::move(*m_pendingEdit));
+    m_pendingEdit.reset();
+    endInsertRows();
+    Q_EMIT countChanged();
+    Q_EMIT editorIndexChanged();
+}
+
 
 void Model::save()
 {
@@ -442,10 +482,13 @@ void Model::save()
     query.prepare(SQL::insertTo().arg(table));
     QSqlError error;
     for (const auto &item : std::as_const(m_items)) {
-        if (!item.name.isEmpty()) {
-            query.addBindValue(item.uuid);
-            query.addBindValue(item.name);
-            query.addBindValue(item.checked);
+        // The editor is only a placeholder until the replacement is submitted.
+        const auto &savedItem = m_pendingEdit && item.name.isEmpty() && item.uuid == m_pendingEdit->uuid
+            ? *m_pendingEdit : item;
+        if (!savedItem.name.isEmpty()) {
+            query.addBindValue(savedItem.uuid);
+            query.addBindValue(savedItem.name);
+            query.addBindValue(savedItem.checked);
 
             if (!query.exec()) {
                 error = query.lastError();

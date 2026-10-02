@@ -16,6 +16,7 @@
 #include <QtQml/QQmlParserStatus>
 #include <QtQmlIntegration/qqmlintegration.h>
  // #include <QtQmlIntegration>
+#include <optional>
 #include <utility>
 
 namespace SQL {
@@ -114,6 +115,7 @@ public:
     void insert(qsizetype index, Item &&item);
     Q_INVOKABLE void insert(qsizetype index, const QString &name);
     Q_INVOKABLE void remove(qsizetype index);
+    // Requires an editor; removing it or reloading cancels an unfinished edit.
     Q_INVOKABLE QString editItem(qsizetype index);
     Q_INVOKABLE void removeAll();
     Q_INVOKABLE void removeChecked();
@@ -146,6 +148,7 @@ private:
     [[nodiscard]] qsizetype checkedIndex(qsizetype index) const;
     void move(qsizetype source, qsizetype destination, Save changes);
     void removeAll(Save changes);
+    void restorePendingEdit();
     void save();
     void load();
     static QUuid resolve(const QString &name);
@@ -157,6 +160,7 @@ private:
 
     QUuid m_activeListId;
     QList<Item> m_items;
+    std::optional<Item> m_pendingEdit;
     QUndoStack m_stack;
     bool m_readOnly { false };
 };
