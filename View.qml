@@ -132,7 +132,6 @@ Style.Control {
                             }
                             Quick.Component.onCompleted: {
                                 currentIndex = indexOfValue(ThemeManager.activeList)
-                                console.log("lists", height)
                             }
                         }
                     }
