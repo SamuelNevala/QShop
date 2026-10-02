@@ -58,4 +58,4 @@ coverage of model.cpp + model.h**. Dependencies, tests, QML, and generated code
 are excluded from the summary. Reports are in `tests/coverage/summary.md`,
 `summary.json`, and `model.cobertura.xml` inside the build directory.
 
-Verified with MSVC 19.44 / Qt 6.12: **96.06% (414/431 lines)**.
+Verified with MSVC 19.44 / Qt 6.12: **95.84% (415/433 lines)**.

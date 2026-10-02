@@ -191,6 +191,10 @@ QString Model::editItem(qsizetype index)
 
 void Model::removeAll()
 {
+    if (m_readOnly) {
+        return;
+    }
+
     removeAll(Save::YES);
 }
 
