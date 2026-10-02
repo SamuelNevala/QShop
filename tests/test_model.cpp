@@ -273,6 +273,103 @@ private slots:
         QCOMPARE(names(model), QStringList({"A", "B"}));
     }
 
+    void readonly_remove_all_preserves_rows_and_undo_data()
+    {
+        QTest::addColumn<int>("editorPosition");
+        QTest::newRow("no-editor") << -1;
+        QTest::newRow("editor-first") << 0;
+        QTest::newRow("editor-middle") << 1;
+        QTest::newRow("editor-last") << 3;
+    }
+
+    void readonly_remove_all_preserves_rows_and_undo()
+    {
+        QFETCH(int, editorPosition);
+        Model model;
+        loadItems(model);
+        model.insert(0, "A");
+        model.insert(1, "B");
+        model.insert(2, "C");
+        if (editorPosition >= 0)
+        {
+            model.addEditor();
+            model.moveEditor(editorPosition, Model::Force::YES);
+        }
+        const QStringList original = names(model);
+        model.remove(original.indexOf("C"));
+        QVERIFY(model.canUndo());
+        const QStringList expected = names(model);
+        const qsizetype expectedEditor = model.editorIndex();
+        const QString aId = id(model, expected.indexOf("A"));
+        const QString bId = id(model, expected.indexOf("B"));
+        model.setReadOnly(true);
+        QSignalSpy removed(&model, &Model::rowsRemoved);
+        QSignalSpy changed(&model, &Model::dataChanged);
+        QSignalSpy count(&model, &Model::countChanged);
+        QSignalSpy undoChanged(&model, &Model::canUndoChanged);
+
+        model.removeAll();
+
+        QCOMPARE(names(model), expected);
+        QCOMPARE(model.editorIndex(), expectedEditor);
+        QCOMPARE(id(model, expected.indexOf("A")), aId);
+        QCOMPARE(id(model, expected.indexOf("B")), bId);
+        QCOMPARE(removed.count(), 0);
+        QCOMPARE(changed.count(), 0);
+        QCOMPARE(count.count(), 0);
+        QCOMPARE(undoChanged.count(), 0);
+        Model persisted;
+        loadItems(persisted);
+        QCOMPARE(names(persisted), QStringList({"A", "B"}));
+        model.setReadOnly(false);
+        QVERIFY(model.canUndo());
+        model.undo();
+        QCOMPARE(names(model), original);
+    }
+
+    void readonly_remove_all_preserves_pending_edit()
+    {
+        Model model;
+        loadItems(model);
+        model.insert(0, "Milk");
+        const QString milkId = id(model, 0);
+        model.addEditor();
+        QCOMPARE(model.editItem(1), "Milk");
+        model.setReadOnly(true);
+        QSignalSpy inserted(&model, &Model::rowsInserted);
+        QSignalSpy removed(&model, &Model::rowsRemoved);
+        QSignalSpy changed(&model, &Model::dataChanged);
+        QSignalSpy count(&model, &Model::countChanged);
+        model.removeAll();
+        QCOMPARE(names(model), QStringList({""}));
+        QCOMPARE(inserted.count(), 0);
+        QCOMPARE(removed.count(), 0);
+        QCOMPARE(changed.count(), 0);
+        QCOMPARE(count.count(), 0);
+        model.setReadOnly(false);
+        model.insert(model.editorIndex(), "Renamed");
+        model.removeEditor();
+        model.reload();
+        QCOMPARE(names(model), QStringList({"Renamed"}));
+        QCOMPARE(id(model, 0), milkId);
+    }
+
+    void readonly_reload_still_replaces_rows()
+    {
+        Model writer;
+        loadItems(writer);
+        writer.insert(0, "Milk");
+        Model reader;
+        loadItems(reader);
+        reader.setReadOnly(true);
+        writer.removeAll();
+        writer.insert(0, "Eggs");
+        reader.reload();
+        QCOMPARE(names(reader), QStringList({"Eggs"}));
+        QCOMPARE(id(reader, 0), id(writer, 0));
+        QVERIFY(reader.readOnly());
+    }
+
     void editor_lifecycle_and_item_edit()
     {
         Model model;

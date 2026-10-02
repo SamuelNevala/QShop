@@ -402,6 +402,11 @@ void Model::move(qsizetype source, qsizetype destination, Save changes)
 
 void Model::removeAll(Save changes)
 {
+    // Reloads may clear read-only models without changing their saved contents.
+    if (m_readOnly && changes == Save::YES) {
+        return;
+    }
+
     restorePendingEdit();
     if (m_items.isEmpty()) {
         return;

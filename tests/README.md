@@ -13,6 +13,10 @@ Each test gets fresh in-memory SQLite storage.
 Toggle regressions cover empty models, negative and out-of-range indexes,
 extreme indexes, read-only calls, reordering, identity, and persistence.
 
+Read-only bulk removal regressions verify unchanged rows, editor position,
+pending edits, undo history, and saved contents. Internal reloads still replace
+read-only model contents from the database.
+
 An unfinished edit retains the original saved row. Submitting at the editor
 position preserves its UUID and checked state. Removing the editor restores the
 original; reload or list switching cancels the edit. A second edit is rejected
@@ -53,4 +57,4 @@ coverage of model.cpp + model.h**. Dependencies, tests, QML, and generated code
 are excluded from the summary. Reports are in `tests/coverage/summary.md`,
 `summary.json`, and `model.cobertura.xml` inside the build directory.
 
-Verified with MSVC 19.44 / Qt 6.12: **96.03% (411/428 lines)**.
+Verified with MSVC 19.44 / Qt 6.12: **96.05% (413/430 lines)**.
