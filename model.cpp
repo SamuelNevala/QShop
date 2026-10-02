@@ -95,7 +95,10 @@ QHash<int, QByteArray> Model::roleNames() const
 
 int Model::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    if (parent.isValid()) {
+        return 0;
+    }
+
     return static_cast<int>(m_items.count());
 }
 
@@ -204,27 +207,38 @@ void Model::removeChecked()
         return;
     }
 
-    const auto begin = m_items.cbegin();
-    const auto end = m_items.cend();
-    const auto checked = std::find_if(begin, end, [] (const Item& value) { return value.checked; });
-
-    if (checked == end) {
+    if (!std::any_of(m_items.cbegin(), m_items.cend(), [] (const Item &value) { return value.checked; })) {
         return;
     }
 
-    auto position = std::distance(begin, checked);
-    beginRemoveRows(QModelIndex(), static_cast<int>(position), static_cast<int>(m_items.size() - 1));
     m_stack.clear();
-    auto* remove { new UndoRemove(*this) };
-    m_items.removeIf([&remove, &position](const Item &value) {
-        if (value.checked) {
-            remove->append(value, position++);
-            return true;
+    std::unique_ptr<UndoRemove> remove { new UndoRemove(*this) };
+    for (qsizetype row = 0; row < m_items.size(); ++row) {
+        if (m_items.at(row).checked) {
+            remove->append(m_items.at(row), row);
         }
-        return false;
-    });
-    m_stack.push(remove);
-    endRemoveRows();
+    }
+
+    for (qsizetype row = m_items.size() - 1; row >= 0;) {
+        if (!m_items.at(row).checked) {
+            --row;
+        } else {
+            const auto last = row;
+            while (row > 0 && m_items.at(row - 1).checked) {
+                --row;
+            }
+            const auto first = row;
+            beginRemoveRows(QModelIndex(), static_cast<int>(first), static_cast<int>(last));
+            m_items.remove(first, last - first + 1);
+            endRemoveRows();
+            if (first == 0) {
+                break;
+            }
+            row = first - 1;
+        }
+    }
+
+    m_stack.push(remove.release());
     Q_EMIT countChanged();
     save();
 }
@@ -254,7 +268,7 @@ void Model::reset()
         return;
     }
 
-    while (m_items.constLast().checked) {
+    while (!m_items.isEmpty() && m_items.constLast().checked) {
         setChecked(m_items.size() - 1, false);
     }
 }

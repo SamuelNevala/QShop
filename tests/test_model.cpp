@@ -69,6 +69,7 @@ private slots:
         QVERIFY(!model.setData({}, true, Qt::CheckStateRole));
         model.remove(-1); model.remove(100); model.setChecked(-1, true);
         model.insert(0, "Milk");
+        QCOMPARE(model.rowCount(model.index(0)), 0);
         QCOMPARE(model.data(model.index(0)).toString(), "Milk");
         QVERIFY(!model.data(model.index(0), Qt::CheckStateRole).toBool());
         QVERIFY(!model.data(model.index(0), Qt::EditRole).toBool());
@@ -105,6 +106,10 @@ private slots:
     {
         Model model;
         loadItems(model);
+        QSignalSpy count(&model, &Model::countChanged);
+        model.reset();
+        QCOMPARE(count.count(), 0);
+
         model.insert(0, "Milk"); model.insert(1, "Eggs"); model.insert(2, "Bread");
         QSignalSpy changed(&model, &Model::dataChanged);
         model.setChecked(0, true);
@@ -252,6 +257,48 @@ private slots:
         QVERIFY(model.data(model.index(2), Qt::CheckStateRole).toBool());
         model.reload();
         QCOMPARE(names(model), QStringList({"", "C", "B", "A"}));
+    }
+
+    void remove_checked_handles_scattered_rows()
+    {
+        Model model;
+        loadItems(model);
+        model.insert(0, "A");
+        model.insert(1, "B");
+        model.insert(2, "C");
+        model.insert(3, "D");
+        const QString aId = id(model, 0);
+        const QString bId = id(model, 1);
+        const QString cId = id(model, 2);
+        const QString dId = id(model, 3);
+        QVERIFY(model.setData(model.index(0), true, Qt::CheckStateRole));
+        QVERIFY(model.setData(model.index(2), true, Qt::CheckStateRole));
+
+        QSignalSpy removed(&model, &Model::rowsRemoved);
+        model.removeChecked();
+
+        QCOMPARE(names(model), QStringList({"B", "D"}));
+        QCOMPARE(id(model, 0), bId);
+        QCOMPARE(id(model, 1), dId);
+        QCOMPARE(removed.count(), 2);
+        QCOMPARE(removed.at(0).at(1).toInt(), 2);
+        QCOMPARE(removed.at(0).at(2).toInt(), 2);
+        QCOMPARE(removed.at(1).at(1).toInt(), 0);
+        QCOMPARE(removed.at(1).at(2).toInt(), 0);
+
+        model.undo();
+        QCOMPARE(names(model), QStringList({"A", "B", "C", "D"}));
+        QCOMPARE(id(model, 0), aId);
+        QCOMPARE(id(model, 1), bId);
+        QCOMPARE(id(model, 2), cId);
+        QCOMPARE(id(model, 3), dId);
+        QVERIFY(model.data(model.index(0), Qt::CheckStateRole).toBool());
+        QVERIFY(model.data(model.index(2), Qt::CheckStateRole).toBool());
+
+        model.reload();
+        QCOMPARE(names(model), QStringList({"A", "B", "C", "D"}));
+        QCOMPARE(id(model, 0), aId);
+        QCOMPARE(id(model, 2), cId);
     }
 
     void remove_all_preserves_editor_and_supports_undo()
