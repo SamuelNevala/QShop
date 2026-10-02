@@ -10,9 +10,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(QT_QML_GENERATE_QMLLS_INI ON)
 # set(QML_IMPORT_TRACE  1)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick Sql QuickControls2)
+find_package(Qt6 6.10 REQUIRED COMPONENTS Core Qml Quick Sql QuickControls2)
 
-qt_standard_project_setup(REQUIRES 6.8)
+# View.qml uses FlexboxLayout, introduced in Qt 6.10.
+qt_standard_project_setup(REQUIRES 6.10)
 
 # set(QUICK_DYNAMICS_INSTALL_DIR ${QT6_INSTALL_PREFIX}/${QT6_INSTALL_QML}/QuickDynamics)
 # set(QML_INSTALL_DIR ${QT6_INSTALL_PREFIX}/${QT6_INSTALL_QML})
