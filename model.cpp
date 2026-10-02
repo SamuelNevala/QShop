@@ -1,23 +1,38 @@
 #include "model.h"
-#include "undoremove.h"
-
-#include <QtCore/QDataStream>
-#include <QtCore/QFile>
-#include <QtCore/QStandardPaths>
-#include <QtCore/QDir>
-
-#include <QSqlError>
-#include <QSqlQuery>
-#include <QDebug>
 
 #include <algorithm>
+#include <iterator>
+#include <memory>
+#include <utility>
 
-static const QString kChecked = QStringLiteral("checked");
-static const QString kEditor = QStringLiteral("editor");
-static const QString kId = QStringLiteral("id");
-static const QString kName = QStringLiteral("name");
+#include <QtCore/QAbstractListModel>
+#include <QtCore/QByteArrayView>
+#include <QtCore/QDebug>
+#include <QtCore/QHash>
+#include <QtCore/QList>
+#include <QtCore/QObject>
+#include <QtCore/QPointer>
+#include <QtCore/QStandardPaths>
+#include <QtCore/QString>
+#include <QtCore/QtCompilerDetection>
+#include <QtCore/QtLogging>
+#include <QtCore/QtTypes>
+#include <QtCore/qnamespace.h>
+#include <QtCore/qtmetamacros.h>
+#include <QtGui/QUndoStack>
+#include <QtPreprocessorSupport>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
 
-inline bool operator==(const Item& left, const Item& right)
+#include "undoremove.h"
+
+constexpr QByteArrayView kChecked { "checked" };
+constexpr QByteArrayView kEditor { "editor" };
+constexpr QByteArrayView kId { "id" };
+constexpr QByteArrayView kName { "name" };
+
+static inline bool operator==(const Item& left, const Item& right)
 {
     return left.name == right.name && left.checked == right.checked;
 }
@@ -33,7 +48,7 @@ QVariant Model::data(const QModelIndex &index, int role) const
     if (!index.isValid()
       || index.row() < 0
       || index.row() >= rowCount()) {
-        return QVariant();
+        return {};
     }
 
     switch (role) {
@@ -46,7 +61,7 @@ QVariant Model::data(const QModelIndex &index, int role) const
     case Qt::UserRole + 1:
         return m_items[index.row()].uuid.toString(QUuid::WithoutBraces);
     default:
-        return QVariant();
+        return {};
     }
 }
 
@@ -56,12 +71,12 @@ bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
       || index.row() < 0
       || index.row() >= rowCount()
       || role != Qt::CheckStateRole
-      || m_read_only) {
+      || m_readOnly) {
         return false;
     }
 
     const bool checked = value.toBool();
-    if (m_items[index.row()].checked == checked) {
+    if (m_items.at(index.row()).checked == checked) {
         return false;
     }
 
@@ -72,16 +87,16 @@ bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
 
 QHash<int, QByteArray> Model::roleNames() const
 {
-    return QHash<int, QByteArray> {{ Qt::DisplayRole, kName.toUtf8() },
-                                   { Qt::CheckStateRole, kChecked.toUtf8() },
-                                   { Qt::EditRole, kEditor.toUtf8() },
-                                   { Qt::UserRole + 1, kId.toUtf8() } };
+    return QHash<int, QByteArray> {{ Qt::DisplayRole, kName.data() },
+                                   { Qt::CheckStateRole, kChecked.data() },
+                                   { Qt::EditRole, kEditor.data() },
+                                   { Qt::UserRole + 1, kId.data() } };
 }
 
 int Model::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return m_items.count();
+    return static_cast<int>(m_items.count());
 }
 
 void Model::classBegin()
@@ -92,28 +107,28 @@ void Model::classBegin()
 void Model::componentComplete()
 {
     dropRemovedTables();
-    if (m_active_list_id.isNull()) {
+    if (m_activeListId.isNull()) {
         load();
     }
 }
 
 void Model::insert(qsizetype index, Item &&item)
 {
-    if (m_read_only) {
+    if (m_readOnly) {
         return;
     }
-    const int clamped = std::clamp(index, qsizetype(0), m_items.size());
+    const auto clamped = std::clamp(index, static_cast<qsizetype>(0), m_items.size());
 
     // Renaming list reuse the uuid.
     const auto editor = editorIndex();
-    if (m_active_list_id.isNull() && editor != -1 && !m_items.at(editor).uuid.isNull()) {
+    if (m_activeListId.isNull() && editor != -1 && !m_items.at(editor).uuid.isNull()) {
         item.uuid = m_items[editor].uuid;
         m_items[editor].uuid = QUuid();
     }
 
-    beginInsertRows(QModelIndex(), clamped, clamped);
+    beginInsertRows(QModelIndex(), static_cast<int>(clamped), static_cast<int>(clamped));
     createList(item);
-    m_items.insert(clamped, 1, std::move(item));
+    m_items.insert(clamped, std::move(item));
     endInsertRows();
     Q_EMIT countChanged();
     save();
@@ -126,15 +141,15 @@ void Model::insert(qsizetype index, const QString &name)
 
 void Model::remove(qsizetype index)
 {
-    if (m_read_only || index < 0 || index >= m_items.size()) {
+    if (m_readOnly || index < 0 || index >= m_items.size()) {
         return;
     }
 
-    beginRemoveRows(QModelIndex(), index, index);
+    beginRemoveRows(QModelIndex(), static_cast<int>(index), static_cast<int>(index));
     Item &&item = m_items.takeAt(index);
     if (!item.name.isEmpty()) {
         m_stack.clear();
-        auto remove = new UndoRemove(*this);
+        auto* remove { new UndoRemove(*this) };
         remove->append(std::move(item), index);
         m_stack.push(remove);
     }
@@ -145,11 +160,11 @@ void Model::remove(qsizetype index)
 
 QString Model::editItem(qsizetype index)
 {
-    if (m_read_only || index < 0 || index >= m_items.size() - 1) {
-        return QString();
+    if (m_readOnly || index < 0 || index >= m_items.size() - 1) {
+        return {};
     }
 
-    beginRemoveRows(QModelIndex(), index, index);
+    beginRemoveRows(QModelIndex(), static_cast<int>(index), static_cast<int>(index));
     Item &&item = m_items.takeAt(index);
     endRemoveRows();
     // Store uuid to input.
@@ -167,29 +182,28 @@ void Model::removeAll()
 
 void Model::removeChecked()
 {
-    if (m_read_only) {
+    if (m_readOnly) {
         return;
     }
 
     const auto begin = m_items.cbegin();
     const auto end = m_items.cend();
-    const auto first = std::find_if(begin, end, [] (const Item& value) { return value.checked; });
+    const auto checked = std::find_if(begin, end, [] (const Item& value) { return value.checked; });
 
-    if (first == end) {
+    if (checked == end) {
         return;
     }
 
-    auto position = std::distance(begin, first);
-    beginRemoveRows(QModelIndex(), position, m_items.size() - 1);
+    auto position = std::distance(begin, checked);
+    beginRemoveRows(QModelIndex(), static_cast<int>(position), static_cast<int>(m_items.size() - 1));
     m_stack.clear();
-    auto remove = new UndoRemove(*this);
+    auto* remove { new UndoRemove(*this) };
     m_items.removeIf([&remove, &position](const Item &value) {
         if (value.checked) {
             remove->append(value, position++);
             return true;
-        } else {
-            return false;
         }
+        return false;
     });
     m_stack.push(remove);
     endRemoveRows();
@@ -199,7 +213,7 @@ void Model::removeChecked()
 
 void Model::setChecked(qsizetype index, bool checked)
 {
-    if (!setData(this->index(index, 0), checked, Qt::CheckStateRole)) {
+    if (!setData(this->index(static_cast<int>(index)), checked, Qt::CheckStateRole)) {
         return;
     }
 
@@ -214,11 +228,11 @@ void Model::toggleChecked(qsizetype index)
 
 void Model::reset()
 {
-    if (m_read_only) {
+    if (m_readOnly) {
         return;
     }
 
-    while (m_items.last().checked) {
+    while (m_items.constLast().checked) {
         setChecked(m_items.size() - 1, false);
     }
 }
@@ -230,7 +244,7 @@ void Model::move(qsizetype source, qsizetype destination)
 
 void Model::addEditor()
 {
-    if (m_read_only) {
+    if (m_readOnly) {
         return;
     }
 
@@ -253,7 +267,7 @@ void Model::removeEditor()
 
 void Model::moveEditor(qsizetype destination, Force force)
 {
-    if (m_read_only) {
+    if (m_readOnly) {
         return;
     }
 
@@ -263,14 +277,14 @@ void Model::moveEditor(qsizetype destination, Force force)
         return;
     }
 
-    destination = std::clamp(destination, qsizetype(0), m_items.size() - 1);
+    destination = std::clamp(destination, static_cast<qsizetype>(0), m_items.size() - 1);
     move(source, destination + (force == Force::NO && source >= destination && source != 1 ? 1 : 0), Save::NO);
     Q_EMIT editorIndexChanged();
 }
 
 void Model::undo()
 {
-    if (m_read_only) {
+    if (m_readOnly) {
         return;
     }
 
@@ -279,7 +293,7 @@ void Model::undo()
 
 void Model::clearUndoStack()
 {
-    if (m_read_only) {
+    if (m_readOnly) {
         return;
     }
 
@@ -297,40 +311,47 @@ qsizetype Model::editorIndex() const
 }
 
 bool Model::canUndo() const {
-    return m_read_only ? false : m_stack.canUndo();
+    return m_readOnly ? false : m_stack.canUndo();
 }
 
 QString Model::activeList() const
 {
-    return m_active_list_id.isNull() ? kListsTable : m_active_list_id.toString(QUuid::WithoutBraces);
+    return m_activeListId.isNull() ? SQL::tableLists() : m_activeListId.toString(QUuid::WithoutBraces);
 }
 
-void Model::setActiveList(const QString &id) {
-    if (id.isEmpty()) {
+void Model::setActiveList(const QString &identifier) {
+    if (identifier.isEmpty()) {
         return;
     }
 
-    const QUuid uuid = id == kListsTable ? QUuid() : id == kDefaultTable ? resolve(id) : QUuid::fromString(id);
+    QUuid uuid;
+    if (identifier == SQL::tableLists()) {
+        uuid = QUuid();
+    } else if (identifier == SQL::tableDefault()) {
+        uuid = resolve(identifier);
+    } else {
+        uuid = QUuid::fromString(identifier);
+    }
     setActiveListId(uuid);
 }
 
 bool Model::readOnly() const
 {
-    return m_read_only;
+    return m_readOnly;
 }
 
 void Model::setReadOnly(bool value)
 {
-    if (m_read_only == value) {
+    if (m_readOnly == value) {
         return;
     }
-    m_read_only = value;
+    m_readOnly = value;
     Q_EMIT readOnlyChanged();
 }
 
 void Model::append(Item &&item)
 {
-    beginInsertRows(QModelIndex(), m_items.size(), m_items.size());
+    beginInsertRows(QModelIndex(), static_cast<int>(m_items.size()), static_cast<int>(m_items.size()));
     m_items.append(std::move(item));
     endInsertRows();
     Q_EMIT countChanged();
@@ -346,7 +367,7 @@ qsizetype Model::checkedIndex(qsizetype index) const
 
 void Model::move(qsizetype source, qsizetype destination, Save changes)
 {
-    if (m_read_only || !beginMoveRows(QModelIndex(), source, source, QModelIndex(), destination + (destination > source ? 1 : 0))) {
+    if (m_readOnly || !beginMoveRows(QModelIndex(), static_cast<int>(source), static_cast<int>(source), QModelIndex(), static_cast<int>(destination + (destination > source ? 1 : 0)))) {
         return;
     }
 
@@ -374,32 +395,32 @@ void Model::removeAll(Save changes)
         moveEditor(0, Force::YES);
     }
     auto position = editor ? 1 : 0;
-    beginRemoveRows(QModelIndex(), position, m_items.size() - 1);
+    beginRemoveRows(QModelIndex(), position, static_cast<int>(m_items.size() - 1));
     m_stack.clear();
-    auto remove = new UndoRemove(*this);
+    std::unique_ptr<UndoRemove> remove{ new UndoRemove(*this) };
     m_items.removeIf([&remove, &position](const Item &value) {
         if (!value.name.isEmpty()) {
             remove->append(value, position++);
             return true;
-        } else {
-            return false;
         }
+        return false;
+
     });
 
     endRemoveRows();
     Q_EMIT countChanged();
     if (changes == Save::NO) {
-        delete remove;
+        remove.reset();
         return;
     }
     save();
-    m_stack.push(remove);
+    m_stack.push(remove.release());
 }
 
 
 void Model::save()
 {
-    if (m_read_only) {
+    if (m_readOnly) {
         return;
     }
 
@@ -411,16 +432,16 @@ void Model::save()
 
     const auto table = activeList();
     QSqlQuery query(database);
-    if (!query.exec(kDeleteFrom.arg(table))) {
-        qWarning() << "Failed to clear items from " << resolve(m_active_list_id) << "(" << m_active_list_id << "). Error:" << query.lastError();
+    if (!query.exec(SQL::deleteFrom().arg(table))) {
+        qWarning() << "Failed to clear items from " << resolve(m_activeListId) << "(" << m_activeListId << "). Error:" << query.lastError();
         database.rollback();
         return;
     }
 
 
-    query.prepare(kInsertTo.arg(table));
+    query.prepare(SQL::insertTo().arg(table));
     QSqlError error;
-    for (const auto &item : m_items) {
+    for (const auto &item : std::as_const(m_items)) {
         if (!item.name.isEmpty()) {
             query.addBindValue(item.uuid);
             query.addBindValue(item.name);
@@ -428,7 +449,7 @@ void Model::save()
 
             if (!query.exec()) {
                 error = query.lastError();
-                qWarning() << "Failed to insert item to " << resolve(m_active_list_id) << "(" << m_active_list_id << ") while saving. Error:" << error;
+                qWarning() << "Failed to insert item to " << resolve(m_activeListId) << "(" << m_activeListId << ") while saving. Error:" << error;
                 break;
             }
         }
@@ -449,54 +470,54 @@ void Model::load()
 {
     removeAll(Save::NO);
     const auto table = activeList();
-    QSqlQuery query(kSelectFrom.arg(table), QSqlDatabase::database());
-    qDebug() << "Load from " << resolve(m_active_list_id) << "(" << m_active_list_id << ")";
+    QSqlQuery query(SQL::selectFrom().arg(table), QSqlDatabase::database());
+    qDebug() << "Load from " << resolve(m_activeListId) << "(" << m_activeListId << ")";
     while (query.next()) {
         qDebug() << " id:" << query.value(kId) << " name:" <<query.value(kName) << " checked:" << query.value(kChecked);
         append(Item(query.value(kName).toString(), query.value(kChecked).toBool(), query.value(kId).toUuid()));
     }
-    if (m_read_only && table == kListsTable) {
+    if (m_readOnly && table == SQL::tableLists()) {
         Item lists;
-        lists.name = kListsTable;
+        lists.name = SQL::tableLists();
         append(std::move(lists));
     }
 }
 
 QUuid Model::resolve(const QString &name)
 {
-    QSqlQuery query(kSelectFrom.arg(kListsTable), QSqlDatabase::database());
+    QSqlQuery query(SQL::selectFrom().arg(SQL::tableLists()), QSqlDatabase::database());
     while (query.next()) {
         if (query.value(kName).toString() == name) {
             return query.value(kId).toUuid();
         }
     }
-    return QUuid();
+    return {};
 }
 
-QString Model::resolve(const QUuid &id)
+QString Model::resolve(QUuid identifier)
 {
-    if (id.isNull()) {
-        return kListsTable;
+    if (identifier.isNull()) {
+        return SQL::tableLists();
     }
 
-    QSqlQuery query(kSelectFrom.arg(kListsTable), QSqlDatabase::database());
+    QSqlQuery query(SQL::selectFrom().arg(SQL::tableLists()), QSqlDatabase::database());
     while (query.next()) {
-        if (query.value(kId).toUuid() == id) {
+        if (query.value(kId).toUuid() == identifier) {
             return query.value(kName).toString();
         }
     }
-    return QString();
+    return {};
 
 }
 
 void Model::createList(const Item &row)
 {
-    if (!m_active_list_id.isNull()) {
+    if (!m_activeListId.isNull()) {
         return;
     }
 
     QSqlQuery query(QSqlDatabase::database());
-    if (!query.exec(kCreate.arg(row.uuid.toString(QUuid::WithoutBraces)))) {
+    if (!query.exec(SQL::create().arg(row.uuid.toString(QUuid::WithoutBraces)))) {
         qWarning() << "Failed to create "<< row.name << "(" << row.uuid.toString(QUuid::WithoutBraces) << ") table. Error: " << query.lastError();
         return;
     }
@@ -504,45 +525,45 @@ void Model::createList(const Item &row)
 
 const QUuid &Model::activeListId() const
 {
-    return m_active_list_id;
+    return m_activeListId;
 }
 
-void Model::setActiveListId(const QUuid &id)
+void Model::setActiveListId(QUuid identifier)
 {
-    if (m_active_list_id == id) {
+    if (m_activeListId == identifier) {
         return;
     }
 
-    qDebug() << "Active list changed from " << (m_active_list_id.isNull() ? kListsTable : resolve(m_active_list_id))
-             << " to " << (id.isNull() ? kListsTable : resolve(id));
+    qDebug() << "Active list changed from " << (m_activeListId.isNull() ? SQL::tableLists() : resolve(m_activeListId))
+             << " to " << (identifier.isNull() ? SQL::tableLists() : resolve(identifier));
 
-    m_active_list_id = id;
+    m_activeListId = identifier;
     load();
     Q_EMIT activeListChanged();
 }
 
-void Model::dropRemovedTables()
+void Model::dropRemovedTables() const
 {
-    if (m_read_only) {
+    if (m_readOnly) {
         return;
     }
 
-    QVector<Item> activeLists;
-    QSqlQuery query(kSelectFrom.arg(kListsTable), QSqlDatabase::database());
+    QList<Item> activeLists;
+    QSqlQuery query(SQL::selectFrom().arg(SQL::tableLists()), QSqlDatabase::database());
     while (query.next()) {
         activeLists.append(Item(query.value(kName).toString(), query.value(kChecked).toBool(), query.value(kId).toUuid()));
     }
 
-    if (!query.exec(kSelectAllTables)) {
+    if (!query.exec(SQL::selectAllTables())) {
         qWarning() << "Failed to all tables. Error:" << query.lastError();
         return;
     }
 
-    QVector<QUuid> uuids;
+    QList<QUuid> uuids;
     while (query.next()) {
-        const auto id = query.value(kName).toUuid();
-        if (!id.isNull()) {
-            uuids.append(id);
+        const auto identifier = query.value(kName).toUuid();
+        if (!identifier.isNull()) {
+            uuids.append(identifier);
         }
     }
 
@@ -552,7 +573,7 @@ void Model::dropRemovedTables()
         const auto result = std::find_if(begin, end, [&uuid] (const Item& value) { return value.uuid == uuid; });
         if (result == end) {
             qWarning() << "Drop table " << uuid;
-            if (!query.exec(kDrop.arg(uuid.toString(QUuid::WithoutBraces)))) {
+            if (!query.exec(SQL::drop().arg(uuid.toString(QUuid::WithoutBraces)))) {
                 qWarning() << "Failed to drop table " << uuid << ". Error:" << query.lastError();
             }
         }

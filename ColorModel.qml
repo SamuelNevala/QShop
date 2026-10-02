@@ -8,11 +8,11 @@ ListModel {
     ListElement { text: qsTr("Deep purple"); color: Material.DeepPurple }
     ListElement { text: qsTr("Indogo"); color: Material.Indigo }
     ListElement { text: qsTr("Blue"); color: Material.Blue }
-    ListElement { text: qsTr("LightBlue"); color: Material.LightBlue }
+    ListElement { text: qsTr("Light Blue"); color: Material.LightBlue }
     ListElement { text: qsTr("Cyan"); color: Material.Cyan }
     ListElement { text: qsTr("Teal"); color: Material.Teal }
     ListElement { text: qsTr("Green"); color: Material.Green }
-    ListElement { text: qsTr("LightGreen"); color: Material.LightGreen }
+    ListElement { text: qsTr("Light Green"); color: Material.LightGreen }
     ListElement { text: qsTr("Lime"); color: Material.Lime }
     ListElement { text: qsTr("Yellow"); color: Material.Yellow }
     ListElement { text: qsTr("Amber"); color: Material.Amber }

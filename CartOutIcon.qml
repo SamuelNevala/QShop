@@ -1,3 +1,5 @@
+import QtQuick
+
 ArrowIcon {
     id: root
 

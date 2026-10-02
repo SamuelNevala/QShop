@@ -1,16 +1,32 @@
 #include "weekmodel.h"
 
+#include <chrono>
+
+#include <QtCore/QAbstractListModel>
+#include <QtCore/QDateTime>
+#include <QtCore/QHash>
+#include <QtCore/QObject>
+#include <QtCore/QtCompilerDetection>
+#include <QtCore/QtPreprocessorSupport>
+#include <QtCore/QtTypes>
+#include <QtCore/QString>
+#include <QtCore/qnamespace.h>
+
+using namespace std::chrono_literals;
+
+constexpr qint32 kDays { 6U };
+
 WeekModel::WeekModel(QObject *parent) Q_DECL_NOTHROW
     : QAbstractListModel(parent)
 {
     populateModel();
-    m_timerId = startTimer(60000);
+    m_timerId = startTimer(1min);
 }
 
 int WeekModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return m_week.count();
+    return static_cast<int>(m_week.count());
 }
 
 QVariant WeekModel::data(const QModelIndex &index, int role) const
@@ -18,16 +34,19 @@ QVariant WeekModel::data(const QModelIndex &index, int role) const
     if (!index.isValid()
       || index.row() < 0
       || index.row() >= rowCount()) {
-        return QVariant();
+        return {};
     }
 
     switch (role) {
-    case Qt::UserRole:
+    case Qt::UserRole: {
         return m_week[index.row()].name;
-    case Qt::UserRole + 1:
+    }
+    case Qt::UserRole + 1: {
         return m_week[index.row()].number;
-    default:
-        return QVariant();
+    }
+    default: {
+        return {};
+    }
     }
 }
 
@@ -48,17 +67,17 @@ void WeekModel::timerEvent(QTimerEvent *event)
 
 void WeekModel::populateModel()
 {
-    if (m_week.count()) {
-        beginRemoveRows(QModelIndex(), 0, m_week.count() - 1);
+    if (!m_week.isEmpty()) {
+        beginRemoveRows(QModelIndex(), 0, static_cast<int>(m_week.count() - 1));
         m_week.clear();
         endRemoveRows();
     }
 
     beginResetModel();
-    QDateTime m_today = QDateTime::currentDateTime();
-    for (uint32_t days = 0; days <= 6; ++days) {
-        m_week.append(Day(m_today.addDays(days).toString("ddd"),
-                          m_today.addDays(days).toString("d")));
+    m_today = QDateTime::currentDateTime();
+    for (qint32 days = 0; days <= kDays; ++days) {
+        m_week.append(Day(m_today.addDays(days).toString(QStringLiteral("ddd")),
+                          m_today.addDays(days).toString(QStringLiteral("d"))));
     }
     endResetModel();
 }

@@ -32,6 +32,13 @@ Delegate {
         onSwipe: (direction) => { animateSwipe.to(direction, 0); }
     }
 
+    DragHandler {
+        id: dragHandler
+
+        xAxis { enabled: false }
+        yAxis { minimum: 0; maximum: root.dragParent.height; enabled: tapHandler.longPressActive }
+    }
+
     TapHandler {
         id: tapHandler
 
@@ -55,21 +62,13 @@ Delegate {
         onSingleTapped: root.singleTapped();
     }
 
-    DragHandler {
-        id: dragHandler
-
-        enabled: tapHandler.longPressActive
-        xAxis { enabled: false }
-        yAxis { minimum: 0; maximum: root.dragParent.height }
-    }
-
     Drag.active: swipeHandler.active || dragHandler.active
     Drag.hotSpot.y: Math.round(root.height / 2)
     Drag.hotSpot.x: Math.round(root.width / 2)
     Drag.source: root
 
     states: State {
-        name: "drag"; when: dragHandler.active
+        name: "drag"; when: tapHandler.longPressActive
         ParentChange { target: root; parent: root.dragParent }
         PropertyChanges { root { z: 1 } }
     }

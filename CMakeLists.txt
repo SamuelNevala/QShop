@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(QT_QML_GENERATE_QMLLS_INI ON)
 # set(QML_IMPORT_TRACE  1)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick Sql QuickControls2)
+find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick Sql QuickControls2 Test)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
@@ -83,6 +83,9 @@ qt_add_qml_module(application
         background_five.jpg
         fa-solid-900.ttf
     DEPENDENCIES QtCore
+    RESOURCES android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml android/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/gradle-wrapper.properties android/gradle.properties android/gradlew android/gradlew.bat
+    RESOURCES android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml
+    RESOURCES android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml
 )
 
 add_subdirectory(QDynamics)
@@ -96,6 +99,19 @@ set_target_properties(application PROPERTIES
 )
 
 target_link_libraries(application PRIVATE Qt6::Quick Qt6::Sql Qt6::Core Qt6::Qml Qt6::QuickControls2)
+
+enable_testing()
+
+add_executable(qshopper_tests
+    tests/test_model.cpp
+    model.cpp
+    undoremove.cpp
+)
+
+target_link_libraries(qshopper_tests PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Sql Qt6::Test)
+target_include_directories(qshopper_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_test(NAME qshopper_tests COMMAND qshopper_tests)
 
 install(TARGETS application
     BUNDLE DESTINATION .

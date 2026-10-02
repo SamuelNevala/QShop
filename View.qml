@@ -44,11 +44,14 @@ Style.Control {
                         GroupBox {
                             dimensions: root.dimensions
                             title: qsTr("Theme")
+                            padding:root.dimensions.mm(4)
                             width: menu.contentItem.width
 
-                            RowLayout {
+
+                            FlexboxLayout {
+                                direction: FlexboxLayout.Row
+                                justifyContent: FlexboxLayout.JustifySpaceBetween
                                 width: parent.width
-                                Layout.margins: root.dimensions.mm(1)
 
                                 IconButton {
                                     autoExclusive: true
@@ -60,7 +63,6 @@ Style.Control {
                                     text: qsTr("Dark")
                                     onClicked: ThemeManager.theme = Style.Material.Dark
                                 }
-                                Quick.Item { Layout.fillWidth: true }
                                 IconButton {
                                     autoExclusive: true
                                     checked: ThemeManager.theme === Style.Material.Light
@@ -71,7 +73,6 @@ Style.Control {
                                     text: qsTr("Light")
                                     onClicked: ThemeManager.theme = Style.Material.Light
                                 }
-                                Quick.Item { Layout.fillWidth: true }
                                 IconButton {
                                     autoExclusive: true
                                     checked: ThemeManager.theme === Style.Material.System
@@ -88,11 +89,11 @@ Style.Control {
                     DelegateChoice {
                         roleValue: "colors"
 
-                        RowLayout {
-                            spacing: root.dimensions.mm(1)
-                            uniformCellSizes: true
+                        FlexboxLayout {
+                            direction: FlexboxLayout.Row
+                            gap: root.dimensions.mm(1)
+                            justifyContent: FlexboxLayout.JustifySpaceBetween
                             width: parent.width
-                            Layout.margins: root.dimensions.mm(1)
 
                             ColorComboBox {
                                 colorFunction: ThemeManager.colorAccent
@@ -113,6 +114,7 @@ Style.Control {
                     }
                     DelegateChoice {
                         roleValue: "lists"
+
                         ComboBox {
                             dimensions: root.dimensions
                             model: sortedModel
@@ -120,6 +122,7 @@ Style.Control {
                             valueRole: "id"
                             label: qsTr("Lists")
                             width: menu.contentItem.width
+
                             onActivated: {
                                 ThemeManager.activeList = currentValue
                                 menu.close();
@@ -129,18 +132,24 @@ Style.Control {
                             }
                             Quick.Component.onCompleted: {
                                 currentIndex = indexOfValue(ThemeManager.activeList)
+                                console.log("lists", height)
                             }
                         }
                     }
                     DelegateChoice {
                         roleValue: "operations"
+
                         GroupBox {
                             dimensions: root.dimensions
+                            title: qsTr("Actions")
                             width: menu.contentItem.width
+                            padding: 24//dimensions.mm(5)
 
-                            RowLayout {
+                            FlexboxLayout {
+                                direction: FlexboxLayout.Row
+                                // gap: root.dimensions.mm(5)
+                                justifyContent: FlexboxLayout.JustifySpaceBetween
                                 width: parent.width
-                                Layout.margins: root.dimensions.mm(1)
 
                                 IconButton {
                                     dimensions: root.dimensions
@@ -152,7 +161,6 @@ Style.Control {
                                         shopView.reset();
                                     }
                                 }
-                                Quick.Item { Layout.fillWidth: true }
                                 IconButton {
                                     dimensions: root.dimensions
                                     font { family: awsome.name }
@@ -163,7 +171,6 @@ Style.Control {
                                         shopView.removeChecked();
                                     }
                                 }
-                                Quick.Item { Layout.fillWidth: true }
                                 IconButton {
                                     dimensions: root.dimensions
                                     font { family: awsome.name }
@@ -183,6 +190,7 @@ Style.Control {
                             dimensions: root.dimensions
                             title: qsTr("Swipe sensitivity ") + Math.round(slider.value*100) + "%"
                             width: menu.contentItem.width
+                            //padding: dimensions.mm(5)
 
                             Style.Slider {
                                 id: slider

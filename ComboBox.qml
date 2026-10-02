@@ -10,7 +10,7 @@ ComboBox {
 
     topInset: label.height + root.dimensions.mm(1)
     topPadding: topInset
-    leftPadding: root.dimensions.mm(2)
+    // leftPadding: root.dimensions.mm(2)
 
     Text {
         id: label
@@ -18,7 +18,7 @@ ComboBox {
         color: Material.primaryTextColor
         font { pixelSize: root.dimensions ? root.dimensions.mm(3) : 0 }
         fontSizeMode: Text.Fit
-        x: parent.leftPadding
+        x: root.dimensions.mm(2)
         width: parent.availableWidth
     }
 }

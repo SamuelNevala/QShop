@@ -11,8 +11,10 @@ ComboBox {
 
     contentItem: Controls.Control {
         bottomPadding: Controls.Material.textFieldVerticalPadding
-        contentItem: RowLayout {
-            spacing: root.dimensions.mm(1)
+        contentItem: FlexboxLayout {
+            direction: FlexboxLayout.Row
+            gap: root.dimensions.mm(1)
+            justifyContent: FlexboxLayout.JustifySpaceBetween
 
             Rectangle {
                 color: root.colorFunction(root.currentValue)
@@ -20,20 +22,15 @@ ComboBox {
                 radius: Controls.Material.FullScale
                 Layout.fillHeight: true;
             }
-
-            Text {
+            TextItem {
                 color: Controls.Material.foreground
                 font: root.font
-                elide: Text.ElideRight
                 text: root.currentText
-                verticalAlignment: Text.AlignVCenter
                 Layout.fillHeight: true; Layout.fillWidth: true
             }
-
-            Layout.margins: root.dimensions.mm(1)
         }
+
         implicitHeight: Controls.Material.textFieldHeight
-        implicitWidth: 120
         topPadding: Controls.Material.textFieldVerticalPadding
     }
 
@@ -43,8 +40,10 @@ ComboBox {
         required property var model
         required property int index
 
-        contentItem: RowLayout {
-            spacing: root.dimensions.mm(1)
+        contentItem: FlexboxLayout {
+            direction: FlexboxLayout.Row
+            gap: root.dimensions.mm(1)
+            justifyContent: FlexboxLayout.JustifySpaceBetween
 
             Rectangle {
                 color: root.colorFunction(delegate.model[root.valueRole])
@@ -52,16 +51,14 @@ ComboBox {
                 implicitWidth: height
                 radius: Controls.Material.FullScale
             }
-
-            Text {
-                text: delegate.model[root.textRole]
+            TextItem {
                 color: root.currentIndex === delegate.index ? Controls.Material.accent : Controls.Material.foreground
                 font: root.font
-                elide: Text.ElideRight
+                text: delegate.model[root.textRole]
                 Layout.fillHeight: true; Layout.fillWidth: true
             }
-            Layout.margins: root.dimensions.mm(1)
         }
+
         highlighted: root.highlightedIndex === index
         width: root.width
     }

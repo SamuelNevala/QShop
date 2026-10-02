@@ -2,35 +2,78 @@
 #define MODEL_H
 
 #include <QtCore/QAbstractListModel>
+#include <QtCore/QtCompilerDetection>
+#include <QtCore/QObject>
+#include <QtCore/QHash>
+#include <QtCore/QString>
+#include <QtCore/QTypeInfo>
+#include <QtCore/QtTypes>
+#include <QtCore/QList>
+#include <QtCore/qtmetamacros.h>
+#include <QtCore/qnamespace.h>
 #include <QtCore/QUuid>
 #include <QtGui/QUndoStack>
 #include <QtQml/QQmlParserStatus>
-#include <QtQmlIntegration>
+#include <QtQmlIntegration/qqmlintegration.h>
+ // #include <QtQmlIntegration>
+#include <utility>
 
-
-static const QString kCreate = QStringLiteral("CREATE TABLE IF NOT EXISTS \"%1\" ("
+namespace SQL {
+static const QString &create() {
+    static const QString kCreate = QStringLiteral("CREATE TABLE IF NOT EXISTS \"%1\" ("
                                                   "id TEXT PRIMARY KEY NOT NULL,"
                                                   "name TEXT NOT NULL,"
                                                   "checked INTEGER NOT NULL DEFAULT 0)");
-static const QString kDrop = QStringLiteral("DROP TABLE IF EXISTS \"%1\"");
-static const QString kDeleteFrom = QStringLiteral("DELETE FROM \"%1\"");
-static const QString kInsertTo = QStringLiteral("INSERT INTO \"%1\" (id, name, checked) VALUES (?, ?, ?)");
-static const QString kSelectFrom = QStringLiteral("SELECT name, checked, id FROM \"%1\"");
-static const QString kSelectFromAscending = QStringLiteral("SELECT name, checked, id FROM \"%1\" ORDER BY name ASC");
-static const QString kSelectAllTables = QStringLiteral("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;");
-static const QString kListsTable = QStringLiteral("lists");
-static const QString kDefaultTable = QStringLiteral("default");
+    return kCreate;
+}
+
+static const QString &drop() {
+    static const QString kDrop = QStringLiteral("DROP TABLE IF EXISTS \"%1\"");
+    return kDrop;
+}
+
+static const QString &deleteFrom() {
+    static const QString kDeleteFrom = QStringLiteral("DELETE FROM \"%1\"");
+    return kDeleteFrom;
+}
+
+static const QString &insertTo() {
+    static const QString kInsertTo = QStringLiteral("INSERT INTO \"%1\" (id, name, checked) VALUES (?, ?, ?)");
+    return kInsertTo;
+}
+
+static const QString &selectFrom() {
+    static const QString kSelectFrom = QStringLiteral("SELECT name, checked, id FROM \"%1\"");
+    return kSelectFrom;
+}
+
+static const QString &selectAllTables() {
+    static const QString kSelectAllTables = QStringLiteral("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;");
+    return kSelectAllTables;
+}
+
+static const QString &tableLists() {
+    static const QString kListsTable = QStringLiteral("lists");
+    return kListsTable;
+}
+
+static const QString &tableDefault() {
+    static const QString kDefaultTable = QStringLiteral("default");
+    return kDefaultTable;
+}
+} // namespace SQL
 
 struct Item
 {
     Item() = default;
-    Item(const QString &name) : name(name), uuid(QUuid::createUuid()) {}
-    Item(const QString &name, bool checked) : name(name), checked(checked), uuid(QUuid::createUuid()) {}
-    Item(const QString &name, bool checked, const QUuid &uuid) : name(name), checked(checked), uuid(uuid) {}
+    explicit Item(QString name) : name(std::move(name)), uuid(QUuid::createUuid()) {}
+    Item(QString name, bool checked) : name(std::move(name)), checked(checked), uuid(QUuid::createUuid()) {}
+    Item(QString name, bool checked, QUuid uuid) : name(std::move(name)), checked(checked), uuid(uuid) {}
     Item(const Item&) = default;
     Item& operator=(const Item&) = default;
     Item(Item&&) noexcept = default;
     Item& operator = (Item&&) noexcept = default;
+    ~Item() = default;
     QString name;
     bool checked = false;
     QUuid uuid;
@@ -50,19 +93,19 @@ class Model : public QAbstractListModel, public QQmlParserStatus
     Q_INTERFACES(QQmlParserStatus)
 
 public:
-    enum class Save { YES, NO };
+    enum class Save : quint8 { YES, NO };
     Q_ENUM(Save);
 
-    enum class Force { YES, NO };
+    enum class Force : quint8 { YES, NO };
     Q_ENUM(Force);
 
-    explicit Model(QObject *parent = 0) Q_DECL_NOTHROW;
+    explicit Model(QObject *parent = nullptr) Q_DECL_NOTHROW;
 
     // from QAbstractListModel
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+    [[nodiscard]] QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) Q_DECL_OVERRIDE;
-    QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+    [[nodiscard]] QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
+    [[nodiscard]] int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
     // // from QQmlParserStatus
     void classBegin() Q_DECL_OVERRIDE;
@@ -84,11 +127,11 @@ public:
     Q_INVOKABLE void undo();
     Q_INVOKABLE void clearUndoStack();
     Q_INVOKABLE void reload();
-    qsizetype editorIndex() const;
-    bool canUndo() const;
-    QString activeList() const;
-    void setActiveList(const QString &id);
-    bool readOnly() const;
+    [[nodiscard]] qsizetype editorIndex() const;
+    [[nodiscard]] bool canUndo() const;
+    [[nodiscard]] QString activeList() const;
+    void setActiveList(const QString &identifier);
+    [[nodiscard]] bool readOnly() const;
     void setReadOnly(bool value);
 
 Q_SIGNALS:
@@ -100,22 +143,22 @@ Q_SIGNALS:
 
 private:
     void append(Item &&item);
-    qsizetype checkedIndex(qsizetype index) const;
+    [[nodiscard]] qsizetype checkedIndex(qsizetype index) const;
     void move(qsizetype source, qsizetype destination, Save changes);
     void removeAll(Save changes);
     void save();
     void load();
-    QUuid resolve(const QString &name);
-    QString resolve(const QUuid &id);
+    static QUuid resolve(const QString &name);
+    static QString resolve(QUuid identifier);
     void createList(const Item &row);
-    const QUuid &activeListId() const;
-    void setActiveListId(const QUuid &id);
-    void dropRemovedTables();
+    [[nodiscard]] const QUuid &activeListId() const;
+    void setActiveListId(QUuid identifier);
+    void dropRemovedTables() const;
 
-    QUuid m_active_list_id;
-    QVector<Item> m_items;
+    QUuid m_activeListId;
+    QList<Item> m_items;
     QUndoStack m_stack;
-    bool m_read_only { false };
+    bool m_readOnly { false };
 };
 
 #endif // MODEL_H
