@@ -16,20 +16,24 @@ Delegate {
     signal undo()
 
     function insert(text) {
-        if (text === "") return;
-        input.clear();
-        input.insert(0, text);
-        input.forceActiveFocus();
+        if (text === "") {
+            return
+        }
+        input.clear()
+        input.insert(0, text)
+        input.forceActiveFocus()
     }
 
     contentItem: TextField {
         id: input
 
         function addItem() {
-            if (text === "") return;
-            root.addItem(input.text);
-            clear();
-            root.timeout();
+            if (text === "") {
+                return
+            }
+            root.addItem(input.text)
+            clear()
+            root.timeout()
         }
 
         background:  Rectangle { color: Material.backgroundColor; opacity: 0.8 }
@@ -76,7 +80,7 @@ Delegate {
                 text: "\uf0c9"
                 enabled: !root.canUndo
                 opacity: 1.0
-                onClicked: root.barsTapped();
+                onClicked: root.barsTapped()
                 Material.theme: ThemeManager.theme
             }
             height: parent.height; width: height
@@ -113,10 +117,10 @@ Delegate {
 
     Keys.onReturnPressed: {
         // Qt.inputMethod.commit()
-        input.addItem();
+        input.addItem()
     }
 
-    Keys.onEscapePressed: input.focus = false;
+    Keys.onEscapePressed: input.focus = false
 
     Material.theme: ThemeManager.inverseTheme
 }

@@ -82,6 +82,29 @@ private slots:
         QCOMPARE(model.roleNames().value(Qt::UserRole + 1), "id");
     }
 
+    void editor_role_uses_explicit_index()
+    {
+        Model model;
+        loadItems(model);
+        model.insert(0, "");
+        QCOMPARE(model.editorIndex(), -1);
+        QVERIFY(!model.data(model.index(0), Qt::EditRole).toBool());
+
+        model.addEditor();
+        QCOMPARE(model.editorIndex(), 0);
+        QVERIFY(model.data(model.index(0), Qt::EditRole).toBool());
+        QVERIFY(!model.data(model.index(1), Qt::EditRole).toBool());
+        QVERIFY(!model.setData(model.index(0), true, Qt::CheckStateRole));
+
+        model.moveEditor(1, Model::Force::YES);
+        QCOMPARE(model.editorIndex(), 1);
+        QVERIFY(!model.data(model.index(0), Qt::EditRole).toBool());
+        QVERIFY(model.data(model.index(1), Qt::EditRole).toBool());
+        model.remove(0);
+        QCOMPARE(model.editorIndex(), 0);
+        QVERIFY(model.data(model.index(0), Qt::EditRole).toBool());
+    }
+
     void insert_move_and_reload_preserve_order_and_identity()
     {
         Model model;
@@ -100,6 +123,40 @@ private slots:
         loadItems(reloaded);
         QCOMPARE(names(reloaded), QStringList({"Milk", "Bread", "Eggs"}));
         QCOMPARE(id(reloaded, 0), milkId);
+    }
+
+    void move_rejects_invalid_rows_data()
+    {
+        QTest::addColumn<qsizetype>("source");
+        QTest::addColumn<qsizetype>("destination");
+        QTest::newRow("negative-source") << qsizetype(-1) << qsizetype(0);
+        QTest::newRow("negative-destination") << qsizetype(0) << qsizetype(-1);
+        QTest::newRow("source-count") << qsizetype(2) << qsizetype(0);
+        QTest::newRow("destination-count") << qsizetype(0) << qsizetype(2);
+        QTest::newRow("same-row") << qsizetype(1) << qsizetype(1);
+        QTest::newRow("minimum-source") << std::numeric_limits<qsizetype>::min() << qsizetype(0);
+        QTest::newRow("maximum-destination") << qsizetype(0) << std::numeric_limits<qsizetype>::max();
+    }
+
+    void move_rejects_invalid_rows()
+    {
+        QFETCH(qsizetype, source);
+        QFETCH(qsizetype, destination);
+        Model model;
+        loadItems(model);
+        model.insert(0, "A");
+        model.insert(1, "B");
+        QSignalSpy moved(&model, &Model::rowsMoved);
+        QSignalSpy count(&model, &Model::countChanged);
+
+        model.move(source, destination);
+
+        QCOMPARE(names(model), QStringList({"A", "B"}));
+        QCOMPARE(moved.count(), 0);
+        QCOMPARE(count.count(), 0);
+        Model persisted;
+        loadItems(persisted);
+        QCOMPARE(names(persisted), QStringList({"A", "B"}));
     }
 
     void checked_state_reorders_persists_and_resets()
@@ -165,6 +222,7 @@ private slots:
         QSignalSpy moved(&model, &Model::rowsMoved);
         QSignalSpy count(&model, &Model::countChanged);
 
+        model.setChecked(row, true);
         model.toggleChecked(row);
 
         QCOMPARE(names(model), expected);

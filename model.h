@@ -162,6 +162,7 @@ private:
     QList<Item> m_items;
     std::optional<Item> m_pendingEdit;
     QUndoStack m_stack;
+    qsizetype m_editorIndex { -1 };
     bool m_readOnly { false };
 };
 

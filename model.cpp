@@ -57,7 +57,7 @@ QVariant Model::data(const QModelIndex &index, int role) const
     case Qt::CheckStateRole:
         return m_items[index.row()].checked;
     case Qt::EditRole:
-        return m_items[index.row()].name.isEmpty();
+        return index.row() == m_editorIndex;
     case Qt::UserRole + 1:
         return m_items[index.row()].uuid.toString(QUuid::WithoutBraces);
     default:
@@ -70,6 +70,7 @@ bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
     if (!index.isValid()
       || index.row() < 0
       || index.row() >= rowCount()
+      || index.row() == m_editorIndex
       || role != Qt::CheckStateRole
       || m_readOnly) {
         return false;
@@ -133,11 +134,18 @@ void Model::insert(qsizetype index, Item &&item)
         Q_EMIT dataChanged(editorModelIndex, editorModelIndex, { Qt::UserRole + 1 });
     }
 
+    const auto previousEditor = m_editorIndex;
     beginInsertRows(QModelIndex(), static_cast<int>(clamped), static_cast<int>(clamped));
     createList(item);
     m_items.insert(clamped, std::move(item));
+    if (m_editorIndex >= clamped) {
+        ++m_editorIndex;
+    }
     endInsertRows();
     Q_EMIT countChanged();
+    if (m_editorIndex != previousEditor) {
+        Q_EMIT editorIndexChanged();
+    }
     save();
 }
 
@@ -157,8 +165,14 @@ void Model::remove(qsizetype index)
         return;
     }
 
+    const auto previousEditor = m_editorIndex;
     beginRemoveRows(QModelIndex(), static_cast<int>(index), static_cast<int>(index));
     Item &&item = m_items.takeAt(index);
+    if (m_editorIndex == index) {
+        m_editorIndex = -1;
+    } else if (m_editorIndex > index) {
+        --m_editorIndex;
+    }
     if (!item.name.isEmpty()) {
         m_stack.clear();
         auto* remove { new UndoRemove(*this) };
@@ -167,6 +181,9 @@ void Model::remove(qsizetype index)
     }
     endRemoveRows();
     Q_EMIT countChanged();
+    if (m_editorIndex != previousEditor) {
+        Q_EMIT editorIndexChanged();
+    }
     save();
 }
 
@@ -182,6 +199,7 @@ QString Model::editItem(qsizetype index)
     m_pendingEdit = m_items.takeAt(index);
     endRemoveRows();
     const auto editorAfterRemoval = editor - (editor > index ? 1 : 0);
+    m_editorIndex = editorAfterRemoval;
     // Associate the placeholder with the original row until submission.
     const auto editorModelIndex = this->index(static_cast<int>(editorAfterRemoval));
     m_items[editorAfterRemoval].uuid = m_pendingEdit->uuid;
@@ -219,6 +237,7 @@ void Model::removeChecked()
         }
     }
 
+    bool editorChanged = false;
     for (qsizetype row = m_items.size() - 1; row >= 0;) {
         if (!m_items.at(row).checked) {
             --row;
@@ -230,6 +249,13 @@ void Model::removeChecked()
             const auto first = row;
             beginRemoveRows(QModelIndex(), static_cast<int>(first), static_cast<int>(last));
             m_items.remove(first, last - first + 1);
+            if (m_editorIndex > last) {
+                m_editorIndex -= last - first + 1;
+                editorChanged = true;
+            } else if (m_editorIndex >= first && m_editorIndex <= last) {
+                m_editorIndex = -1;
+                editorChanged = true;
+            }
             endRemoveRows();
             if (first == 0) {
                 break;
@@ -240,11 +266,18 @@ void Model::removeChecked()
 
     m_stack.push(remove.release());
     Q_EMIT countChanged();
+    if (editorChanged) {
+        Q_EMIT editorIndexChanged();
+    }
     save();
 }
 
 void Model::setChecked(qsizetype index, bool checked)
 {
+    if (m_readOnly || index < 0 || index >= m_items.size()) {
+        return;
+    }
+
     if (!setData(this->index(static_cast<int>(index)), checked, Qt::CheckStateRole)) {
         return;
     }
@@ -285,12 +318,13 @@ void Model::addEditor()
     }
 
     // Editor is added already.
-    if (editorIndex() != -1) {
+    if (m_editorIndex != -1) {
         return;
     }
 
     beginInsertRows(QModelIndex(), 0, 0);
     m_items.insert(0, 1, Item());
+    m_editorIndex = 0;
     endInsertRows();
     Q_EMIT countChanged();
     Q_EMIT editorIndexChanged();
@@ -347,7 +381,7 @@ void Model::reload()
 
 qsizetype Model::editorIndex() const
 {
-    return m_items.indexOf(Item());
+    return m_editorIndex;
 }
 
 bool Model::canUndo() const {
@@ -407,12 +441,28 @@ qsizetype Model::checkedIndex(qsizetype index) const
 
 void Model::move(qsizetype source, qsizetype destination, Save changes)
 {
+    if (m_readOnly || source < 0 || destination < 0 || source >= m_items.size()
+        || destination >= m_items.size() || source == destination) {
+        return;
+    }
+
     if (m_readOnly || !beginMoveRows(QModelIndex(), static_cast<int>(source), static_cast<int>(source), QModelIndex(), static_cast<int>(destination + (destination > source ? 1 : 0)))) {
         return;
     }
 
+    const auto previousEditor = m_editorIndex;
     m_items.insert(destination, 1, m_items.takeAt(source));
+    if (m_editorIndex == source) {
+        m_editorIndex = destination;
+    } else if (source < m_editorIndex && destination >= m_editorIndex) {
+        --m_editorIndex;
+    } else if (source > m_editorIndex && destination <= m_editorIndex) {
+        ++m_editorIndex;
+    }
     endMoveRows();
+    if (m_editorIndex != previousEditor) {
+        Q_EMIT editorIndexChanged();
+    }
     if (changes == Save::NO) {
         return;
     }
@@ -475,6 +525,7 @@ void Model::restorePendingEdit()
     Q_EMIT dataChanged(editorModelIndex, editorModelIndex, { Qt::UserRole + 1 });
     beginInsertRows(QModelIndex(), static_cast<int>(editor), static_cast<int>(editor));
     m_items.insert(editor, std::move(*m_pendingEdit));
+    ++m_editorIndex;
     m_pendingEdit.reset();
     endInsertRows();
     Q_EMIT countChanged();

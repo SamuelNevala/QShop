@@ -9,23 +9,31 @@ TextIcon {
     property real ratio
 
     function animate() {
-        if (arrowAnimation.animated) return;
-        arrowAnimation.animated = true;
-        arrowAnimation.start();
+        if (arrowAnimation.animated) {
+            return
+        }
+        arrowAnimation.animated = true
+        arrowAnimation.start()
     }
 
     function reset() {
-        if (!arrowAnimation.animated) return;
-        arrowAnimation.animated = false;
-        arrow.y = arrowAnimation.from;
+        if (!arrowAnimation.animated) {
+            return
+        }
+        arrowAnimation.animated = false
+        arrow.y = arrowAnimation.from
     }
 
     clip: true
     text: "\uf10a"
 
     onRatioChanged: {
-        if (ratio === 0) reset();
-        if (ratio > 1.0) animate();
+        if (ratio === 0) {
+            reset()
+        }
+        if (ratio > 1.0) {
+            animate()
+        }
     }
 
     TextIcon {

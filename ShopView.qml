@@ -16,14 +16,14 @@ ListView {
 
     function setEditMode(mode) {
         if (editMode === mode) {
-            return;
-        }
-        editMode = mode;
-        if (editMode) {
-            itemModel.addEditor();
             return
         }
-        itemModel.removeEditor();
+        editMode = mode
+        if (editMode) {
+            itemModel.addEditor()
+            return
+        }
+        itemModel.removeEditor()
     }
 
     function reset() {
@@ -31,11 +31,11 @@ ListView {
     }
 
     function removeChecked() {
-        itemModel.removeChecked();
+        itemModel.removeChecked()
     }
 
     function removeAll() {
-        itemModel.removeAll();
+        itemModel.removeAll()
     }
 
     Pulley {
@@ -93,18 +93,22 @@ ListView {
             name: chooser.name
 
             onDoubleTapped: {
-                if (!shopView.editMode) return;
-                const input = ((shopView.itemAtIndex(itemModel.editorIndex) as DelegateChoser).item as InputDelegate);
-                input.insert(itemModel.editItem(index));
+                if (!shopView.editMode) {
+                    return
+                }
+                const input = ((shopView.itemAtIndex(itemModel.editorIndex) as DelegateChoser).item as InputDelegate)
+                input.insert(itemModel.editItem(index))
             }
             onPressed: itemModel.clearUndoStack()
             onSingleTapped: {
-                if (checked) return;
-                itemModel.moveEditor(index);
+                if (checked) {
+                    return
+                }
+                itemModel.moveEditor(index)
             }
             onSwiped: function(direction) {
                 if (shopView.editMode && direction === SwipeHandler.Direction.Right) {
-                    itemModel.remove(index);
+                    itemModel.remove(index)
                 } else {
                     itemModel.toggleChecked(index)
                 }
@@ -123,13 +127,13 @@ ListView {
                 shopView.positionViewAtIndex(index, ListView.Contain)
             }
             onBarsTapped: shopView.openMenu()
-            onTimeout: itemModel.clearUndoStack();
-            onUndo: itemModel.undo();
+            onTimeout: itemModel.clearUndoStack()
+            onUndo: itemModel.undo()
         }
     }
 
     model: Model {
-        id: itemModel;
+        id: itemModel
         activeList: ThemeManager.activeList
         Component.onCompleted: shopView.setEditMode(!itemModel.count)
     }
@@ -185,7 +189,9 @@ ListView {
     }
 
     onMovementStarted: {
-        if (!itemModel.canUndo) return;
-        itemModel.clearUndoStack();
+        if (!itemModel.canUndo) {
+            return
+        }
+        itemModel.clearUndoStack()
     }
 }

@@ -24,8 +24,10 @@ Control {
         Connections {
             target: root.visible ? root.parent : null
             function onDragEnded() {
-                if (root.height < root.treshold) return;
-                dealayAction.restart();
+                if (root.height < root.treshold) {
+                    return
+                }
+                dealayAction.restart()
             }
         },
         Timer {

@@ -21,15 +21,15 @@ Delegate {
         id: swipeHandler
 
         function swiped(direction) {
-            const temporary = root.index;
-            root.swiped(direction);
-            animateSwipe.reset(temporary === root.index ? 0 : 250);
+            const temporary = root.index
+            root.swiped(direction)
+            animateSwipe.reset(temporary === root.index ? 0 : 250)
         }
 
         dimensions: root.dimensions
         enabled: !tapHandler.longPressActive
         target: root
-        onSwipe: (direction) => { animateSwipe.to(direction, 0); }
+        onSwipe: (direction) => { animateSwipe.to(direction, 0) }
     }
 
     DragHandler {
@@ -48,18 +48,20 @@ Delegate {
         exclusiveSignals: TapHandler.SingleTap | TapHandler.DoubleTap
         target: root
 
-        onDoubleTapped: root.doubleTapped();
+        onDoubleTapped: root.doubleTapped()
         onGrabChanged: (transition, point) => {
-            root.pressed();
+            root.pressed()
             if (transition === PointerDevice.UngrabPassive) {
-                longPressActive = false;
+                longPressActive = false
             }
         }
         onLongPressed: {
-            if (root.checked) return;
-            longPressActive = true;
+            if (root.checked) {
+                return
+            }
+            longPressActive = true
         }
-        onSingleTapped: root.singleTapped();
+        onSingleTapped: root.singleTapped()
     }
 
     Drag.active: swipeHandler.active || dragHandler.active
@@ -180,18 +182,18 @@ Delegate {
 
             property int direction: SwipeHandler.Direction.None
 
-            function reset(delay) { to(SwipeHandler.Direction.None, delay); }
+            function reset(delay) { to(SwipeHandler.Direction.None, delay) }
 
             function to(direction, delay) {
-                xAnimation.from = root.x;
+                xAnimation.from = root.x
                 if (direction === SwipeHandler.Direction.None) {
-                    xAnimation.to = 0;
+                    xAnimation.to = 0
                 } else {
-                    xAnimation.to = direction === SwipeHandler.Direction.Right ? root.width : -root.width;
+                    xAnimation.to = direction === SwipeHandler.Direction.Right ? root.width : -root.width
                 }
-                pause.duration = delay;
-                animateSwipe.direction = direction;
-                animateSwipe.restart();
+                pause.duration = delay
+                animateSwipe.direction = direction
+                animateSwipe.restart()
             }
 
             PauseAnimation { id: pause }
@@ -199,7 +201,7 @@ Delegate {
 
             onFinished: {
                 if (animateSwipe.direction !== SwipeHandler.Direction.None) {
-                    swipeHandler.swiped(animateSwipe.direction);
+                    swipeHandler.swiped(animateSwipe.direction)
                 }
             }
         }
