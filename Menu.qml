@@ -8,9 +8,10 @@ Drawer {
     property Dimensions dimensions
 
     bottomInset: dimensions.mm(2); topInset: dimensions.mm(2)
-    bottomPadding: bottomInset + dimensions.mm(1);  topPadding: topInset + dimensions.mm(1)
-    leftPadding: dimensions.mm(1)
-    rightPadding: dimensions.mm(1)
+    bottomPadding: bottomInset + dimensions.mm(1) + SafeArea.margins.bottom
+    topPadding: topInset + dimensions.mm(1) + SafeArea.margins.top
+    leftPadding: dimensions.mm(1) + SafeArea.margins.left
+    rightPadding: dimensions.mm(1) + SafeArea.margins.right
 
     Binding {
         target: root.background

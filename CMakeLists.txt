@@ -86,12 +86,10 @@ qt_add_qml_module(QShopper
         background_five.jpg
         fa-solid-900.ttf
     DEPENDENCIES QtCore
-    RESOURCES android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml android/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/gradle-wrapper.properties android/gradle.properties android/gradlew android/gradlew.bat
-    RESOURCES android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml
-    RESOURCES android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml
 )
 
 add_subdirectory(QDynamics)
+add_dependencies(application qdynamicspluginplugin)
 
 set_target_properties(application PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER shopper.nevala.com
@@ -100,6 +98,22 @@ set_target_properties(application PROPERTIES
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
+
+if(ANDROID)
+    # Stage only app customizations; Qt supplies the matching Gradle tooling.
+    set(android_package_dir "${CMAKE_CURRENT_BINARY_DIR}/android-package")
+    configure_file(android/AndroidManifest.xml
+        "${android_package_dir}/AndroidManifest.xml" COPYONLY)
+    file(GLOB android_icon_dirs "${CMAKE_CURRENT_SOURCE_DIR}/android/res/drawable-*")
+    file(COPY ${android_icon_dirs} DESTINATION "${android_package_dir}/res")
+    set_target_properties(application PROPERTIES
+        QT_ANDROID_PACKAGE_SOURCE_DIR "${android_package_dir}"
+        QT_ANDROID_APP_NAME "QShopper"
+        QT_ANDROID_PACKAGE_NAME "shopper.nevala.com"
+        QT_ANDROID_VERSION_NAME "${PROJECT_VERSION}"
+        QT_ANDROID_VERSION_CODE 1
+    )
+endif()
 
 target_link_libraries(QShopper PUBLIC Qt6::Quick Qt6::Sql Qt6::Core Qt6::Qml Qt6::QuickControls2)
 target_include_directories(QShopper PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

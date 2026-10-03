@@ -6,6 +6,7 @@
 #include <QtCore/QtLogging>
 #include <QtCore/QObject>
 #include <QtCore/QStandardPaths>
+#include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <QtCore/QTranslator>
 #include <QtCore/qnamespace.h>
@@ -36,7 +37,16 @@ int main(int argc, char *argv[])
         }
     }
 
-    const auto databaseLocation = QStringLiteral("%1/shop_list.sqlite").arg(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    // Automated runs can use disposable data and settings without touching the user's lists.
+    const auto testDataDirectory = qEnvironmentVariable("QSHOPPER_DATA_DIR");
+    if (!testDataDirectory.isEmpty()) {
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, testDataDirectory);
+    }
+    const auto dataDirectory = testDataDirectory.isEmpty()
+        ? QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+        : testDataDirectory;
+    const auto databaseLocation = QDir(dataDirectory).filePath(QStringLiteral("shop_list.sqlite"));
     qDebug() << "Database location: " << databaseLocation;
     const QDir dir(QFileInfo(databaseLocation).absolutePath());
     if (!dir.exists()) {

@@ -11,6 +11,12 @@ Style.Control {
 
     property Dimensions dimensions
 
+    // Keep interactive content clear of system bars and display cutouts.
+    topPadding: Quick.SafeArea.margins.top
+    bottomPadding: Quick.SafeArea.margins.bottom
+    leftPadding: Quick.SafeArea.margins.left
+    rightPadding: Quick.SafeArea.margins.right
+
     SortFilterProxyModel {
         id: sortedModel
         sourceModel: Model {
@@ -19,7 +25,40 @@ Style.Control {
         }
     }
 
-    background: Background {}
+    background: Quick.Item {
+        id: safeAreaBackground
+        // Darken the system-bar and cutout areas without dimming the list.
+        readonly property string borderColor: "#A6000000"
+
+        Background { anchors.fill: parent }
+
+        Quick.Rectangle {
+            anchors { top: parent.top; left: parent.left; right: parent.right }
+            height: root.topPadding
+            color: safeAreaBackground.borderColor
+        }
+        Quick.Rectangle {
+            anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
+            height: root.bottomPadding
+            color: safeAreaBackground.borderColor
+        }
+        Quick.Rectangle {
+            anchors {
+                top: parent.top; bottom: parent.bottom; left: parent.left
+                topMargin: root.topPadding; bottomMargin: root.bottomPadding
+            }
+            width: root.leftPadding
+            color: safeAreaBackground.borderColor
+        }
+        Quick.Rectangle {
+            anchors {
+                top: parent.top; bottom: parent.bottom; right: parent.right
+                topMargin: root.topPadding; bottomMargin: root.bottomPadding
+            }
+            width: root.rightPadding
+            color: safeAreaBackground.borderColor
+        }
+    }
     contentItem: ShopView {
         id: shopView
 
@@ -215,7 +254,10 @@ Style.Control {
             }
 
             dimensions: root.dimensions
-            height: root.height; width: root.width * 0.66
+            // Drawers are reparented to the window overlay, outside this
+            // control's padded content item.
+            y: root.topPadding
+            height: root.availableHeight; width: root.availableWidth * 0.66
         }
     }
     resources: [ Quick.FontLoader { id: awsome; source: Quick.Qt.resolvedUrl("fa-solid-900.ttf") } ]

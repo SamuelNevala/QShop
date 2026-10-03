@@ -59,3 +59,39 @@ are excluded from the summary. Reports are in `tests/coverage/summary.md`,
 `summary.json`, and `model.cobertura.xml` inside the build directory.
 
 Verified with MSVC 19.44 / Qt 6.12: **94.56% (452/478 lines)**.
+
+## UI behavior verification
+
+Run `./tools/verify-windows.ps1` from the project root to build the app and both
+suites, then run CTest. Qt Quick Test must be installed in the Qt kit.
+The UI harness uses the production QShopper module and QDynamics plugin,
+in-memory SQLite and temporary settings. Its report is written to
+`out/windows-agent/tests/ui-tests.xml`.
+
+Seven scenarios cover empty-list edit mode, keyboard item submission, empty
+submission, leaving/re-entering edit mode, a pointer swipe to check an item and
+resetting it, bulk removal/undo through view actions, and a pointer click on the
+editor menu button. Tests wait for delegate animations before pointer input.
+Bulk removal/undo calls the view action and editor signal; it does not click
+full-app drawer buttons.
+
+Before a full-app test, set `QSHOPPER_DATA_DIR` to a unique disposable directory.
+It isolates the app database and default settings. The QML harness instead uses
+in-memory storage without launching main.cpp.
+
+Verified on Windows, 2026-10-03: seven UI scenarios passed (nine QTest records
+including setup/cleanup), and all 52 model QTest records passed. A separate
+visible Windows run verified startup/rendering, typing and submitting Milk,
+left-swipe checking (strikethrough and reordering), opening the drawer, and
+switching from Dark to Light theme. Personal shopping data was not used.
+
+Unresolved full-app findings:
+
+- On fresh data, the Lists combo box has blank selected text although the
+  default list is active. ThemeManager.activeList starts as `default`, while
+  the combo box matches UUID values.
+- Startup logs `ComboBox.qml:21: TypeError: Cannot call method 'mm' of null`.
+  The label x binding uses dimensions before LoaderWindow supplies it.
+
+The offscreen suite does not validate the complete drawer, list switching,
+long-press reordering, touch input, DPI variants, or Android behavior.
