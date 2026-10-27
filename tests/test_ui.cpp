@@ -13,6 +13,19 @@ class UiSetup : public QObject
     Q_OBJECT
     QTemporaryDir settingsDirectory;
 public:
+    Q_INVOKABLE QVariant savedSetting(const QString &key) const
+    {
+        QSettings settings;
+        settings.sync();
+        return settings.value(key);
+    }
+    Q_INVOKABLE qreal restoredThemeScale() const
+    {
+        QQmlEngine engine;
+        auto *theme = engine.singletonInstance<QObject *>("QShopper", "Theme");
+        if (!theme) qFatal("Cannot create Theme in a fresh engine");
+        return theme->property("scale").toReal();
+    }
     Q_INVOKABLE void resetDatabase()
     {
         const auto database = QSqlDatabase::database();
@@ -45,7 +58,13 @@ public slots:
     }
     void qmlEngineAvailable(QQmlEngine *engine)
     {
+#if !defined(Q_OS_ANDROID) && !defined(NDEBUG)
+        auto *theme = engine->singletonInstance<QObject *>("QShopper", "Theme");
+        theme->setProperty("scaleable", true);
+#endif
         engine->rootContext()->setContextProperty("uiSetup", this);
+        engine->rootContext()->setContextProperty("previewExpected", bool(QSHOPPER_EXPECT_PREVIEW));
+        engine->rootContext()->setContextProperty("keyboardExpected", bool(QSHOPPER_DESKTOP_KEYBOARD));
     }
 };
 

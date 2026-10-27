@@ -1,0 +1,11 @@
+import QtQuick
+
+Loader {
+    objectName: "developmentKeyboard"
+    readonly property bool available: source.toString() !== ""
+    readonly property bool opened: item ? item.active : false
+    readonly property real occupiedHeight: opened ? height : 0
+    source: "@qshopper_keyboard_url@"
+    height: item ? item.implicitHeight : 0
+    visible: opened
+}

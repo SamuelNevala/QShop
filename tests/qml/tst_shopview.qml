@@ -1,15 +1,15 @@
 import QtQuick
 import QtTest
-import QDynamics
+
 import QShopper
 
 Item {
     width: 480
     height: 720
-    Dimensions { id: testDimensions }
+
     Component {
         id: shopComponent
-        ShopView { width: 480; height: 720; dimensions: testDimensions }
+        ShopView { width: 480; height: 720 }
     }
     TestCase {
         name: "ShoppingInteractions"
@@ -18,7 +18,7 @@ Item {
 
         function init() {
             uiSetup.resetDatabase()
-            ThemeManager.activeList = "default"
+            Theme.activeList = "default"
             shop = createTemporaryObject(shopComponent, parent)
             verify(shop !== null)
             tryCompare(shop, "editMode", true)

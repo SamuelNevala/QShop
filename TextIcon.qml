@@ -1,6 +1,5 @@
 import QtQuick.Controls.Material
 import QtQuick
-import QDynamics
 Text {
     color: Material.backgroundColor
     fontSizeMode: Text.Fit

@@ -7,31 +7,32 @@ pragma ComponentBehavior: Bound
 ComboBox {
     id: root
 
-    property var colorFunction: ThemeManager.color
+    property var colorFunction: Theme.color
 
-    contentItem: Controls.Control {
-        bottomPadding: Controls.Material.textFieldVerticalPadding
-        contentItem: FlexboxLayout {
-            direction: FlexboxLayout.Row
-            gap: root.dimensions.mm(1)
-            justifyContent: FlexboxLayout.JustifySpaceBetween
+    contentItem: RowLayout {
+        spacing: Theme.pixels(1.5)
+        layoutDirection: root.mirrored ? Qt.RightToLeft : Qt.LeftToRight
 
-            Rectangle {
-                color: root.colorFunction(root.currentValue)
-                implicitWidth: height
-                radius: Controls.Material.FullScale
-                Layout.fillHeight: true;
-            }
-            TextItem {
-                color: Controls.Material.foreground
-                font: root.font
-                text: root.currentText
-                Layout.fillHeight: true; Layout.fillWidth: true
-            }
+        Rectangle {
+            implicitWidth: Theme.pixels(5)
+            implicitHeight: Theme.pixels(5)
+            radius: width / 2
+            border.width: Theme.pixels(0.2)
+            border.color: root.Controls.Material.theme === Controls.Material.Dark ? "#b3ffffff" : "#99000000"
+            color: root.colorFunction(root.currentValue)
+            Layout.alignment: Qt.AlignVCenter
         }
-
-        implicitHeight: Controls.Material.textFieldHeight
-        topPadding: Controls.Material.textFieldVerticalPadding
+        Text {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
+            text: root.currentText
+            font: root.font
+            color: root.enabled ? root.Controls.Material.foreground
+                : root.Controls.Material.hintTextColor
+            horizontalAlignment: root.mirrored ? Text.AlignRight : Text.AlignLeft
+            elide: Text.ElideRight
+            textFormat: Text.PlainText
+        }
     }
 
     delegate: Controls.ItemDelegate {
@@ -40,30 +41,51 @@ ComboBox {
         required property var model
         required property int index
 
-        contentItem: FlexboxLayout {
-            direction: FlexboxLayout.Row
-            gap: root.dimensions.mm(1)
-            justifyContent: FlexboxLayout.JustifySpaceBetween
+        width: ListView.view.width
+        implicitHeight: root.rowHeight
+        padding: root.padding
+        verticalPadding: Theme.pixels(1)
+        font: root.font
+        text: model[root.textRole]
+        highlighted: root.highlightedIndex === index
+        hoverEnabled: root.hoverEnabled
+        Controls.Material.foreground: root.currentIndex === index
+            ? root.Controls.Material.accent : root.Controls.Material.foreground
+
+        contentItem: RowLayout {
+            spacing: Theme.pixels(1.5)
+            layoutDirection: root.mirrored ? Qt.RightToLeft : Qt.LeftToRight
 
             Rectangle {
+                implicitWidth: Theme.pixels(5)
+                implicitHeight: Theme.pixels(5)
+                radius: width / 2
+                border.width: Theme.pixels(0.2)
+                border.color: root.Controls.Material.theme === Controls.Material.Dark ? "#b3ffffff" : "#99000000"
                 color: root.colorFunction(delegate.model[root.valueRole])
-                implicitHeight: parent.height
-                implicitWidth: height
-                radius: Controls.Material.FullScale
+                Layout.alignment: Qt.AlignVCenter
             }
-            TextItem {
-                color: root.currentIndex === delegate.index ? Controls.Material.accent : Controls.Material.foreground
-                font: root.font
-                text: delegate.model[root.textRole]
-                Layout.fillHeight: true; Layout.fillWidth: true
+            Text {
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignVCenter
+                text: delegate.text
+                font: delegate.font
+                color: delegate.enabled ? delegate.Controls.Material.foreground
+                    : delegate.Controls.Material.hintTextColor
+                horizontalAlignment: root.mirrored ? Text.AlignRight : Text.AlignLeft
+                elide: Text.ElideRight
+                textFormat: Text.PlainText
             }
         }
-
-        highlighted: root.highlightedIndex === index
-        width: root.width
     }
 
-    leftPadding: Controls.Material.textFieldVerticalPadding
+    Binding {
+        target: root.popup.background
+        property: "color"
+        value: root.Controls.Material.theme === Controls.Material.Dark
+            ? "#202020" : root.Controls.Material.dialogColor
+    }
+
     model: ColorModel {}
     textRole: "text"
     valueRole: "color"

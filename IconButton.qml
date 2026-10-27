@@ -1,36 +1,50 @@
 import QtQuick.Controls.Material
 import QtQuick
-import QDynamics
 
 RoundButton {
     id: root
 
-    property Dimensions dimensions
+    property alias maximumLineCount: caption.maximumLineCount
 
-    bottomInset: dimensions.mm(3)
+    implicitWidth: Theme.pixels(8)
+    implicitHeight: Theme.pixels(8) + bottomInset
+    bottomInset: caption.height
+    leftInset: Math.max(0, (width - Theme.pixels(8)) / 2)
+    rightInset: leftInset
+    topInset: 0
+    padding: 0
+    spacing: 0
+
     contentItem: Item {
         TextIcon {
-            anchors { centerIn: parent; verticalCenterOffset: -root.dimensions.mm(1.5) }
-            height: parent.height * 0.5; width: parent.width * 0.5
-            font { family: root.font.family }
+            x: (parent.width - width) / 2
+            y: (Theme.pixels(8) - height) / 2
+            height: Theme.pixels(5.5)
+            width: Theme.pixels(5.5)
+            font.family: root.font.family
             text: root.icon.name
             color: !root.enabled ? Material.hintTextColor :
                 root.flat && root.highlighted ? Material.accentColor :
                 root.highlighted ? Material.primaryHighlightedTextColor : Material.foreground
         }
-        TextItem {
-            anchors { centerIn: parent; verticalCenterOffset: root.dimensions.mm(4) }
-            dimensions: root.dimensions
-            color: Material.foreground
-            height: root.dimensions.mm(3)
+        Text {
+            id: caption
+            x: (parent.width - width) / 2
+            y: Theme.pixels(8)
+            width: maximumLineCount > 1 ? root.width : Math.max(root.width, Theme.pixels(14))
+            height: Theme.pixels(3 * maximumLineCount)
             text: root.text
+            color: Material.foreground
+            font.bold: true
+            font.pixelSize: Theme.pixels(2.5)
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignTop
+            lineHeightMode: Text.FixedHeight
+            lineHeight: Theme.pixels(3)
+            maximumLineCount: 1
+            wrapMode: Text.WordWrap
+            elide: Text.ElideRight
+            textFormat: Text.PlainText
         }
     }
-    implicitWidth: Math.max(dimensions.mm(8) + leftInset + rightInset, dimensions.mm(8) + leftPadding + rightPadding)
-    implicitHeight: Math.max(dimensions.mm(8) + topInset + bottomInset, dimensions.mm(8) + topPadding + bottomPadding)
-    leftInset: 0
-    padding: 0
-    rightInset: 0
-    spacing: 0
-    topInset: 0
 }

@@ -23,8 +23,13 @@
 int main(int argc, char *argv[])
 {
 
+
     QCoreApplication::setApplicationName(QStringLiteral("QShopper"));
     QCoreApplication::setOrganizationName(QStringLiteral("Nevala"));
+#if QSHOPPER_DESKTOP_KEYBOARD && !defined(Q_OS_ANDROID)
+    qputenv("QT_IM_MODULE", "qtvirtualkeyboard");
+    qputenv("QT_VIRTUALKEYBOARD_DESKTOP_DISABLE", "1");
+#endif
     QGuiApplication application(argc, argv);
 
     QTranslator translator;
@@ -97,6 +102,10 @@ int main(int argc, char *argv[])
     qputenv("QT_QUICK_CONTROLS_MATERIAL_VARIANT", "Normal");
 
     QQmlApplicationEngine engine;
+#if !defined(Q_OS_ANDROID) && !defined(NDEBUG)
+    auto *theme = engine.singletonInstance<QObject *>("QShopper", "Theme");
+    theme->setProperty("scaleable", true);
+#endif
     const QUrl url(QStringLiteral("qrc:/qt/qml/QShopper/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &application, [url](QObject *obj, const QUrl &objUrl) {

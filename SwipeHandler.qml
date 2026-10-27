@@ -1,6 +1,4 @@
 import QtQuick
-import QDynamics
-
 DragHandler {
     enum Direction {
         Left,
@@ -11,9 +9,8 @@ DragHandler {
     signal swipe(int direction)
 
     property int actionTreshold: Math.round(target.width / 2)
-    property Dimensions dimensions
-    property real swipeSensitivity: ThemeManager.swipeSensitivity
-    property real widthInMillimeters: dimensions.mm(target.width)
+    property real swipeSensitivity: Theme.swipeSensitivity
+    property real widthInMillimeters: Theme.millimeters(target.width)
 
     xAxis {
         minimum: -target.width
@@ -28,7 +25,7 @@ DragHandler {
         }
 
         const distance = point.pressPosition.x - point.position.x;
-        const distanceInMilimeters = Math.abs(dimensions.mm(distance));
+        const distanceInMilimeters = Math.abs(Theme.millimeters(distance))
         const velocity = distanceInMilimeters / point.timeHeld;
         // Grativy of this program is 9810 mm/s2 f = velocity^2 / gravity * sensitivity
         const force = velocity * velocity / 9810 * swipeSensitivity;

@@ -1,7 +1,6 @@
 import QtQuick.Controls.Material
 import QtQuick
 import QShopper
-import QDynamics
 
 pragma ComponentBehavior: Bound
 
@@ -25,8 +24,6 @@ Delegate {
             root.swiped(direction)
             animateSwipe.reset(temporary === root.index ? 0 : 250)
         }
-
-        dimensions: root.dimensions
         enabled: !tapHandler.longPressActive
         target: root
         onSwipe: (direction) => { animateSwipe.to(direction, 0) }
@@ -88,7 +85,7 @@ Delegate {
         Rectangle {
             anchors { top: parent.top; left: parent.left; right: parent.right }
             color: tapHandler.longPressActive ? Material.accentColor : "transparent"
-            height: root.dimensions.mm(0.4)
+            height: Theme.pixels(0.4)
             opacity: tapHandler.longPressActive ? 1.0 : 0.0
             Behavior on color { ColorAnimation { } }
             Behavior on opacity { DefaultAnimation { } }
@@ -97,7 +94,7 @@ Delegate {
         Rectangle {
             anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
             color: tapHandler.longPressActive ? Material.accentColor : "transparent"
-            height: root.dimensions.mm(0.4)
+            height: Theme.pixels(0.4)
             opacity: tapHandler.longPressActive ? 1.0 : 0.0
             Behavior on color { ColorAnimation { } }
             Behavior on opacity { DefaultAnimation { } }
@@ -120,7 +117,7 @@ Delegate {
                 font { family: root.font.family }
                 ratio: root.x / width
                 opacity: animateSwipe.running ? 0.0 : Math.max(0.0, ratio)
-                Material.theme: ThemeManager.theme
+                Material.theme: Theme.theme
             }
             editMode: root.editMode
             icon: CartInIcon {
@@ -132,7 +129,7 @@ Delegate {
                 font { family: root.font.family }
                 ratio: root.x / width
                 opacity: animateSwipe.running ? 0.0 : Math.max(0.0, ratio)
-                Material.theme: ThemeManager.theme
+                Material.theme: Theme.theme
             }
             width: height
         }
@@ -157,7 +154,7 @@ Delegate {
                 font { family: root.font.family }
                 ratio: root.x / -width
                 opacity: animateSwipe.running ? 0.0 : Math.max(0.0, ratio)
-                Material.theme: ThemeManager.theme
+                Material.theme: Theme.theme
             }
             icon: CartInIcon {
                 font { family: root.font.family }
@@ -171,9 +168,8 @@ Delegate {
 
     contentItem: TextItem {
         checked: root.checked
-        dimensions: root.dimensions
         text: root.name
-        Material.theme: ThemeManager.theme
+        Material.theme: Theme.theme
     }
 
     resources: [
@@ -206,5 +202,5 @@ Delegate {
             }
         }
     ]
-    Material.theme: checked ? ThemeManager.inverseTheme : ThemeManager.theme
+    Material.theme: checked ? Theme.inverseTheme : Theme.theme
 }

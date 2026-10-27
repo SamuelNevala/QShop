@@ -9,7 +9,7 @@ Icon {
     color: Material.foreground
 
     background: Rectangle {
-        color: root.pressed ? ThemeManager.accentColorLighter() : ThemeManager.accentColor()
+        color: root.pressed ? Theme.accentColorLighter() : Theme.accentColor()
         radius: Material.FullScale
 
         Canvas {
@@ -20,11 +20,11 @@ Icon {
             property real arcX: width / 2
             property real base: Math.PI / 5
             property real delay: 1.0
-            property real lineWidth: root.dimensions.mm(0.5)
+            property real lineWidth: Theme.pixels(0.5)
             property real startAngle: base * 3
             property real radius: arcX - lineWidth
 
-            anchors { fill: parent; margins: root.dimensions.mm(0.2) }
+            anchors { fill: parent; margins: Theme.pixels(0.2) }
 
             NumberAnimation {
                 id: animateDelay
@@ -48,13 +48,13 @@ Icon {
             }
         }
         Behavior on color { ColorAnimation { } }
-        Material.theme: ThemeManager.inverseTheme
+        Material.theme: Theme.inverseTheme
     }
 
-    bottomInset: root.dimensions.mm(0.5); topInset: root.dimensions.mm(0.5)
-    leftInset: root.dimensions.mm(0.5); rightInset: root.dimensions.mm(0.5)
+    bottomInset: Theme.pixels(0.5); topInset: Theme.pixels(0.5)
+    leftInset: Theme.pixels(0.5); rightInset: Theme.pixels(0.5)
     font { pixelSize: Math.round(root.height * 0.47) }
-    padding: root.dimensions.mm(2)
+    padding: Theme.pixels(2)
     text: "\uf829"
 
     onEnabledChanged: {
@@ -64,5 +64,5 @@ Icon {
             animateDelay.stop()
         }
     }
-    Material.theme: ThemeManager.inverseTheme
+    Material.theme: Theme.inverseTheme
 }

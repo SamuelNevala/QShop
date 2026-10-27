@@ -1,0 +1,55 @@
+param(
+    [string]$QtRoot = 'C:\Qt',
+    [string]$QtVersion = '6.12.0',
+    [string]$SdkRoot = "$env:LOCALAPPDATA\Android\Sdk",
+    [string]$NdkVersion = '27.2.12479018',
+    [string]$JavaHome = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot',
+    [ValidateSet('arm64', 'x86_64')][string]$Architecture = 'arm64'
+)
+
+$ErrorActionPreference = 'Stop'
+$buildFolder = if ($Architecture -eq 'arm64') { 'build-android-arm64' } else { 'out/android-emulator-build' }
+$buildDir = Join-Path $PSScriptRoot $buildFolder
+$qtKit = if ($Architecture -eq 'arm64') { 'android_arm64_v8a' } else { 'android_x86_64' }
+$qtCmake = Join-Path $QtRoot "$QtVersion\$qtKit\bin\qt-cmake.bat"
+$cmake = Join-Path $QtRoot 'Tools\CMake_64\bin\cmake.exe'
+$ninja = Join-Path $QtRoot 'Tools\Ninja\ninja.exe'
+$hostQt = Join-Path $QtRoot "$QtVersion\msvc2022_64"
+$ndk = Join-Path $SdkRoot "ndk\$NdkVersion"
+foreach ($path in @($qtCmake, $cmake, $ninja, $hostQt, $SdkRoot, $ndk, "$JavaHome\bin\java.exe")) {
+    if (!(Test-Path -LiteralPath $path)) { throw "Missing build prerequisite: $path" }
+}
+
+$previousJavaHome = $env:JAVA_HOME
+try {
+    $env:JAVA_HOME = $JavaHome
+    & $qtCmake -S $PSScriptRoot -B $buildDir -G Ninja `
+        "-DCMAKE_MAKE_PROGRAM=$ninja" -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=OFF `
+        "-DQT_HOST_PATH=$hostQt" "-DANDROID_SDK_ROOT=$SdkRoot" "-DANDROID_NDK_ROOT=$ndk"
+    if ($LASTEXITCODE -ne 0) { throw 'Android CMake configuration failed.' }
+    # OneDrive can mark generated directories read-only, preventing Gradle
+    # from replacing native libraries during an incremental build.
+    $gradleBuildDir = Join-Path $buildDir 'android-build\build'
+    if (Test-Path -LiteralPath $gradleBuildDir) {
+        $generatedItems = @(Get-Item -LiteralPath $gradleBuildDir) +
+            @(Get-ChildItem -LiteralPath $gradleBuildDir -Recurse -Force)
+        foreach ($item in $generatedItems) {
+            if ($item.Attributes -band [System.IO.FileAttributes]::ReadOnly) {
+                $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::ReadOnly)
+            }
+        }
+    }
+    & $cmake --build $buildDir --target apk --parallel 6
+    if ($LASTEXITCODE -ne 0) { throw 'Android APK build failed.' }
+
+    $apk = Get-ChildItem "$buildDir\android-build" -Recurse -Filter '*-debug.apk' |
+        Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if (!$apk) { throw 'Build completed but no debug APK was found.' }
+    $outputDir = Join-Path $PSScriptRoot 'dist'
+    New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
+    $outputApk = Join-Path $outputDir "QShopper-$Architecture-debug.apk"
+    Copy-Item -LiteralPath $apk.FullName -Destination $outputApk -Force
+    Write-Output "APK: $outputApk"
+} finally {
+    $env:JAVA_HOME = $previousJavaHome
+}

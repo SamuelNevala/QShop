@@ -2,20 +2,16 @@ import QtQuick.Controls.Material as Style
 import QtQuick as Quick
 import QtQuick.Layouts
 import Qt.labs.qmlmodels
-import QDynamics
-
 pragma ComponentBehavior: Bound
 
 Style.Control {
     id: root
-
-    property Dimensions dimensions
-
     // Keep interactive content clear of system bars and display cutouts.
     topPadding: Quick.SafeArea.margins.top
-    bottomPadding: Quick.SafeArea.margins.bottom
+    bottomPadding: Quick.SafeArea.margins.bottom + keyboard.occupiedHeight
     leftPadding: Quick.SafeArea.margins.left
     rightPadding: Quick.SafeArea.margins.right
+    font.pixelSize: Theme.pixels(3.5)
 
     SortFilterProxyModel {
         id: sortedModel
@@ -61,8 +57,6 @@ Style.Control {
     }
     contentItem: ShopView {
         id: shopView
-
-        dimensions: root.dimensions
         enabled: !menu.visible
         fontFamily: awsome.name
         onOpenMenu: menu.open()
@@ -81,9 +75,7 @@ Style.Control {
                         roleValue: "theme"
 
                         GroupBox {
-                            dimensions: root.dimensions
                             title: qsTr("Theme")
-                            padding:root.dimensions.mm(4)
                             width: menu.contentItem.width
 
 
@@ -94,68 +86,59 @@ Style.Control {
 
                                 IconButton {
                                     autoExclusive: true
-                                    checked: ThemeManager.theme === Style.Material.Dark
+                                    checked: Theme.theme === Style.Material.Dark
                                     highlighted: checked
-                                    dimensions: root.dimensions
                                     font { family: awsome.name }
                                     icon { name: "\uf186" }
                                     text: qsTr("Dark")
-                                    onClicked: ThemeManager.theme = Style.Material.Dark
+                                    onClicked: Theme.theme = Style.Material.Dark
                                 }
                                 IconButton {
                                     autoExclusive: true
-                                    checked: ThemeManager.theme === Style.Material.Light
+                                    checked: Theme.theme === Style.Material.Light
                                     highlighted: checked
-                                    dimensions: root.dimensions
                                     font { family: awsome.name }
                                     icon { name: "\uf185" }
                                     text: qsTr("Light")
-                                    onClicked: ThemeManager.theme = Style.Material.Light
+                                    onClicked: Theme.theme = Style.Material.Light
                                 }
                                 IconButton {
                                     autoExclusive: true
-                                    checked: ThemeManager.theme === Style.Material.System
+                                    checked: Theme.theme === Style.Material.System
                                     highlighted: checked
-                                    dimensions: root.dimensions
                                     font { family: awsome.name }
                                     icon { name: "\uf10a" }
                                     text: qsTr("System")
-                                    onClicked: ThemeManager.theme = Style.Material.System
+                                    onClicked: Theme.theme = Style.Material.System
                                 }
                             }
                         }
                     }
                     DelegateChoice {
-                        roleValue: "colors"
+                        roleValue: "accent"
 
-                        FlexboxLayout {
-                            direction: FlexboxLayout.Row
-                            gap: root.dimensions.mm(1)
-                            justifyContent: FlexboxLayout.JustifySpaceBetween
-                            width: parent.width
+                        ColorComboBox {
+                            width: menu.contentItem.width
+                            colorFunction: Theme.colorAccent
+                            label: qsTr("Accent")
+                            onActivated: Theme.accent = currentValue
+                            Quick.Component.onCompleted: currentIndex = indexOfValue(Theme.accent)
+                        }
+                    }
+                    DelegateChoice {
+                        roleValue: "primary"
 
-                            ColorComboBox {
-                                colorFunction: ThemeManager.colorAccent
-                                dimensions: root.dimensions
-                                label: qsTr("Accent")
-                                onActivated: ThemeManager.accent = currentValue
-                                Quick.Component.onCompleted: currentIndex = indexOfValue(ThemeManager.accent)
-                                Layout.fillHeight: true; Layout.fillWidth: true
-                            }
-                            ColorComboBox {
-                                dimensions: root.dimensions
-                                label: qsTr("Primary")
-                                onActivated: ThemeManager.primary = currentValue
-                                Quick.Component.onCompleted: currentIndex = indexOfValue(ThemeManager.primary)
-                                Layout.fillHeight: true; Layout.fillWidth: true
-                            }
+                        ColorComboBox {
+                            width: menu.contentItem.width
+                            label: qsTr("Primary")
+                            onActivated: Theme.primary = currentValue
+                            Quick.Component.onCompleted: currentIndex = indexOfValue(Theme.primary)
                         }
                     }
                     DelegateChoice {
                         roleValue: "lists"
 
                         ComboBox {
-                            dimensions: root.dimensions
                             model: sortedModel
                             textRole: "name"
                             valueRole: "id"
@@ -163,14 +146,14 @@ Style.Control {
                             width: menu.contentItem.width
 
                             onActivated: {
-                                ThemeManager.activeList = currentValue
+                                Theme.activeList = currentValue
                                 menu.close();
                             }
                             onCountChanged: {
-                                currentIndex = indexOfValue(ThemeManager.activeList)
+                                currentIndex = indexOfValue(Theme.activeList)
                             }
                             Quick.Component.onCompleted: {
-                                currentIndex = indexOfValue(ThemeManager.activeList)
+                                currentIndex = indexOfValue(Theme.activeList)
                             }
                         }
                     }
@@ -178,42 +161,43 @@ Style.Control {
                         roleValue: "operations"
 
                         GroupBox {
-                            dimensions: root.dimensions
                             title: qsTr("Actions")
                             width: menu.contentItem.width
-                            padding: 24//dimensions.mm(5)
+                            horizontalPadding: Theme.pixels(2)
 
                             FlexboxLayout {
                                 direction: FlexboxLayout.Row
-                                // gap: root.dimensions.mm(5)
                                 justifyContent: FlexboxLayout.JustifySpaceBetween
                                 width: parent.width
 
                                 IconButton {
-                                    dimensions: root.dimensions
+                                    implicitWidth: Theme.pixels(12)
+                                    maximumLineCount: 2
                                     font { family: awsome.name }
                                     icon { name: "\uf021" }
-                                    text: qsTr("Checked")
+                                    text: qsTr("Reset\nchecks")
                                     onClicked: {
                                         menu.close();
                                         shopView.reset();
                                     }
                                 }
                                 IconButton {
-                                    dimensions: root.dimensions
+                                    implicitWidth: Theme.pixels(12)
+                                    maximumLineCount: 2
                                     font { family: awsome.name }
                                     icon { name: "\uf1f8" }
-                                    text: qsTr("Checked")
+                                    text: qsTr("Remove\nchecked")
                                     onClicked: {
                                         menu.close();
                                         shopView.removeChecked();
                                     }
                                 }
                                 IconButton {
-                                    dimensions: root.dimensions
+                                    implicitWidth: Theme.pixels(12)
+                                    maximumLineCount: 2
                                     font { family: awsome.name }
                                     icon { name: "\uf1f8" }
-                                    text: qsTr("List")
+                                    text: qsTr("Clear\nlist")
                                     onClicked: {
                                         menu.close();
                                         shopView.removeAll();
@@ -225,20 +209,21 @@ Style.Control {
                     DelegateChoice {
                         roleValue: "controls"
                         GroupBox {
-                            dimensions: root.dimensions
                             title: qsTr("Swipe sensitivity ") + Math.round(slider.value*100) + "%"
                             width: menu.contentItem.width
-                            //padding: dimensions.mm(5)
+                            horizontalPadding: Theme.pixels(2)
+                            topPadding: topInset + Theme.pixels(1)
+                            bottomPadding: Theme.pixels(1)
 
-                            Style.Slider {
+                            Slider {
                                 id: slider
                                 from: 0.2
                                 stepSize: 0.1
-                                snapMode : Style.Slider.SnapAlways
+                                snapMode: Slider.SnapAlways
                                 to: 3
-                                value: ThemeManager.swipeSensitivity
+                                value: Theme.swipeSensitivity
                                 width: parent.width
-                                onValueChanged: ThemeManager.swipeSensitivity = value
+                                onValueChanged: Theme.swipeSensitivity = value
                             }
                         }
                     }
@@ -247,18 +232,22 @@ Style.Control {
                     Quick.ListElement { type: "lists" }
                     Quick.ListElement { type: "operations" }
                     Quick.ListElement { type: "theme" }
-                    Quick.ListElement { type: "colors" }
+                    Quick.ListElement { type: "accent" }
+                    Quick.ListElement { type: "primary" }
                     Quick.ListElement { type: "controls" }
                 }
-                spacing: root.dimensions.mm(1)
+                spacing: Theme.pixels(1)
             }
-
-            dimensions: root.dimensions
             // Drawers are reparented to the window overlay, outside this
             // control's padded content item.
             y: root.topPadding
-            height: root.availableHeight; width: root.availableWidth * 0.66
+            height: root.availableHeight; width: root.availableWidth * 0.85
         }
+    }
+    DevelopmentKeyboard {
+        id: keyboard
+        anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
+        z: 1
     }
     resources: [ Quick.FontLoader { id: awsome; source: Quick.Qt.resolvedUrl("fa-solid-900.ttf") } ]
 }

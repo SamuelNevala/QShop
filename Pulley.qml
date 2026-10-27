@@ -1,16 +1,12 @@
 import QtQuick.Controls.Material
 import QtQuick
 import QtQuick.Controls
-import QDynamics
-
 Control {
     id: root
 
     signal action()
-
-    property Dimensions dimensions
     property bool editMode
-    property double treshold: root.dimensions.mm(30)
+    property double treshold: Theme.pixels(30)
 
     background: Rectangle { color: Material.backgroundColor; opacity: 0.8 }
     contentItem: TextIcon {
@@ -19,7 +15,7 @@ Control {
         color: root.height > root.treshold ? Material.accentColor : Material.foreground
         Behavior on color { ColorAnimation { } }
     }
-    font { pixelSize: root.dimensions.mm(7) }
+    font { pixelSize: Theme.pixels(7) }
     resources: [
         Connections {
             target: root.visible ? root.parent : null

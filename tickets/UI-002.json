@@ -1,0 +1,27 @@
+{
+  "id": "UI-002",
+  "title": "ComboBox logs a null-dimensions error during app startup",
+  "status": "resolved",
+  "resolved": "2026-10-03",
+  "resolution": "Theme.pixels() replaces Dimensions.mm() in components. LoaderWindow no longer creates or passes Dimensions, and the root View has no Dimensions reference. Theme uses Screen.pixelDensity without simulation scale. Regression tests construct Icon and ComboBox without Dimensions and verify fractional sizing. The original null-dimensions ComboBox binding is eliminated.",
+  "type": "bug",
+  "created": "2026-10-03",
+  "environment": "Windows 11, Qt 6.12.0, MSVC x64 Debug",
+  "reproduction": [
+    "Set QSHOPPER_DATA_DIR to a new disposable directory.",
+    "Enable QT_FORCE_STDERR_LOGGING=1 and launch application.exe, capturing stderr.",
+    "Inspect startup output after the main view loads."
+  ],
+  "actual": "qrc:/qt/qml/QShopper/ComboBox.qml:21:9: TypeError: Cannot call method 'mm' of null",
+  "expected": "The view loads without null-dimensions binding errors; combo box label geometry is correct immediately and after resizing.",
+  "suspected_cause": "The label x binding calls root.dimensions.mm(2) before LoaderWindow supplies dimensions. Other bindings should be checked for the same initialization ordering. This is an inference from the source and logged error.",
+  "relevant_files": ["ComboBox.qml", "Theme.qml", "main.qml", "tests/qml/tst_theme.qml"],
+  "acceptance_criteria": [
+    "Fresh startup produces no null-dimensions errors from ComboBox.qml.",
+    "List and color selectors retain correct geometry after initialization and resizing.",
+    "Add a regression test covering child component construction and sizing without a Dimensions reference (children no longer depend on delayed root assignment)."
+  ],
+  "evidence": "Captured from an isolated visible Windows app run on 2026-10-03. See tests/README.md, UI behavior verification.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

@@ -1,6 +1,5 @@
 import QtQuick.Controls.Material
 import QtQuick
-import QDynamics
 import QShopper
 
 pragma ComponentBehavior: Bound
@@ -9,8 +8,6 @@ ListView {
     id: shopView
 
     signal openMenu()
-
-    property Dimensions dimensions
     property string fontFamily
     property bool editMode: false
 
@@ -40,8 +37,7 @@ ListView {
 
     Pulley {
         anchors { left: parent.left; right: parent.right; bottom: weekdays.top }
-        bottomPadding: shopView.dimensions.mm(1)
-        dimensions: shopView.dimensions
+        bottomPadding: Theme.pixels(1)
         editMode: shopView.editMode
         font { family: shopView.fontFamily }
         topPadding: -parent.contentY + parent.originY - weekdays.height
@@ -51,7 +47,6 @@ ListView {
     Weekdays {
         id: weekdays
         anchors { right: parent.right; left: parent.left }
-        dimensions: shopView.dimensions
         y: -parent.contentY - height + parent.originY;
     }
 
@@ -63,7 +58,7 @@ ListView {
         z: -1
     }
 
-    cacheBuffer: dimensions.mm(9.27) * 20
+    cacheBuffer: Theme.pixels(9.27) * 20
     currentIndex: -1
     clip: true
 
@@ -81,11 +76,10 @@ ListView {
         }
 
         input: editor;
-        height: shopView.dimensions.mm(9.27); width: shopView.width
+        height: Theme.pixels(9.27); width: shopView.width
 
         textDelegate: TextDelegate {
             checked: chooser.checked
-            dimensions: shopView.dimensions
             dragParent: shopView
             font { family: shopView.fontFamily }
             editMode: shopView.editMode
@@ -117,7 +111,6 @@ ListView {
 
         inputDelegate: InputDelegate {
             canUndo: itemModel.canUndo
-            dimensions: shopView.dimensions
             font { family: shopView.fontFamily }
             editor: chooser.editor
             index: chooser.index
@@ -134,7 +127,7 @@ ListView {
 
     model: Model {
         id: itemModel
-        activeList: ThemeManager.activeList
+        activeList: Theme.activeList
         Component.onCompleted: shopView.setEditMode(!itemModel.count)
     }
 

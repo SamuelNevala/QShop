@@ -10,14 +10,14 @@ MouseArea {
     }
 
     property int actionTreshold: Math.round(width / 2)
-    property real widthInMillimeters: dimensions.mm(width)
+    property real widthInMillimeters: Theme.millimeters(width)
     property real opacityEnd: 0.6
     property real startX: 0.0
     property real swipeSensitivity: 1.0
 
     signal action(bool rightSide)
     
-    implicitHeight: dimensions.mm(9.27)
+    implicitHeight: Theme.pixels(9.27)
     drag.target: root
     drag.axis: Drag.XAxis
     drag.minimumX: -width
@@ -26,14 +26,7 @@ MouseArea {
     //propagateComposedEvents: true
     
     resources: [
-        ElapsedTimer { id: timer },
-        Connections {
-            target: dimensions
-            function onScaleChanged() {
-                widthInMillimeters = dimensions.mm(width);
-                implicitHeight = dimensions.mm(9.27);
-            }
-        }
+        ElapsedTimer { id: timer }
     ]
 
     onPressed: (mouse) => {
@@ -44,7 +37,7 @@ MouseArea {
 
     onReleased: (mouse) => {
         var elapsedTimeInSeconds = Math.abs(timer.elapsed() / 1000);
-        var distanceInMilimeters = Math.abs(dimensions.mm(x - startX));
+        var distanceInMilimeters = Math.abs(Theme.millimeters(x - startX))
         var velocity = distanceInMilimeters / elapsedTimeInSeconds;
         // Grativy of this program is 9810 mm/s2 f = velocity^2 / gravity * sensitivity
         var force = velocity * velocity / 9810 * swipeSensitivity;

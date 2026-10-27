@@ -1,13 +1,13 @@
-﻿cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.22)
 
 find_package(Qt6 REQUIRED COMPONENTS Test QuickTest)
 
 add_executable(qshopper_ui_tests test_ui.cpp)
-add_dependencies(qshopper_ui_tests qdynamicspluginplugin)
 set_target_properties(qshopper_ui_tests PROPERTIES AUTOMOC ON)
 target_link_libraries(qshopper_ui_tests PRIVATE QShopper QShopperplugin Qt6::QuickTest)
 target_compile_definitions(qshopper_ui_tests PRIVATE
-    QUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/qml")
+    QUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/qml"
+    QSHOPPER_EXPECT_PREVIEW=$<AND:$<NOT:$<BOOL:${ANDROID}>>,$<CONFIG:Debug>>)
 add_test(NAME qshopper_ui_tests COMMAND qshopper_ui_tests
     -import ${CMAKE_BINARY_DIR} -platform offscreen -o -,txt -o ui-tests.xml,junitxml)
 set_tests_properties(qshopper_ui_tests PROPERTIES TIMEOUT 90
@@ -15,6 +15,17 @@ set_tests_properties(qshopper_ui_tests PROPERTIES TIMEOUT 90
 if(WIN32)
     set_tests_properties(qshopper_ui_tests PROPERTIES ENVIRONMENT_MODIFICATION
         "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>")
+endif()
+if(qshopper_keyboard_enabled)
+    add_test(NAME qshopper_keyboard_tests COMMAND qshopper_ui_tests
+        -input ${CMAKE_CURRENT_SOURCE_DIR}/keyboard -import ${CMAKE_BINARY_DIR}
+        -platform offscreen -o -,txt -o keyboard-tests.xml,junitxml)
+    set_tests_properties(qshopper_keyboard_tests PROPERTIES TIMEOUT 90
+        ENVIRONMENT "QT_IM_MODULE=qtvirtualkeyboard;QT_VIRTUALKEYBOARD_DESKTOP_DISABLE=1;QT_QUICK_BACKEND=software;QT_FORCE_STDERR_LOGGING=1")
+    if(WIN32)
+        set_tests_properties(qshopper_keyboard_tests PROPERTIES ENVIRONMENT_MODIFICATION
+            "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>")
+    endif()
 endif()
 option(QSHOPPER_MODEL_COVERAGE "Measure model.h/model.cpp coverage and enforce 80%" OFF)
 

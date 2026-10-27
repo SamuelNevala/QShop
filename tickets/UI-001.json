@@ -1,0 +1,26 @@
+{
+  "id": "UI-001",
+  "title": "Lists selector has a blank selection on a fresh installation",
+  "status": "deferred",
+  "type": "bug",
+  "created": "2026-10-03",
+  "environment": "Windows 11, Qt 6.12.0, MSVC x64 Debug",
+  "reproduction": [
+    "Set QSHOPPER_DATA_DIR to a new disposable directory and launch application.exe.",
+    "Open the drawer using the editor's menu button.",
+    "Inspect the Lists combo box without selecting another list."
+  ],
+  "actual": "The Lists combo box displays no selected text, although the default list is active.",
+  "expected": "The Lists combo box displays default and selects the active list when the drawer opens.",
+  "suspected_cause": "Theme.activeList starts as the name default, while View.qml uses id as valueRole and indexOfValue matches UUID values. This is an inference from the source and observed fresh-install behavior.",
+  "relevant_files": ["View.qml", "Theme.qml", "model.cpp"],
+  "acceptance_criteria": [
+    "A fresh installation displays default as the current list.",
+    "Selecting another list updates both the displayed selection and shopping contents.",
+    "Reopening the drawer and restarting the app preserve the correct selection.",
+    "Add a regression test using isolated data and settings."
+  ],
+  "evidence": "Observed in a visible Windows app run on 2026-10-03. See tests/README.md, UI behavior verification.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

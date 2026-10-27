@@ -1,7 +1,6 @@
 import QtQuick.Controls.Material
 import QtQuick.Controls.Fusion
 import QtQuick
-import QDynamics
 import QShopper
 
 Delegate {
@@ -28,6 +27,7 @@ Delegate {
         id: input
 
         function addItem() {
+            Qt.inputMethod.commit()
             if (text === "") {
                 return
             }
@@ -40,13 +40,18 @@ Delegate {
         color: Material.primaryTextColor
         placeholderTextColor: Material.secondaryTextColor
         focus: true
-        font { pixelSize: root.dimensions.mm(3.5) }
+        EnterKey.type: Qt.EnterKeyReturn
+        font { pixelSize: Theme.pixels(3.5) }
         horizontalAlignment: Text.AlignHCenter
         leftPadding: height
         rightPadding: height
         placeholderText: qsTr("Tap to add items")
 
         onAccepted: addItem()
+        onPressed: {
+            forceActiveFocus()
+            Qt.inputMethod.show()
+        }
 
         // Voice {
         //     onAdd: {
@@ -64,24 +69,22 @@ Delegate {
             anchors { verticalCenter: parent.verticalCenter; left: parent.left }
             back: UndoIcon {
                 anchors { fill: parent }
-                dimensions: root.dimensions
                 font { family: root.font.family }
                 enabled: root.canUndo
                 opacity: 1.0
                 onClicked: root.undo()
                 onTimeout: root.timeout()
                 z: 3
-                Material.theme: ThemeManager.theme
+                Material.theme: Theme.theme
             }
             front: Icon {
                 anchors { fill: parent }
-                dimensions: root.dimensions
                 font { family: root.font.family }
                 text: "\uf0c9"
                 enabled: !root.canUndo
                 opacity: 1.0
                 onClicked: root.barsTapped()
-                Material.theme: ThemeManager.theme
+                Material.theme: Theme.theme
             }
             height: parent.height; width: height
             states: State {
@@ -102,7 +105,6 @@ Delegate {
 
         Icon {
             anchors { verticalCenter: parent.verticalCenter; right: parent.right }
-            dimensions: root.dimensions
             font { family: root.font.family }
             enabled: input.text || input.preeditText
             height: parent.height; width: height
@@ -111,7 +113,7 @@ Delegate {
                 // Qt.inputMethod.commit()
                 input.clear()
             }
-            Material.theme: ThemeManager.theme
+            Material.theme: Theme.theme
         }
     }
 
@@ -122,5 +124,5 @@ Delegate {
 
     Keys.onEscapePressed: input.focus = false
 
-    Material.theme: ThemeManager.inverseTheme
+    Material.theme: Theme.inverseTheme
 }

@@ -1,0 +1,26 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "windows-agent",
+      "displayName": "Windows agent: MSVC Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/windows-agent",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "cl",
+        "CMAKE_PREFIX_PATH": "$env{QSHOPPER_QT_ROOT}",
+        "CMAKE_MAKE_PROGRAM": "$env{QSHOPPER_NINJA}",
+        "BUILD_TESTING": "ON",
+        "QSHOPPER_MODEL_COVERAGE": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "windows-agent", "configurePreset": "windows-agent", "targets": ["application", "qshopper_tests", "qshopper_ui_tests"], "jobs": 4 }
+  ],
+  "testPresets": [
+    { "name": "windows-agent", "configurePreset": "windows-agent", "output": { "outputOnFailure": true }, "execution": { "noTestsAction": "error" } }
+  ]
+}

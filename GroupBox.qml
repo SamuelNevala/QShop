@@ -1,25 +1,33 @@
-import QtQuick.Controls.Material as Style
 import QtQuick
-import QDynamics
+import QtQuick.Controls.Material as Controls
 
-Style.GroupBox {
+pragma ComponentBehavior: Bound
+
+Controls.GroupBox {
     id: root
 
-    property Dimensions dimensions
-    // spacing: root.dimensions.mm(5)
-    // leftInset: root.dimensions.mm(5)
-    // rightInset: root.dimensions.mm(5)
-    // topPadding: root.dimensions.mm(2)
-    // bottomPadding: root.dimensions.mm(2)
-    // padding: root.dimensions.mm(2)
-    // topInset: label.height
+    font.pixelSize: Theme.pixels(3.5)
+    spacing: Theme.pixels(1)
+    padding: Theme.pixels(4)
+    topInset: implicitLabelHeight + spacing
+    topPadding: topInset + padding
+    bottomPadding: padding
 
-    // label: Text {
-    //     color: Style.Material.primaryTextColor
-    //     font { pixelSize: root.dimensions ? root.dimensions.mm(3) : 0 }
-    //     fontSizeMode: Text.Fit
-    //     text: root.title
-    //     x: root.leftInset
-    //     width: root.availableWidth
-    // }
+    label: Text {
+        x: root.padding
+        width: root.availableWidth
+        text: root.title
+        color: root.Controls.Material.primaryTextColor
+        font.pixelSize: Theme.pixels(3)
+        elide: Text.ElideRight
+    }
+
+    background: Rectangle {
+        radius: Theme.pixels(1)
+        color: "transparent"
+        border.width: Theme.pixels(0.4)
+        border.color: root.activeFocus ? root.Controls.Material.accentColor
+            : root.enabled && root.hovered ? root.Controls.Material.primaryTextColor
+            : root.Controls.Material.hintTextColor
+    }
 }

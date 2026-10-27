@@ -1,0 +1,7 @@
+import QtQuick
+import QtQuick.VirtualKeyboard
+import QtQuick.VirtualKeyboard.Settings
+
+InputPanel {
+    Component.onCompleted: VirtualKeyboardSettings.closeOnReturn = false
+}
