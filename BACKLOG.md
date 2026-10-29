@@ -12,7 +12,7 @@ intentional gestures, text fitting, animation, and list ordering intact.
 - Capture reports first. Do not implement fixes during backlog gathering.
 - Feature and code-quality requests are also backlog intake during this phase,
   unless the user explicitly asks to implement them now.
-- Keep stable IDs. Add new UI reports from UI-011 onward; UI-002 is already resolved.
+- Keep stable IDs. Add new UI reports from UI-012 onward; UI-002 is already resolved.
 - Distinguish user reports, previously observed bugs, source-review candidates,
   missing features, code-quality work, and validation tasks. Missing test coverage
   is not evidence of a bug.
@@ -143,6 +143,17 @@ prevents a stale long-press timer and unintended swipe actions after system
 takeover. Tests also verify that the first subsequent reorder and swipe work.
 The user confirmed UI-007 works on the affected phone. UI-006's full four-step
 priority still awaits explicit phone confirmation.
+
+### [UI-011 — Portrait-only Android orientation](tickets/UI-011.json)
+
+Requested on 2026-10-29; implementation deferred. The user reports that landscape
+does not work well and wants the Android app to stay in portrait. The proposed
+change is the activity's manifest orientation setting, currently `unspecified`.
+Priority and severity are unassigned.
+
+When selected, add an Android regression that verifies actual orientation on
+launch and rotation, including shopping/edit modes with the keyboard or drawer
+open. Preserve list data and unfinished edits, and confirm on the phone.
 
 ## Release preparation
 

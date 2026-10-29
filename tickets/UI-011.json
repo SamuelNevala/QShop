@@ -1,0 +1,37 @@
+{
+  "id": "UI-011",
+  "title": "Keep the Android application portrait-only",
+  "status": "reported",
+  "type": "feature",
+  "severity": "unassigned",
+  "priority": "unassigned",
+  "created": "2026-10-29",
+  "environment": "Android app; user reports that the landscape layout does not work well. Specific affected controls and device states have not been recorded.",
+  "reported_by": "user",
+  "reproduction_status": "User-observed landscape usability problem; independent reproduction deferred during backlog intake.",
+  "reproduction": [
+    "Open QShopper on Android with system auto-rotation enabled.",
+    "Rotate the phone into landscape.",
+    "Observe the landscape usability problems reported by the user; capture specific layout or interaction failures when implementing the ticket."
+  ],
+  "actual": "The application allows landscape orientation, which the user reports does not work well.",
+  "expected": "The Android application remains in portrait orientation, supporting the intended one-handed shopping experience.",
+  "proposed_implementation": "Use the Android activity's manifest screenOrientation setting to request portrait orientation, as suggested by the user. Keep this change deferred until the ticket is selected.",
+  "source_notes": [
+    "android/AndroidManifest.xml currently sets android:screenOrientation=\"unspecified\" on QtActivity.",
+    "Record the portrait-only requirement rather than redesigning the landscape interface.",
+    "Verify the manifest request on supported Android versions and device/window configurations when implementing; a manifest value alone is not proof of actual orientation behavior.",
+    "During UI-010 verification on 2026-10-29, the native pull-to-edit stroke did not reliably activate editing in the short landscape viewport. Popup tests enter edit mode in portrait before rotating, and assert actual display/accessibility rotation. This is an observed example supporting the existing landscape-usability report; no landscape redesign is selected."
+  ],
+  "relevant_files": ["android/AndroidManifest.xml", "ANDROID.md", "DESIGN.md"],
+  "acceptance_criteria": [
+    "Launching the Android app while the phone is held in portrait or landscape presents the app in portrait.",
+    "Rotating the phone with system auto-rotation enabled keeps the app in portrait in shopping and edit modes, including with the drawer or keyboard open.",
+    "The orientation restriction preserves list contents, ordering, checked state and text being edited.",
+    "Add automated Android regression coverage that fails before the orientation restriction and passes afterward; verify actual activity orientation rather than only inspecting the manifest.",
+    "Confirm the intended behavior on the physical Android phone and document any platform-specific limits."
+  ],
+  "evidence": "User backlog request on 2026-10-29: application should be portrait-only because landscape does not work well; suggested setting this in the Android manifest.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}
