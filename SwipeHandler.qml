@@ -24,11 +24,12 @@ DragHandler {
             return;
         }
 
-        const distance = point.pressPosition.x - point.position.x;
-        const distanceInMilimeters = Math.abs(Theme.millimeters(distance))
+        const distance = Math.abs(point.pressPosition.x - point.position.x);
+        const distanceInMilimeters = Theme.millimeters(distance)
         const velocity = distanceInMilimeters / point.timeHeld;
-        // Grativy of this program is 9810 mm/s2 f = velocity^2 / gravity * sensitivity
-        const force = velocity * velocity / 9810 * swipeSensitivity;
+        // Make 100% match the phone-tested feel of 150% at 1000 mm/s².
+        const gravity = 666.67;
+        const force = velocity * velocity / gravity * swipeSensitivity;
         // Calculate if swipe has enought force to be selected.
         const selected = force >= widthInMillimeters;
 

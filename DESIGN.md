@@ -26,6 +26,12 @@ The velocity trigger should work with a comfortable one-handed stroke. Higher
 swipe sensitivity must make the same gesture easier to activate, while the
 half-width fallback and deliberate pullback remain independent of that setting.
 
+Phone-tested reference: on 2026-10-29, the user reported that **150% sensitivity**
+felt good on the Pixel 10 Pro XL after the gravity adjustment to 1000 mm/s².
+At the user's request, gravity is now **666.67 mm/s²**, making **100% sensitivity**
+match that tested effort. Keep the existing sensitivity preference and half-width
+fallback unchanged. The reference is not proof of the same feel on every device.
+
 ## Keep mistakes close enough to correct
 
 Accidental actions will still happen. The correction should require little

@@ -271,3 +271,95 @@ threshold; final and darkest-frame visual checks showed no broken rendering.
 Native Return still submitted a new item and kept the IME visible. Windows
 configure/build and all three CTest entries passed. This does not certify other
 Android versions or physical-device graphics drivers. See ANDROID.md for artifacts.
+
+## UI-004 swipe regression
+
+`qml/tst_swipe.qml` adds 20 parameter cases to normal Windows verification:
+distance actions with mouse and touch, velocity-only actions with touch, and
+short/slow and pullback rejection, in both directions and both modes. Distance
+cases disable the velocity alternative to test the half-width fallback alone.
+Touch timestamps exercise velocity; native mouse cursor delivery is asynchronous.
+Fixtures use the model to seed data, then actual pointer events drive each action.
+
+Before the fix, the four rightward distance cases failed: checking and deletion
+did not occur. The fixed component passes them and the rejection/left-swipe
+controls. Windows configure/build and all three CTest entries passed on
+2026-10-28. A separate native Windows rendering run of this file passed all
+22 records, including setup/cleanup; DirectWrite font fallback warnings occurred.
+That run checks the swipe view, not the full application's menus or appearance.
+
+Android has a separate repeatable test using Python 3's standard library and ADB.
+Start QShopper_API_36 and build/install the x86_64 debug APK as in ANDROID.md, then:
+
+```powershell
+python tests/android/test_swipes.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui004-after
+```
+
+The script accepts only an emulator serial and also checks the emulator property.
+It does not install APKs. It creates isolated databases/settings per case, enters
+edit mode using the real pull gesture, and injects native horizontal touch swipes.
+Eight cases separate direction, mode, 75% slow travel and 40% fast travel.
+It verifies the saved item names, order and checked state, and saves screenshots,
+SQLite snapshots and `results.json` under the output directory. It stops the app
+afterward; disposable data stays available for diagnosis. Run against an English
+emulator with the keyboard hidden and the screen unlocked.
+
+On the Android 16 emulator, the original APK failed both rightward distance cases
+and passed the other six cases. The rebuilt APK passed all eight. Screenshots
+confirmed the remaining bread row and undo control after deleting milk. The
+affected Android 17 Pixel was not connected during that initial run. Its 10 ms
+velocity cases did not reproduce the reported effort problem; see the follow-up
+below. The subsequent phone assessment accepted the tuning at 150%. System Back
+cancellation belongs to UI-007 and is not established by pullback tests.
+
+### Swipe resistance follow-up, 2026-10-29
+
+The user confirmed the half-width fix on the phone but reported excessive swipe
+resistance and little apparent benefit from the sensitivity control. The initial
+10 ms velocity test was too fast to represent a comfortable gesture. The native
+Android test now uses 40% row travel over 70 ms; all four velocity cases failed
+with gravity 9810, while all four long-drag cases still passed.
+
+`qml/tst_swipesensitivity.qml` uses a 76.6 mm-wide view and timed touch strokes
+shorter than half the row. Four checking/deletion cases use 25 mm over 70 ms.
+A real drag of the drawer slider verifies that the same 12 mm / 50 ms gesture is
+rejected at 100% and accepted at 300%, and that the value is saved. Another test
+verifies opening the controls preserves 240%. Two limit cases check that 20%
+still requires a firmer swipe and 300% still rejects short, slow motion.
+
+Before tuning, the four comfortable-stroke cases and the 300% gesture failed;
+opening the controls preserved the value. Gravity is now 1000 mm/s² rather than
+9810; sensitivity still multiplies the velocity-derived force. At 100%, this
+lowers the required speed on a 76.6 mm row from about 867 to 277 mm/s. The
+half-width threshold, pullback and settings range are unchanged.
+
+The eight sensitivity cases pass offscreen and with native Windows rendering
+(ten records including setup/cleanup). Normal Windows configure/build and CTest
+cover the new file automatically. Reports are `tests/ui004-sensitivity-before.xml`
+and `tests/ui004-sensitivity-windows.xml` under `out/windows-agent`. Android
+before/after snapshots and results are under
+`out/android-emulator/ui004-sensitivity-before` and `ui004-sensitivity-after`.
+All eight Android cases passed after tuning, including the four comfortable
+velocity gestures that failed before it.
+The Android runner waits for the fixture to appear, avoiding splash-screen
+timing failures under build load. The signed ARM64 APK was rebuilt, and the user
+confirmed on 2026-10-29 that 150% sensitivity feels good on the phone.
+UI-004 is resolved with the automated regression evidence and user feedback.
+This report does not claim an exhaustive physical-phone interaction matrix;
+system Back handling remains UI-007 and broader phone coverage remains QA-001.
+
+Default calibration, 2026-10-29: the user requested that 100% match the accepted
+150% feel. SwipeHandler now uses the literal gravity value **666.67 mm/s²**.
+Sensitivity defaults and saved settings are unchanged; an existing 150% setting
+should be returned to 100% for the same effort. The added
+`test_default_matches_phone_tested_effort` gesture failed at gravity 1000.
+It uses a wider row to give the timed threshold test room for event-loop jitter.
+The actual slider comparison now uses 10 mm / 50 ms to remain below the lighter
+default threshold and above the high-sensitivity threshold.
+The literal-value Windows build and all three CTest entries passed (60 UI, 52
+model and 5 keyboard records). The sensitivity file passed eleven records with
+native Windows rendering, and all eight native Android swipe cases passed.
+The timed calibration stroke allows for native event-delivery overhead while
+remaining below the former threshold. Reports use `ui004-default-*` under
+`out/windows-agent/tests` and `out/android-emulator/ui004-default-after`.
+The shared-key ARM64 APK was rebuilt and its signature verified.

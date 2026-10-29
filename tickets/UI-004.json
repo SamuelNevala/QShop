@@ -1,7 +1,9 @@
 {
   "id": "UI-004",
   "title": "Critical regression: right swipes fail to select items and cannot delete in edit mode",
-  "status": "reported",
+  "status": "resolved",
+  "resolved": "2026-10-29",
+  "resolution": "Corrected the signed-distance fallback and tuned simulated gravity. After the user accepted 150% sensitivity at gravity 1000 mm/s², set the literal gravity value to 666.67 mm/s² so 100% gives that effort. Failing-before/passing-after Windows and native Android regressions cover both triggers, directions, modes and sensitivity behavior. System Back cancellation remains the separate UI-007 ticket.",
   "type": "bug",
   "severity": "critical",
   "priority": "1",
@@ -9,7 +11,7 @@
   "created": "2026-10-28",
   "environment": "Current Android phone build; Pixel 10 Pro XL running Android 17. Last known working build has not been identified.",
   "reported_by": "user",
-  "reproduction_status": "User-observed; not independently reproduced during backlog gathering",
+  "reproduction_status": "Distance and comfortable short-stroke failures reproduced and fixed, with automated before/after evidence. User confirmed the half-width fix and the tuned phone feel at 150% sensitivity on 2026-10-29.",
   "history": [
     "Initially recorded as a source-review candidate concerning the signed-distance fallback for slow right swipes.",
     "Promoted to a critical user-reported regression after reports that right-swipe selection fails and right-swipe deletion in edit mode is unavailable. The report also includes failure with sufficient velocity."
@@ -27,18 +29,12 @@
     "SwipeHandler.qml computes signed distance as pressPosition.x minus position.x and compares it directly with the positive actionTreshold for the long-drag fallback. A rightward drag has a negative distance in this expression.",
     "The velocity calculation uses absolute millimeter distance divided by timeHeld. Investigate this path separately: the signed-distance observation alone does not establish why the reported high-velocity right swipe also fails.",
     "Direction is chosen using target.x, then passed through TextDelegate.qml's swipe animation before ShopView.qml handles the action. Verify event/grab handling, direction, and action delivery rather than assuming a threshold-only fix.",
-    "ShopView.qml routes edit-mode right swipes to itemModel.remove(index); other handled swipe actions toggle the checked state."
+    "ShopView.qml routes edit-mode right swipes to itemModel.remove(index); other handled swipe actions toggle the checked state.",
+    "Confirmed distance root cause: the rightward signed displacement is negative and cannot reach the positive half-width threshold. SwipeHandler now takes the absolute displacement before applying either threshold. Direction selection, sensitivity and animation/action routing are unchanged.",
+    "The initial extremely fast velocity test did not reproduce the user's complaint. The 2026-10-29 follow-up uses comfortable timed strokes and reproduces excessive resistance in both directions. The sensitivity control does update and persist, but even 300% still required about 500 mm/s on a 76.6 mm-wide row with the original gravity."
   ],
-  "relevant_files": [
-    "SwipeHandler.qml",
-    "TextDelegate.qml",
-    "ShopView.qml",
-    "model.cpp",
-    "tests/qml/tst_shopview.qml"
-  ],
-  "related_tickets": [
-    "UI-007"
-  ],
+  "relevant_files": ["SwipeHandler.qml", "TextDelegate.qml", "ShopView.qml", "model.cpp", "tests/qml/tst_shopview.qml", "tests/qml/tst_swipe.qml", "tests/qml/tst_swipesensitivity.qml", "tests/android/test_swipes.py"],
+  "related_tickets": ["UI-007"],
   "acceptance_criteria": [
     "A sufficiently fast right swipe triggers the shopping-mode item action without requiring travel beyond half the delegate width.",
     "A slow rightward drag beyond half the delegate width triggers the action without depending on the velocity condition.",
@@ -51,10 +47,55 @@
   ],
   "open_questions": [
     "Which build last had working right swipes?",
-    "What swipe sensitivity is selected on the affected phone?",
     "Does the row move right and animate back without an action, or does the gesture fail to acquire or move the row?"
   ],
   "evidence": "User critical-regression report in the QShopper development chat on 2026-10-28, specifying both velocity and half-delegate-width triggers and the inability to delete in edit mode.",
+  "implementation": {
+    "date": "2026-10-28",
+    "change": "Use absolute horizontal travel for the half-width fallback in SwipeHandler.qml. Preserve the existing millimeter velocity calculation, pullback behavior and mode-specific action routing.",
+    "qml_regression": "tests/qml/tst_swipe.qml: SwipeInteractions::test_swipe_action and test_rejected_swipe. Twenty parameter cases cover mouse distance, touch distance and velocity, both directions/modes, plus short/slow and pullback rejection. Distance cases disable the velocity alternative so they cannot pass through the wrong trigger. Velocity cases use touch because native mouse cursor delivery is asynchronous.",
+    "before": "Four named right_distance cases (mouse/touch, shop/edit) failed with the original production component; left distance and touch velocity controls passed. Android test_swipes.py reproduced two right_distance failures while the other six native cases passed. The first Android runner also exposed a Windows SQLite cleanup issue in the test harness; explicit connection closing corrected that harness issue.",
+    "after": "Windows configure/build and all three CTest entries passed. The final 20-case swipe file also passed with native Windows rendering (22 records including setup/cleanup). All eight native Android cases passed against the rebuilt x86_64 APK, using fresh data per case and checking saved item identity/order/state after actual touch swipes.",
+    "android_command": "python tests/android/test_swipes.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui004-after",
+    "artifacts": ["out/windows-agent/tests/ui-004-before.xml", "out/windows-agent/tests/ui-004-windows.xml", "out/windows-agent/tests/ui-tests.xml", "out/android-emulator/ui004-before/results.json", "out/android-emulator/ui004-after/results.json", "dist/QShopper-arm64-debug.apk"],
+    "phone_apk": "ARM64 debug APK built and verified with the original shared debug signing certificate (SHA-256 7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b). Not installed on a physical device.",
+    "remaining": [
+      "System Back cancellation/long-press cleanup remains UI-007. Pullback rejection passed, but it does not establish system Back correctness."
+    ]
+  },
+  "resistance_follow_up": {
+    "date": "2026-10-29",
+    "user_feedback": "Halfway trigger works, but simulated gravity feels too strong and increasing sensitivity did not make swiping noticeably easier.",
+    "finding": "The actual slider updates Theme and the handler and saves its value. Sensitivity multiplies the velocity-squared force, so increasing 100% to 300% only reduces required speed by a factor of sqrt(3). With gravity 9810, the threshold was still too high for comfortable short strokes.",
+    "change": "Lower simulated gravity from 9810 to 1000 mm/s². Required speed becomes about 32% of the previous value at the same sensitivity and row width. Keep the existing slider range/meaning, half-width fallback, average-velocity calculation, direction and pullback behavior.",
+    "regression_tests": [
+      "tests/qml/tst_swipesensitivity.qml: four comfortable 25 mm / 70 ms checking/deletion gestures, an actual slider drag comparing the same 12 mm / 50 ms gesture at 100% and 300% with saved-setting verification, preservation when controls open, and low/high sensitivity rejection controls.",
+      "tests/android/test_swipes.py: replace unrealistic 10 ms velocity input with 70 ms at 40% row width. Use a bounded wait for the shopping fixture instead of assuming Qt has left its splash screen after 1.5 seconds."
+    ],
+    "before": "Four comfortable QML action cases and the gesture at 300% failed with gravity 9810; opening controls preserved sensitivity. On Android, all four 70 ms velocity cases failed while all four distance cases passed.",
+    "windows_after": "Configure/build and all three CTest entries passed. Final UI report has 59 passing records; model has 52 and keyboard has 5. Native Windows rendering passed all ten records in the sensitivity file, including setup/cleanup. Existing half-width and pullback regressions also pass.",
+    "android_after": "All eight native cases passed with the tuned APK, including the four comfortable 70 ms velocity strokes that failed before tuning. The first after-run stopped during Qt startup under concurrent build load; waiting for the fixture instead of the splash screen resolved that harness readiness issue.",
+    "artifacts": ["out/windows-agent/tests/ui004-sensitivity-before.xml", "out/windows-agent/tests/ui004-sensitivity-windows.xml", "out/android-emulator/ui004-sensitivity-before/results.json", "out/android-emulator/ui004-sensitivity-after/results.json", "dist/QShopper-arm64-debug.apk"],
+    "phone_apk": "Rebuilt ARM64 APK; signature verified against the original shared debug certificate. No physical-device installation performed.",
+    "phone_validation": {
+      "date": "2026-10-29",
+      "source": "User report: Tested on phone and 150% sensitivity felt good",
+      "sensitivity": 1.5,
+      "result": "Tuned gesture feel accepted on the affected phone. This feedback records subjective usability, not an exhaustive physical-device interaction matrix. The user subsequently requested default gravity calibration to match this effort at 100%; see default_calibration."
+    },
+    "remaining": "System Back cancellation remains UI-007; broader physical-phone coverage remains QA-001."
+  },
+  "default_calibration": {
+    "date": "2026-10-29",
+    "request": "Set gravity so the default 100% matches the accepted 150% feel at gravity 1000. Use a literal value, without division in the code.",
+    "gravity_mm_per_second_squared": 666.67,
+    "settings": "Theme's fresh-install sensitivity remains 1.0 and saved preferences are unchanged. A user currently at 150% should return to 100% to retain the tested effort.",
+    "regression": "SwipeSensitivity::test_default_matches_phone_tested_effort uses a stroke below the half-width fallback that fails at gravity 1000/default sensitivity. The slider comparison now uses 10 mm / 50 ms so its default-rejected/high-sensitivity-accepted assertion remains appropriate for the lighter baseline.",
+    "before": "The calibration gesture failed at gravity 1000; the other ten records passed. Report: out/windows-agent/tests/ui004-default-before.xml.",
+    "after": "The literal-value Windows build and all three CTest entries passed (60 UI, 52 model and 5 keyboard records). Native Windows sensitivity checks passed all eleven records. All eight native Android swipe cases passed with isolated data. The calibration stroke timing was adjusted to allow native Windows event-delivery overhead while keeping its speed below the former threshold.",
+    "artifacts": ["out/windows-agent/tests/ui004-default-before.xml", "out/windows-agent/tests/ui004-default-after.xml", "out/windows-agent/tests/ui004-default-windows.xml", "out/android-emulator/ui004-default-after/results.json", "dist/QShopper-arm64-debug.apk"],
+    "phone_apk": "Rebuilt with literal gravity 666.67 and the original shared signing certificate; APK signature verification passed. No physical-device installation performed."
+  },
   "github_repository": "SamuelNevala/QShop",
   "github_issue_url": null
 }

@@ -1,8 +1,8 @@
 # QShopper backlog
 
-Started: 2026-10-28. QShopper is near feature complete. The current phase is to
-collect and clarify bugs, missing features, and code-quality work before choosing
-and implementing changes.
+Started: 2026-10-28. QShopper is near feature complete. Backlog gathering and
+prioritization are recorded below. The user selected UI-004 for implementation;
+the remaining tickets stay deferred until selected.
 
 Use [DESIGN.md](DESIGN.md) when deciding what counts as correct behavior. Keep
 intentional gestures, text fitting, animation, and list ordering intact.
@@ -40,7 +40,7 @@ test. This recommendation does not itself authorize starting implementation.
 
 | Order | Tickets | Reason and approach |
 | --- | --- | --- |
-| 1 | [UI-004](tickets/UI-004.json) — right-swipe selection/deletion | Critical regression in the main one-handed interaction; deletion is blocked. Reproduce velocity and distance paths separately before selecting a fix |
+| 1 | [UI-004](tickets/UI-004.json) — right-swipe selection/deletion | Resolved: regression tests pass; user confirmed half-width behavior and comfortable phone feel at 150% sensitivity |
 | 2 | [UI-007](tickets/UI-007.json) — Back/long-press leak | Repair the stuck move state and cancellation handling in the same gesture area while the interaction tests are fresh; keep this a separate fix |
 | 3 | [UI-006](tickets/UI-006.json) — Back navigation | Build the requested navigation behavior on reliable gesture cleanup. Settle pending-text behavior before implementation |
 | 4 | [UI-010](tickets/UI-010.json) — unreachable ComboBox options | Restore access to all choices; test actual safe-area bounds and endpoint selection |
@@ -80,7 +80,6 @@ regressions remain easy to trace.
 
 | ID | Finding | Evidence/status | Severity |
 | --- | --- | --- | --- |
-| [UI-004](tickets/UI-004.json) | Right-swipe selection and edit-mode deletion fail; either sufficient velocity or travel beyond half the delegate width should trigger the action | User-reported critical regression; independent reproduction pending | Critical, per user |
 | [UI-010](tickets/UI-010.json) | Long ComboBox option lists, such as colors, ignore the safe area and make the first and last options unreachable | User-observed; independent reproduction pending; distinct from UI-005's color mismatch | Major, per user |
 | [UI-009](tickets/UI-009.json) | Reset checks should retain the selection-derived order for reuse: initial 1,2,3; check 3,1,2; reset to 2,1,3 | User-reported; exact failure/order and persistence need reproduction; simple source trace appears to meet the example | Major, per user |
 | [UI-008](tickets/UI-008.json) | Empty-area background rectangle appears inappropriately while scrolling lists of roughly 35+ items | User-observed; independent reproduction pending; preserve the intentional short/long-list background continuity | Major, per user |
@@ -112,10 +111,13 @@ a separate issue. Both independent triggers must work: sufficient velocity, or
 travel beyond half the delegate width. In shopping mode, a right swipe selects
 the item; in edit mode, it deletes the item. Left swipes reportedly appear to work.
 
-The signed-distance fallback in `SwipeHandler.qml` remains an investigation
-starting point, but does not by itself explain the reported high-velocity failure.
-Reproduce both paths and verify gesture direction and action delivery before
-choosing a fix. Independent reproduction is still pending.
+Resolved on 2026-10-29. The distance comparison now uses absolute travel, and
+simulated gravity was reduced from 9810 to 1000 mm/s² after comfortable short
+strokes reproduced excessive resistance. Windows and Android regressions passed;
+the user confirmed the half-width fix and that 150% sensitivity feels good on the
+phone. At the user's request, gravity was then calibrated to the literal value
+666.67 mm/s² so 100% sensitivity matches that effort. System Back cancellation
+remains UI-007. See the ticket for evidence.
 
 ## Missing features
 
@@ -239,6 +241,7 @@ emulator evidence exists. Physical-phone behavior remains a separate check.
 
 | Reference | Finding | Resolution/evidence |
 | --- | --- | --- |
+| [UI-004](tickets/UI-004.json) | Right-swipe selection/deletion and excessive swipe resistance | Absolute-distance fix and gravity tuning; before/after regressions pass. User confirmed half-width behavior and phone feel at 150% sensitivity on 2026-10-29 |
 | [UI-002](tickets/UI-002.json) | Null-dimensions error during component startup | Theme migration removed the delayed Dimensions dependency; regression coverage exists |
 | [Keyboard resize](ANDROID.md#keyboard-resize-verification) | Keyboard covered the end of a long list | Explicit Android `adjustResize`; emulator scrolling and ten hide/show cycles passed, with no near-black frames in the recorded test. Physical-phone verification belongs to QA-001 |
 | APK signing, 2026-10-28 | Phone refused the update because the signing certificate differed | Original shared debug key matched the installed certificate; rebuilt APK verified, and user confirmed the update installed. `build-android.ps1 -DebugKeystore ../debug.keystore` preserves that signing choice |
@@ -249,5 +252,5 @@ More user-reported bugs are expected. Add them as they are described; do not
 invent symptoms for the unspecified reports. A rough description is enough to
 start a ticket, with reproduction details added later.
 
-The suggested order above is recorded for review. No implementation has been
-started as part of prioritizing the backlog.
+The suggested order above remains the execution plan. UI-004 implementation was
+authorized separately after prioritization; other tickets have not been started.
