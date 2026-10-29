@@ -1,7 +1,7 @@
 # QShopper backlog
 
 Started: 2026-10-28. QShopper is near feature complete. Backlog gathering and
-prioritization are recorded below. UI-004, UI-007 and UI-010 are resolved. UI-006 is
+prioritization are recorded below. UI-004, UI-007, UI-010 and UI-011 are resolved. UI-006 is
 implemented pending phone confirmation; remaining tickets stay deferred until selected.
 
 Use [DESIGN.md](DESIGN.md) when deciding what counts as correct behavior. Keep
@@ -44,15 +44,16 @@ test. This recommendation does not itself authorize starting implementation.
 | 2 | [UI-007](tickets/UI-007.json) — Back/long-press leak | Resolved: QML and native Android regressions pass; user confirmed the fix works on the affected phone |
 | 3 | [UI-006](tickets/UI-006.json) — Back navigation | Implemented and covered by Windows and native Android tests; pending phone confirmation. User chose existing discard/restore behavior for unfinished edits |
 | 4 | [UI-010](tickets/UI-010.json) — unreachable ComboBox options | Resolved: endpoint bounds/selection regressions and 54 native Android checks pass; user confirmed the fix on the phone |
-| 5 | [UI-009](tickets/UI-009.json) — reset ordering | Protect list reuse and persisted order. Reproduce the exact example first because a simple source trace already appears to meet it; avoid a speculative rewrite |
-| 6 | [UI-008](tickets/UI-008.json), then [UI-001](tickets/UI-001.json) | Fix long-list rendering, then recheck/fix the fresh-install list selection. Retain their distinct visual and state regression tests |
-| 7 | [QA-003](tickets/QA-003.json), UI-003, and QA-001 | Complete remaining interaction coverage and assess the unconfirmed text-fitting discrepancy. Use a physical-phone shopping pass to expose integration problems |
-| 8 | [UX-001](tickets/UX-001.json) → [UX-002](tickets/UX-002.json) → [UX-003](tickets/UX-003.json), then [UI-005](tickets/UI-005.json) and QA-002 | Agree coherent color roles before final theme/border fixes. Verify typography, contrast, physical sizing, and the intended visual continuity on devices |
-| 9 | [DEV-006](tickets/DEV-006.json) → [DEV-002](tickets/DEV-002.json) / [DEV-003](tickets/DEV-003.json) → [DEV-004](tickets/DEV-004.json) → [DEV-005](tickets/DEV-005.json), with DEV-001 | Establish practical KISS guidance, apply formatting in separate mechanical changes, simplify CMake, then run configured analyzers against a clear build. Investigate the remaining QML warning alongside quality work |
-| 10 | [REL-001](tickets/REL-001.json), with final QA-001/QA-002 checks | Prepare production signing/builds and store submission from the stabilized app. Repeat affected interaction/device checks after the quality changes before declaring release readiness |
+| 5 | [UI-011](tickets/UI-011.json) — portrait-only Android | Resolved: native sensor and popup regressions pass; user waived physical-phone testing. Android's large-screen overrides are documented |
+| 6 | [UI-009](tickets/UI-009.json) — reset ordering | Protect list reuse and persisted order. Reproduce the exact example first because a simple source trace already appears to meet it; avoid a speculative rewrite |
+| 7 | [UI-008](tickets/UI-008.json), then [UI-001](tickets/UI-001.json) | Fix long-list rendering, then recheck/fix the fresh-install list selection. Retain their distinct visual and state regression tests |
+| 8 | [QA-003](tickets/QA-003.json), UI-003, and QA-001 | Complete remaining interaction coverage and assess the unconfirmed text-fitting discrepancy. Use a physical-phone shopping pass to expose integration problems |
+| 9 | [UX-001](tickets/UX-001.json) → [UX-002](tickets/UX-002.json) → [UX-003](tickets/UX-003.json), then [UI-005](tickets/UI-005.json) and QA-002 | Agree coherent color roles before final theme/border fixes. Verify typography, contrast, physical sizing, and the intended visual continuity on devices |
+| 10 | [DEV-006](tickets/DEV-006.json) → [DEV-002](tickets/DEV-002.json) / [DEV-003](tickets/DEV-003.json) → [DEV-004](tickets/DEV-004.json) → [DEV-005](tickets/DEV-005.json), with DEV-001 | Establish practical KISS guidance, apply formatting in separate mechanical changes, simplify CMake, then run configured analyzers against a clear build. Investigate the remaining QML warning alongside quality work |
+| 11 | [REL-001](tickets/REL-001.json), with final QA-001/QA-002 checks | Prepare production signing/builds and store submission from the stabilized app. Repeat affected interaction/device checks after the quality changes before declaring release readiness |
 
 QA-003 is incremental: begin its interaction inventory and harness improvements
-with the early bug fixes, then fill the remaining gaps at step 7. Completing the
+with the early bug fixes, then fill the remaining gaps at step 8. Completing the
 entire suite is not a prerequisite for fixing UI-004. Reuse a small, reliable
 harness rather than building a large test framework first.
 
@@ -145,14 +146,13 @@ priority still awaits explicit phone confirmation.
 
 ### [UI-011 — Portrait-only Android orientation](tickets/UI-011.json)
 
-Requested on 2026-10-29; implementation deferred. The user reports that landscape
-does not work well and wants the Android app to stay in portrait. The proposed
-change is the activity's manifest orientation setting, currently `unspecified`.
-Priority and severity are unassigned.
-
-When selected, add an Android regression that verifies actual orientation on
-launch and rotation, including shopping/edit modes with the keyboard or drawer
-open. Preserve list data and unfinished edits, and confirm on the phone.
+Requested, selected and resolved on 2026-10-29. The user waived physical-phone
+testing and accepted the automated verification.
+The activity now requests `portrait` in the manifest. The native regression
+first proves that the emulator sensors can rotate a Settings control, then checks
+QShopper's actual geometry on launch and rotation with shopping/edit modes,
+keyboard, drawer and unfinished text. Saved list order and checks are preserved.
+Android can override orientation restrictions on larger displays; see ANDROID.md.
 
 ## Release preparation
 
@@ -256,6 +256,7 @@ emulator evidence exists. Physical-phone behavior remains a separate check.
 | [UI-004](tickets/UI-004.json) | Right-swipe selection/deletion and excessive swipe resistance | Absolute-distance fix and gravity tuning; before/after regressions pass. User confirmed half-width behavior and phone feel at 150% sensitivity on 2026-10-29 |
 | [UI-007](tickets/UI-007.json) | Back cancellation leaks a long press and breaks the next item interaction | Reset the stale cancelled tap recognizer and reject cancelled swipe actions. Before/after QML and native Android tests pass; user confirmed the fix works on the phone on 2026-10-29 |
 | [UI-010](tickets/UI-010.json) | Long selector popup endpoints overlap unsafe screen areas | Use window safe-area margins for popup bounds; before/after regressions and 54 native Android checks pass. User confirmed the phone fix on 2026-10-29 |
+| [UI-011](tickets/UI-011.json) | Keep the Android phone app portrait-only | Manifest portrait request; 11 sensor/state checks, 18 popup checks and all Windows suites pass. User waived physical-phone testing on 2026-10-29; platform overrides are documented |
 | [UI-002](tickets/UI-002.json) | Null-dimensions error during component startup | Theme migration removed the delayed Dimensions dependency; regression coverage exists |
 | [Keyboard resize](ANDROID.md#keyboard-resize-verification) | Keyboard covered the end of a long list | Explicit Android `adjustResize`; emulator scrolling and ten hide/show cycles passed, with no near-black frames in the recorded test. Physical-phone verification belongs to QA-001 |
 | APK signing, 2026-10-28 | Phone refused the update because the signing certificate differed | Original shared debug key matched the installed certificate; rebuilt APK verified, and user confirmed the update installed. `build-android.ps1 -DebugKeystore ../debug.keystore` preserves that signing choice |
@@ -270,5 +271,6 @@ The suggested order above remains the execution plan. UI-004, UI-006 and UI-007
 were selected separately after prioritization. UI-007 is resolved with
 regression coverage and phone confirmation. The user then selected UI-010;
 it is resolved with automated coverage and phone confirmation.
-UI-011 was suggested as a small follow-up, followed by UI-009, unless the user
-chooses otherwise. Those tickets remain deferred until selected.
+The user then selected UI-011; it is resolved with sensor-driven regression
+coverage and physical-phone testing waived by the user. UI-009 is next in the suggested order
+unless the user chooses otherwise; it remains deferred until selected.

@@ -468,10 +468,11 @@ list/color. It fails on binding-loop warnings and runs in the normal UI suite,
 alongside the earlier repeated scroll/resize/zoom popup test.
 
 Native Android coverage uses `android/test_popups.py`; see ANDROID.md for the
-repeatable command. It scrolls and taps real controls in portrait, after native
-keyboard resizing, and in landscape, checking Android's actual insets, persisted
-selections and unchanged shopping items. Landscape setup enters edit mode before
-rotation, and display/accessibility rotation must match the requested profile.
+repeatable command. It scrolls and taps real controls, checking Android's actual
+insets, persisted selections and unchanged shopping items. Original UI-010
+coverage included true landscape before UI-011 restricted the phone app to
+portrait. The current `rotated` profile requests landscape while asserting that
+the app stays portrait; `portrait` and `keyboard_resize` profiles remain available.
 The original first and last color rows
 each fail the safe-area assertion. Reports are `ui010-before.xml`,
 `ui010-after.xml`, `ui010-windows.xml` under `out/windows-agent/tests` and
@@ -484,3 +485,30 @@ All 54 native checks pass. Windows configure/build and all three CTest entries
 also pass: 85 UI, 6 keyboard and 52 model records. The normal verification log is
 `out/windows-agent/tests/ui010-verify.txt`. The shared-key ARM64 APK was rebuilt
 and its signature verified.
+
+## UI-011 portrait-only Android phones
+
+`android/test_portrait.py` verifies actual orientation with auto-rotate enabled
+and real emulated acceleration sensors. A Settings control first proves that
+the display can rotate. The original APK then fails cold launch held landscape.
+Checks cover portrait/landscape launch, both rotation directions in shopping
+mode, editing with the native keyboard hidden/visible, an open drawer,
+unsubmitted text, process continuity and saved item ordering/checked state.
+
+Use the commands in ANDROID.md. The script reads geometry before and after
+accessibility inspection and permits the activity launch transition to settle.
+It restores sensor/rotation settings and uses isolated data on an emulator only.
+Reports are under `out/android-emulator/ui011-before` and `ui011-after`.
+The existing popup matrix now tests the portrait app with a rotated-device
+request rather than expecting landscape. Its follow-up report is
+`out/android-emulator/ui011-popups-after`.
+
+The manifest request is tested on the sw411dp API 36 phone emulator. Android
+large-screen/windowing overrides remain a platform limit, documented in
+ANDROID.md. The user waived physical Android 17 phone testing for UI-011;
+no physical-phone verification is claimed.
+
+On 2026-10-29 all 11 native orientation/state checks and 18 updated popup checks
+passed. Windows configure/build and all three CTest entries passed with 85 UI,
+6 keyboard and 52 model records (`out/windows-agent/tests/ui011-verify.txt`).
+The shared-key ARM64 APK was rebuilt and its signature verified.

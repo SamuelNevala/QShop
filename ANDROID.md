@@ -198,11 +198,10 @@ The script seeds 30 saved lists and two shopping items in unique isolated data
 directories. Native swipes reach both scroll limits, endpoint bounds are checked
 against Android's reported system-bar/cutout bounds, and taps must persist the
 expected list or color. SQLite checks that the shopping items remain intact.
-The matrix covers portrait, opening Gboard before the drawer (which dismisses
-it and resizes the window), and landscape. Landscape setup enters edit mode in
-portrait before rotating; the short viewport cannot reliably fit the existing
-pull-to-edit gesture (recorded in UI-011). Actual display and accessibility
-rotation are asserted, so a portrait run cannot count as landscape coverage.
+The current matrix covers portrait, opening Gboard before the drawer (which
+dismisses it and resizes the window), and requesting a rotated-device orientation
+while the phone app remains portrait. Display and accessibility rotation are
+asserted. Sensor-driven auto-rotation is covered separately by UI-011 below.
 Rotation settings are restored and
 the test app is stopped afterward. The script only accepts emulator serials and
 does not install an APK. Use `--selector accent --endpoint first` for a narrow run.
@@ -212,11 +211,54 @@ evidence is in `out/android-emulator/ui010-regression-before` and
 `ui010-last-before`. The first row overlapped the status bar and the last row
 extended into the navigation-bar area.
 
-Final validation uses the portrait checks in `ui010-after`, the completed
+The original UI-010 validation, before the UI-011 portrait restriction, uses the
+portrait checks in `ui010-after`, the completed
 `ui010-after-keyboard` profile and the rotation-asserted
 `ui010-landscape-verified` profile. Their combined results and source paths are
-recorded under `ui010-matrix-after`. Use `--profile keyboard_resize` or
-`--profile landscape` to run those profiles separately.
+recorded under `ui010-matrix-after`. Those true-landscape results are historical
+coverage for that build. The current harness uses `--profile keyboard_resize`
+or `--profile rotated` to run profiles separately.
 All 54 checks passed on 2026-10-29. The shared-key ARM64 debug APK was rebuilt
 and its signature verified. The user confirmed the fix on the affected Android 17
 phone on 2026-10-29; this complements the automated emulator coverage.
+
+## Portrait-only phone orientation (UI-011)
+
+QtActivity requests `android:screenOrientation="portrait"` in the manifest.
+Shopping, editing, the native keyboard and the drawer stay portrait when the
+phone rotates. The request does not need a runtime orientation handler.
+
+With the x86_64 APK installed on the English QShopper_API_36 phone emulator:
+
+```powershell
+python tests/android/test_portrait.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui011-after
+python tests/android/test_popups.py --adb C:/android/sdk/platform-tools/adb.exe --profile rotated --output out/android-emulator/ui011-popups-after
+```
+
+The orientation test enables auto-rotate and changes the emulator's actual
+acceleration sensors. Android Settings is a control that must rotate to landscape
+before QShopper is tested. Cold launches held portrait/landscape, shopping
+rotation in both directions, edit mode with keyboard hidden/visible, an
+unfinished draft, and the open drawer are checked. Saved item order/checked
+state and process continuity must survive. Display geometry is inspected before
+and after accessibility dumps, with a bounded wait for activity launch
+transitions. This avoids counting a system rotation lock as an app orientation
+fix. The test uses isolated data, restores sensors/rotation settings, stops the
+app, and only accepts an emulator serial.
+
+The original APK fails `launch_held_landscape` at 3120x1440, rotation 1, after
+the sensor control passes. Before/after artifacts are under
+`out/android-emulator/ui011-before` and `ui011-after`.
+
+On 2026-10-29 all 11 orientation/state checks and all 18 updated selector checks
+passed. The Windows build and all three CTest entries also passed. The shared-key
+ARM64 APK was rebuilt and its signature verified. The user waived physical
+Android 17 phone testing and requested the commit; no physical-phone test is claimed.
+
+Android can override orientation restrictions on large displays and in some
+windowing/user configurations. In particular, the platform ignores these
+restrictions on displays of at least sw600dp for apps targeting API 36 or newer;
+the temporary API 36 opt-out does not apply when targeting API 37. The APK
+currently targets API 37. Phone-emulator coverage uses sw411dp and does not
+certify tablets, foldable inner displays or multi-window behavior. See the
+[Android orientation restriction guidance](https://developer.android.com/about/versions/16/behavior-changes-16#large-screens).

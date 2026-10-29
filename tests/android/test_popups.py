@@ -26,8 +26,8 @@ def main():
     parser.add_argument("--selector", choices=("all", "lists", "accent", "primary"), default="all")
     parser.add_argument("--endpoint", choices=("all", "first", "last"), default="all")
     parser.add_argument("--matrix", action="store_true",
-                        help="Also test landscape and portrait after a real keyboard resize")
-    parser.add_argument("--profile", choices=("portrait", "keyboard_resize", "landscape"), default="portrait")
+                        help="Also test a rotated-device request and a real keyboard resize")
+    parser.add_argument("--profile", choices=("portrait", "keyboard_resize", "rotated"), default="portrait")
     args = parser.parse_args()
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator serial is allowed")
@@ -62,19 +62,18 @@ def main():
         shell("input", "tap", (left + right) // 2, (top + bottom) // 2)
 
     def rotate(value):
-        nonlocal expected_rotation
-        expected_rotation = value
         shell("wm", "user-rotation", "lock", value)
-        # UIAutomator restores the rotation it sees when connecting. Wait for
-        # the app before connecting: the launcher can force natural orientation.
+        # UI-011 keeps the phone app portrait even with a landscape user setting.
+        # Verify actual bounds before UIAutomator can restore its captured rotation.
+        time.sleep(0.5)
         for _ in range(20):
             width, height, actual = map(int, re.search(
                 r"DisplayFrames w=(\d+) h=(\d+) r=(\d+)",
                 shell("dumpsys", "window", "displays")).groups())
-            if actual == value:
+            if actual == expected_rotation and width < height:
                 return width, height
             time.sleep(0.1)
-        raise RuntimeError("App did not enter the requested orientation")
+        raise RuntimeError("The phone app did not remain portrait")
 
     def safe_rect():
         display = shell("dumpsys", "window", "displays")
@@ -116,7 +115,7 @@ def main():
     old_rotation = shell("settings", "get", "system", "user_rotation")
     selectors = ("lists", "accent", "primary") if args.selector == "all" else (args.selector,)
     endpoints = ("first", "last") if args.endpoint == "all" else (args.endpoint,)
-    profiles = [("portrait", 0, False), ("keyboard_resize", 0, True), ("landscape", 1, False)]
+    profiles = [("portrait", 0, False), ("keyboard_resize", 0, True), ("rotated", 1, False)]
     if not args.matrix:
         profiles = [profile for profile in profiles if profile[0] == args.profile]
 
@@ -162,8 +161,7 @@ def main():
                         ui = tree()
                         field = editor(ui)
                         if rotation != 0:
-                            # Enter edit mode before rotating: its long pull gesture
-                            # cannot reliably fit in the short landscape viewport.
+                            # Request rotation with an existing editor; the app stays portrait.
                             width, height = rotate(rotation)
                             ui = tree()
                             field = editor(ui)

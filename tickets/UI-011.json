@@ -1,14 +1,14 @@
 {
   "id": "UI-011",
   "title": "Keep the Android application portrait-only",
-  "status": "reported",
+  "status": "resolved",
   "type": "feature",
   "severity": "unassigned",
-  "priority": "unassigned",
+  "priority": 5,
   "created": "2026-10-29",
   "environment": "Android app; user reports that the landscape layout does not work well. Specific affected controls and device states have not been recorded.",
   "reported_by": "user",
-  "reproduction_status": "User-observed landscape usability problem; independent reproduction deferred during backlog intake.",
+  "reproduction_status": "Sensor-driven regression reproduces landscape launch on the original APK after a passing Settings rotation control. With the portrait manifest, all 11 orientation/state checks and 18 updated popup checks pass on the API 36 phone emulator. The user waived physical Android 17 phone testing and requested the commit; physical-phone verification was not performed.",
   "reproduction": [
     "Open QShopper on Android with system auto-rotation enabled.",
     "Rotate the phone into landscape.",
@@ -16,14 +16,21 @@
   ],
   "actual": "The application allows landscape orientation, which the user reports does not work well.",
   "expected": "The Android application remains in portrait orientation, supporting the intended one-handed shopping experience.",
-  "proposed_implementation": "Use the Android activity's manifest screenOrientation setting to request portrait orientation, as suggested by the user. Keep this change deferred until the ticket is selected.",
+  "proposed_implementation": "Set QtActivity android:screenOrientation=\"portrait\" in android/AndroidManifest.xml.",
   "source_notes": [
-    "android/AndroidManifest.xml currently sets android:screenOrientation=\"unspecified\" on QtActivity.",
+    "The activity previously used android:screenOrientation=\"unspecified\"; it now requests \"portrait\".",
     "Record the portrait-only requirement rather than redesigning the landscape interface.",
     "Verify the manifest request on supported Android versions and device/window configurations when implementing; a manifest value alone is not proof of actual orientation behavior.",
-    "During UI-010 verification on 2026-10-29, the native pull-to-edit stroke did not reliably activate editing in the short landscape viewport. Popup tests enter edit mode in portrait before rotating, and assert actual display/accessibility rotation. This is an observed example supporting the existing landscape-usability report; no landscape redesign is selected."
+    "During UI-010 verification on 2026-10-29, the native pull-to-edit stroke did not reliably activate editing in the short landscape viewport. Popup tests enter edit mode in portrait before rotating, and assert actual display/accessibility rotation. This is an observed example supporting the existing landscape-usability report; no landscape redesign is selected.",
+    "Android 16/API 36 can ignore orientation restrictions on displays at least sw600dp for apps targeting API 36. The temporary large-screen opt-out stops applying when targeting API 37. Record this OS limitation rather than adding an unreliable runtime orientation workaround."
   ],
-  "relevant_files": ["android/AndroidManifest.xml", "ANDROID.md", "DESIGN.md"],
+  "relevant_files": [
+    "android/AndroidManifest.xml",
+    "tests/android/test_portrait.py",
+    "tests/android/test_popups.py",
+    "ANDROID.md",
+    "DESIGN.md"
+  ],
   "acceptance_criteria": [
     "Launching the Android app while the phone is held in portrait or landscape presents the app in portrait.",
     "Rotating the phone with system auto-rotation enabled keeps the app in portrait in shopping and edit modes, including with the drawer or keyboard open.",
@@ -33,5 +40,37 @@
   ],
   "evidence": "User backlog request on 2026-10-29: application should be portrait-only because landscape does not work well; suggested setting this in the Android manifest.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "implementation": {
+    "date": "2026-10-29",
+    "change": "Request portrait orientation on QtActivity in the Android manifest. No runtime orientation handler is needed.",
+    "regression": {
+      "location": "tests/android/test_portrait.py",
+      "command": "python tests/android/test_portrait.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui011-after",
+      "before": "The sensor control rotates Android Settings to 3120x1440, rotation 1. The original QShopper APK also launches at 3120x1440 while held landscape, failing launch_held_landscape.",
+      "coverage": "Auto-rotate enabled with real emulated acceleration sensors, cold launches held portrait/landscape, shopping rotation in both directions, edit mode with keyboard closed/open, retained unfinished text, drawer state, process continuity, saved item order and checked state. Verify actual display geometry before and after accessibility inspection. Restore acceleration and rotation settings afterward.",
+      "evidence": [
+        "out/android-emulator/ui011-before/results.json",
+        "out/android-emulator/ui011-after/results.json"
+      ],
+      "after": "All 11 checks pass. The Settings control rotates to landscape; QShopper remains 1440x3120, rotation 0, with auto-rotate enabled and sensor-driven rotation attempts. Draft text, IME/drawer state, process, saved order and checked flags are preserved."
+    },
+    "existing_tests": "Update the UI-010 popup matrix from true landscape to a rotated-device request while the phone app remains portrait. The earlier UI-010 landscape results remain valid historical evidence for that earlier build.",
+    "platform_limit": "The manifest request is verified on the API 36 phone emulator (sw411dp). Large-screen overrides (sw600dp or larger), multi-window behavior and OEM/user overrides are not universally prevented by a manifest orientation request.",
+    "sources": [
+      "https://developer.android.com/guide/topics/manifest/activity-element#screen",
+      "https://developer.android.com/about/versions/16/behavior-changes-16#large-screens",
+      "https://doc.qt.io/qt-6.12/android-getting-started.html"
+    ],
+    "remaining": "None for UI-011. The user waived physical-phone testing and accepted automated verification. Android large-screen/windowing/user overrides remain documented platform limits.",
+    "verification": [
+      "Windows configure/build and all three CTest entries pass: 85 UI, 6 keyboard and 52 model records. Log: out/windows-agent/tests/ui011-verify.txt.",
+      "Native portrait/state regression: 11 checks pass in out/android-emulator/ui011-after/results.json.",
+      "Updated native selector regression with rotated-device request: 18 checks pass in out/android-emulator/ui011-popups-after/results.json.",
+      "x86_64 and ARM64 APKs rebuilt. ARM64 APK signature verified with shared-key SHA-256 7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b."
+    ],
+    "phone_validation": "Waived by the user on 2026-10-29: \"no need to test on phone. Commit the change\". No physical-device installation or verification was performed."
+  },
+  "resolved": "2026-10-29",
+  "acceptance_notes": "The physical-phone acceptance check was explicitly waived by the user. Automated sensor-driven before/after regression coverage and updated popup checks pass; platform-specific limits are documented."
 }

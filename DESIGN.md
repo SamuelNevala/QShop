@@ -6,6 +6,11 @@ touch targets, and a list that follows the shopper's route.
 
 Use this document as a reference when changing the app's behavior or appearance.
 
+The Android phone app is portrait-only. Keep shopping, editing, keyboard entry
+and drawer interactions in portrait when the phone rotates. Android platform
+overrides on large displays are documented in ANDROID.md; portrait-only use is
+the product intent, rather than a request to redesign the landscape interface.
+
 ## One-handed use and deliberate gestures
 
 Small buttons and checkboxes are easy to hit by mistake when using a phone with
