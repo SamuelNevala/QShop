@@ -23,6 +23,9 @@ it makes the actual code easier to understand and maintain. Fewer lines alone do
 not make a design simpler; preserve necessary safety, error handling, and product
 behavior. The full code review and coding-guide task is tracked as DEV-006.
 
+Use braces for every `if` body in QML/JavaScript and C++, including single-line
+bodies. Apply this to new or edited code; keep broad formatting in DEV-002/DEV-003.
+
 ## Backlog
 
 Use [BACKLOG.md](BACKLOG.md) to collect bugs and missing features, with linked reports in `tickets/`.

@@ -6,6 +6,11 @@
 #include <QTemporaryDir>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QGuiApplication>
+#include <QInputDevice>
+#include <QPointingDevice>
+#include <QTouchEvent>
+#include <QWindow>
 #include "model.h"
 
 class UiSetup : public QObject
@@ -13,6 +18,25 @@ class UiSetup : public QObject
     Q_OBJECT
     QTemporaryDir settingsDirectory;
 public:
+    Q_INVOKABLE bool cancelTouch()
+    {
+        auto *window = QGuiApplication::focusWindow();
+        if (!window) {
+            return false;
+        }
+        bool sent = false;
+        for (const auto *input : QInputDevice::devices()) {
+            if (input->type() != QInputDevice::DeviceType::TouchScreen) {
+                continue;
+            }
+            const auto *device = qobject_cast<const QPointingDevice *>(input);
+            QTouchEvent cancel(QEvent::TouchCancel, device);
+            QCoreApplication::sendEvent(window, &cancel);
+            sent = true;
+        }
+        return sent;
+    }
+
     Q_INVOKABLE QVariant savedSetting(const QString &key) const
     {
         QSettings settings;

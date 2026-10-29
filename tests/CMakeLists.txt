@@ -10,7 +10,7 @@ target_compile_definitions(qshopper_ui_tests PRIVATE
     QSHOPPER_EXPECT_PREVIEW=$<AND:$<NOT:$<BOOL:${ANDROID}>>,$<CONFIG:Debug>>)
 add_test(NAME qshopper_ui_tests COMMAND qshopper_ui_tests
     -import ${CMAKE_BINARY_DIR} -platform offscreen -o -,txt -o ui-tests.xml,junitxml)
-set_tests_properties(qshopper_ui_tests PROPERTIES TIMEOUT 90
+set_tests_properties(qshopper_ui_tests PROPERTIES TIMEOUT 120
     ENVIRONMENT "QT_QUICK_BACKEND=software;QT_FORCE_STDERR_LOGGING=1")
 if(WIN32)
     set_tests_properties(qshopper_ui_tests PROPERTIES ENVIRONMENT_MODIFICATION

@@ -20,7 +20,14 @@ DragHandler {
     yAxis { enabled: false }
 
     onGrabChanged: (transition, point) => {
-        if (transition !== PointerDevice.UngrabExclusive) {
+        if (transition !== PointerDevice.UngrabExclusive
+                && transition !== PointerDevice.CancelGrabExclusive) {
+            return;
+        }
+
+        // TouchCancel can ungrab without a release; it must only return the row.
+        if (transition === PointerDevice.CancelGrabExclusive || point.state !== EventPoint.Released) {
+            swipe(SwipeHandler.Direction.None);
             return;
         }
 

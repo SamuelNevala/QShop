@@ -1,4 +1,4 @@
-"""UI-006 native edge Back gestures with Gboard and isolated emulator data."""
+"""UI-006/UI-007 native Back gestures and recovery with isolated emulator data."""
 
 import argparse
 from contextlib import closing
@@ -23,10 +23,23 @@ def main():
     parser.add_argument("--serial", default="emulator-5580")
     parser.add_argument("--output", type=Path, default=Path("out/android-back"))
     parser.add_argument("--check-cancellation", action="store_true",
-                        help="Also reproduce the unresolved UI-007 cancellation/next-swipe bug")
+                        help="Also check UI-007 cancellation and immediate interaction recovery")
+    parser.add_argument("--matrix", action="store_true",
+                        help="Check both edges, keyboard states, and pre-held/completed gestures")
+    parser.add_argument("--gesture-jar", type=Path,
+                        help="Compiled BackGesture test helper; required for cancellation checks")
+    parser.add_argument("--edge", choices=("left", "right"), default="left")
+    parser.add_argument("--hold-start", type=int, default=0,
+                        help="Initial hold in ms; keep below Android's Back long-press timeout")
+    parser.add_argument("--with-keyboard", action="store_true")
+    parser.add_argument("--complete-gesture", action="store_true")
     args = parser.parse_args()
+    if args.matrix:
+        args.check_cancellation = True
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator serial is allowed")
+    if args.check_cancellation and (args.gesture_jar is None or not args.gesture_jar.is_file()):
+        parser.error("--check-cancellation requires a compiled --gesture-jar")
     args.output.mkdir(parents=True, exist_ok=True)
 
     def adb(*command):
@@ -92,7 +105,9 @@ def main():
 
     def back():
         # A real system edge gesture, not KEYCODE_BACK.
-        shell("input", "swipe", 1, screen_height // 3, screen_width // 3, screen_height // 3, 250)
+        start = 1 if args.edge == "left" else screen_width - 4
+        end = screen_width // 3 if args.edge == "left" else screen_width * 2 // 3
+        shell("input", "swipe", start, screen_height // 3, end, screen_height // 3, 250)
         time.sleep(0.5)
 
     def enter_edit(ui):
@@ -109,6 +124,20 @@ def main():
         with closing(sqlite3.connect(snapshot)) as db:
             return db.execute(f'SELECT name, checked FROM "{TABLE}" ORDER BY rowid').fetchall()
 
+    def reorder_pair(ui, prefix):
+        for restore in (False, True):
+            candidates = [rect for rect in rows(ui) if list(rect) != bounds(editor(ui))]
+            source, destination = (candidates[-1], candidates[0]) if restore else (candidates[0], candidates[-1])
+            x = (source[0] + source[2]) // 2
+            y = (source[1] + source[3]) // 2
+            end_y = (destination[1] + destination[3]) // 2
+            adb("shell", f"CLASSPATH={gesture_path} app_process /system/bin BackGesture "
+                f"{x} {x} {y} false 1000 {end_y}")
+            ui = tree()
+            expected = [("milk", 0), ("bread", 0)] if restore else [("bread", 0), ("milk", 0)]
+            check(prefix + ("_restore" if restore else ""), saved_items() == expected, ui)
+        return ui
+
     with tempfile.TemporaryDirectory(prefix="qshopper-back-") as temporary:
         fixture = Path(temporary) / "fixture.sqlite"
         with closing(sqlite3.connect(fixture)) as db:
@@ -121,6 +150,9 @@ def main():
             db.commit()
         staging = "/data/local/tmp/qshopper-back-" + uuid.uuid4().hex + ".sqlite"
         adb("push", fixture, staging)
+        gesture_path = staging + ".jar"
+        if args.check_cancellation:
+            adb("push", args.gesture_jar, gesture_path)
         shell("am", "force-stop", PACKAGE)
         shell("run-as", PACKAGE, "mkdir", "-p", data)
         shell("run-as", PACKAGE, "cp", staging, data + "/shop_list.sqlite")
@@ -159,24 +191,62 @@ def main():
             check("drawer_back_preserves_edit", foreground() and editor(ui) is not None
                   and not any(n.attrib.get("content-desc") == "Dark" for n in ui.iter("node")), ui)
             if args.check_cancellation:
-                y = (rows(ui)[1][1] + rows(ui)[1][3]) // 2
-                # Return to the edge while held to cancel the predictive Back gesture.
-                adb("shell", f"input motionevent DOWN 1 {y}; input motionevent MOVE 400 {y}; "
-                    f"sleep 1; input motionevent MOVE 1 {y}; input motionevent UP 1 {y}")
-                ui = wait_ui(lambda current: editor(current) is not None and len(rows(current)) == 3)
-                check("cancelled_edge_gesture_preserves_edit", foreground() and editor(ui) is not None
-                      and len(rows(ui)) == 3 and saved_items() == [("milk", 0), ("bread", 0)], ui)
-                # A stuck long press disables swiping: exercise the same row after cancellation.
-                for checked in (True, False):
+                ui = reorder_pair(ui, "reorder_control")
+                scenarios = [(args.edge, args.hold_start, args.with_keyboard, not args.complete_gesture)]
+                if args.matrix:
+                    # Android rejects Back if the initial hold exceeds its ~250 ms timeout.
+                    # Hold for a full second after recognition instead, to expose stale timers.
+                    scenarios = [(edge, hold, ime, True) for edge in ("left", "right")
+                                 for hold in (0, 150) for ime in (False, True)]
+                    scenarios += [(edge, 150, ime, False) for edge in ("left", "right")
+                                  for ime in (False, True)]
+                for edge, hold, ime, cancel in scenarios:
+                    prefix = f"{edge}_hold{hold}_ime{int(ime)}_{'cancel' if cancel else 'complete'}_"
+                    if ime and not keyboard():
+                        left, top, right, bottom = bounds(editor(ui))
+                        shell("input", "tap", (left + right) // 2, (top + bottom) // 2)
+                        ui = wait_ui(lambda current: keyboard())
+                        assert keyboard(), "Keyboard did not open for gesture scenario"
+                    elif not ime and keyboard():
+                        back()
+                        ui = wait_ui(lambda current: not keyboard())
+                        assert not keyboard() and editor(ui) is not None
                     candidates = [rect for rect in rows(ui) if list(rect) != bounds(editor(ui))]
-                    left, top, right, bottom = candidates[-1] if not checked else candidates[0]
-                    y = (top + bottom) // 2
-                    shell("input", "swipe", left + int((right - left) * 0.85), y,
-                          left + int((right - left) * 0.15), y, 70)
-                    time.sleep(0.7)
+                    y = (candidates[0][1] + candidates[0][3]) // 2
+                    start = 1 if edge == "left" else screen_width - 4
+                    outward = screen_width // 3 if edge == "left" else screen_width * 2 // 3
+                    # One continuous pointer stream, including the return/cancel path.
+                    adb("shell", f"CLASSPATH={gesture_path} app_process /system/bin BackGesture "
+                        f"{start} {outward} {y} {str(cancel).lower()} {hold}")
                     ui = tree()
-                    expected = [("bread", 0), ("milk", 1)] if checked else [("milk", 0), ("bread", 0)]
-                    check("swipe_after_cancel" if checked else "correction_after_cancel", saved_items() == expected, ui)
+                    if cancel:
+                        text_rows = [node for node in ui.iter("node") if node.attrib.get(
+                            "resource-id", "").rsplit(".", 1)[-1].startswith("TextDelegate_")]
+                        healthy = len(text_rows) == 2 and all(".DelegateChoser_" in node.attrib.get(
+                            "resource-id", "") for node in text_rows)
+                        check(prefix + "state", foreground() and editor(ui) is not None and healthy
+                              and keyboard() == ime and saved_items() == [("milk", 0), ("bread", 0)], ui)
+                    else:
+                        check(prefix + "state", foreground() and (editor(ui) is not None) == ime
+                              and not keyboard() and saved_items() == [("milk", 0), ("bread", 0)], ui)
+                        if editor(ui) is None:
+                            ui = enter_edit(ui)
+                    # The very first new interaction is a deliberate long-press reorder.
+                    ui = reorder_pair(ui, prefix + "reorder")
+                    for checked in (True, False):
+                        candidates = [rect for rect in rows(ui) if list(rect) != bounds(editor(ui))]
+                        left, top, right, bottom = candidates[-1] if not checked else candidates[0]
+                        y = (top + bottom) // 2
+                        shell("input", "swipe", left + int((right - left) * 0.85), y,
+                              left + int((right - left) * 0.15), y, 70)
+                        time.sleep(0.7)
+                        ui = tree()
+                        expected = [("bread", 0), ("milk", 1)] if checked else [("milk", 0), ("bread", 0)]
+                        check(prefix + ("swipe" if checked else "correction"), saved_items() == expected, ui)
+            if keyboard():
+                back()
+                ui = wait_ui(lambda current: not keyboard())
+                assert editor(ui) is not None, "Keyboard Back also left edit mode"
             back()
             ui = wait_ui(lambda current: editor(current) is None)
             check("back_leaves_edit_after_drawer", foreground() and editor(ui) is None and len(rows(ui)) == 2, ui)
@@ -184,6 +254,8 @@ def main():
         finally:
             shell("am", "force-stop", PACKAGE)
             shell("rm", staging)
+            if args.check_cancellation:
+                shell("rm", gesture_path)
 
 
 if __name__ == "__main__":

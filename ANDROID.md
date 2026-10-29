@@ -144,11 +144,40 @@ backgrounding, unchanged process ID after return, and saved list order/state.
 It saves screenshots, UI XML, SQLite and results under the output directory, and
 stops the test app afterward. It never installs an APK or touches a physical phone.
 
-UI-007 remains separate. Its additional cancellation/next-swipe probe is opt-in:
+## Back gesture cancellation (UI-007)
+
+UI-007 covers cancelled touches and immediate interaction recovery. Compile its
+test-only continuous-touch injector, then run the matrix against the installed
+emulator APK:
 
 ```powershell
-python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --check-cancellation --output out/android-emulator/ui007-cancel-before
+./tools/build-android-gesture-test.ps1
+python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --matrix --gesture-jar out/android-emulator/back-gesture/gesture.jar --output out/android-emulator/ui007-matrix-after
 ```
 
-A failure there is evidence for UI-007, not a passing cancellation claim for
-UI-006. The user requested keeping that full fix as the next ticket.
+The helper requires JDK 21, Android SDK platform 36 and build-tools 36.0.0;
+`-JavaHome` and `-SdkRoot` override the script defaults. It runs under the emulator
+shell and is not packaged with QShopper. Unlike separate `input motionevent`
+calls, it preserves one pointer and one downTime for the whole gesture.
+
+The matrix covers both screen edges, keyboard open/closed, cancelled gestures
+with 0 or 150 ms initial holds, and completed gestures with a 150 ms initial
+hold. Each holds for a full second after Back recognition to expose a leaked
+long-press timer. Android rejects a Back gesture when the initial stationary
+hold exceeds its roughly 250 ms recognition timeout; such a hold is an app long
+press rather than a Back cancellation test.
+
+Checks cover row parenting, unchanged saved items, Back priority, and immediate
+long-press reordering followed by checking/correction after every gesture. A
+reorder/restore control precedes the matrix. Screenshots, accessibility XML,
+SQLite and results are saved under the output directory. The default command
+without `--matrix` still runs the seven UI-006 checks without needing the helper.
+
+The continuous-touch reproduction failed before the fix: a row was orphaned
+and the next checking swipe deleted it. Preventing only the late long-press
+callback kept the row visible but still broke the next reorder. The final fix
+replaces only a cancelled, still-pressed tap recognizer and rejects cancelled
+swipes as actions. All 69 checks in the final matrix passed on 2026-10-29.
+The Android 16/API 36 matrix is automated coverage. On 2026-10-29 the user also
+confirmed that the fix works on the affected Pixel 10 Pro XL running Android 17.
+This phone confirmation does not imply an exhaustive physical-device matrix.

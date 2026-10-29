@@ -1,8 +1,8 @@
 # QShopper backlog
 
 Started: 2026-10-28. QShopper is near feature complete. Backlog gathering and
-prioritization are recorded below. UI-004 is resolved. The user selected UI-006
-for implementation; remaining tickets stay deferred until selected.
+prioritization are recorded below. UI-004 and UI-007 are resolved. UI-006 is
+implemented pending phone confirmation; remaining tickets stay deferred until selected.
 
 Use [DESIGN.md](DESIGN.md) when deciding what counts as correct behavior. Keep
 intentional gestures, text fitting, animation, and list ordering intact.
@@ -41,7 +41,7 @@ test. This recommendation does not itself authorize starting implementation.
 | Order | Tickets | Reason and approach |
 | --- | --- | --- |
 | 1 | [UI-004](tickets/UI-004.json) — right-swipe selection/deletion | Resolved: regression tests pass; user confirmed half-width behavior and comfortable phone feel at 150% sensitivity |
-| 2 | [UI-007](tickets/UI-007.json) — Back/long-press leak | Held-row cleanup reproduced and fixed while implementing UI-006; original physical-phone edge timing remains open |
+| 2 | [UI-007](tickets/UI-007.json) — Back/long-press leak | Resolved: QML and native Android regressions pass; user confirmed the fix works on the affected phone |
 | 3 | [UI-006](tickets/UI-006.json) — Back navigation | Implemented and covered by Windows and native Android tests; pending phone confirmation. User chose existing discard/restore behavior for unfinished edits |
 | 4 | [UI-010](tickets/UI-010.json) — unreachable ComboBox options | Restore access to all choices; test actual safe-area bounds and endpoint selection |
 | 5 | [UI-009](tickets/UI-009.json) — reset ordering | Protect list reuse and persisted order. Reproduce the exact example first because a simple source trace already appears to meet it; avoid a speculative rewrite |
@@ -83,7 +83,6 @@ regressions remain easy to trace.
 | [UI-010](tickets/UI-010.json) | Long ComboBox option lists, such as colors, ignore the safe area and make the first and last options unreachable | User-observed; independent reproduction pending; distinct from UI-005's color mismatch | Major, per user |
 | [UI-009](tickets/UI-009.json) | Reset checks should retain the selection-derived order for reuse: initial 1,2,3; check 3,1,2; reset to 2,1,3 | User-reported; exact failure/order and persistence need reproduction; simple source trace appears to meet the example | Major, per user |
 | [UI-008](tickets/UI-008.json) | Empty-area background rectangle appears inappropriately while scrolling lists of roughly 35+ items | User-observed; independent reproduction pending; preserve the intentional short/long-list background continuity | Major, per user |
-| [UI-007](tickets/UI-007.json) | Android Back gesture leaks a long press in edit mode, leaving an item stuck in move mode until manually dropped | Related held-row Back cleanup reproduced and fixed with regression coverage; original physical-phone timing remains open | Major, per user |
 | [UI-005](tickets/UI-005.json) | Safe-area border and swipeable background do not match or consistently follow the theme | User-reported on current phone build; reproduction pending | Minor, per user |
 | [UI-001](tickets/UI-001.json) | Lists selector is blank on a fresh installation | Observed on Windows on 2026-10-03; deferred; current build needs recheck | Unassigned |
 | UI-003 | Shopping text permits eight lines despite the intended two-line presentation | Source/design discrepancy; visible failure not established | Unassigned |
@@ -139,9 +138,11 @@ the real Android Back gesture and keyboard. The user chose the existing mode-exi
 policy: hide preserves the draft, leaving edit discards it and restores an original
 item if an unfinished edit is cancelled.
 
-Related major bug: [UI-007](tickets/UI-007.json). Back can leak a long press into
-the list and leave an item stuck in move mode. Handling Back navigation alone
-does not establish that pointer cancellation and drag cleanup are correct.
+Related major bug: [UI-007](tickets/UI-007.json). Its separate cancellation fix
+prevents a stale long-press timer and unintended swipe actions after system
+takeover. Tests also verify that the first subsequent reorder and swipe work.
+The user confirmed UI-007 works on the affected phone. UI-006's full four-step
+priority still awaits explicit phone confirmation.
 
 ## Release preparation
 
@@ -243,6 +244,7 @@ emulator evidence exists. Physical-phone behavior remains a separate check.
 | Reference | Finding | Resolution/evidence |
 | --- | --- | --- |
 | [UI-004](tickets/UI-004.json) | Right-swipe selection/deletion and excessive swipe resistance | Absolute-distance fix and gravity tuning; before/after regressions pass. User confirmed half-width behavior and phone feel at 150% sensitivity on 2026-10-29 |
+| [UI-007](tickets/UI-007.json) | Back cancellation leaks a long press and breaks the next item interaction | Reset the stale cancelled tap recognizer and reject cancelled swipe actions. Before/after QML and native Android tests pass; user confirmed the fix works on the phone on 2026-10-29 |
 | [UI-002](tickets/UI-002.json) | Null-dimensions error during component startup | Theme migration removed the delayed Dimensions dependency; regression coverage exists |
 | [Keyboard resize](ANDROID.md#keyboard-resize-verification) | Keyboard covered the end of a long list | Explicit Android `adjustResize`; emulator scrolling and ten hide/show cycles passed, with no near-black frames in the recorded test. Physical-phone verification belongs to QA-001 |
 | APK signing, 2026-10-28 | Phone refused the update because the signing certificate differed | Original shared debug key matched the installed certificate; rebuilt APK verified, and user confirmed the update installed. `build-android.ps1 -DebugKeystore ../debug.keystore` preserves that signing choice |
@@ -253,6 +255,7 @@ More user-reported bugs are expected. Add them as they are described; do not
 invent symptoms for the unspecified reports. A rough description is enough to
 start a ticket, with reproduction details added later.
 
-The suggested order above remains the execution plan. UI-004 and UI-006 were
-selected separately after prioritization. UI-007 remains the next ticket, as the
-user explicitly requested after its cancellation probe reproduced a failure.
+The suggested order above remains the execution plan. UI-004, UI-006 and UI-007
+were selected separately after prioritization. UI-007 is resolved with
+regression coverage and phone confirmation; UI-010 is next in the
+suggested order unless the user chooses otherwise.

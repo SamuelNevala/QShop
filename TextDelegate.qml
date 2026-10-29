@@ -36,33 +36,51 @@ Delegate {
         yAxis { minimum: 0; maximum: root.dragParent.height; enabled: tapHandler.longPressActive }
     }
 
-    TapHandler {
+    Loader {
         id: tapHandler
-
         property bool longPressActive: false
 
-        enabled: root.editMode
-        exclusiveSignals: TapHandler.SingleTap | TapHandler.DoubleTap
-        target: root
+        function resetRecognizer() {
+            const handler = item as TapHandler
+            if (handler) {
+                handler.enabled = false
+            }
+            active = false
+            active = true
+        }
 
-        onDoubleTapped: root.doubleTapped()
-        onEnabledChanged: {
-            if (!enabled)
-                longPressActive = false
-        }
-        onGrabChanged: (transition, point) => {
-            root.pressed()
-            if (transition === PointerDevice.UngrabPassive) {
-                longPressActive = false
+        sourceComponent: TapHandler {
+            parent: root
+            enabled: root.editMode
+            exclusiveSignals: TapHandler.SingleTap | TapHandler.DoubleTap
+            target: root
+
+            onDoubleTapped: root.doubleTapped()
+            onEnabledChanged: {
+                if (!enabled) {
+                    tapHandler.longPressActive = false
+                }
             }
-        }
-        onLongPressed: {
-            if (root.checked) {
-                return
+            onGrabChanged: (transition, point) => {
+                root.pressed()
+                if (transition === PointerDevice.UngrabPassive
+                        || transition === PointerDevice.CancelGrabPassive) {
+                    tapHandler.longPressActive = false
+                    // Qt 6.12 can ungrab a cancelled touch but leave its hold timer pressed.
+                    // Replace only that stale recognizer, after this event finishes.
+                    if (pressed && point.state !== EventPoint.Released) {
+                        Qt.callLater(tapHandler.resetRecognizer)
+                    }
+                }
             }
-            longPressActive = true
+            onLongPressed: {
+                if (!enabled || root.checked || point.id < 0) {
+                    return
+                }
+                tapHandler.longPressActive = true
+            }
+            onSingleTapped: root.singleTapped()
         }
-        onSingleTapped: root.singleTapped()
     }
 
     Drag.active: swipeHandler.active || dragHandler.active

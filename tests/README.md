@@ -407,9 +407,48 @@ the same PID after return, and unchanged saved names/order/checked state. These
 are actual screen-edge gestures, not emitted QML signals or KEYCODE_BACK.
 See ANDROID.md for prerequisites and the Qt 6.12 backgrounding dependency.
 
-UI-007 remains the next ticket at the user's explicit request. Its separate
-`--check-cancellation` probe also tests a swipe/correction after cancellation;
-counting visible rows alone previously missed an orphaned delegate. The probe
-and its captured failure under `out/android-emulator/ui007-cancel-before` are
-retained for that work; a passing UI-006 run does not certify cancellation
-recovery or the complete Android 17 phone gesture matrix.
+## UI-007 cancelled touches and Back recovery
+
+`qml/tst_cancel.qml` delivers a real `QTouchEvent::TouchCancel` through the test
+setup helper, before any synthetic release can mask the failure. Seven cases
+cover cancellation before/after long press, during reorder, and during left/right
+swipes in edit/shopping modes. They check restored parenting and position, no
+late long press or swipe action, an unpressed recognizer, and working subsequent
+long press and swipe. These run in the normal CTest UI suite.
+
+Before the fix, the early cancellation left Qt's tap recognizer pressed and its
+timer later activated drag with an invalid point. Cancelled swipes could also
+commit an action. Guards alone avoided the orphan but failed immediate native
+reordering; the pressed-state assertion detects that incomplete fix.
+
+All nine records in this file pass offscreen and with native Windows rendering.
+Normal verification passes 77 UI, 6 keyboard and 52 model records across all
+three CTest entries. Reports include `ui007-before.xml`,
+`ui007-recognizer-before.xml`, `ui007-after.xml`, `ui007-windows.xml` and the normal
+suite reports under `out/windows-agent/tests`.
+
+Native Android tests use a test-only Java injector with one continuous pointer
+and downTime. The first post-cancellation interaction is a real long-press
+reorder/restore; a checking swipe and its correction follow. This avoids counting
+an apparently restored row as recovered while its next interaction is broken.
+Use the English API 36 emulator with Gboard and gesture navigation:
+
+```powershell
+./tools/build-android-gesture-test.ps1
+python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --matrix --gesture-jar out/android-emulator/back-gesture/gesture.jar --output out/android-emulator/ui007-matrix-after
+```
+
+The matrix checks both edges, keyboard states, completion/cancellation and early
+holds, with a one-second hold after system takeover. See ANDROID.md for SDK/JDK
+requirements and the Back recognition timing constraint. Before evidence is in
+`out/android-emulator/ui007-continuous-before`; the incomplete-guard recovery
+failure is in `ui007-control-after`. Final results are in `ui007-matrix-after`.
+All 69 matrix checks passed on 2026-10-29. The user also confirmed that the fix
+works on the affected Android 17 phone. A follow-up explicit `TapHandler` cast
+for `Loader.item` removes the analyser's `enabled` missing-property warning;
+`qmllint -I out/windows-agent TextDelegate.qml` is clean. Before/after lint output
+is saved in `ui007-lint-before.txt` and `ui007-lint-after.txt` in the Windows test
+directory.
+After the cast and brace changes, the Windows build and all three CTest entries
+passed again; see `ui007-followup-verify.txt`. The signed ARM64 APK was rebuilt
+and its shared-key signature verified.
