@@ -1,13 +1,13 @@
 {
   "id": "UI-006",
   "title": "Android Back gesture should close the current UI layer before backgrounding the app",
-  "status": "requested",
+  "status": "implemented_pending_phone_validation",
   "type": "feature",
-  "priority": "unassigned",
+  "priority": "3",
   "created": "2026-10-28",
   "environment": "Android; user described the system Back swipe from the screen edge/corner.",
   "reported_by": "user",
-  "actual": "The user reports this state-dependent Back behavior as a missing feature. Current behavior in each state has not been independently recorded.",
+  "actual": "Before implementation, native Back hid Gboard, but the subsequent gesture backgrounded the app while editing instead of first switching to shopping mode. Desktop Back tests also reproduced missing drawer/mode routing.",
   "expected": "Handle each completed Android Back gesture using the first matching rule below. Perform one action per gesture, then evaluate the new state on the next gesture.",
   "ordered_rules": [
     {
@@ -40,11 +40,23 @@
     "Returning to the app retains saved shopping data; backgrounding is not implemented as an explicit app termination.",
     "Verify with the native Android Back gesture and real virtual keyboard, since desktop/offscreen key events alone do not establish system gesture behavior."
   ],
-  "relevant_files": ["main.qml", "View.qml", "ShopView.qml", "InputDelegate.qml", "main.cpp", "android/AndroidManifest.xml"],
+  "relevant_files": ["View.qml", "TextDelegate.qml", "tests/qml/tst_back.qml", "tests/keyboard/tst_keyboard.qml", "tests/android/test_back.py"],
   "related_tickets": ["UI-007"],
-  "open_questions": [
-    "When leaving edit mode, confirm the desired treatment of any unsubmitted editor text or pending item edit before implementation."
-  ],
+  "open_questions": [],
+  "draft_policy": "User selected option 1 on 2026-10-29: keep the existing mode-exit behavior. Hiding the keyboard preserves the draft. Leaving edit mode discards unsubmitted text and restores the original item when cancelling an unfinished item edit.",
+  "implementation": {
+    "date": "2026-10-29",
+    "change": "Add Android-only Back shortcuts in the view and the modal drawer. The drawer owns its shortcut because it blocks shortcuts behind it. The view shortcut hides the keyboard or leaves edit mode, is disabled while the drawer is visible, and is disabled in shopping mode. Both disable auto-repeat so a held key cannot cascade through layers.",
+    "backgrounding": "The validated Qt 6.12 Android platform backgrounds an unhandled Back request with Activity.moveTaskToBack; no quit, close-event interception, Java subclass or JNI bridge is added. Older Qt 6.10/6.11 background behavior is not certified by this verification.",
+    "related_cleanup": "Back during a long press reproduced a row remaining in drag state after leaving edit mode. TextDelegate now clears longPressActive when TapHandler is disabled. An unconditional onCanceled reset is deliberately avoided because a normal reorder also transfers the pointer grab. The deliberate-reordering control passes. Full UI-007 edge cancellation remains the next ticket, as requested by the user.",
+    "before": "All four initial QML Back cases failed; the keyboard-only new Back case failed while its existing controls passed. The native Android baseline passed keyboard hiding but failed leaving edit mode because it backgrounded the app. After adding routing, the held-row regression still failed until disabled-handler cleanup was added.",
+    "windows_after": "Windows configure/build and all three CTest entries pass: 68 UI records, 6 keyboard records and 52 model records. Native Windows rendering passes all 8 records in the Back file, including the deliberate-reordering control. Desktop tests change only the Android platform gate to send real Qt.Key_Back events; they do not establish native Android gesture behavior.",
+    "android_after": "All seven UI-006 checks pass on the final x86_64 APK with Android 16, Gboard and gesture navigation. Tests use native edge swipes and verify keyboard/editor/drawer priority, live-process backgrounding, the same PID after return and unchanged saved list state. The separate optional UI-007 cancellation probe is excluded from this passing claim.",
+    "phone_apk": "Final ARM64 debug APK built with the shared debug key and signature verified. No physical-device installation performed.",
+    "android_command": "python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui006-after",
+    "artifacts": ["out/windows-agent/tests/ui006-before.xml", "out/windows-agent/tests/ui006-keyboard-before.xml", "out/windows-agent/tests/ui006-drag-before.xml", "out/windows-agent/tests/ui006-after.xml", "out/windows-agent/tests/ui006-windows.xml", "out/android-emulator/ui006-before/results.json", "out/android-emulator/ui006-after/results.json", "dist/QShopper-arm64-debug.apk"],
+    "remaining": "Verify the signed APK's four-step Back behavior on the affected Android 17 Pixel. No physical-device installation was performed."
+  },
   "evidence": "User-specified four-step Back priority in the QShopper development chat on 2026-10-28.",
   "github_repository": "SamuelNevala/QShop",
   "github_issue_url": null

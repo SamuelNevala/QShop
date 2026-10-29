@@ -34,6 +34,12 @@ fallback unchanged. The reference is not proof of the same feel on every device.
 
 ## Keep mistakes close enough to correct
 
+Android Back closes one layer per gesture: the drawer first, then the keyboard
+while editing, then edit mode. From shopping mode it backgrounds the app and
+keeps the list and process available for returning. Hiding the keyboard preserves
+the draft; leaving edit mode follows the existing policy of discarding unsubmitted
+text and restoring the original item when cancelling an unfinished edit.
+
 Accidental actions will still happen. The correction should require little
 movement and no search through the list.
 

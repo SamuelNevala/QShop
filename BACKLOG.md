@@ -1,8 +1,8 @@
 # QShopper backlog
 
 Started: 2026-10-28. QShopper is near feature complete. Backlog gathering and
-prioritization are recorded below. The user selected UI-004 for implementation;
-the remaining tickets stay deferred until selected.
+prioritization are recorded below. UI-004 is resolved. The user selected UI-006
+for implementation; remaining tickets stay deferred until selected.
 
 Use [DESIGN.md](DESIGN.md) when deciding what counts as correct behavior. Keep
 intentional gestures, text fitting, animation, and list ordering intact.
@@ -41,8 +41,8 @@ test. This recommendation does not itself authorize starting implementation.
 | Order | Tickets | Reason and approach |
 | --- | --- | --- |
 | 1 | [UI-004](tickets/UI-004.json) — right-swipe selection/deletion | Resolved: regression tests pass; user confirmed half-width behavior and comfortable phone feel at 150% sensitivity |
-| 2 | [UI-007](tickets/UI-007.json) — Back/long-press leak | Repair the stuck move state and cancellation handling in the same gesture area while the interaction tests are fresh; keep this a separate fix |
-| 3 | [UI-006](tickets/UI-006.json) — Back navigation | Build the requested navigation behavior on reliable gesture cleanup. Settle pending-text behavior before implementation |
+| 2 | [UI-007](tickets/UI-007.json) — Back/long-press leak | Held-row cleanup reproduced and fixed while implementing UI-006; original physical-phone edge timing remains open |
+| 3 | [UI-006](tickets/UI-006.json) — Back navigation | Implemented and covered by Windows and native Android tests; pending phone confirmation. User chose existing discard/restore behavior for unfinished edits |
 | 4 | [UI-010](tickets/UI-010.json) — unreachable ComboBox options | Restore access to all choices; test actual safe-area bounds and endpoint selection |
 | 5 | [UI-009](tickets/UI-009.json) — reset ordering | Protect list reuse and persisted order. Reproduce the exact example first because a simple source trace already appears to meet it; avoid a speculative rewrite |
 | 6 | [UI-008](tickets/UI-008.json), then [UI-001](tickets/UI-001.json) | Fix long-list rendering, then recheck/fix the fresh-install list selection. Retain their distinct visual and state regression tests |
@@ -83,7 +83,7 @@ regressions remain easy to trace.
 | [UI-010](tickets/UI-010.json) | Long ComboBox option lists, such as colors, ignore the safe area and make the first and last options unreachable | User-observed; independent reproduction pending; distinct from UI-005's color mismatch | Major, per user |
 | [UI-009](tickets/UI-009.json) | Reset checks should retain the selection-derived order for reuse: initial 1,2,3; check 3,1,2; reset to 2,1,3 | User-reported; exact failure/order and persistence need reproduction; simple source trace appears to meet the example | Major, per user |
 | [UI-008](tickets/UI-008.json) | Empty-area background rectangle appears inappropriately while scrolling lists of roughly 35+ items | User-observed; independent reproduction pending; preserve the intentional short/long-list background continuity | Major, per user |
-| [UI-007](tickets/UI-007.json) | Android Back gesture leaks a long press in edit mode, leaving an item stuck in move mode until manually dropped | User-observed; independent reproduction pending; related to UI-006 | Major, per user |
+| [UI-007](tickets/UI-007.json) | Android Back gesture leaks a long press in edit mode, leaving an item stuck in move mode until manually dropped | Related held-row Back cleanup reproduced and fixed with regression coverage; original physical-phone timing remains open | Major, per user |
 | [UI-005](tickets/UI-005.json) | Safe-area border and swipeable background do not match or consistently follow the theme | User-reported on current phone build; reproduction pending | Minor, per user |
 | [UI-001](tickets/UI-001.json) | Lists selector is blank on a fresh installation | Observed on Windows on 2026-10-03; deferred; current build needs recheck | Unassigned |
 | UI-003 | Shopping text permits eight lines despite the intended two-line presentation | Source/design discrepancy; visible failure not established | Unassigned |
@@ -123,8 +123,8 @@ remains UI-007. See the ticket for evidence.
 
 ### [UI-006 — Android Back gesture priority](tickets/UI-006.json)
 
-Requested by the user on 2026-10-28. Priority is unassigned. On each completed
-Android Back swipe, apply the first matching rule:
+Requested on 2026-10-28 and implemented on 2026-10-29; awaiting phone confirmation.
+On each completed Android Back swipe, apply the first matching rule:
 
 | Order | Current state | Action |
 | --- | --- | --- |
@@ -135,8 +135,9 @@ Android Back swipe, apply the first matching rule:
 
 One gesture performs one action; it must not fall through to the next rule.
 Backgrounding must not clear the list or explicitly quit the app. Validate with
-the real Android Back gesture and keyboard. Before implementation, clarify how
-unsubmitted editor text should be handled when leaving edit mode.
+the real Android Back gesture and keyboard. The user chose the existing mode-exit
+policy: hide preserves the draft, leaving edit discards it and restores an original
+item if an unfinished edit is cancelled.
 
 Related major bug: [UI-007](tickets/UI-007.json). Back can leak a long press into
 the list and leave an item stuck in move mode. Handling Back navigation alone
@@ -252,5 +253,6 @@ More user-reported bugs are expected. Add them as they are described; do not
 invent symptoms for the unspecified reports. A rough description is enough to
 start a ticket, with reproduction details added later.
 
-The suggested order above remains the execution plan. UI-004 implementation was
-authorized separately after prioritization; other tickets have not been started.
+The suggested order above remains the execution plan. UI-004 and UI-006 were
+selected separately after prioritization. UI-007 remains the next ticket, as the
+user explicitly requested after its cancellation probe reproduced a failure.

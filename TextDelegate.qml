@@ -46,6 +46,10 @@ Delegate {
         target: root
 
         onDoubleTapped: root.doubleTapped()
+        onEnabledChanged: {
+            if (!enabled)
+                longPressActive = false
+        }
         onGrabChanged: (transition, point) => {
             root.pressed()
             if (transition === PointerDevice.UngrabPassive) {

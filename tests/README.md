@@ -363,3 +363,53 @@ The timed calibration stroke allows for native event-delivery overhead while
 remaining below the former threshold. Reports use `ui004-default-*` under
 `out/windows-agent/tests` and `out/android-emulator/ui004-default-after`.
 The shared-key ARM64 APK was rebuilt and its signature verified.
+
+## UI-006 Android Back navigation
+
+Android-only `Back` shortcuts in View.qml handle one layer per gesture: close
+the modal drawer, hide the keyboard in edit mode, then leave edit mode. The view
+shortcut is disabled while the drawer owns input and in shopping mode. Qt 6.12
+then performs native task backgrounding. This uses `Back`, not the wider
+StandardKey.Back mapping, and both shortcuts disable auto-repeat.
+
+The user selected the existing mode-exit policy: hiding the keyboard keeps text;
+leaving edit mode discards the draft and restores the original item if an edit
+was unfinished. TextDelegate also clears its held-row state when its TapHandler
+is disabled by mode exit. It does not reset indiscriminately on pointer
+cancellation: an intentional reorder also transfers that grab.
+
+`qml/tst_back.qml` sends real Qt.Key_Back events while replacing only the Android
+platform gate for desktop tests. It checks drawer priority, focus-independent
+mode exit, discarded drafts, pending-edit restoration, shopping-mode fallthrough,
+Back during a held row, and a deliberate-reordering control. The extra keyboard
+case in `keyboard/tst_keyboard.qml` uses the real plugin and verifies that the
+first Back hides only the keyboard and the second leaves edit mode.
+
+Before the feature, all four initial Back cases and the new keyboard case failed.
+The held-row test then reproduced a stuck drag after mode exit; it passes with
+disabled-handler cleanup. Final normal Windows CTest passes 68 UI records,
+6 keyboard records and 52 model records. Native Windows rendering passes all
+8 records in the Back file. Reports under `out/windows-agent/tests` include
+`ui006-before.xml`, `ui006-keyboard-before.xml`, `ui006-drag-before.xml`,
+`ui006-after.xml`, `ui006-windows.xml` and the normal suite reports.
+
+Native Android coverage uses the English Android 16 QShopper_API_36 emulator,
+Gboard, gesture navigation and a fresh QSHOPPER_DATA_DIR:
+
+```powershell
+python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui006-after
+```
+
+The baseline APK hid Gboard but failed the next step by backgrounding from edit
+mode. All seven UI-006 checks pass on the final APK. The flow checks
+drawer/keyboard/mode priority, native backgrounding,
+the same PID after return, and unchanged saved names/order/checked state. These
+are actual screen-edge gestures, not emitted QML signals or KEYCODE_BACK.
+See ANDROID.md for prerequisites and the Qt 6.12 backgrounding dependency.
+
+UI-007 remains the next ticket at the user's explicit request. Its separate
+`--check-cancellation` probe also tests a swipe/correction after cancellation;
+counting visible rows alone previously missed an orphaned delegate. The probe
+and its captured failure under `out/android-emulator/ui007-cancel-before` are
+retained for that work; a passing UI-006 run does not certify cancellation
+recovery or the complete Android 17 phone gesture matrix.

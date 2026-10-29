@@ -115,3 +115,40 @@ Verified on 2026-10-27 with Qt 6.12.0, Android 16, Gboard, and host GPU renderin
 Artifacts are `out/android-emulator/resize-transitions.mp4`, `resize-cycles.json`,
 `resize-frame-analysis.json`, and `resize-final.png`. The rebuilt emulator APK is
 `dist/QShopper-x86_64-debug.apk`. The updated app remains running on the emulator.
+
+## Android Back navigation (UI-006)
+
+The view and drawer handle Back using Android-only window shortcuts. The drawer
+owns a separate shortcut because its modal popup blocks the view's shortcut.
+Each gesture closes the drawer, hides the keyboard while editing, or leaves edit
+mode, in that priority. In shopping mode both shortcuts are disabled: the validated
+Qt 6.12 Android platform backgrounds the task and keeps its process alive.
+`Window.onClosing` is not used. This backgrounding behavior is documented in
+[Qt's Android platform notes](https://doc.qt.io/qt-6/android-platform-notes.html#back-key-and-back-gesture).
+Older Qt 6.10/6.11 background behavior has not been certified by these tests.
+
+Hiding the keyboard keeps the draft. Leaving edit mode uses the existing policy
+selected by the user: discard unsubmitted text and restore an original item if
+its replacement was unfinished.
+
+With the x86_64 debug APK installed on the unlocked English QShopper_API_36
+emulator, Gboard enabled and gesture navigation selected, run:
+
+```powershell
+python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui006-after
+```
+
+The script permits only an emulator, seeds a unique QSHOPPER_DATA_DIR and drives
+native screen-edge swipes. It checks keyboard/editor/drawer priority, task
+backgrounding, unchanged process ID after return, and saved list order/state.
+It saves screenshots, UI XML, SQLite and results under the output directory, and
+stops the test app afterward. It never installs an APK or touches a physical phone.
+
+UI-007 remains separate. Its additional cancellation/next-swipe probe is opt-in:
+
+```powershell
+python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --check-cancellation --output out/android-emulator/ui007-cancel-before
+```
+
+A failure there is evidence for UI-007, not a passing cancellation claim for
+UI-006. The user requested keeping that full fix as the next ticket.

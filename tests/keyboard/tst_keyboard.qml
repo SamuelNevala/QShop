@@ -154,5 +154,23 @@ Item {
             mouseClick(editor(), editor().width / 2, editor().height / 2)
             tryCompare(panel, "opened", true)
         }
+
+        function test_back_hides_keyboard_then_leaves_edit() {
+            const field = editor()
+            field.text = "unfinished"
+            const shortcut = findChild(view, "androidBackShortcut")
+            if (shortcut !== null)
+                shortcut.enabled = Qt.binding(function() { return view.backNavigationActive })
+            keyClick(Qt.Key_Back)
+            tryCompare(Qt.inputMethod, "visible", false)
+            compare(shop.editMode, true)
+            compare(field.text, "unfinished")
+            compare(shop.count, 1)
+            verify(app.visible)
+            keyClick(Qt.Key_Back)
+            tryCompare(shop, "editMode", false)
+            compare(shop.count, 0)
+            verify(app.visible)
+        }
     }
 }

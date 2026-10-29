@@ -6,6 +6,27 @@ pragma ComponentBehavior: Bound
 
 Style.Control {
     id: root
+    readonly property bool backNavigationActive: !menu.visible && shopView.editMode
+
+    function navigateBack() {
+        if (menu.visible) {
+            menu.close()
+        } else if (shopView.editMode) {
+            if (Quick.InputMethod.visible)
+                Quick.InputMethod.hide()
+            else
+                shopView.setEditMode(false)
+        }
+    }
+
+    Quick.Shortcut {
+        objectName: "androidBackShortcut"
+        sequences: ["Back"]
+        enabled: Quick.Qt.platform.os === "android" && root.backNavigationActive
+        autoRepeat: false
+        onActivated: root.navigateBack()
+    }
+
     // Keep interactive content clear of system bars and display cutouts.
     topPadding: Quick.SafeArea.margins.top
     bottomPadding: Quick.SafeArea.margins.bottom + keyboard.occupiedHeight
@@ -68,6 +89,14 @@ Style.Control {
             onAboutToHide: menu.focus = false
 
             contentItem: Quick.ListView {
+                Quick.Shortcut {
+                    objectName: "drawerBackShortcut"
+                    sequences: ["Back"]
+                    enabled: Quick.Qt.platform.os === "android" && menu.visible
+                    autoRepeat: false
+                    onActivated: menu.close()
+                }
+
                 delegate: DelegateChooser {
                     role: "type"
 
