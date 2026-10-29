@@ -1,0 +1,34 @@
+{
+  "id": "UX-002",
+  "title": "Evaluate red delete and green selection feedback and compare alternatives",
+  "status": "requested",
+  "type": "design_review",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "reported_by": "user",
+  "scope": "Backlog item only. Evaluate action colors and alternatives later; no color or interaction changes are authorized by this intake item.",
+  "request": "Analyze whether red warning feedback for deletion and green feedback for selection are good choices, or whether better alternatives exist.",
+  "expected": "A justified recommendation to retain or change the current action-color treatment, with alternatives compared for clarity, accessibility, theme compatibility, and one-handed shopping use.",
+  "current_implementation": "TextDelegate.qml uses Material.Red for the edit-mode right-swipe delete background and Material.Green for shopping-mode selection and the opposite swipe background. The feedback is translucent and accompanied by action icons.",
+  "review_topics": [
+    "Whether red communicates the destructive delete action clearly and whether green communicates checking/selection appropriately.",
+    "How checking, unchecking, and deleting are distinguished, especially when the same swipe direction has a different action in edit mode.",
+    "Compare retaining red/green with alternatives such as theme-derived action colors or a different treatment for non-destructive selection. Do not assume a replacement is necessary.",
+    "Color-vision accessibility and whether icons or other existing feedback distinguish actions without relying on red versus green alone.",
+    "Contrast and action-icon readability over the actual translucent backgrounds in Light, Dark, System, and checked/inverse-theme states.",
+    "Whether configurable primary/accent colors conflict with the meaning of the fixed action colors; coordinate with UX-001.",
+    "Relevant official Android/Material guidance and the app's deliberate gesture, opacity, and animation design."
+  ],
+  "relevant_files": ["TextDelegate.qml", "IconChoser.qml", "CartInIcon.qml", "CartOutIcon.qml", "TrashIcon.qml", "Theme.qml", "DESIGN.md"],
+  "related_tickets": ["UX-001"],
+  "acceptance_criteria": [
+    "Describe the current action-color meanings and their actual rendered appearance.",
+    "Compare the current scheme with plausible alternatives, documenting benefits and tradeoffs rather than choosing colors by preference alone.",
+    "Evaluate destructive-action clarity, non-color cues, color-vision accessibility, contrast, and theme interactions.",
+    "Recommend retaining or changing the scheme with clear reasoning and directly cited guidance where applicable.",
+    "Record any proposed implementation work separately; preserve the intended one-handed gestures and do not bundle functional swipe fixes into the color review."
+  ],
+  "evidence": "Explicit user backlog request on 2026-10-28 to evaluate red for delete and green for selection and consider better alternatives.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

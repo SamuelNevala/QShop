@@ -1,0 +1,39 @@
+{
+  "id": "UI-005",
+  "title": "Safe-area border and swipeable background should match and follow the theme",
+  "status": "reported",
+  "type": "bug",
+  "severity": "minor",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "environment": "Current updated phone build; Pixel 10 Pro XL running Android 17. Exact theme and row state at the time of the report are not yet recorded.",
+  "reported_by": "user",
+  "reproduction_status": "Not independently reproduced during backlog gathering",
+  "reproduction_to_confirm": [
+    "Open the shopping view and compare the safe-area border with the swipeable item background.",
+    "Switch between Light, Dark, and System themes and repeat the comparison.",
+    "Check unchecked and checked items, swipe feedback, and the keyboard-open layout."
+  ],
+  "actual": "The user reports that the safe-area border and swipeable background do not have matching theme-following colors and instead appear to use an arbitrary color.",
+  "expected": "The safe-area border matches the intended swipeable background surface, and both follow the selected theme coherently.",
+  "source_notes": [
+    "View.qml defines safeAreaBackground.borderColor as the fixed translucent color #A6000000.",
+    "The active item surface in TextDelegate.qml uses Material.backgroundColor and opacity; checked rows intentionally use Theme.inverseTheme.",
+    "These are investigation starting points, not a confirmed root cause. The active row implementation is TextDelegate.qml rather than the unused legacy Swipeable.qml."
+  ],
+  "relevant_files": ["View.qml", "TextDelegate.qml", "Theme.qml", "main.qml", "LoaderWindow.qml"],
+  "acceptance_criteria": [
+    "Safe-area borders visually match the intended main swipeable background surface.",
+    "Colors update correctly when switching Light, Dark, and System themes.",
+    "Checked-state distinctions, swipe feedback, and the deliberate opacity design remain understandable.",
+    "Safe-area padding still keeps content clear of system bars and cutouts, including with the keyboard open.",
+    "Verify the appearance on the affected phone; model tests alone cannot establish this visual result."
+  ],
+  "open_questions": [
+    "Which theme and item state best demonstrate the mismatch?",
+    "Confirm the intended shared surface when checked and unchecked rows deliberately use different theme colors."
+  ],
+  "evidence": "User report in the QShopper development chat on 2026-10-28; severity explicitly described as minor.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

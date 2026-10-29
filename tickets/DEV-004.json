@@ -1,0 +1,33 @@
+{
+  "id": "DEV-004",
+  "title": "Review and simplify the CMake build files using KISS principles",
+  "status": "requested",
+  "type": "code_quality",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "reported_by": "user",
+  "scope": "Backlog item only. Review and refactoring are deferred until implementation is explicitly requested.",
+  "request": "The user considers the CMake files to be in poor shape and wants them reviewed and fixed to be as simple as practical: keep it simple, straightforward, and easy to maintain.",
+  "expected": "Clear, minimal CMake files that express the application's real build requirements without redundant settings, obsolete fragments, or unnecessary abstraction, while preserving supported build behavior.",
+  "relevant_files": ["CMakeLists.txt", "tests/CMakeLists.txt", "CMakePresets.json", "tools/verify-windows.ps1", "build-android.ps1"],
+  "implementation_notes": [
+    "Review the root and test CMake files together, including how presets and build scripts depend on their options and target names.",
+    "Check minimum-version requirements, repeated settings, target structure and dependencies, QML/resource registration, platform/configuration gates, and obsolete comments or workarounds.",
+    "Prefer direct, target-based CMake and straightforward conditions. Introduce helper functions or extra files only when they make the result materially simpler.",
+    "Retain necessary complexity, especially conditional desktop keyboard resources/imports, Android packaging, test isolation, and optional model coverage. Establish why a workaround exists before removing it.",
+    "Do not combine the structural cleanup with functional app bug fixes or change public build options without identifying the need.",
+    "Update build documentation and scripts only where the simplification requires it. No specific current build failure is claimed by this maintainability report."
+  ],
+  "acceptance_criteria": [
+    "Review findings and the resulting CMake structure are understandable without tracing unnecessary helper layers.",
+    "Remove proven duplication and obsolete configuration while preserving required targets, resources, dependencies, and options.",
+    "Keep the application and tests using the production QShopper library rather than duplicating model compilation.",
+    "Preserve desktop Debug/Release keyboard gating and Android's native-keyboard packaging behavior.",
+    "Preserve normal CTest execution, isolated test data/settings, and the separately optional coverage workflow.",
+    "Run tools/verify-windows.ps1 and validate additional build/configuration paths affected by the eventual changes, including Android where relevant.",
+    "Record what was simplified and any necessary complexity retained; keep the cleanup separate from functional backlog fixes."
+  ],
+  "evidence": "Explicit user request to add a KISS-oriented CMake review and cleanup to the backlog on 2026-10-28.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

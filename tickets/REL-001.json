@@ -1,0 +1,44 @@
+{
+  "id": "REL-001",
+  "title": "Prepare a step-by-step plan for publishing QShopper in an app store",
+  "status": "requested",
+  "type": "release_preparation",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "reported_by": "user",
+  "scope": "Backlog item only. Define and prepare the publication steps when requested. This intake item does not authorize account creation, uploads, external submissions, or publication.",
+  "request": "Prepare the app for app-store publication and define the steps needed to publish it.",
+  "expected": "A practical release checklist and preparation plan with dependencies, required user decisions, acceptance criteria, and a clear path from the current development build to a store release.",
+  "planning_steps": [
+    "Confirm the target store(s), developer account/identity, intended audience, supported countries/languages, and distribution or pricing decisions. Google Play is the likely Android target but remains to be confirmed.",
+    "Check the selected store's current official requirements at implementation time, recording sources and dates rather than treating this backlog as a fixed policy checklist.",
+    "Agree release readiness criteria and identify blocking bugs, missing behavior, and validation work from the existing backlog, including critical right-swipe behavior and comprehensive UI coverage.",
+    "Define a reproducible production Release build and required store artifact, including package identity, version name/code progression, SDK/ABI requirements, dependency packaging, and disabled development-only behavior.",
+    "Define production signing and key backup/ownership. Distinguish the current debug keystore from any required upload/app-signing keys and plan the transition from existing debug installations without assuming signing compatibility.",
+    "Test clean installation, updates, persistence, representative devices, native keyboard/Back gestures, safe areas, accessibility, and release-specific behavior using isolated test data where appropriate.",
+    "Audit permissions, data handling, backup behavior, third-party dependencies, and applicable licensing/privacy obligations; prepare the selected store's required declarations and supporting policy materials based on actual app behavior.",
+    "Prepare store-listing assets and text: app name/description, icon, screenshots and any other required imagery, category, support/contact information, and localization as applicable.",
+    "Define internal/closed testing and review/submission steps appropriate to the store/account, followed by user-approved production rollout and a monitoring/support plan.",
+    "Document release tagging/artifact retention, future update procedures, and what to do if a release needs to be halted or corrected."
+  ],
+  "implementation_notes": [
+    "Keep the process KISS: a concise, repeatable checklist supported by necessary scripts, not an elaborate release framework.",
+    "Reuse ANDROID.md, build-android.ps1, the verification workflow, and existing tickets rather than duplicating build or bug-tracking instructions.",
+    "Record unknown account-specific requirements and user decisions explicitly instead of inventing account access, completed verification, or policy compliance.",
+    "Do not commit signing secrets or store credentials. Define the release-key handling process before producing publication artifacts.",
+    "Separate readiness analysis, approved preparation changes, store submission, and actual publication so each step has concrete evidence and appropriate user authorization."
+  ],
+  "relevant_files": ["ANDROID.md", "build-android.ps1", "CMakeLists.txt", "CMakePresets.json", "android/AndroidManifest.xml", "android/res", "tests/README.md", "BACKLOG.md", "DESIGN.md"],
+  "related_tickets": ["QA-003", "UI-004", "UI-006", "UI-007", "UI-008", "UI-009", "UI-010"],
+  "acceptance_criteria": [
+    "Create a publication checklist with ordered steps, dependencies, required inputs/decisions, and evidence required to finish each step.",
+    "Confirm target store/account assumptions and cite current official requirements relevant to the selected publication path.",
+    "Identify the gap between the existing debug build workflow and a reproducible signed production release.",
+    "Define readiness checks and link unresolved release blockers to their backlog tickets rather than claiming the app is ready prematurely.",
+    "List required store assets, declarations, testing/review stages, and rollout/update procedures.",
+    "Keep actual account actions, uploads, submissions, and publication outside this planning task unless separately authorized by the user."
+  ],
+  "evidence": "Explicit user backlog request on 2026-10-28 to prepare and define the steps for app-store publication.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

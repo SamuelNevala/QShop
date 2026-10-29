@@ -1,0 +1,52 @@
+{
+  "id": "UI-009",
+  "title": "Reset checks should retain the selection-derived item order for the next use",
+  "status": "reported",
+  "type": "bug",
+  "severity": "major",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "environment": "Current phone build; exact mode and persistence conditions still to be recorded.",
+  "reported_by": "user",
+  "reproduction_status": "User-reported; exact example not independently reproduced during backlog gathering",
+  "reproduction": [
+    "Start with unchecked items in the order 1, 2, 3.",
+    "Check item 3, then item 1, then item 2, identifying each by its name rather than its changing row index.",
+    "Invoke Reset checks from the drawer.",
+    "Inspect the unchecked order immediately and when the list is used again."
+  ],
+  "actual": "The user reports that Reset checks clears the selection without preserving the desired selection-derived ordering, requiring manual reordering on the next use. The exact incorrect resulting order has not been supplied.",
+  "expected": "Clear the checked flags while retaining the last-in-first-out order established by checking items. For initial order 1, 2, 3 and check sequence 3, 1, 2, the reset order must be 2, 1, 3, and that order must persist for the next use.",
+  "example": {
+    "initial_order": ["1", "2", "3"],
+    "checked_in_order": ["3", "1", "2"],
+    "expected_order_after_reset": ["2", "1", "3"],
+    "expected_checked_after_reset": false,
+    "actual_order_after_reset": null
+  },
+  "impact": "The user must reorder a reusable shopping list after resetting it, disrupting the intended workflow. Severity described as major.",
+  "source_notes": [
+    "View.qml invokes ShopView.reset(), which delegates to Model.reset().",
+    "Model.reset() repeatedly unchecks the last checked item; setChecked(false) moves the item to the front. A static trace of the simple all-checked example appears consistent with the requested 2, 1, 3 result, so the reported failure needs reproduction before choosing a fix.",
+    "Investigate the actual UI flow, mode/editor state, mixed checked/unchecked items, and persistence rather than assuming the model simply changes flags.",
+    "The existing checked_state_reorders_persists_and_resets model test verifies that check flags are cleared after reset/reload, but does not assert the final item order after reset."
+  ],
+  "relevant_files": ["model.cpp", "View.qml", "ShopView.qml", "tests/test_model.cpp", "tests/qml/tst_shopview.qml"],
+  "acceptance_criteria": [
+    "The user's exact example produces unchecked items ordered 2, 1, 3 after Reset checks.",
+    "The resulting order survives saving, switching away and back, and restarting the app.",
+    "A second Reset checks does not change an already reset list's order.",
+    "Resetting does not lose item identity or content, and handles the editor without inserting it into the saved item order.",
+    "Clarify and cover mixed checked/unchecked list behavior during reproduction.",
+    "Add an explicit final-order assertion for the reported sequence and verify the real drawer action on the affected build."
+  ],
+  "open_questions": [
+    "What exact order appears after reset in the affected build?",
+    "Is the wrong order visible immediately, or only after reopening or reusing the list?",
+    "Were any items still unchecked or was an editor active when Reset checks was invoked?",
+    "For a partially checked list, what is the intended relative placement of reset items and items that were never checked?"
+  ],
+  "evidence": "User report and explicit 1,2,3 / check 3,1,2 / reset 2,1,3 example in the QShopper development chat on 2026-10-28.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

@@ -1,0 +1,60 @@
+{
+  "id": "UI-004",
+  "title": "Critical regression: right swipes fail to select items and cannot delete in edit mode",
+  "status": "reported",
+  "type": "bug",
+  "severity": "critical",
+  "priority": "1",
+  "regression": true,
+  "created": "2026-10-28",
+  "environment": "Current Android phone build; Pixel 10 Pro XL running Android 17. Last known working build has not been identified.",
+  "reported_by": "user",
+  "reproduction_status": "User-observed; not independently reproduced during backlog gathering",
+  "history": [
+    "Initially recorded as a source-review candidate concerning the signed-distance fallback for slow right swipes.",
+    "Promoted to a critical user-reported regression after reports that right-swipe selection fails and right-swipe deletion in edit mode is unavailable. The report also includes failure with sufficient velocity."
+  ],
+  "reproduction": [
+    "In shopping mode, swipe an item to the right with sufficiently high velocity to trigger its action.",
+    "Also try a slow rightward drag beyond half the delegate width, independently of the velocity trigger.",
+    "Observe that the item is not selected/checked as expected. The user reports that left swipes appear to work.",
+    "Enter edit mode and try the corresponding right-swipe action to delete an item; deletion is not possible."
+  ],
+  "actual": "Right swipes fail to trigger item selection, including the reported velocity or distance triggers, and the right-swipe delete action is unavailable in edit mode. Left swipes appear to work according to the user.",
+  "expected": "A deliberate horizontal swipe triggers the mode-appropriate item action when either its velocity-based threshold is met or its travel exceeds half the delegate width. Right swipes must select/toggle items in shopping mode and delete items in edit mode. Left-swipe behavior must continue to work.",
+  "impact": "A primary one-handed shopping interaction is broken and item deletion through the intended edit-mode gesture is unavailable. Severity explicitly described as critical.",
+  "source_notes": [
+    "SwipeHandler.qml computes signed distance as pressPosition.x minus position.x and compares it directly with the positive actionTreshold for the long-drag fallback. A rightward drag has a negative distance in this expression.",
+    "The velocity calculation uses absolute millimeter distance divided by timeHeld. Investigate this path separately: the signed-distance observation alone does not establish why the reported high-velocity right swipe also fails.",
+    "Direction is chosen using target.x, then passed through TextDelegate.qml's swipe animation before ShopView.qml handles the action. Verify event/grab handling, direction, and action delivery rather than assuming a threshold-only fix.",
+    "ShopView.qml routes edit-mode right swipes to itemModel.remove(index); other handled swipe actions toggle the checked state."
+  ],
+  "relevant_files": [
+    "SwipeHandler.qml",
+    "TextDelegate.qml",
+    "ShopView.qml",
+    "model.cpp",
+    "tests/qml/tst_shopview.qml"
+  ],
+  "related_tickets": [
+    "UI-007"
+  ],
+  "acceptance_criteria": [
+    "A sufficiently fast right swipe triggers the shopping-mode item action without requiring travel beyond half the delegate width.",
+    "A slow rightward drag beyond half the delegate width triggers the action without depending on the velocity condition.",
+    "Both trigger paths work for right-swipe deletion in edit mode, with the correct item removed.",
+    "Existing left-swipe actions and checked/unchecked ordering continue to work.",
+    "Short, slow movements and cancelled gestures do not trigger unintended selection or deletion; preserve deliberate pullback behavior.",
+    "Animations return rows to a consistent state, and system Back gestures do not trigger item actions or leave stuck drags; coordinate with UI-007.",
+    "Add regression coverage separating direction, velocity-triggered and distance-triggered gestures, and shopping/edit modes.",
+    "Verify the one-handed gesture on the affected physical phone, not only through direct model calls."
+  ],
+  "open_questions": [
+    "Which build last had working right swipes?",
+    "What swipe sensitivity is selected on the affected phone?",
+    "Does the row move right and animate back without an action, or does the gesture fail to acquire or move the row?"
+  ],
+  "evidence": "User critical-regression report in the QShopper development chat on 2026-10-28, specifying both velocity and half-delegate-width triggers and the inability to delete in edit mode.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

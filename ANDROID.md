@@ -14,8 +14,19 @@ JDK 21. Override `-QtRoot`, `-QtVersion`, `-SdkRoot`, `-NdkVersion`, or
 `-JavaHome` for other installations. This build uses compile SDK 36 and build tools 36.0.0. Gradle downloads build dependencies on the first run.
 
 The APK uses package `shopper.nevala.com`, version 0.1 (code 1), and supports
-ARM64 Android devices running Android 9 (API 28) or later. It is signed with
-the local Android debug key. Store publication requires a release build
+ARM64 Android devices running Android 9 (API 28) or later. By default it is signed
+with the local Android debug key. To update an existing installation built on
+another machine, supply the original debug keystore:
+
+```powershell
+./build-android.ps1 -Architecture arm64 -DebugKeystore ../debug.keystore
+```
+
+This re-signs and verifies the output APK using the standard `androiddebugkey`
+alias and `android` debug passwords. The keystore stays outside the repository.
+The supplied key must match the installed app's certificate; the shared source
+folder alone does not share each machine's default `~/.android/debug.keystore`.
+Store publication requires a release build
 signed with the production keystore.
 
 CMake stages the manifest and launcher icons from `android/`; Qt supplies

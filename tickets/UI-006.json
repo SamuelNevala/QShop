@@ -1,0 +1,51 @@
+{
+  "id": "UI-006",
+  "title": "Android Back gesture should close the current UI layer before backgrounding the app",
+  "status": "requested",
+  "type": "feature",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "environment": "Android; user described the system Back swipe from the screen edge/corner.",
+  "reported_by": "user",
+  "actual": "The user reports this state-dependent Back behavior as a missing feature. Current behavior in each state has not been independently recorded.",
+  "expected": "Handle each completed Android Back gesture using the first matching rule below. Perform one action per gesture, then evaluate the new state on the next gesture.",
+  "ordered_rules": [
+    {
+      "order": 1,
+      "when": "Drawer is open",
+      "action": "Close the drawer and consume Back. Do not also leave edit mode or background the app."
+    },
+    {
+      "order": 2,
+      "when": "Drawer is closed, edit mode is active, and the virtual keyboard is open",
+      "action": "Close the virtual keyboard and remain in edit mode."
+    },
+    {
+      "order": 3,
+      "when": "Drawer is closed, edit mode is active, and the virtual keyboard is closed",
+      "action": "Switch to shopping mode and keep the app in the foreground."
+    },
+    {
+      "order": 4,
+      "when": "Drawer is closed and shopping mode is active",
+      "action": "Send the app to the background rather than explicitly quitting it."
+    }
+  ],
+  "acceptance_criteria": [
+    "A Back gesture closes an open drawer before applying the mode or backgrounding rules.",
+    "Back in edit mode with the keyboard open hides only the keyboard; the editor remains active.",
+    "A subsequent Back with the keyboard closed switches from edit mode to shopping mode.",
+    "Back in shopping mode backgrounds the app without clearing the shopping list.",
+    "One Back gesture never cascades through multiple actions.",
+    "Returning to the app retains saved shopping data; backgrounding is not implemented as an explicit app termination.",
+    "Verify with the native Android Back gesture and real virtual keyboard, since desktop/offscreen key events alone do not establish system gesture behavior."
+  ],
+  "relevant_files": ["main.qml", "View.qml", "ShopView.qml", "InputDelegate.qml", "main.cpp", "android/AndroidManifest.xml"],
+  "related_tickets": ["UI-007"],
+  "open_questions": [
+    "When leaving edit mode, confirm the desired treatment of any unsubmitted editor text or pending item edit before implementation."
+  ],
+  "evidence": "User-specified four-step Back priority in the QShopper development chat on 2026-10-28.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

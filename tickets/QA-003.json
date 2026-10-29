@@ -1,0 +1,47 @@
+{
+  "id": "QA-003",
+  "title": "Expand UI tests to cover all implemented user interactions",
+  "status": "requested",
+  "type": "test_coverage",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "reported_by": "user",
+  "scope": "Backlog item only. Interaction inventory, test design, and suite expansion are deferred until implementation is requested.",
+  "request": "Improve the UI test set to cover all user interactions.",
+  "expected": "A documented interaction-to-test coverage matrix and repeatable UI tests covering the app's implemented controls, gestures, modes, and relevant state transitions, with appropriate Android-specific coverage.",
+  "interaction_inventory": [
+    "Shopping: check/uncheck with left and right swipes, velocity and distance triggers, pullback/cancellation, correction, and checked-item ordering.",
+    "Editing: enter/leave edit mode, move the editor, insert at different positions, edit existing items, long-press reorder/drop/cancel, delete, and undo as exposed by the UI.",
+    "Text entry: typing, empty/nonempty Return, composition, dictation workflow, repeated entry with the keyboard retained, and keyboard hide/reopen.",
+    "Navigation: open/close the drawer, native Android Back handling for each state, interrupted gestures, background/return, and persistence across restart.",
+    "Drawer actions: reset checks and preserve their intended order, remove checked items, clear the list, undo where available, and other actual exposed list actions.",
+    "Selectors and settings: list switching, Light/Dark/System, primary/accent selectors including first/last options, swipe sensitivity, and saved selections.",
+    "Scrolling and layout: empty/short/long lists, both scroll directions, keyboard-open reachability, safe areas, popup bounds, long text, and background continuity.",
+    "Desktop development controls: preview shortcuts, resizing, scale persistence, and keyboard build gates where supported."
+  ],
+  "implementation_notes": [
+    "Inventory the actual UI before finalizing scope; do not assume every model API is exposed as a user action.",
+    "Map existing tests to interactions and expand missing coverage without needlessly duplicating model tests.",
+    "Use pointer/touch, keyboard, and real control activation for interaction coverage. Calling a view method or emitting an action signal alone does not verify the corresponding user path.",
+    "Cover meaningful combinations of shopping/edit mode, drawer state, keyboard state, checked state, focus, and list size, including interrupted or cancelled interactions.",
+    "Use Qt Quick Test for suitable QML interactions and a repeatable Android harness for native Back, IME, safe-area, and platform-specific behavior that offscreen tests cannot establish.",
+    "Use behavior, geometry, and rendering assertions appropriate to the defect; animations, warning output, and visual parenting can be relevant observable results.",
+    "Keep tests deterministic, use isolated data/settings, wait for observable completion instead of arbitrary long sleeps, and follow KISS when organizing the harness.",
+    "Coordinate known-bug regression tests with the corresponding fix tickets. Do not silently fix app behavior or weaken assertions just to make the expanded suite pass.",
+    "Record any native/dictation automation limits explicitly. A platform-dependent interaction remains a coverage gap until it has appropriate repeatable verification."
+  ],
+  "relevant_files": ["tests/qml", "tests/keyboard", "tests/test_ui.cpp", "tests/CMakeLists.txt", "tests/README.md", "tools/verify-windows.ps1", "ANDROID.md", "DESIGN.md"],
+  "related_tickets": ["QA-001", "QA-002", "UI-004", "UI-005", "UI-006", "UI-007", "UI-008", "UI-009", "UI-010"],
+  "acceptance_criteria": [
+    "Create an inventory of all implemented user interactions and relevant state transitions, mapped to named tests and supported platforms.",
+    "Add missing automated UI coverage that exercises the real user path and checks observable results and data invariants.",
+    "Include failure/cancellation and recovery paths as well as successful actions, preserving the product behavior in DESIGN.md.",
+    "Provide appropriate native Android coverage rather than treating desktop/offscreen model or key events as proof of system gestures and IME behavior.",
+    "Keep required bug regression tests failing before their fixes and passing afterward, with ticket links and recorded evidence.",
+    "Document commands and reports, integrate applicable tests into the normal verification workflow, and demonstrate repeatable runs.",
+    "Report remaining interaction/platform gaps explicitly; do not mark the coverage task complete while implemented interactions lack appropriate verification."
+  ],
+  "evidence": "Explicit user backlog request on 2026-10-28 to improve UI tests to cover all user interactions, following the requirement that every bug fix have a regression test.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

@@ -1,0 +1,43 @@
+{
+  "id": "UI-008",
+  "title": "Empty-area background rectangle appears inside the view when scrolling a long list",
+  "status": "reported",
+  "type": "bug",
+  "severity": "major",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "environment": "Current Android phone build; reported with approximately 35 or more list items. Exact threshold on other viewport sizes is not established.",
+  "reported_by": "user",
+  "reproduction_status": "User-observed; not independently reproduced during backlog gathering",
+  "reproduction": [
+    "Open or create a list containing 35 or more items.",
+    "Scroll down through the list.",
+    "Observe the Rectangle in ShopView.qml, intended to fill viewport space not covered by delegates, appearing where it disrupts the list's visual continuity."
+  ],
+  "actual": "With a sufficiently long list, scrolling down makes the empty-area background rectangle appear inappropriately and the list no longer has the intended unified appearance.",
+  "expected": "Short and long lists have a unified appearance. The rectangle fills only genuinely uncovered viewport space beyond the delegates and does not create a visible block or boundary within the scrolling list.",
+  "impact": "Major visual defect during ordinary long-list scrolling, per the user. No data loss or input failure has been reported.",
+  "design_intent": "The filler rectangle is intentional: it extends the delegates' background treatment into otherwise uncovered viewport space so short and long lists look consistent. Preserve that purpose when fixing its geometry.",
+  "source_notes": [
+    "ShopView.qml positions the Rectangle using contentItem.childrenRect.height minus contentY, clamped at zero. Its height is the viewport height minus y, its opacity is 0.8 when height is positive, and its z is -1.",
+    "The view has a cacheBuffer of 20 reference row heights. Investigate whether instantiated delegate bounds, virtualization, content origin, or coordinate conversion cause the filler position to differ from the actual end of the list.",
+    "These are investigation starting points, not a confirmed root cause. The reported 35-item threshold should be checked at multiple viewport heights."
+  ],
+  "relevant_files": ["ShopView.qml", "DelegateChoser.qml", "TextDelegate.qml", "View.qml"],
+  "related_tickets": ["UI-005"],
+  "acceptance_criteria": [
+    "Empty and short lists retain the intended continuous background beneath the last delegate.",
+    "Lists around and above the reported threshold, including 34, 35, and substantially more items, scroll without an unintended filler block or boundary appearing within the list.",
+    "Check scrolling both down and back up, including the actual end of the list.",
+    "The filler remains correctly placed after checking items, moving the editor, changing list length, and showing or hiding the Android keyboard.",
+    "Preserve the intended opacity and theme relationship; coordinate colors with UI-005 without treating this geometry problem as only a color mismatch.",
+    "Verify the rendered result on the affected phone; the existing 35-item keyboard reachability check does not by itself validate this background behavior."
+  ],
+  "open_questions": [
+    "Does the rectangle appear partway through scrolling, only at the end, or both?",
+    "Which edit mode and keyboard state best demonstrate the issue?"
+  ],
+  "evidence": "User report in the QShopper development chat on 2026-10-28; severity explicitly described as major and list size described as 35 or more items.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

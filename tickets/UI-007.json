@@ -1,0 +1,45 @@
+{
+  "id": "UI-007",
+  "title": "Android Back gesture leaks a long press and leaves an item stuck in move mode",
+  "status": "reported",
+  "type": "bug",
+  "severity": "major",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "environment": "Current Android phone build in edit mode; Pixel 10 Pro XL running Android 17.",
+  "reported_by": "user",
+  "reproduction_status": "User-observed; not independently reproduced during backlog gathering",
+  "reproduction": [
+    "Open a shopping list containing items and enter edit mode.",
+    "Perform Android's system Back swipe from the screen edge/corner over an item.",
+    "Observe that a long press reaches the item and activates item movement while the Back gesture is active.",
+    "The item is left in an orphan-like or floating move state, and the user has to drop it into place to recover."
+  ],
+  "actual": "The Android Back gesture leaks a long press to an item in edit mode, activates reordering, and leaves the item stuck in a move state until the user manually drops it.",
+  "expected": "The system Back gesture must not activate an item long press or reorder operation. Gesture completion, cancellation, or loss of the pointer grab must leave item interaction and visual parenting in a consistent state without requiring a corrective drop.",
+  "impact": "A routine navigation gesture disrupts editing and requires manual recovery. Unintended order changes and data loss have not been reported or independently established.",
+  "workaround": "Manually drop the affected item into place, as reported by the user.",
+  "source_notes": [
+    "TextDelegate.qml enables TapHandler in edit mode and sets longPressActive on a long press, activating the drag state and reparenting the item to dragParent.",
+    "Its current onGrabChanged handler clears longPressActive for PointerDevice.UngrabPassive. Investigate system-gesture cancellation and grab-loss paths as well as normal release.",
+    "These are investigation starting points. The precise event sequence and root cause have not been confirmed."
+  ],
+  "relevant_files": ["TextDelegate.qml", "SwipeHandler.qml", "DelegateChoser.qml", "ShopView.qml", "View.qml", "main.qml", "android/AndroidManifest.xml"],
+  "related_tickets": ["UI-006"],
+  "acceptance_criteria": [
+    "Starting an Android Back swipe over a list item in edit mode does not activate long-press movement.",
+    "Completing or cancelling the system gesture never leaves a row floating, reparented, highlighted as moving, or stuck with an active drag.",
+    "Back navigation does not accidentally check, delete, or reorder an item.",
+    "The user can interact normally with the list immediately afterward, without dropping an orphaned item to recover.",
+    "Deliberate long-press reordering still works and exits cleanly when completed or interrupted by Back.",
+    "Check keyboard-open and keyboard-closed edit states and coordinate the result with UI-006's Back priority.",
+    "Reproduce and verify using the physical Android system gesture; ordinary desktop/offscreen pointer tests alone do not cover this interaction."
+  ],
+  "open_questions": [
+    "Does the stuck state occur after completing Back, cancelling the gesture, or both?",
+    "Was the virtual keyboard open, and which screen edge and item position were involved?"
+  ],
+  "evidence": "User report in the QShopper development chat on 2026-10-28; severity explicitly described as major.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

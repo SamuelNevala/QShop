@@ -1,0 +1,47 @@
+{
+  "id": "DEV-006",
+  "title": "Review QML and C++ for simplicity and establish KISS-based coding guidelines",
+  "status": "requested",
+  "type": "code_quality",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "reported_by": "user",
+  "scope": "Backlog item in the current gathering phase. Record KISS as a standing user preference now; defer the code review and full coding-guideline document until implementation is requested.",
+  "request": "KISS is important to the user. Analyze both the QML and C++ code and establish project coding guidelines based on that analysis.",
+  "expected": "A practical, concise CODING_GUIDELINES.md grounded in QShopper's actual code and Qt usage, with simplicity as a central decision criterion.",
+  "review_topics": [
+    "Review project-owned QML components, C++ sources/headers, and relevant tests, identifying both straightforward patterns worth retaining and unnecessary complexity.",
+    "Assess responsibilities, dependencies, state flow, naming, component/class boundaries, and whether abstractions reduce or increase the effort needed to understand the code.",
+    "For QML, review bindings versus imperative updates, property/signal interfaces, theme usage, gesture/state handling, visual parenting, component reuse, and avoidable duplicated behavior.",
+    "For C++, review Qt ownership/lifetimes, model/view contracts, persistence boundaries, error handling, public interfaces, and opportunities to simplify control flow without weakening correctness.",
+    "Identify obsolete or unused code and workarounds, establishing their purpose before recommending removal.",
+    "Distinguish useful reuse from generic frameworks or helper layers that make a small application harder to follow."
+  ],
+  "guideline_principles": [
+    "Prefer clear, direct, idiomatic Qt code that solves the current requirement.",
+    "Introduce abstraction, indirection, or generalization only when it makes the real code simpler to understand and maintain.",
+    "Do not equate KISS with the fewest lines, dense expressions, or removing necessary safety and error handling.",
+    "Remove duplication when the resulting shared code is simpler overall; avoid turning small similarities into an unnecessary framework.",
+    "Preserve DESIGN.md's deliberate product behavior and explain necessary complexity rather than simplifying away required interactions.",
+    "Keep the guidelines specific enough to guide real changes and short enough to consult regularly."
+  ],
+  "implementation_notes": [
+    "Base recommendations on cited project examples and supported Qt/C++17 practices; avoid imposing a generic style guide without analyzing this codebase.",
+    "Coordinate formatting guidance with DEV-002/DEV-003, build simplicity with DEV-004, and analyzer guidance with DEV-005 instead of duplicating or contradicting their configuration.",
+    "Separate mechanical formatting rules from architectural, correctness, and maintainability guidance.",
+    "Capture proposed refactors as separate backlog work rather than performing a broad rewrite while writing the guide.",
+    "Link the resulting guide from AGENTS.md once it exists."
+  ],
+  "related_tickets": ["DEV-002", "DEV-003", "DEV-004", "DEV-005"],
+  "acceptance_criteria": [
+    "Review both QML and C++ and record representative findings with project file references.",
+    "Create CODING_GUIDELINES.md with practical language-specific guidance and shared KISS principles grounded in those findings.",
+    "Include concrete examples or decision criteria for when an abstraction helps and when direct code is preferable.",
+    "Make the guidance consistent with product design, Qt model/ownership requirements, formatting choices, and the supported build workflow.",
+    "List actionable simplification candidates separately and retain justified complexity.",
+    "Update AGENTS.md to point future contributors to the completed guide; no functional changes should be bundled into the review/documentation task."
+  ],
+  "evidence": "User emphasized KISS and requested QML/C++ analysis leading to coding guidelines during backlog gathering on 2026-10-28.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

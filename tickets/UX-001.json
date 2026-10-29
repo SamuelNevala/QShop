@@ -1,0 +1,40 @@
+{
+  "id": "UX-001",
+  "title": "Review primary and accent color design against Android color guidance",
+  "status": "requested",
+  "type": "design_review",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "reported_by": "user",
+  "scope": "Backlog item only. Review the primary/accent color design, not the app's overall interaction or layout design. Analysis and recommendations are deferred until explicitly requested; this task does not authorize implementation changes.",
+  "request": "Analyze QShopper's selected primary and accent coloring design and compare it with Android design principles. The user clarified that the requested comparison concerns accent and primary colors specifically.",
+  "expected": "An evidence-based assessment of the roles, selection, derivation, and application of primary and accent colors, identifying useful alignment with Android guidance and specific improvements where warranted.",
+  "review_topics": [
+    "Which UI surfaces, controls, states, and text currently use primary and accent colors, and whether those roles are coherent.",
+    "How Theme.qml derives color shades and foreground/background combinations, including special palette handling.",
+    "Whether selected colors remain readable and distinguishable in Light, Dark, and System themes, including checked/inverse-theme states and translucent backgrounds.",
+    "How the color pickers represent the selected primary and accent colors and whether those selections produce predictable results throughout the app.",
+    "How Qt Quick Controls Material's primary/accent concepts map to the relevant Android/Material color roles; distinguish the APIs' naming and capabilities rather than assuming a one-to-one mapping.",
+    "Contrast, state feedback, and whether information depends on color alone within the primary/accent treatment."
+  ],
+  "implementation_notes": [
+    "Use current official Android and Material color guidance when performing the review, with direct sources and the guidance version/date recorded.",
+    "Inspect actual rendered combinations as well as color helper functions. A nominal palette choice alone does not establish readable contrast after opacity and background composition.",
+    "Respect DESIGN.md's deliberate opacity, animation, and checked-state distinctions while evaluating color choices.",
+    "Separate Android recommendations, intentional QShopper choices, Qt style constraints, and actual implementation defects.",
+    "Avoid expanding this into an unsolicited full-app redesign or automatic Material-version migration.",
+    "Record proposed changes as separate actionable backlog items, linking existing issues instead of duplicating them."
+  ],
+  "relevant_files": ["Theme.qml", "main.qml", "View.qml", "ColorComboBox.qml", "ColorModel.qml", "TextDelegate.qml", "IconButton.qml", "UndoIcon.qml"],
+  "related_tickets": ["UI-005"],
+  "acceptance_criteria": [
+    "Map the actual primary/accent usages and color derivation rules in the current app.",
+    "Compare those usages with directly cited official Android/Material color guidance.",
+    "Assess representative primary/accent combinations in Light, Dark, and System themes, with readability and state feedback considered.",
+    "Report clear findings and justified recommendations, including what should stay as designed.",
+    "Capture recommended fixes separately in the backlog; make no theme or UI implementation changes as part of this review alone."
+  ],
+  "evidence": "User backlog request and clarification on 2026-10-28: the comparison is specifically about accent and primary coloring.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

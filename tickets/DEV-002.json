@@ -1,0 +1,36 @@
+{
+  "id": "DEV-002",
+  "title": "Choose Qt-aligned qmlformat settings and format all project QML sources",
+  "status": "requested",
+  "type": "code_quality",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "reported_by": "user",
+  "scope": "Backlog item only. Do not configure or apply formatting until implementation is explicitly requested.",
+  "request": "Select a good qmlformat configuration close to The Qt Company's own QML ordering and formatting conventions, then apply it to all project QML files using the tool available with Qt Creator/the Qt kit.",
+  "expected": "A repository-wide, repeatable QML style with a checked-in .qmlformat.ini, consistent attribute ordering and layout, and no intended behavior changes.",
+  "reference_order": ["id", "property declarations", "signal declarations", "JavaScript functions", "object properties/bindings", "child objects"],
+  "implementation_notes": [
+    "Use Qt's official QML Coding Conventions and the installed qmlformat version's supported settings when choosing the final configuration.",
+    "A Qt 6.12.0 qmlformat.exe is present at C:/Qt/6.12.0/msvc2022_64/bin/qmlformat.exe. Verify the working CLI and Qt Creator integration when implementing.",
+    "Consider four-space indentation, category grouping, spacing between logical sections, and JavaScript semicolons in line with Qt's examples. Final options, including line width and grouping versus alphabetical normalization, remain to be chosen.",
+    "Preserve import order unless semantic safety is established: Qt documents that sorting imports can change type resolution.",
+    "Include application QML, QML tests, and keyboard .qml.in templates. Preserve template placeholders and conditional resource suffixes; exclude generated build/deployment copies and external Qt sources.",
+    "Keep the formatting change separate from functional backlog fixes so behavior changes are reviewable."
+  ],
+  "acceptance_criteria": [
+    "Check in a documented .qmlformat.ini with settings justified against Qt's published conventions.",
+    "Apply the actual qmlformat tool to every project-owned QML source, including tests and QML templates, without formatting generated or external files.",
+    "Preserve import resolution, bindings, child-object semantics, and template substitution behavior.",
+    "A second formatting pass produces no additional changes.",
+    "Document how to rerun the formatter and how the project configuration is used from Qt Creator.",
+    "Review the formatting diff and run tools/verify-windows.ps1 after the eventual formatting pass; no functional fixes should be bundled into it."
+  ],
+  "references": [
+    "https://doc.qt.io/qt-6/qml-codingconventions.html",
+    "https://doc.qt.io/qt-6/qtqml-tooling-qmlformat.html"
+  ],
+  "evidence": "User request followed by explicit clarification on 2026-10-28 that this is still a backlog item. No QML formatting was applied during intake.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

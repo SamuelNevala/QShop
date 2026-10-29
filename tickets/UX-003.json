@@ -1,0 +1,40 @@
+{
+  "id": "UX-003",
+  "title": "Review primary and accent usage outside standard QML Material components",
+  "status": "requested",
+  "type": "design_review",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "reported_by": "user",
+  "scope": "Backlog item only. Focus on whether custom and non-Material components use primary/accent colors sensibly. Analysis and implementation remain deferred.",
+  "request": "Analyze whether the use of primary and accent colors in components outside QML Material controls is sensible and consistent.",
+  "expected": "A component-level assessment of color roles, derivation, inheritance, and visual consistency outside standard Material controls, with justified recommendations where needed.",
+  "review_topics": [
+    "Inventory primary/accent uses in custom components, plain QML items such as Rectangle, Text, and Canvas, and controls using another style.",
+    "Distinguish palette selections, resolved colors, Theme helper functions, and Material attached properties. Check that each use receives the intended value and theme context.",
+    "Assess whether primary/accent represents the right semantic role for each background, foreground, icon, highlight, border, and interaction state.",
+    "Check consistency with standard Material controls without assuming that every custom surface should use primary or accent.",
+    "Check reactive updates after changing primary/accent or Light, Dark, and System themes, including checked/inverse-theme states.",
+    "Evaluate foreground/background readability after opacity and background composition, not just the nominal color values.",
+    "Determine whether existing theme helpers are coherent or whether clearer shared color roles would improve consistency; do not assume a refactor is required."
+  ],
+  "implementation_notes": [
+    "Use the broader color-role analysis from UX-001 and action-color conclusions from UX-002 where relevant instead of duplicating their work.",
+    "Inspect actual component bindings and rendered states. The presence of a Material color reference in a custom item is not by itself a defect.",
+    "Respect DESIGN.md's visual character and document intentional departures from standard controls.",
+    "Do not automatically replace custom components with Material controls or change their interaction design as part of this review.",
+    "Record any actionable implementation defects or proposed changes separately in the backlog."
+  ],
+  "relevant_files": ["Theme.qml", "TextDelegate.qml", "TextItem.qml", "Icon.qml", "IconButton.qml", "UndoIcon.qml", "Weekdays.qml", "Pulley.qml", "ColorComboBox.qml"],
+  "related_tickets": ["UX-001", "UX-002"],
+  "acceptance_criteria": [
+    "List the relevant custom/non-Material components and explain their current primary/accent usages.",
+    "Assess semantic appropriateness, theme propagation, readability, and consistency with the rest of the UI.",
+    "Identify intentional choices, verified defects, and optional improvements separately, with evidence for each recommendation.",
+    "Keep the output focused on custom/non-Material usage and link broader palette or action-color findings to UX-001/UX-002.",
+    "Make no implementation changes during the review alone."
+  ],
+  "evidence": "Explicit user backlog request on 2026-10-28 to assess primary/accent usage in non-QML-Material components.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

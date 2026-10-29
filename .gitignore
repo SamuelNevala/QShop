@@ -37,6 +37,9 @@ Thumbs.db
 
 # qtcreator generated files
 *.pro.user*
+/CMakeLists.txt.user*
+/.qtcreator/
+/.qmlls.ini
 
 # xemacs temporary files
 *.flc
@@ -78,3 +81,16 @@ Thumbs.db
 
 # Per-worktree agent build products
 /out/
+
+# Local shell crash reports
+/*.stackdump
+
+# Unused Qt Creator templates; CMake stages the Android manifest and icons only.
+/android/build.gradle
+/android/gradle.properties
+/android/gradle/
+/android/gradlew
+/android/gradlew.bat
+/android/res/values/libs.xml
+/android/res/xml/qtprovider_paths.xml
+/qtquickcontrols2.conf

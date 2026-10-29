@@ -4,7 +4,8 @@ param(
     [string]$SdkRoot = "$env:LOCALAPPDATA\Android\Sdk",
     [string]$NdkVersion = '27.2.12479018',
     [string]$JavaHome = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot',
-    [ValidateSet('arm64', 'x86_64')][string]$Architecture = 'arm64'
+    [ValidateSet('arm64', 'x86_64')][string]$Architecture = 'arm64',
+    [string]$DebugKeystore = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -18,6 +19,12 @@ $hostQt = Join-Path $QtRoot "$QtVersion\msvc2022_64"
 $ndk = Join-Path $SdkRoot "ndk\$NdkVersion"
 foreach ($path in @($qtCmake, $cmake, $ninja, $hostQt, $SdkRoot, $ndk, "$JavaHome\bin\java.exe")) {
     if (!(Test-Path -LiteralPath $path)) { throw "Missing build prerequisite: $path" }
+}
+if ($DebugKeystore) {
+    if (!(Test-Path -LiteralPath $DebugKeystore -PathType Leaf)) {
+        throw "Debug keystore not found: $DebugKeystore"
+    }
+    $DebugKeystore = (Resolve-Path -LiteralPath $DebugKeystore).Path
 }
 
 $previousJavaHome = $env:JAVA_HOME
@@ -48,7 +55,19 @@ try {
     $outputDir = Join-Path $PSScriptRoot 'dist'
     New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
     $outputApk = Join-Path $outputDir "QShopper-$Architecture-debug.apk"
-    Copy-Item -LiteralPath $apk.FullName -Destination $outputApk -Force
+    if ($DebugKeystore) {
+        $deployment = Get-Content -Raw (Join-Path $buildDir 'android-application-deployment-settings.json') |
+            ConvertFrom-Json
+        $apkSigner = Join-Path $SdkRoot "build-tools/$($deployment.sdkBuildToolsRevision)/apksigner.bat"
+        if (!(Test-Path -LiteralPath $apkSigner)) { throw "APK signer not found: $apkSigner" }
+        & $apkSigner sign --ks $DebugKeystore --ks-key-alias androiddebugkey `
+            --ks-pass pass:android --key-pass pass:android --out $outputApk $apk.FullName
+        if ($LASTEXITCODE -ne 0) { throw 'APK signing with the supplied debug keystore failed.' }
+        & $apkSigner verify $outputApk
+        if ($LASTEXITCODE -ne 0) { throw 'Signed APK verification failed.' }
+    } else {
+        Copy-Item -LiteralPath $apk.FullName -Destination $outputApk -Force
+    }
     Write-Output "APK: $outputApk"
 } finally {
     $env:JAVA_HOME = $previousJavaHome

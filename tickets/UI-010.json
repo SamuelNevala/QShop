@@ -1,0 +1,47 @@
+{
+  "id": "UI-010",
+  "title": "Long ComboBox option lists ignore the safe area and leave first and last options unreachable",
+  "status": "reported",
+  "type": "bug",
+  "severity": "major",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "environment": "Current Android phone build; user identified long option lists such as color selectors. Exact selector and keyboard state remain to be recorded.",
+  "reported_by": "user",
+  "reproduction_status": "User-observed; not independently reproduced during backlog gathering",
+  "reproduction": [
+    "Open the drawer and expand a ComboBox containing a long option list, such as an Accent or Primary color selector.",
+    "Scroll to the beginning of the options and try to reach and select the first item.",
+    "Scroll to the end and try to reach and select the last item.",
+    "Observe that the popup does not respect the safe-area border and its endpoint options remain unreachable."
+  ],
+  "actual": "Long ComboBox popups extend into the unsafe screen area, leaving the first and last options unreachable.",
+  "expected": "The popup and its scrollable content respect the usable safe-area bounds. Every option, including the first and last, can be fully reached and selected by touch.",
+  "impact": "Some options cannot be selected through the normal UI. Severity described as major.",
+  "source_notes": [
+    "ComboBox.qml caps popup height against Window.height minus its popup margins, which are fixed Theme.pixels(2) values. Investigate the actual safe-area bounds, popup position, and overlay coordinate system.",
+    "View.qml pads its content using SafeArea.margins, but popup placement may use the window overlay rather than that padded content area. Do not assume content padding alone constrains the popup.",
+    "ColorComboBox.qml inherits ComboBox.qml, so the shared popup behavior should be checked for Accent, Primary, and sufficiently long Lists selectors.",
+    "The existing tst_combobox.qml regression scrolls options to both ends and checks popup height against the full window height, but does not establish endpoint visibility or touch selection inside Android's safe area.",
+    "These are investigation starting points, not a confirmed root cause."
+  ],
+  "relevant_files": ["ComboBox.qml", "ColorComboBox.qml", "View.qml", "Menu.qml", "tests/qml/tst_combobox.qml"],
+  "related_tickets": ["UI-005"],
+  "acceptance_criteria": [
+    "Long popups remain within usable screen bounds clear of system bars, cutouts, and the safe-area border.",
+    "The first and last options can each be scrolled fully into view and selected by touch.",
+    "All intermediate options remain reachable, including after scrolling the drawer before opening the popup.",
+    "Check both color selectors and the Lists selector with enough options to require scrolling.",
+    "Recheck after relevant viewport changes, including opening or closing the keyboard and changing orientation where supported.",
+    "Preserve the intended physical touch-target sizes; do not shrink rows merely to fit all options on screen.",
+    "Retain the existing binding-loop regression checks and add explicit safe-area endpoint reachability coverage.",
+    "Verify the real popup and touch behavior on the affected Android phone."
+  ],
+  "open_questions": [
+    "Which selector, orientation, and keyboard state most clearly reproduce the problem?",
+    "Are endpoint options clipped, obscured by system areas, or impossible to scroll fully into the popup viewport?"
+  ],
+  "evidence": "User report in the QShopper development chat on 2026-10-28; severity explicitly described as major.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

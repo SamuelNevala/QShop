@@ -1,0 +1,36 @@
+{
+  "id": "DEV-005",
+  "title": "Configure clang-tidy and Clazy, analyze the C++ code, and fix actionable findings",
+  "status": "requested",
+  "type": "code_quality",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "reported_by": "user",
+  "scope": "Backlog item only. Tool setup, check selection, analysis, and fixes are deferred until implementation is explicitly requested.",
+  "request": "Set up clang-tidy and the Qt-focused Clazy analyzer with suitable options, analyze the project, and fix the actionable findings.",
+  "expected": "A repeatable static-analysis workflow with useful checks for this Qt/C++17 project, recorded findings, and reviewed fixes that preserve intended behavior.",
+  "implementation_notes": [
+    "Select tool versions compatible with the actual Qt, LLVM/Clang, and platform toolchain used for analysis. Record versions and supported execution environments rather than assuming both analyzers run directly in every installed kit.",
+    "Use a compilation database or equivalent accurate build configuration with the project's real C++ standard, defines, include paths, and generated headers. Keep desktop and Android configurations distinct.",
+    "Choose high-signal correctness, lifetime, performance, and Qt-specific checks. Evaluate check groups before enabling them; do not enable every stylistic or experimental check indiscriminately.",
+    "Check in a .clang-tidy configuration and document the Clazy check selection and repeatable invocation using mechanisms supported by the selected version.",
+    "Focus reports on project-owned sources, headers, and tests. Exclude generated moc/QML registration code and external Qt/dependency implementation warnings while retaining relevant findings attributed to project code.",
+    "Record and triage the initial findings before editing. Deduplicate findings against existing backlog items and distinguish confirmed issues from false positives.",
+    "Review each proposed fix, especially around Qt object ownership, signals/slots, implicit sharing, model notifications, and QML-facing interfaces. Do not blindly apply all automatic fixes.",
+    "Use narrow, justified suppressions only where necessary; do not hide genuine findings through broad exclusions or blanket suppressions.",
+    "Keep integration simple and coordinate build-system changes with DEV-004. Static-analysis tools should not become an unexplained prerequisite for ordinary app builds."
+  ],
+  "acceptance_criteria": [
+    "Document the selected analyzer versions, check sets, build configuration, scope filters, and commands for rerunning both tools.",
+    "Run both clang-tidy and Clazy on the intended project scope and retain a useful summary of their findings.",
+    "Fix actionable findings in reviewable changes, with false positives and intentionally deferred findings explicitly accounted for.",
+    "Preserve the design principles and supported Qt/C++ build behavior; introduce no unrelated feature or formatting changes.",
+    "Rerun the relevant analysis after fixes and report remaining diagnostics with their disposition.",
+    "Run tools/verify-windows.ps1 and targeted regressions or additional platform checks warranted by the actual fixes.",
+    "Keep analyzer configuration, diagnostic evidence, and functional fixes distinguishable for review."
+  ],
+  "related_tickets": ["DEV-003", "DEV-004"],
+  "evidence": "Explicit user request to add clang-tidy/Clazy setup, suitable options, analysis, and fixes to the backlog on 2026-10-28.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

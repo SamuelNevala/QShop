@@ -1,0 +1,32 @@
+{
+  "id": "DEV-003",
+  "title": "Choose clang-format settings and format the project's C++ code",
+  "status": "requested",
+  "type": "code_quality",
+  "priority": "unassigned",
+  "created": "2026-10-28",
+  "reported_by": "user",
+  "scope": "Backlog item only. Do not configure or apply formatting until implementation is explicitly requested.",
+  "request": "Select a good clang-format configuration and apply it consistently to the project's C++ code.",
+  "expected": "A checked-in .clang-format and a repeatable formatting workflow covering project-owned C++ sources and headers, including tests, without intended behavior changes.",
+  "implementation_notes": [
+    "Review Qt's C++ conventions and the existing code when selecting a suitable base style and final options; configuration selection is deferred to implementation.",
+    "Document the supported clang-format version and how to run it, including Qt Creator integration where available.",
+    "Account for Qt-specific constructs such as signals, slots, Q_OBJECT, Q_PROPERTY, and other project macros.",
+    "Treat include ordering carefully so the formatting pass does not introduce compilation or semantic changes.",
+    "Cover application/model code and C++ tests. Exclude generated moc/QML registration code, build outputs, external dependencies, and Qt installation files.",
+    "Keep this mechanical formatting work separate from functional backlog fixes and from the QML formatting task where practical."
+  ],
+  "acceptance_criteria": [
+    "Check in a documented .clang-format configuration with deliberate choices for indentation, braces, line width, pointer/reference alignment, and include handling.",
+    "Apply the actual clang-format tool to all project-owned C++ sources and headers, including tests.",
+    "Preserve Qt macro meaning, preprocessor behavior, and application behavior.",
+    "A second formatting pass produces no additional changes.",
+    "Document a repeatable invocation for future contributors and editor use.",
+    "Review the eventual formatting diff and run tools/verify-windows.ps1; no functional fixes should be bundled into the formatting change."
+  ],
+  "related_tickets": ["DEV-002"],
+  "evidence": "Explicit user request to add C++ clang-format configuration and formatting to the backlog on 2026-10-28.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

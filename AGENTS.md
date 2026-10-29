@@ -4,7 +4,54 @@ QShopper uses C++17, Qt 6.10 or newer, and CMake.
 The validated Windows development kit is Qt 6.12.0 MSVC 2022 x64.
 Qt Creator and its MCP server are optional; all verification runs from PowerShell.
 
+## Product design
+
+Read [DESIGN.md](DESIGN.md) before changing UI, gestures, list ordering, sizing,
+or text entry. It records the user's design intent for one-handed shopping:
+deliberate horizontal swipes with pullback, nearby correction through first-in,
+last-out checked-item ordering, 9.27 mm reference rows, large item text that
+shrinks and wraps to two lines for long entries, a movable editor,
+user-controlled shopping order, continuous keyboard/dictation entry, and an
+animated visual style. Evaluate proposed changes against these principles and
+make any tradeoffs explicit.
+
+## Simplicity
+
+KISS is a standing user preference for QML, C++, CMake, and development tooling.
+Prefer clear, direct implementations. Add abstraction or generalization only when
+it makes the actual code easier to understand and maintain. Fewer lines alone do
+not make a design simpler; preserve necessary safety, error handling, and product
+behavior. The full code review and coding-guide task is tracked as DEV-006.
+
+## Backlog
+
+Use [BACKLOG.md](BACKLOG.md) to collect bugs and missing features, with linked reports in `tickets/`.
+The current phase is backlog gathering; do not implement fixes until the user asks
+to start fixing. Newly reported feature and code-quality requests also remain
+backlog items unless the user explicitly asks for immediate implementation.
+Distinguish user reports, observed bugs, source-review candidates,
+and validation gaps. Record evidence, reproduction details, expected behavior, and
+severity when known. Keep resolved history and avoid reopening old issues solely
+because an earlier verification note predates a later successful check.
+
 ## Verification
+
+Every bug fix must include an automated regression test that reproduces the
+reported failure. Add or strengthen the test first, confirm it fails with the
+original bug, then confirm it passes with the fix. Test observable behavior and
+the real trigger, not just the replacement implementation.
+
+Use the appropriate level: QTest for model behavior, Qt Quick Test for QML
+interactions, and platform/rendering coverage for Android gestures, native IME,
+safe areas, and visual defects that desktop/offscreen tests cannot establish.
+Manual verification complements regression coverage; it does not replace it.
+Use isolated data. Keep regression tests in the normal repeatable verification
+workflow where possible and document any additional platform-specific command.
+
+This applies to all existing and future bug tickets, including bugs found during
+static analysis or cleanup. Record the test name/location and before/after
+results in the ticket resolution. Do not close a bug without its regression test;
+if reproduction or automation is blocked, keep the ticket open and record the gap.
 
 Run `./tools/verify-windows.ps1` to configure, build the app and model tests, and run CTest.
 Use `-Action Build` for configure/build or `-Action Test` to run already-built tests.
