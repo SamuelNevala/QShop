@@ -181,3 +181,42 @@ swipes as actions. All 69 checks in the final matrix passed on 2026-10-29.
 The Android 16/API 36 matrix is automated coverage. On 2026-10-29 the user also
 confirmed that the fix works on the affected Pixel 10 Pro XL running Android 17.
 This phone confirmation does not imply an exhaustive physical-device matrix.
+
+## Selector safe areas (UI-010)
+
+Long Lists, Accent and Primary popups use the full-window safe-area margins plus
+the existing 2 mm spacing. They live in the window overlay, so the drawer's own
+safe-area padding cannot constrain them. Option rows remain 9.27 mm high.
+
+With the x86_64 debug APK installed on the English API 36 emulator, run:
+
+```powershell
+python tests/android/test_popups.py --adb C:/android/sdk/platform-tools/adb.exe --matrix --output out/android-emulator/ui010-matrix-after
+```
+
+The script seeds 30 saved lists and two shopping items in unique isolated data
+directories. Native swipes reach both scroll limits, endpoint bounds are checked
+against Android's reported system-bar/cutout bounds, and taps must persist the
+expected list or color. SQLite checks that the shopping items remain intact.
+The matrix covers portrait, opening Gboard before the drawer (which dismisses
+it and resizes the window), and landscape. Landscape setup enters edit mode in
+portrait before rotating; the short viewport cannot reliably fit the existing
+pull-to-edit gesture (recorded in UI-011). Actual display and accessibility
+rotation are asserted, so a portrait run cannot count as landscape coverage.
+Rotation settings are restored and
+the test app is stopped afterward. The script only accepts emulator serials and
+does not install an APK. Use `--selector accent --endpoint first` for a narrow run.
+
+On the original APK, both Accent endpoints failed the safe-bounds assertions;
+evidence is in `out/android-emulator/ui010-regression-before` and
+`ui010-last-before`. The first row overlapped the status bar and the last row
+extended into the navigation-bar area.
+
+Final validation uses the portrait checks in `ui010-after`, the completed
+`ui010-after-keyboard` profile and the rotation-asserted
+`ui010-landscape-verified` profile. Their combined results and source paths are
+recorded under `ui010-matrix-after`. Use `--profile keyboard_resize` or
+`--profile landscape` to run those profiles separately.
+All 54 checks passed on 2026-10-29. The shared-key ARM64 debug APK was rebuilt
+and its signature verified. The user confirmed the fix on the affected Android 17
+phone on 2026-10-29; this complements the automated emulator coverage.

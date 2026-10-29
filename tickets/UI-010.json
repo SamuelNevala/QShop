@@ -1,14 +1,14 @@
 {
   "id": "UI-010",
   "title": "Long ComboBox option lists ignore the safe area and leave first and last options unreachable",
-  "status": "reported",
+  "status": "resolved",
   "type": "bug",
   "severity": "major",
-  "priority": "unassigned",
+  "priority": 4,
   "created": "2026-10-28",
   "environment": "Current Android phone build; user identified long option lists such as color selectors. Exact selector and keyboard state remain to be recorded.",
   "reported_by": "user",
-  "reproduction_status": "User-observed; not independently reproduced during backlog gathering",
+  "reproduction_status": "Safe-area overlap reproduced on 2026-10-29 in six QML cases and on Android 16/API 36 with native system bars. Both Accent endpoints fail before the fix. The emulator shows partial clipping; the full extent of the original phone unreachability needs confirmation. After the fix, endpoint selection passes across all three selectors, keyboard resizing and verified landscape. The user confirmed the fix on the affected Android 17 phone on 2026-10-29.",
   "reproduction": [
     "Open the drawer and expand a ComboBox containing a long option list, such as an Accent or Primary color selector.",
     "Scroll to the beginning of the options and try to reach and select the first item.",
@@ -19,14 +19,21 @@
   "expected": "The popup and its scrollable content respect the usable safe-area bounds. Every option, including the first and last, can be fully reached and selected by touch.",
   "impact": "Some options cannot be selected through the normal UI. Severity described as major.",
   "source_notes": [
-    "ComboBox.qml caps popup height against Window.height minus its popup margins, which are fixed Theme.pixels(2) values. Investigate the actual safe-area bounds, popup position, and overlay coordinate system.",
-    "View.qml pads its content using SafeArea.margins, but popup placement may use the window overlay rather than that padded content area. Do not assume content padding alone constrains the popup.",
-    "ColorComboBox.qml inherits ComboBox.qml, so the shared popup behavior should be checked for Accent, Primary, and sufficiently long Lists selectors.",
-    "The existing tst_combobox.qml regression scrolls options to both ends and checks popup height against the full window height, but does not establish endpoint visibility or touch selection inside Android's safe area.",
-    "These are investigation starting points, not a confirmed root cause."
+    "ComboBox.qml originally capped popup height using the full window with only fixed 2 mm top/bottom margins. The drawer pads its own contents for SafeArea, but the popup is reparented to the window overlay and can escape that padding.",
+    "Read the full-window content item SafeArea margins when setting all four popup margins. Do not use the already-inset ComboBox local SafeArea, which can be zero, and do not position the popup using its own SafeArea.",
+    "The existing count-based height cap automatically accounts for the corrected top/bottom margins without feeding viewport-dependent ListView.contentHeight back into height. Preserve this to avoid binding loops.",
+    "Keep the 9.27 mm option rows, existing popup padding, animation, color delegates, and selection callbacks. Opening the drawer dismisses the keyboard; native coverage checks the real resize before popup selection."
   ],
-  "relevant_files": ["ComboBox.qml", "ColorComboBox.qml", "View.qml", "Menu.qml", "tests/qml/tst_combobox.qml"],
-  "related_tickets": ["UI-005"],
+  "relevant_files": [
+    "ComboBox.qml",
+    "ColorComboBox.qml",
+    "View.qml",
+    "Menu.qml",
+    "tests/qml/tst_combobox.qml"
+  ],
+  "related_tickets": [
+    "UI-005"
+  ],
   "acceptance_criteria": [
     "Long popups remain within usable screen bounds clear of system bars, cutouts, and the safe-area border.",
     "The first and last options can each be scrolled fully into view and selected by touch.",
@@ -37,11 +44,54 @@
     "Retain the existing binding-loop regression checks and add explicit safe-area endpoint reachability coverage.",
     "Verify the real popup and touch behavior on the affected Android phone."
   ],
-  "open_questions": [
-    "Which selector, orientation, and keyboard state most clearly reproduce the problem?",
-    "Are endpoint options clipped, obscured by system areas, or impossible to scroll fully into the popup viewport?"
-  ],
+  "open_questions": [],
   "evidence": "User report in the QShopper development chat on 2026-10-28; severity explicitly described as major.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "implementation": {
+    "date": "2026-10-29",
+    "change": "Add the window content item SafeArea margins to the popup top/bottom/left/right margins, retaining the existing 2 mm spacing. The existing popup height cap then uses the usable height.",
+    "regression_tests": [
+      {
+        "location": "tests/qml/tst_popupsafearea.qml",
+        "name": "ComboBoxSafeArea::test_endpoints (Lists/Accent/Primary, first/last)",
+        "before": "All six data cases fail because popup content overlaps the top safe area. Tests use Qt SafeArea.additionalMargins on the real main window, a long persisted Lists model and production drawer selectors.",
+        "after": "All eight records including setup/cleanup pass offscreen and with native Windows rendering. Tests change window size and safe-area margins while open, verify the whole viewport and endpoint row remain safe, preserve row height and click the row to assert the actual activation and selected value.",
+        "evidence": [
+          "out/windows-agent/tests/ui010-before.xml",
+          "out/windows-agent/tests/ui010-after.xml",
+          "out/windows-agent/tests/ui010-windows.xml"
+        ]
+      },
+      {
+        "location": "tests/android/test_popups.py",
+        "name": "Native selector endpoint reachability, selection persistence and item preservation",
+        "before": "On the original APK, first Accent row bounds [21,67,1200,269] overlap the status bar; last row [21,2849,1200,3051] overlaps the navigation bar. Native usable vertical bounds are approximately 145..3036. Both first/last regression runs fail reachability.",
+        "evidence": [
+          "out/android-emulator/ui010-regression-before/results.json",
+          "out/android-emulator/ui010-last-before/results.json",
+          "out/android-emulator/ui010-after/results.json (portrait cases)",
+          "out/android-emulator/ui010-after-keyboard/results.json",
+          "out/android-emulator/ui010-landscape-verified/results.json",
+          "out/android-emulator/ui010-matrix-after/results.json"
+        ],
+        "command": "python tests/android/test_popups.py --adb C:/android/sdk/platform-tools/adb.exe --matrix --output out/android-emulator/ui010-matrix-after",
+        "coverage": "Both ends of Lists (30 saved lists plus the lists entry), Accent and Primary in portrait, after Gboard opening/drawer dismissal, and true landscape. Uses native swipe/tap input, system-reported safe bounds, saved settings and SQLite. Display and accessibility rotation are asserted; landscape setup enters edit mode in portrait before rotating because the long pull gesture does not reliably fit the short landscape viewport (UI-011). Only emulator serials are allowed and rotation settings are restored.",
+        "after": "All 54 native checks pass across three profiles: portrait, after real Gboard resize/dismissal, and landscape with display/accessibility rotation asserted at 1 (3120 by 1440). Each of six selector/endpoint combinations checks full safe bounds, taps and verifies the persisted selection, and confirms shopping items remain intact. Combined results include source report paths; the earlier unverified landscape run is excluded."
+      }
+    ],
+    "remaining": "None for UI-010. Automated regression coverage and user confirmation on the affected phone are recorded; broader physical-phone interaction coverage remains QA-001.",
+    "sources": [
+      "https://doc.qt.io/qt-6/qml-qtquick-controls-popup.html#topMargin-prop",
+      "https://doc.qt.io/qt-6/qml-qtquick-safearea.html"
+    ],
+    "verification": [
+      "Windows configure/build and all three CTest entries pass: 85 UI, 6 keyboard and 52 model records.",
+      "All eight ComboBoxSafeArea records pass with native Windows rendering.",
+      "ARM64 debug APK rebuilt with the shared key and its signature verified: SHA-256 7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b.",
+      "Native Android: all 54 verified-profile checks pass; summary and source reports are in out/android-emulator/ui010-matrix-after. An initial asynchronous Gboard setup check was corrected with a bounded wait. Landscape setup enters edit mode before rotating, and true rotation is now asserted."
+    ],
+    "phone_validation": "2026-10-29: user reported \"Fix confirmed commit\" for UI-010. This confirms the reported fix on the affected phone without claiming an exhaustive physical-device matrix."
+  },
+  "resolved": "2026-10-29"
 }

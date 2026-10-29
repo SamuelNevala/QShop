@@ -87,7 +87,14 @@ Controls.ComboBox {
     // Avoid feeding ListView's viewport-dependent contentHeight back into its height.
     popup.height: Math.min(root.count * rowHeight + root.popup.topPadding + root.popup.bottomPadding,
                            Math.max(0, root.Window.height - root.popup.topMargin - root.popup.bottomMargin))
+    // Popups live in the window overlay, outside the drawer's safe-area padding.
     popup.topMargin: Theme.pixels(2)
+        + (root.Window.contentItem ? root.Window.contentItem.SafeArea.margins.top : 0)
     popup.bottomMargin: Theme.pixels(2)
+        + (root.Window.contentItem ? root.Window.contentItem.SafeArea.margins.bottom : 0)
+    popup.leftMargin: Theme.pixels(2)
+        + (root.Window.contentItem ? root.Window.contentItem.SafeArea.margins.left : 0)
+    popup.rightMargin: Theme.pixels(2)
+        + (root.Window.contentItem ? root.Window.contentItem.SafeArea.margins.right : 0)
     popup.verticalPadding: Theme.pixels(1)
 }

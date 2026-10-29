@@ -452,3 +452,35 @@ directory.
 After the cast and brace changes, the Windows build and all three CTest entries
 passed again; see `ui007-followup-verify.txt`. The signed ARM64 APK was rebuilt
 and its shared-key signature verified.
+
+## UI-010 selector endpoint reachability
+
+`qml/tst_popupsafearea.qml` uses the production main window and drawer with 30
+saved lists. Qt's public `SafeArea.additionalMargins` simulates asymmetric bars
+and cutouts on the window content item. All six data cases (first/last option in
+Lists, Accent and Primary) fail on the original popup layout. After the margin
+fix, all eight records pass offscreen and with native Windows rendering.
+
+The test resizes the window and changes safe margins while the popup is open,
+asserts the viewport and full endpoint row are within usable bounds, preserves
+row height, and clicks the endpoint to verify activation and the actual selected
+list/color. It fails on binding-loop warnings and runs in the normal UI suite,
+alongside the earlier repeated scroll/resize/zoom popup test.
+
+Native Android coverage uses `android/test_popups.py`; see ANDROID.md for the
+repeatable command. It scrolls and taps real controls in portrait, after native
+keyboard resizing, and in landscape, checking Android's actual insets, persisted
+selections and unchanged shopping items. Landscape setup enters edit mode before
+rotation, and display/accessibility rotation must match the requested profile.
+The original first and last color rows
+each fail the safe-area assertion. Reports are `ui010-before.xml`,
+`ui010-after.xml`, `ui010-windows.xml` under `out/windows-agent/tests` and
+`ui010-regression-before`, `ui010-last-before`, `ui010-after` (portrait),
+`ui010-after-keyboard` and `ui010-landscape-verified` under
+`out/android-emulator`. `ui010-matrix-after` combines the passing profile results
+and records their source paths. The user confirmed the fix on the affected
+Android 17 phone on 2026-10-29.
+All 54 native checks pass. Windows configure/build and all three CTest entries
+also pass: 85 UI, 6 keyboard and 52 model records. The normal verification log is
+`out/windows-agent/tests/ui010-verify.txt`. The shared-key ARM64 APK was rebuilt
+and its signature verified.

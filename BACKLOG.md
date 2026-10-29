@@ -1,7 +1,7 @@
 # QShopper backlog
 
 Started: 2026-10-28. QShopper is near feature complete. Backlog gathering and
-prioritization are recorded below. UI-004 and UI-007 are resolved. UI-006 is
+prioritization are recorded below. UI-004, UI-007 and UI-010 are resolved. UI-006 is
 implemented pending phone confirmation; remaining tickets stay deferred until selected.
 
 Use [DESIGN.md](DESIGN.md) when deciding what counts as correct behavior. Keep
@@ -43,7 +43,7 @@ test. This recommendation does not itself authorize starting implementation.
 | 1 | [UI-004](tickets/UI-004.json) — right-swipe selection/deletion | Resolved: regression tests pass; user confirmed half-width behavior and comfortable phone feel at 150% sensitivity |
 | 2 | [UI-007](tickets/UI-007.json) — Back/long-press leak | Resolved: QML and native Android regressions pass; user confirmed the fix works on the affected phone |
 | 3 | [UI-006](tickets/UI-006.json) — Back navigation | Implemented and covered by Windows and native Android tests; pending phone confirmation. User chose existing discard/restore behavior for unfinished edits |
-| 4 | [UI-010](tickets/UI-010.json) — unreachable ComboBox options | Restore access to all choices; test actual safe-area bounds and endpoint selection |
+| 4 | [UI-010](tickets/UI-010.json) — unreachable ComboBox options | Resolved: endpoint bounds/selection regressions and 54 native Android checks pass; user confirmed the fix on the phone |
 | 5 | [UI-009](tickets/UI-009.json) — reset ordering | Protect list reuse and persisted order. Reproduce the exact example first because a simple source trace already appears to meet it; avoid a speculative rewrite |
 | 6 | [UI-008](tickets/UI-008.json), then [UI-001](tickets/UI-001.json) | Fix long-list rendering, then recheck/fix the fresh-install list selection. Retain their distinct visual and state regression tests |
 | 7 | [QA-003](tickets/QA-003.json), UI-003, and QA-001 | Complete remaining interaction coverage and assess the unconfirmed text-fitting discrepancy. Use a physical-phone shopping pass to expose integration problems |
@@ -80,7 +80,6 @@ regressions remain easy to trace.
 
 | ID | Finding | Evidence/status | Severity |
 | --- | --- | --- | --- |
-| [UI-010](tickets/UI-010.json) | Long ComboBox option lists, such as colors, ignore the safe area and make the first and last options unreachable | User-observed; independent reproduction pending; distinct from UI-005's color mismatch | Major, per user |
 | [UI-009](tickets/UI-009.json) | Reset checks should retain the selection-derived order for reuse: initial 1,2,3; check 3,1,2; reset to 2,1,3 | User-reported; exact failure/order and persistence need reproduction; simple source trace appears to meet the example | Major, per user |
 | [UI-008](tickets/UI-008.json) | Empty-area background rectangle appears inappropriately while scrolling lists of roughly 35+ items | User-observed; independent reproduction pending; preserve the intentional short/long-list background continuity | Major, per user |
 | [UI-005](tickets/UI-005.json) | Safe-area border and swipeable background do not match or consistently follow the theme | User-reported on current phone build; reproduction pending | Minor, per user |
@@ -256,6 +255,7 @@ emulator evidence exists. Physical-phone behavior remains a separate check.
 | --- | --- | --- |
 | [UI-004](tickets/UI-004.json) | Right-swipe selection/deletion and excessive swipe resistance | Absolute-distance fix and gravity tuning; before/after regressions pass. User confirmed half-width behavior and phone feel at 150% sensitivity on 2026-10-29 |
 | [UI-007](tickets/UI-007.json) | Back cancellation leaks a long press and breaks the next item interaction | Reset the stale cancelled tap recognizer and reject cancelled swipe actions. Before/after QML and native Android tests pass; user confirmed the fix works on the phone on 2026-10-29 |
+| [UI-010](tickets/UI-010.json) | Long selector popup endpoints overlap unsafe screen areas | Use window safe-area margins for popup bounds; before/after regressions and 54 native Android checks pass. User confirmed the phone fix on 2026-10-29 |
 | [UI-002](tickets/UI-002.json) | Null-dimensions error during component startup | Theme migration removed the delayed Dimensions dependency; regression coverage exists |
 | [Keyboard resize](ANDROID.md#keyboard-resize-verification) | Keyboard covered the end of a long list | Explicit Android `adjustResize`; emulator scrolling and ten hide/show cycles passed, with no near-black frames in the recorded test. Physical-phone verification belongs to QA-001 |
 | APK signing, 2026-10-28 | Phone refused the update because the signing certificate differed | Original shared debug key matched the installed certificate; rebuilt APK verified, and user confirmed the update installed. `build-android.ps1 -DebugKeystore ../debug.keystore` preserves that signing choice |
@@ -268,5 +268,7 @@ start a ticket, with reproduction details added later.
 
 The suggested order above remains the execution plan. UI-004, UI-006 and UI-007
 were selected separately after prioritization. UI-007 is resolved with
-regression coverage and phone confirmation; UI-010 is next in the
-suggested order unless the user chooses otherwise.
+regression coverage and phone confirmation. The user then selected UI-010;
+it is resolved with automated coverage and phone confirmation.
+UI-011 was suggested as a small follow-up, followed by UI-009, unless the user
+chooses otherwise. Those tickets remain deferred until selected.
