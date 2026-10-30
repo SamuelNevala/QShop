@@ -69,6 +69,11 @@ Two additional QML scenarios verify Theme conversion using the real attached Scr
 and component sizing without a Dimensions reference. Four preview scenarios verify build/platform
 gating, reactive geometry, limits, keyboard zoom, and preserved list data. Two persistence scenarios verify scale restoration in a fresh engine and window position restoration in a new window.
 A popup regression opens all three drawer selectors while scrolling, resizing, and zooming; binding-loop warnings fail the test.
+A list-background regression samples rendered row interiors while scrolling
+34/35/80-item lists and checks empty/short lists, both themes, touch flicks,
+viewport resizing, checks, editor movement and removal. Its native Android
+companion compares actual frames between slideshow transitions with isolated data;
+see tests/README.md for commands and the Pillow requirement.
 The Qt Quick Test suite runs offscreen; it does not certify the full app's menu or visual appearance.
 Coverage is optional and separate from the normal verification command.
 

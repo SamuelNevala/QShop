@@ -51,10 +51,12 @@ ListView {
     }
 
     Rectangle {
+        objectName: "emptyAreaBackground"
         color: Material.backgroundColor
-        height: parent.height - y; width: parent.width
+        height: Math.max(0, shopView.height - y); width: shopView.width
         opacity: height <= 0 ? 0.0 : 0.8
-        y: Math.max(0, shopView.contentItem.childrenRect.height  - shopView.contentY)
+        // Delegate bounds cover only the instantiated rows, not the whole list.
+        y: Math.max(0, shopView.originY + shopView.contentHeight - shopView.contentY)
         z: -1
     }
 

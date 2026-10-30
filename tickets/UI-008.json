@@ -1,14 +1,14 @@
 {
   "id": "UI-008",
   "title": "Empty-area background rectangle appears inside the view when scrolling a long list",
-  "status": "reported",
+  "status": "resolved",
   "type": "bug",
   "severity": "major",
   "priority": "unassigned",
   "created": "2026-10-28",
   "environment": "Current Android phone build; reported with approximately 35 or more list items. Exact threshold on other viewport sizes is not established.",
   "reported_by": "user",
-  "reproduction_status": "User-observed; not independently reproduced during backlog gathering",
+  "reproduction_status": "Independently reproduced with virtualized lists in Qt Quick pixel tests and in the Android emulator. User confirmed the supplied fix on the affected phone on 2026-10-31.",
   "reproduction": [
     "Open or create a list containing 35 or more items.",
     "Scroll down through the list.",
@@ -19,12 +19,23 @@
   "impact": "Major visual defect during ordinary long-list scrolling, per the user. No data loss or input failure has been reported.",
   "design_intent": "The filler rectangle is intentional: it extends the delegates' background treatment into otherwise uncovered viewport space so short and long lists look consistent. Preserve that purpose when fixing its geometry.",
   "source_notes": [
-    "ShopView.qml positions the Rectangle using contentItem.childrenRect.height minus contentY, clamped at zero. Its height is the viewport height minus y, its opacity is 0.8 when height is positive, and its z is -1.",
-    "The view has a cacheBuffer of 20 reference row heights. Investigate whether instantiated delegate bounds, virtualization, content origin, or coordinate conversion cause the filler position to differ from the actual end of the list.",
-    "These are investigation starting points, not a confirmed root cause. The reported 35-item threshold should be checked at multiple viewport heights."
+    "Before the fix: ShopView.qml positions the Rectangle using contentItem.childrenRect.height minus contentY, clamped at zero. Its height is the viewport height minus y, its opacity is 0.8 when height is positive, and its z is -1.",
+    "Confirmed cause: contentItem.childrenRect covers only currently instantiated delegates. After virtualization discards earlier rows, its height no longer describes the full list extent, bringing the filler under visible delegates and compounding their opacity.",
+    "The apparent item-count threshold depends on viewport height and cache coverage. Tests include 34, 35 and 80 items at two heights rather than treating 35 as a universal boundary."
   ],
-  "relevant_files": ["ShopView.qml", "DelegateChoser.qml", "TextDelegate.qml", "View.qml"],
-  "related_tickets": ["UI-005"],
+  "relevant_files": [
+    "ShopView.qml",
+    "DelegateChoser.qml",
+    "TextDelegate.qml",
+    "View.qml",
+    "tests/qml/tst_listbackground.qml",
+    "tests/android/test_listbackground.py",
+    "tests/CMakeLists.txt",
+    "tests/README.md"
+  ],
+  "related_tickets": [
+    "UI-005"
+  ],
   "acceptance_criteria": [
     "Empty and short lists retain the intended continuous background beneath the last delegate.",
     "Lists around and above the reported threshold, including 34, 35, and substantially more items, scroll without an unintended filler block or boundary appearing within the list.",
@@ -33,11 +44,35 @@
     "Preserve the intended opacity and theme relationship; coordinate colors with UI-005 without treating this geometry problem as only a color mismatch.",
     "Verify the rendered result on the affected phone; the existing 35-item keyboard reachability check does not by itself validate this background behavior."
   ],
-  "open_questions": [
-    "Does the rectangle appear partway through scrolling, only at the end, or both?",
-    "Which edit mode and keyboard state best demonstrate the issue?"
-  ],
+  "open_questions": [],
   "evidence": "User report in the QShopper development chat on 2026-10-28; severity explicitly described as major and list size described as 35 or more items.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "implementation": {
+    "date": "2026-10-31",
+    "change": "Position the filler at originY + contentHeight - contentY, clamped at zero. Clamp its remaining viewport height at zero. Preserve its Material background, opacity and z order, reference row height and cache buffer.",
+    "design": "Retain the intentional continuous background for empty/short lists. Use the complete ListView extent, including its changing content origin, instead of increasing the delegate cache or disabling virtualization.",
+    "qml_regression": "tests/qml/tst_listbackground.qml: rendered right-edge pixel comparisons and independent end-of-model geometry assertions cover 34/35/80-item lists, compact/tall viewports, Light/Dark themes, both scroll directions, real touch flicks, viewport resizing, empty/short lists, checks, editor movement and bulk removal. Sample row interiors to exclude fractional rasterized edges.",
+    "before": "With the original geometry, five of nine QTest records failed, including real touch scrolling and visible opacity discontinuities for 34/35/80-item compact lists and an 80-item tall list. The short-list control and 35-item tall control passed. A later mutation-control scenario brings the final suite to ten records.",
+    "windows_after": "All ten focused records pass both offscreen and with a real Windows window/rendering backend. The complete Windows workflow passes all three CTest entries: 102 UI, 6 keyboard and 61 model records. The UI timeout increases from 150 to 180 seconds for the additional scrolling/rendering scenarios; the passing UI run took 152.69 seconds.",
+    "android_regression": "tests/android/test_listbackground.py uses native swipes, raw screenshot pairs synchronized to a stationary slideshow image, row-interior pixel comparisons and saved SQLite identity/order/check comparisons. Targets only an isolated emulator and unique QSHOPPER_DATA_DIR; Pillow is required.",
+    "android_after": "All 15 native Android checks pass: 34-, 35- and 80-item down/up scroll profiles with unchanged saved items, plus a six-check real-IME profile covering opening, available area, rendered scrolling, dismissal/visible rows and unchanged items. All ordinary scroll samples are unchanged; the keyboard profile has at most 0.625% changed samples, below the 2% row-edge tolerance. Pixel comparisons mask the native IME inset because accessibility can expose cached rows behind the keyboard. Scrolling can recycle the editor and dismiss the IME; the harness sends Back only if it remains open.",
+    "phone_apk": "dist/QShopper-arm64-debug.apk rebuilt with -SdkRoot C:/android/sdk -DebugKeystore ../debug.keystore; apksigner verifies certificate SHA-256 7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b. APK SHA-256: 685ca1a13a282c8e6a5491b49a0812cea6189b91da11f4a8168d71b28b7ae231. No physical-device installation performed.",
+    "remaining": "None. Automated before/after regressions pass, and the user confirmed the fix on the affected phone and requested a commit.",
+    "artifacts": [
+      "out/windows-agent/tests/ui008-before.xml",
+      "out/windows-agent/tests/ui008-after.xml",
+      "out/windows-agent/tests/ui008-windows.xml",
+      "out/windows-agent/tests/ui008-verify.txt",
+      "out/android-emulator/ui008-after-80/results.json",
+      "out/android-emulator/ui008-original-verified/results.json",
+      "out/android-emulator/ui008-after-keyboard/results.json",
+      "out/android-emulator/ui008-after-34/results.json",
+      "out/android-emulator/ui008-after-35/results.json",
+      "out/android-emulator/ui008-results.json"
+    ],
+    "android_before": "The synchronized native screenshot regression fails against a temporary APK with the original filler geometry: 78 of 816 sampled pixels (9.56%) change after a native scroll. This is out/android-emulator/ui008-original-verified/results.json; earlier exploratory captures crossed slideshow transitions and are not regression evidence.",
+    "phone_validation": "2026-10-31: user reported \"fix confirmed, make a commit.\" This confirms the supplied UI-008 test APK on the affected phone. No physical-device installation was performed by the agent."
+  },
+  "resolved": "2026-10-31"
 }

@@ -561,3 +561,55 @@ app and expected rows before inspection. Exact/mixed checks and a pending-case
 retry are combined with source paths in `out/android-emulator/ui009-simple-verified`.
 Both APKs were rebuilt and the shared-key ARM64 signature verified.
 The user confirmed the supplied test APK works and requested closure on 2026-10-30.
+
+## Long-list background regression (UI-008)
+
+`qml/tst_listbackground.qml` uses the production ShopView over a solid test
+background. It compares rendered pixels inside rows and checks the filler against
+the end of the complete model, inferred from a real delegate's position and the
+fixed row height. It covers 34, 35 and 80 items at compact/tall viewport heights,
+Light/Dark themes, down/up scrolling, actual touch flicks, viewport resizing,
+empty/short lists, checking, editor movement and bulk removal. Fractional row
+edges are excluded from pixel samples. It runs in the normal Windows verification
+workflow; the UI timeout is 180 seconds to accommodate the added scenarios.
+
+With the original geometry, five of nine focused QTest records failed with visible
+opacity discontinuities. All ten final records (including a later mutation-control
+scenario) pass offscreen and with real Windows rendering. The complete Windows
+workflow passes 102 UI, 6 keyboard and 61 model records on 2026-10-31.
+
+Run the focused real-window check with the Qt kit on PATH and
+`QT_QUICK_BACKEND` unset:
+
+```powershell
+./out/windows-agent/qshopper_ui_tests.exe -input ./tests/qml/tst_listbackground.qml -import ./out/windows-agent -o out/windows-agent/tests/ui008-windows.xml,junitxml
+```
+
+The separate Android regression requires Python with Pillow and the fixed APK
+installed on the isolated emulator. It uses disposable data, actual native swipes,
+raw rendered frames and SQLite identity/order/check comparisons. To keep the
+animated artwork from invalidating pixel comparisons, it observes a real slideshow
+transition, waits for the new image to settle and captures the scroll pair before
+the next transition. Screenshots are encoded after capture. A timing failure is a
+harness gap, not evidence of a product defect.
+
+```powershell
+python tests/android/test_listbackground.py --adb C:/android/sdk/platform-tools/adb.exe --count 80 --output out/android-emulator/ui008-after-80
+python tests/android/test_listbackground.py --adb C:/android/sdk/platform-tools/adb.exe --count 34 --output out/android-emulator/ui008-after-34
+python tests/android/test_listbackground.py --adb C:/android/sdk/platform-tools/adb.exe --count 35 --output out/android-emulator/ui008-after-35
+python tests/android/test_listbackground.py --adb C:/android/sdk/platform-tools/adb.exe --count 80 --keyboard --output out/android-emulator/ui008-after-keyboard
+```
+
+The native before-fix APK fails the synchronized pixel comparison: 78/816 sampled
+pixels change (9.56%). The fixed 34-, 35- and 80-item runs pass both directions with no
+changed sampled pixels. Together with the native-IME profile, all 15 native checks
+pass. The native-IME profile passes all six checks, including
+keyboard opening, scrolling, dismissal and unchanged saved data. It masks the
+actual IME inset because accessibility can expose cached rows behind the keyboard.
+If scrolling recycles the editor and already dismisses the keyboard, the harness
+does not send an additional Back action.
+
+Reports, UI XML and screenshots stay in the requested output folder. Never target
+a physical device with this script. The emulator does not certify the affected
+phone's appearance. The user confirmed the supplied fix on the affected phone and
+requested closure and a commit on 2026-10-31.
