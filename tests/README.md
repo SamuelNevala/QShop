@@ -85,11 +85,10 @@ visible Windows run verified startup/rendering, typing and submitting Milk,
 left-swipe checking (strikethrough and reordering), opening the drawer, and
 switching from Dark to Light theme. Personal shopping data was not used.
 
-Unresolved full-app findings:
+Earlier full-app finding, resolved as UI-001 on 2026-10-31:
 
-- On fresh data, the Lists combo box has blank selected text although the
-  default list is active. Theme.activeList starts as `default`, while
-  the combo box matches UUID values.
+- On fresh data, the Lists combo box had blank selected text although the
+  default list was active. See the UI-001 regression evidence below.
 
 The former null-dimensions startup error (UI-002) is resolved by the Theme migration:
 components use Theme.pixels() directly and no longer wait for a Dimensions assignment.
@@ -124,9 +123,9 @@ disposable data reached the loaded shopping view without QML binding errors or
 Dimensions initialization messages.
 This startup check does not certify visual appearance.
 An earlier visible Windows run with disposable data verified startup and the
-drawer's list and color selector geometry. The blank fresh-install list selection
-remains deferred as UI-001. Visual behavior has not been retested after dropping
-Dimensions usage.
+drawer's list and color selector geometry. The former blank fresh-install selection
+is resolved as UI-001, with current rendering verification documented below.
+That earlier run did not cover the later changes.
 
 The offscreen suite does not validate the complete drawer, list switching,
 long-press reordering, touch input, actual monitor/DPI switching, or Android behavior.
@@ -613,3 +612,40 @@ Reports, UI XML and screenshots stay in the requested output folder. Never targe
 a physical device with this script. The emulator does not certify the affected
 phone's appearance. The user confirmed the supplied fix on the affected phone and
 requested closure and a commit on 2026-10-31.
+
+## List selection regression (UI-001)
+
+`qml/tst_listselection.qml` opens the real drawer through the editor menu button
+and clicks selector popup rows. It covers fresh default display, distinct shopping
+contents when switching, reopening the drawer, refresh after adding a list, the
+special lists-management entry and persistence. `UiSetup::restoredActiveList()`
+reads the setting through a fresh QQmlEngine; the QML test also recreates the main
+window and checks its contents and selected label.
+
+The original code fails two of six focused QTest records (initial default and
+refresh). All six pass after the fix, both offscreen and with real Windows
+rendering. The complete Windows configure/build/CTest run passes 108 UI, 6 keyboard
+and 61 model records on 2026-10-31. Reports use the `ui001-*` prefix under
+`out/windows-agent/tests`.
+
+The model resolves the initial `default` alias to a UUID. ShopView now persists
+that resolved UUID, and the drawer binds `currentValue` to the active setting
+instead of maintaining duplicate index assignments. The writable ComboBox value
+is supported by the project's Qt 6.10 minimum. Display names and UUIDs keep their
+separate roles; the zero-UUID lists-management entry is preserved.
+
+The native popup script now checks initial list selection and optionally verifies
+the displayed selection after a real process force-stop/cold restart:
+
+```powershell
+python tests/android/test_popups.py --adb C:/android/sdk/platform-tools/adb.exe --selector lists --restart --output out/android-emulator/ui001-after
+```
+
+All ten checks pass for the default and lists-management endpoints, including
+preserved shopping data. Windows covers switching to another shopping list with
+distinct contents. Android reports and screenshots use isolated emulator data.
+Both APKs were rebuilt and the shared-key ARM64 signature verified; no physical
+phone installation or verification was performed by the agent.
+
+The user accepted UI-001 and requested a commit on 2026-10-31, explicitly waiving
+fresh-install phone verification to preserve existing phone data.

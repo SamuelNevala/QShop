@@ -171,18 +171,13 @@ Style.Control {
                             model: sortedModel
                             textRole: "name"
                             valueRole: "id"
+                            currentValue: Theme.activeList
                             label: qsTr("Lists")
                             width: menu.contentItem.width
 
                             onActivated: {
                                 Theme.activeList = currentValue
                                 menu.close();
-                            }
-                            onCountChanged: {
-                                currentIndex = indexOfValue(Theme.activeList)
-                            }
-                            Quick.Component.onCompleted: {
-                                currentIndex = indexOfValue(Theme.activeList)
                             }
                         }
                     }

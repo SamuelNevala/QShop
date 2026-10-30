@@ -1,4 +1,4 @@
-"""UI-010: scroll to and select selector endpoints inside native Android safe areas."""
+"""UI-010 popup bounds and UI-001 initial/cold-restart list selection."""
 
 import argparse
 from contextlib import closing
@@ -28,6 +28,7 @@ def main():
     parser.add_argument("--matrix", action="store_true",
                         help="Also test a rotated-device request and a real keyboard resize")
     parser.add_argument("--profile", choices=("portrait", "keyboard_resize", "rotated"), default="portrait")
+    parser.add_argument("--restart", action="store_true", help="UI-001: verify list selection after a cold restart")
     args = parser.parse_args()
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator serial is allowed")
@@ -198,6 +199,8 @@ def main():
                                   width // 3, safe[1] + 150, 400)
                             ui = tree()
                         assert combo is not None, "Selector was not reachable in drawer"
+                        if selector == "lists":
+                            check("initial_selection", combo.get("content-desc") == "default", ui)
                         combo_rect = bounds(combo)
                         tap(combo)
                         x = (combo_rect[0] + combo_rect[2]) // 2
@@ -235,6 +238,29 @@ def main():
                         with closing(sqlite3.connect(case_dir / "saved.sqlite")) as db:
                             saved = db.execute(f'SELECT name,checked FROM "{DEFAULT}" ORDER BY rowid').fetchall()
                         check("items_preserved", saved == [("milk", 0), ("bread", 0)], ui)
+                        if args.restart and selector == "lists":
+                            shell("am", "force-stop", PACKAGE)
+                            shell("am", "start", "-n", PACKAGE + "/org.qtproject.qt.android.bindings.QtActivity",
+                                  "--es", "extraenvvars_QSHOPPER_DATA_DIR", data)
+                            time.sleep(1.5)
+                            ui = tree()
+                            rows = [bounds(n) for n in ui.iter("node") if n.get(
+                                "resource-id", "").rsplit(".", 1)[-1].startswith("TextDelegate_")
+                                and bounds(n)[3] > bounds(n)[1]]
+                            assert rows, "Restart did not load shopping rows"
+                            first = min(rows, key=lambda rect: rect[1])
+                            shell("input", "swipe", width // 2, (first[1] + first[3]) // 2,
+                                  width // 2, height - 100, 1200)
+                            ui = tree()
+                            field = editor(ui)
+                            assert field is not None, "Restart did not enter edit mode"
+                            left, top, right, bottom = bounds(field)
+                            shell("input", "tap", left + (bottom - top) // 2, (top + bottom) // 2)
+                            ui = tree()
+                            selected = [n for n in ui.iter("node") if n.get("class") == "android.widget.Spinner"
+                                        and "ColorComboBox_" not in n.get("resource-id", "")]
+                            check("restart_selection", len(selected) == 1
+                                  and selected[0].get("content-desc") == label, ui)
         finally:
             shell("am", "force-stop", PACKAGE)
             shell("rm", staging)

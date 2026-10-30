@@ -1,7 +1,7 @@
 {
   "id": "UI-001",
   "title": "Lists selector has a blank selection on a fresh installation",
-  "status": "deferred",
+  "status": "resolved",
   "type": "bug",
   "created": "2026-10-03",
   "environment": "Windows 11, Qt 6.12.0, MSVC x64 Debug",
@@ -12,8 +12,17 @@
   ],
   "actual": "The Lists combo box displays no selected text, although the default list is active.",
   "expected": "The Lists combo box displays default and selects the active list when the drawer opens.",
-  "suspected_cause": "Theme.activeList starts as the name default, while View.qml uses id as valueRole and indexOfValue matches UUID values. This is an inference from the source and observed fresh-install behavior.",
-  "relevant_files": ["View.qml", "Theme.qml", "model.cpp"],
+  "suspected_cause": "Confirmed: Theme.activeList initially stores the alias default, whereas the Lists selector matches UUID values. The model already resolves the alias to the actual list UUID; the selector previously ignored that resolved identity.",
+  "relevant_files": [
+    "View.qml",
+    "Theme.qml",
+    "model.cpp",
+    "ShopView.qml",
+    "tests/qml/tst_listselection.qml",
+    "tests/test_ui.cpp",
+    "tests/android/test_popups.py",
+    "tests/README.md"
+  ],
   "acceptance_criteria": [
     "A fresh installation displays default as the current list.",
     "Selecting another list updates both the displayed selection and shopping contents.",
@@ -22,5 +31,30 @@
   ],
   "evidence": "Observed in a visible Windows app run on 2026-10-03. See tests/README.md, UI behavior verification.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "resolved": "2026-10-31",
+  "implementation": {
+    "date": "2026-10-31",
+    "change": "After the shopping model resolves the initial default alias, persist its actual UUID in Theme.activeList. Bind the Lists ComboBox currentValue directly to Theme.activeList, replacing duplicate count/completion index assignments. Existing UUID selections and the zero-UUID lists-management entry retain their meaning.",
+    "design": "Keep list identity separate from its display name. No changes to shopping order, editor workflow, gestures, sizing or styling.",
+    "regression": "tests/qml/tst_listselection.qml opens the actual drawer through the editor menu button and selects popup rows by pointer. It verifies initial default display, switching between lists with distinct contents, reopening the drawer, persisted settings read in a fresh QQmlEngine, a recreated app window, the lists-management entry, and selector refresh after adding a list. tests/test_ui.cpp adds the fresh-engine setting reader.",
+    "before": "With the original source, two of six focused QTest records fail: fresh default selection and refresh retaining default selection. Existing list switching/restoration and lists-management selection controls pass.",
+    "windows_after": "All six focused records pass offscreen and with real Windows rendering. The normal configure/build/CTest workflow passes all three suites: 108 UI, 6 keyboard and 61 model records. UI duration: 166.94 seconds; total: 173.37 seconds.",
+    "android_after": "All ten checks pass using tests/android/test_popups.py --selector lists --restart on emulator-5580. For both default and the special lists entry, verify fresh initial selection, safe endpoint reachability, persisted selection, unchanged shopping contents, and the displayed selection after a real force-stop/cold restart. Data/settings are disposable and isolated.",
+    "commands": [
+      "./tools/verify-windows.ps1",
+      "qshopper_ui_tests.exe -input tests/qml/tst_listselection.qml -import out/windows-agent",
+      "python tests/android/test_popups.py --adb C:/android/sdk/platform-tools/adb.exe --selector lists --restart --output out/android-emulator/ui001-after"
+    ],
+    "apk": "Both APK architectures rebuilt. dist/QShopper-arm64-debug.apk is signed with the shared ../debug.keystore; certificate SHA-256 7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b. APK SHA-256 96cdb6f018aa091e3d42b46549d9d6a1f8bc28bc13e58f3c4e17ba64016cc4dc.",
+    "remaining": "None. Automated acceptance checks pass; the user accepted the fix and explicitly waived physical-phone testing.",
+    "artifacts": [
+      "out/windows-agent/tests/ui001-before.xml",
+      "out/windows-agent/tests/ui001-after.xml",
+      "out/windows-agent/tests/ui001-windows.xml",
+      "out/windows-agent/tests/ui001-verify.txt",
+      "out/android-emulator/ui001-after/results.json"
+    ],
+    "phone_validation": "2026-10-31: user explicitly waived fresh-install phone verification to preserve existing phone data, accepted the fix and requested a commit. No physical-device installation or data deletion was performed by the agent."
+  }
 }

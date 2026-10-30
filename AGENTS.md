@@ -74,6 +74,9 @@ A list-background regression samples rendered row interiors while scrolling
 viewport resizing, checks, editor movement and removal. Its native Android
 companion compares actual frames between slideshow transitions with isolated data;
 see tests/README.md for commands and the Pillow requirement.
+A list-selection regression covers fresh default display, switching contents,
+drawer/model refresh and settings restoration in a fresh engine/new window.
+The native popup script's --restart option verifies actual cold-restart selection.
 The Qt Quick Test suite runs offscreen; it does not certify the full app's menu or visual appearance.
 Coverage is optional and separate from the normal verification command.
 

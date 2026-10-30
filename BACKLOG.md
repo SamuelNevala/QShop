@@ -1,9 +1,9 @@
 # QShopper backlog
 
 Started: 2026-10-28. QShopper is near feature complete. Backlog gathering and
-prioritization are recorded below. UI-004, UI-007, UI-008, UI-009, UI-010 and UI-011
-are resolved. UI-006 is implemented pending phone confirmation; remaining tickets
-stay deferred until selected.
+prioritization are recorded below. UI-001, UI-004, UI-007, UI-008, UI-009, UI-010
+and UI-011 are resolved. UI-006 is implemented pending phone confirmation;
+remaining tickets stay deferred until selected.
 
 Use [DESIGN.md](DESIGN.md) when deciding what counts as correct behavior. Keep
 intentional gestures, text fitting, animation, and list ordering intact.
@@ -47,7 +47,7 @@ test. This recommendation does not itself authorize starting implementation.
 | 4 | [UI-010](tickets/UI-010.json) — unreachable ComboBox options | Resolved: endpoint bounds/selection regressions and 54 native Android checks pass; user confirmed the fix on the phone |
 | 5 | [UI-011](tickets/UI-011.json) — portrait-only Android | Resolved: native sensor and popup regressions pass; user waived physical-phone testing. Android's large-screen overrides are documented |
 | 6 | [UI-009](tickets/UI-009.json) — reset ordering | Closed with user confirmation: checked 2,1,3 resets to 3,1,2; unchecked entries stay first. Model/QML/native regressions cover pending edits, repeated Reset and restart persistence |
-| 7 | [UI-008](tickets/UI-008.json), then [UI-001](tickets/UI-001.json) | UI-008 resolved: rendered-pixel and scrolling regressions pass; user confirmed the phone fix. Next recheck/fix the fresh-install list selection |
+| 7 | [UI-008](tickets/UI-008.json), then [UI-001](tickets/UI-001.json) | Both resolved: UI-008 has phone confirmation; UI-001 has before/after drawer-selection regressions, real Windows rendering and native Android cold-restart coverage |
 | 8 | [QA-003](tickets/QA-003.json), UI-003, and QA-001 | Complete remaining interaction coverage and assess the unconfirmed text-fitting discrepancy. Use a physical-phone shopping pass to expose integration problems |
 | 9 | [UX-001](tickets/UX-001.json) → [UX-002](tickets/UX-002.json) → [UX-003](tickets/UX-003.json), then [UI-005](tickets/UI-005.json) and QA-002 | Agree coherent color roles before final theme/border fixes. Verify typography, contrast, physical sizing, and the intended visual continuity on devices |
 | 10 | [DEV-006](tickets/DEV-006.json) → [DEV-002](tickets/DEV-002.json) / [DEV-003](tickets/DEV-003.json) → [DEV-004](tickets/DEV-004.json) → [DEV-005](tickets/DEV-005.json), with DEV-001 | Establish practical KISS guidance, apply formatting in separate mechanical changes, simplify CMake, then run configured analyzers against a clear build. Investigate the remaining QML warning alongside quality work |
@@ -83,7 +83,6 @@ regressions remain easy to trace.
 | ID | Finding | Evidence/status | Severity |
 | --- | --- | --- | --- |
 | [UI-005](tickets/UI-005.json) | Safe-area border and swipeable background do not match or consistently follow the theme | User-reported on current phone build; reproduction pending | Minor, per user |
-| [UI-001](tickets/UI-001.json) | Lists selector is blank on a fresh installation | Observed on Windows on 2026-10-03; deferred; current build needs recheck | Unassigned |
 | UI-003 | Shopping text permits eight lines despite the intended two-line presentation | Source/design discrepancy; visible failure not established | Unassigned |
 
 ### [UI-008 — Long-list background continuity](tickets/UI-008.json)
@@ -100,6 +99,16 @@ records pass offscreen and with real Windows rendering, including rendered pixel
 The full Windows workflow passes 102 UI, 6 keyboard and 61 model records. Native
 Android scrolling and keyboard checks pass all 15 cases. The user confirmed the
 supplied test APK fixes the issue on the affected phone and requested a commit.
+
+### [UI-001 — Fresh-install list selection](tickets/UI-001.json)
+
+Reproduced and resolved on 2026-10-31. Persist the default list's resolved UUID,
+then bind the selector to the active UUID instead of manually matching the initial
+name alias. Before/after drawer tests verify default display, switching contents,
+reopening, settings restoration in a fresh engine, a new window, catalog selection
+and model refresh. All Windows suites and ten native Android checks pass, including
+actual cold restarts. The user accepted the fix and waived fresh-install phone
+testing to preserve existing phone data.
 
 ### UI-003 — Check long-entry text fitting against the two-line design
 
@@ -271,6 +280,7 @@ emulator evidence exists. Physical-phone behavior remains a separate check.
 | [UI-007](tickets/UI-007.json) | Back cancellation leaks a long press and breaks the next item interaction | Reset the stale cancelled tap recognizer and reject cancelled swipe actions. Before/after QML and native Android tests pass; user confirmed the fix works on the phone on 2026-10-29 |
 | [UI-010](tickets/UI-010.json) | Long selector popup endpoints overlap unsafe screen areas | Use window safe-area margins for popup bounds; before/after regressions and 54 native Android checks pass. User confirmed the phone fix on 2026-10-29 |
 | [UI-011](tickets/UI-011.json) | Keep the Android phone app portrait-only | Manifest portrait request; 11 sensor/state checks, 18 popup checks and all Windows suites pass. User waived physical-phone testing on 2026-10-29; platform overrides are documented |
+| [UI-001](tickets/UI-001.json) | Blank list selector on a fresh installation | Persist the resolved default UUID and bind the selector to the active value. Two failing-before cases now pass; six focused Windows records, full Windows suites and ten native Android checks including cold restart pass on 2026-10-31. User accepted the fix and waived phone testing |
 | [UI-008](tickets/UI-008.json) | Empty-area filler overlaps virtualized long-list rows | Full ListView extent and origin determine filler position; before/after pixel regressions, all Windows suites and 15 native Android checks pass. User confirmed the phone fix on 2026-10-31 |
 | [UI-009](tickets/UI-009.json) | Reset must recover chronological checking order | Reverse checked slots, keep unchecked entries fixed, retain drafts and IDs, and save once. Updated model/QML/native regressions pass; user confirmed the test APK works and requested closure on 2026-10-30 |
 | [UI-002](tickets/UI-002.json) | Null-dimensions error during component startup | Theme migration removed the delayed Dimensions dependency; regression coverage exists |
@@ -293,5 +303,7 @@ UI-009 and corrected the required order: reverse the checked stack into checking
 order, leaving unchecked entries first. It is closed with updated model,
 drawer and native Android verification and user confirmation of the test APK.
 The user then selected UI-008; it is resolved with rendered-pixel and native
-Android regressions plus user confirmation of the phone fix. UI-001 is next for
-rechecking unless the user chooses otherwise.
+Android regressions plus user confirmation of the phone fix. The user then selected
+UI-001; it is resolved with before/after selection tests, real Windows rendering
+and native Android cold-restart verification. Next is the planned QA-003 interaction
+coverage inventory and UI-003 text-fitting assessment unless the user chooses otherwise.

@@ -50,6 +50,15 @@ public:
         if (!theme) qFatal("Cannot create Theme in a fresh engine");
         return theme->property("scale").toReal();
     }
+    Q_INVOKABLE QString restoredActiveList() const
+    {
+        QQmlEngine engine;
+        auto *theme = engine.singletonInstance<QObject *>("QShopper", "Theme");
+        if (!theme) {
+            qFatal("Cannot create Theme in a fresh engine");
+        }
+        return theme->property("activeList").toString();
+    }
     Q_INVOKABLE void resetDatabase()
     {
         const auto database = QSqlDatabase::database();

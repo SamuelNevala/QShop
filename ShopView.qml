@@ -130,7 +130,13 @@ ListView {
     model: Model {
         id: itemModel
         activeList: Theme.activeList
-        Component.onCompleted: shopView.setEditMode(!itemModel.count)
+        Component.onCompleted: {
+            // Persist the resolved UUID instead of the initial default-list alias.
+            if (Theme.activeList === "default") {
+                Theme.activeList = itemModel.activeList
+            }
+            shopView.setEditMode(!itemModel.count)
+        }
     }
 
     add: Transition {
