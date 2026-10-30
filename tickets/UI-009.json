@@ -1,52 +1,143 @@
 {
   "id": "UI-009",
-  "title": "Reset checks should retain the selection-derived item order for the next use",
-  "status": "reported",
+  "title": "Reset checked items into chronological checking order",
+  "status": "resolved",
   "type": "bug",
   "severity": "major",
-  "priority": "unassigned",
+  "priority": 6,
   "created": "2026-10-28",
   "environment": "Current phone build; exact mode and persistence conditions still to be recorded.",
   "reported_by": "user",
-  "reproduction_status": "User-reported; exact example not independently reproduced during backlog gathering",
+  "reproduction_status": "Corrected regressions fail the previous local implementation at model, QML and native Android levels. The final implementation passes the chronological order and unchecked-prefix requirements, including pending edits, repeated Reset and restart persistence.",
   "reproduction": [
     "Start with unchecked items in the order 1, 2, 3.",
     "Check item 3, then item 1, then item 2, identifying each by its name rather than its changing row index.",
     "Invoke Reset checks from the drawer.",
     "Inspect the unchecked order immediately and when the list is used again."
   ],
-  "actual": "The user reports that Reset checks clears the selection without preserving the desired selection-derived ordering, requiring manual reordering on the next use. The exact incorrect resulting order has not been supplied.",
-  "expected": "Clear the checked flags while retaining the last-in-first-out order established by checking items. For initial order 1, 2, 3 and check sequence 3, 1, 2, the reset order must be 2, 1, 3, and that order must persist for the next use.",
+  "actual": "The previous implementation clears checkmarks while retaining newest-first checked stack order, so checked 2,1,3 resets to 2,1,3 rather than the corrected expected 3,1,2.",
+  "expected": "Reverse checked positions into chronological checking order and clear all flags, leaving unchecked entries in place. Initial 1,2,3 checked as 3,1,2 becomes checked 2,1,3 and resets to unchecked 3,1,2. Mixed unchecked A,B before checked C,D resets to A,B,D,C. Preserve IDs, draft text, free insertion point, and persistence; a repeated Reset must not reverse again.",
   "example": {
-    "initial_order": ["1", "2", "3"],
-    "checked_in_order": ["3", "1", "2"],
-    "expected_order_after_reset": ["2", "1", "3"],
+    "initial_order": [
+      "1",
+      "2",
+      "3"
+    ],
+    "checked_in_order": [
+      "3",
+      "1",
+      "2"
+    ],
+    "expected_order_after_reset": [
+      "3",
+      "1",
+      "2"
+    ],
     "expected_checked_after_reset": false,
-    "actual_order_after_reset": null
+    "actual_order_after_reset": [
+      "2",
+      "1",
+      "3"
+    ]
   },
   "impact": "The user must reorder a reusable shopping list after resetting it, disrupting the intended workflow. Severity described as major.",
   "source_notes": [
-    "View.qml invokes ShopView.reset(), which delegates to Model.reset().",
-    "Model.reset() repeatedly unchecks the last checked item; setChecked(false) moves the item to the front. A static trace of the simple all-checked example appears consistent with the requested 2, 1, 3 result, so the reported failure needs reproduction before choosing a fix.",
-    "Investigate the actual UI flow, mode/editor state, mixed checked/unchecked items, and persistence rather than assuming the model simply changes flags.",
-    "The existing checked_state_reorders_persists_and_resets model test verifies that check flags are cleared after reset/reload, but does not assert the final item order after reset."
+    "The checked stack is newest first. Reset must reverse only its checked slots to recover chronological checking order; do not reverse the unchecked prefix or the whole list.",
+    "An edited checked item is represented by its editor placeholder and m_pendingEdit. Include that placeholder in the reversal while keeping its draft and identity, then clear the pending original checked flag.",
+    "Use existing Model.move with Save::NO for endpoint swaps; it emits proper row moves and updates editorIndex. Avoid resetting the whole model, which would recreate delegates and lose draft text.",
+    "Clear flags while collecting checked positions, reverse those positions and save once if any checked positions were found. Ordinary single-item correction still uses setChecked and retains nearby first-in/last-out correction.",
+    "Earlier local work and ui009-* reports without revised followed a superseded instruction to preserve the entire visible order. The user correction and mixed-list answer replace that policy."
   ],
-  "relevant_files": ["model.cpp", "View.qml", "ShopView.qml", "tests/test_model.cpp", "tests/qml/tst_shopview.qml"],
+  "relevant_files": [
+    "model.cpp",
+    "tests/test_model.cpp",
+    "tests/qml/tst_reset.qml",
+    "tests/android/test_reset.py",
+    "View.qml",
+    "ShopView.qml"
+  ],
   "acceptance_criteria": [
-    "The user's exact example produces unchecked items ordered 2, 1, 3 after Reset checks.",
-    "The resulting order survives saving, switching away and back, and restarting the app.",
-    "A second Reset checks does not change an already reset list's order.",
-    "Resetting does not lose item identity or content, and handles the editor without inserting it into the saved item order.",
-    "Clarify and cover mixed checked/unchecked list behavior during reproduction.",
-    "Add an explicit final-order assertion for the reported sequence and verify the real drawer action on the affected build."
+    "Initial 1,2,3 checked as 3,1,2 produces checked 2,1,3 and resets to unchecked 3,1,2.",
+    "Unchecked A,B followed by checked C,D resets to A,B,D,C, retaining unchecked entries first.",
+    "All flags are cleared, including a checked item being edited; retain its draft and original identity through movement.",
+    "Keep a free editor insertion point in place while reversing checked slots.",
+    "The result survives switching lists, saving, reopening and cold restart.",
+    "Repeated Reset leaves the already-reset order unchanged.",
+    "Verify the actual drawer action with failing-before/passing-after model, QML and native Android regression coverage."
   ],
-  "open_questions": [
-    "What exact order appears after reset in the affected build?",
-    "Is the wrong order visible immediately, or only after reopening or reusing the list?",
-    "Were any items still unchecked or was an editor active when Reset checks was invoked?",
-    "For a partially checked list, what is the intended relative placement of reset items and items that were never checked?"
-  ],
+  "open_questions": [],
   "evidence": "User report and explicit 1,2,3 / check 3,1,2 / reset 2,1,3 example in the QShopper development chat on 2026-10-28.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "clarification": "2026-10-29: user corrected the original expected order to chronological checking order (first checked becomes first reset), then specified mixed lists retain unchecked items first: A,B,C,D with C,D checked resets to A,B,D,C.",
+  "implementation": {
+    "date": "2026-10-30",
+    "change": "Collect checked row positions and clear their flags, including a checked item being edited. Reverse the recorded pairs with existing row moves, then save once. Unchecked slots and free editor position remain fixed; a pending draft follows its item.",
+    "regression_tests": [
+      {
+        "location": "tests/test_model.cpp",
+        "names": [
+          "reset_restores_checking_order",
+          "reset_reverses_checked_group (five editor positions)",
+          "reset_during_checked_item_edit (three checked positions)"
+        ],
+        "before": "All nine data cases fail the corrected chronological expectation against the previous local implementation.",
+        "after": "All eleven targeted records including setup/cleanup pass. Check flags, identities, free editor position, repeated Reset, switching lists and fresh-model reload.",
+        "evidence": [
+          "out/windows-agent/tests/ui009-revised-model-before.xml",
+          "out/windows-agent/tests/ui009-revised-model-after.xml"
+        ]
+      },
+      {
+        "location": "tests/qml/tst_reset.qml",
+        "before": "All three initial drawer cases fail the corrected order before the reversal change. Two further pending-edit positions extend coverage.",
+        "after": "All seven targeted records pass offscreen and with native Windows rendering. Five cases cover the main sequence, mixed lists and editing each checked position, preserving text through row movement, repeated Reset and a fresh main window.",
+        "evidence": [
+          "out/windows-agent/tests/ui009-revised-ui-before.xml",
+          "out/windows-agent/tests/ui009-revised-ui-after.xml",
+          "out/windows-agent/tests/ui009-revised-windows.xml"
+        ]
+      },
+      {
+        "location": "tests/android/test_reset.py",
+        "command": "python tests/android/test_reset.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui009-revised-after",
+        "before": "The native checking sequence produces 2,1,3; the previous APK fails the corrected Reset expectation of 3,1,2.",
+        "coverage": "Native swipes, double taps and drawer Reset for the main example, mixed unchecked prefix, pending edit, repeat Reset, draft retention and cold-restart order/flag/identity preservation.",
+        "evidence": [
+          "out/android-emulator/ui009-revised-before/results.json",
+          "out/android-emulator/ui009-revised-after/results.json"
+        ],
+        "after": "All 13 native checks pass: exact and pending cases reset to 3,1,2; the mixed case resets to A,B,3,1,2. Flags clear, drafts survive, repeated Reset is unchanged and cold restart preserves order/flags/IDs."
+      }
+    ],
+    "remaining": "None. Corrected ordering, draft retention and persistence pass automated regressions; the user confirmed the supplied APK works and requested closure.",
+    "verification": [
+      "Full Windows configure/build and all three CTest entries pass: 92 UI, 6 keyboard and 61 model records. Log: out/windows-agent/tests/ui009-revised-verify.txt.",
+      "All seven targeted ResetChecks records pass with native Windows rendering.",
+      "All thirteen revised native Android checks pass in out/android-emulator/ui009-revised-after/results.json.",
+      "Both APK architectures rebuilt. Shared-key ARM64 signature verified: SHA-256 7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b."
+    ],
+    "simplicity_followup": "2026-10-30: user requested no continue in C++ and a simpler implementation. Replace the predicate/two-pointer search with an explicit checkedRows list and paired row moves. Record the no-continue preference in AGENTS.md. Behavior is unchanged; existing regressions verify the simplified path.",
+    "simplicity_verification": {
+      "date": "2026-10-30",
+      "windows": "All three normal CTest entries pass: 92 UI, 6 keyboard, 61 model records. Targeted model (11 records) and native Windows Reset UI (7 records) also pass.",
+      "android": "All 13 native checks pass across exact/mixed cases and the separately repeated pending-edit case. Cold-restart order/flags/IDs and draft retention are verified. User confirmation of the supplied APK is recorded in phone_validation.",
+      "harness": "Add a bounded foreground/expected-row wait after activity launch to avoid testing before accessibility and delegates are ready.",
+      "apk": "Both architectures rebuilt; shared-key ARM64 signature verified.",
+      "evidence": [
+        "out/windows-agent/tests/ui009-simple-verify.txt",
+        "out/windows-agent/tests/ui009-simple-model.xml",
+        "out/windows-agent/tests/ui009-simple-windows.xml",
+        "out/android-emulator/ui009-simple-verified/results.json",
+        "out/android-emulator/ui009-simple-verified/source-reports.json"
+      ]
+    },
+    "phone_validation": "2026-10-30: user confirmed the supplied test APK works and requested that UI-009 be closed and committed. No physical-device installation was performed by the agent."
+  },
+  "instruction_correction": "2026-10-29: user corrected the expected reset order. Checked 2,1,3 must reset to 3,1,2 (chronological checking order). For mixed lists keep unchecked entries first: A,B followed by checked C,D resets to A,B,D,C. This supersedes the earlier preserve-whole-visible-order instruction.",
+  "instruction_history": [
+    "Earlier instructions requested 2,1,3 after Reset and preservation of the entire visible order; previous local changes and reports followed that superseded requirement.",
+    "2026-10-29: user corrected the expected reset order. Checked 2,1,3 must reset to 3,1,2 (chronological checking order). For mixed lists keep unchecked entries first: A,B followed by checked C,D resets to A,B,D,C. This supersedes the earlier preserve-whole-visible-order instruction."
+  ],
+  "resolved": "2026-10-30"
 }

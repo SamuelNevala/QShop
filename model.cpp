@@ -301,8 +301,28 @@ void Model::reset()
         return;
     }
 
-    while (!m_items.isEmpty() && m_items.constLast().checked) {
-        setChecked(m_items.size() - 1, false);
+    // Record checked positions, including the original item being edited.
+    QList<qsizetype> checkedRows;
+    for (int row = 0; row < rowCount(); ++row) {
+        const bool editedChecked = row == m_editorIndex && m_pendingEdit && m_pendingEdit->checked;
+        if (m_items.at(row).checked || editedChecked) {
+            checkedRows.append(row);
+            setData(index(row), false, Qt::CheckStateRole);
+        }
+    }
+    if (m_pendingEdit) {
+        m_pendingEdit->checked = false;
+    }
+
+    for (qsizetype left = 0, right = checkedRows.size() - 1; left < right; ++left, --right) {
+        const auto first = checkedRows.at(left);
+        const auto last = checkedRows.at(right);
+        // Swap checked rows without shifting unchecked positions or recreating the editor.
+        move(last, first, Save::NO);
+        move(first + 1, last, Save::NO);
+    }
+    if (!checkedRows.isEmpty()) {
+        save();
     }
 }
 

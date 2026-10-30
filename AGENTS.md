@@ -25,6 +25,7 @@ behavior. The full code review and coding-guide task is tracked as DEV-006.
 
 Use braces for every `if` body in QML/JavaScript and C++, including single-line
 bodies. Apply this to new or edited code; keep broad formatting in DEV-002/DEV-003.
+Do not use `continue` in new or edited C++ code; prefer structured conditionals.
 
 ## Backlog
 

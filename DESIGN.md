@@ -52,10 +52,18 @@ Checked items follow first-in, last-out order: the most recently checked item
 stays nearest the unchecked items. This puts the most likely mistake within easy
 reach. Preserve that ordering and the ability to reverse a check quickly.
 
-Resetting checks should retain this selection-derived order for the next use,
+Resetting checks should restore the chronological checking order for the next use,
 without requiring the shopper to arrange the list again. For example, starting
-with `1, 2, 3` and checking `3, 1, 2` should produce unchecked items ordered
-`2, 1, 3` after reset. This order must persist when the list is reopened.
+with `1, 2, 3` and checking `3, 1, 2` produces a checked stack `2, 1, 3`;
+Reset reverses that stack to unchecked `3, 1, 2`. Within that group, the first
+item checked becomes the first after Reset. Persist this order when reopened.
+
+Leave unchecked entries first. For unchecked `A, B` followed by checked `C, D`,
+Reset produces `A, B, D, C`. Reverse only checked positions, leaving a free
+editor insertion point in place. An item being edited participates through its
+original checked state: its editor follows that item's reordered position,
+retaining unfinished text and identity. Reset clears every checked flag, and a
+second Reset does not reverse the already-reset items again.
 
 ## Design in millimeters
 

@@ -512,3 +512,52 @@ On 2026-10-29 all 11 native orientation/state checks and 18 updated popup checks
 passed. Windows configure/build and all three CTest entries passed with 85 UI,
 6 keyboard and 52 model records (`out/windows-agent/tests/ui011-verify.txt`).
 The shared-key ARM64 APK was rebuilt and its signature verified.
+
+## UI-009 Reset checks ordering
+
+The corrected user requirement is chronological checking order: initial `1,2,3`,
+check `3,1,2`, checked stack `2,1,3`, then Reset to unchecked `3,1,2`. For unchecked
+`A,B` followed by checked `C,D`, Reset keeps the unchecked prefix and produces
+`A,B,D,C`. This supersedes the earlier preserve-visible-order instruction.
+
+`reset_restores_checking_order`, `reset_reverses_checked_group` (five editor
+positions) and `reset_during_checked_item_edit` (first/middle/last checked item)
+in `test_model.cpp` verify order, flags, identity, free editor position,
+idempotence, list switching and reload. All nine data cases fail against the
+previous local implementation after updating the expected order. Eleven targeted
+records including setup/cleanup pass with the reversal fix.
+
+`qml/tst_reset.qml` uses real touch swipes, double taps and the drawer's Reset
+button. It checks the main example, mixed lists, editing each of the three
+checked positions, retained text, repeated Reset and a fresh main window.
+The three initial UI cases fail the corrected expectation before the fix; two
+additional edit positions extend coverage. Seven records pass afterward.
+The normal suite timeout is 150 seconds for the added gestures and transitions.
+
+`android/test_reset.py` checks the original sequence, mixed list and pending edit
+with native input and isolated data. It verifies the saved chronological order,
+cleared flags and item identities through a cold restart. See ANDROID.md for its
+command. Revised reports are `ui009-revised-model-before.xml`,
+`ui009-revised-model-after.xml`, `ui009-revised-ui-before.xml`,
+`ui009-revised-ui-after.xml`, `ui009-revised-windows.xml` under
+`out/windows-agent/tests`, and `ui009-revised-before`, `ui009-revised-after` under
+`out/android-emulator`. Reports without `revised` record the superseded policy.
+
+Final verification on 2026-10-30 passes all three normal Windows CTest entries:
+92 UI, 6 keyboard and 61 model records. All seven targeted records also pass with
+native Windows rendering, and all 13 revised Android checks pass. Both APKs were
+rebuilt and the shared-key ARM64 signature verified. The normal verification log
+is `out/windows-agent/tests/ui009-revised-verify.txt`.
+
+The simplicity follow-up collects checked positions, clears their flags, reverses
+the recorded pairs with normal row moves, and saves once. It uses no `continue`
+or predicate-based search. Existing regression coverage is rerun against this
+implementation; follow-up reports use the `ui009-simple-*` prefix.
+
+The simplified implementation passes all three Windows CTest entries (92 UI,
+6 keyboard, 61 model records), the targeted model/native Windows checks, and
+13 native Android checks. The Android launch helper now waits for the foreground
+app and expected rows before inspection. Exact/mixed checks and a pending-case
+retry are combined with source paths in `out/android-emulator/ui009-simple-verified`.
+Both APKs were rebuilt and the shared-key ARM64 signature verified.
+The user confirmed the supplied test APK works and requested closure on 2026-10-30.

@@ -187,6 +187,127 @@ private slots:
         }
     }
 
+    void reset_restores_checking_order()
+    {
+        Model model;
+        loadItems(model);
+        model.insert(0, "1");
+        model.insert(1, "2");
+        model.insert(2, "3");
+        for (const auto &name : QStringList({"3", "1", "2"})) {
+            model.setChecked(names(model).indexOf(name), true);
+        }
+        const QStringList expected({"3", "1", "2"});
+        QCOMPARE(names(model), QStringList({"2", "1", "3"}));
+        const QStringList identities({id(model, 2), id(model, 1), id(model, 0)});
+        model.reset();
+        QCOMPARE(names(model), expected);
+        for (int row = 0; row < model.rowCount(); ++row) {
+            QVERIFY(!model.data(model.index(row), Qt::CheckStateRole).toBool());
+            QCOMPARE(id(model, row), identities.at(row));
+        }
+        model.reset();
+        QCOMPARE(names(model), expected);
+        model.setActiveList("lists");
+        model.setActiveList(defaultId);
+        QCOMPARE(names(model), expected);
+        Model reopened;
+        loadItems(reopened);
+        QCOMPARE(names(reopened), expected);
+        for (int row = 0; row < reopened.rowCount(); ++row) {
+            QVERIFY(!reopened.data(reopened.index(row), Qt::CheckStateRole).toBool());
+            QCOMPARE(id(reopened, row), identities.at(row));
+        }
+    }
+
+    void reset_reverses_checked_group_data()
+    {
+        QTest::addColumn<int>("editorPosition");
+        QTest::newRow("without-editor") << -1;
+        QTest::newRow("editor-front") << 0;
+        QTest::newRow("editor-boundary") << 2;
+        QTest::newRow("editor-in-checked-group") << 4;
+        QTest::newRow("editor-at-end") << 5;
+    }
+
+    void reset_reverses_checked_group()
+    {
+        QFETCH(int, editorPosition);
+        Model model;
+        loadItems(model);
+        for (const auto &name : QStringList({"A", "B", "1", "2", "3"})) {
+            model.insert(model.rowCount(), name);
+        }
+        for (const auto &name : QStringList({"3", "1", "2"})) {
+            model.setChecked(names(model).indexOf(name), true);
+        }
+        QCOMPARE(names(model), QStringList({"A", "B", "2", "1", "3"}));
+        if (editorPosition >= 0) {
+            model.addEditor();
+            model.moveEditor(editorPosition, Model::Force::YES);
+        }
+        QStringList expected({"A", "B", "3", "1", "2"});
+        if (editorPosition >= 0) {
+            expected.insert(editorPosition, "");
+        }
+        QHash<QString, QString> identities;
+        for (int row = 0; row < model.rowCount(); ++row) {
+            identities.insert(names(model).at(row), id(model, row));
+        }
+        const auto editor = model.editorIndex();
+        model.reset();
+        QCOMPARE(names(model), expected);
+        QCOMPARE(model.editorIndex(), editor);
+        for (int row = 0; row < model.rowCount(); ++row) {
+            QVERIFY(!model.data(model.index(row), Qt::CheckStateRole).toBool());
+            QCOMPARE(id(model, row), identities.value(names(model).at(row)));
+        }
+        model.reset();
+        QCOMPARE(names(model), expected);
+        model.removeEditor();
+        Model reopened;
+        loadItems(reopened);
+        QCOMPARE(names(reopened), QStringList({"A", "B", "3", "1", "2"}));
+        for (int row = 0; row < reopened.rowCount(); ++row) {
+            QVERIFY(!reopened.data(reopened.index(row), Qt::CheckStateRole).toBool());
+        }
+    }
+
+    void reset_during_checked_item_edit_data()
+    {
+        QTest::addColumn<QString>("itemName");
+        QTest::newRow("first-checked") << QString("3");
+        QTest::newRow("middle-checked") << QString("1");
+        QTest::newRow("last-checked") << QString("2");
+    }
+
+    void reset_during_checked_item_edit()
+    {
+        QFETCH(QString, itemName);
+        Model model;
+        loadItems(model);
+        model.insert(0, "1");
+        model.insert(1, "2");
+        model.insert(2, "3");
+        for (const auto &name : QStringList({"3", "1", "2"})) {
+            model.setChecked(names(model).indexOf(name), true);
+        }
+        model.addEditor();
+        QCOMPARE(model.editItem(names(model).indexOf(itemName)), itemName);
+        model.reset();
+        model.removeEditor();
+        QCOMPARE(names(model), QStringList({"3", "1", "2"}));
+        for (int row = 0; row < model.rowCount(); ++row) {
+            QVERIFY(!model.data(model.index(row), Qt::CheckStateRole).toBool());
+        }
+        Model reopened;
+        loadItems(reopened);
+        QCOMPARE(names(reopened), names(model));
+        for (int row = 0; row < reopened.rowCount(); ++row) {
+            QVERIFY(!reopened.data(reopened.index(row), Qt::CheckStateRole).toBool());
+        }
+    }
+
     void toggle_checked_invalid_rows_data()
     {
         QTest::addColumn<bool>("populated");

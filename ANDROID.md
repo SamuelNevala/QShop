@@ -262,3 +262,35 @@ the temporary API 36 opt-out does not apply when targeting API 37. The APK
 currently targets API 37. Phone-emulator coverage uses sw411dp and does not
 certify tablets, foldable inner displays or multi-window behavior. See the
 [Android orientation restriction guidance](https://developer.android.com/about/versions/16/behavior-changes-16#large-screens).
+
+## Reset checks ordering (UI-009)
+
+Reset reverses the checked stack into the order in which items were checked.
+Starting with `1,2,3` and checking `3,1,2` produces checked `2,1,3`; Reset must
+produce unchecked `3,1,2`. For unchecked `A,B` before checked `C,D`, Reset produces
+`A,B,D,C`. Unchecked entries stay in place. An edited checked item participates
+through its pending original, and its draft follows that item's new position.
+A free insertion point stays in place. A second Reset must not reverse again.
+
+With the current x86_64 APK installed on the English API 36 phone emulator:
+
+```powershell
+python tests/android/test_reset.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui009-revised-after
+```
+
+The three isolated cases use actual left swipes, double taps and the drawer's
+Reset checks button. They check chronological order and cleared flags, repeated
+Reset, retained edit text and cold-restart persistence of order, flags and item
+identities. The test only accepts emulator serials and stops the app afterward.
+
+The corrected expectation fails against the previous APK: `2,1,3` stays `2,1,3`
+instead of becoming `3,1,2`. Its evidence is in
+`out/android-emulator/ui009-revised-before`. Earlier `ui009-*` reports without
+`revised` refer to the superseded preserve-visible-order instruction, and are
+not evidence for the final chronological-order requirement.
+
+On 2026-10-30 all 13 revised native checks pass. The seven ResetChecks records
+also pass with native Windows rendering; full Windows verification passes
+92 UI, 6 keyboard and 61 model records. The updated shared-key ARM64 APK was
+rebuilt and its signature verified. The user confirmed the supplied test APK
+works and requested closure on 2026-10-30.
