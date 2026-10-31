@@ -649,3 +649,46 @@ phone installation or verification was performed by the agent.
 
 The user accepted UI-001 and requested a commit on 2026-10-31, explicitly waiving
 fresh-install phone verification to preserve existing phone data.
+
+## Safe-area surface and theme regression (UI-005)
+
+`qml/tst_safeborder.qml` compares the production window's rendered safe-area
+strips with normal rows and the empty-area filler over a controlled solid
+underlay. It uses real SafeArea propagation for all four edges, covers Light,
+Dark and the host's resolved System theme, changes themes while open, checks
+inverse checked surfaces and resizes the editing viewport. The original source
+fails five of seven QTest records. All seven pass afterward offscreen and with
+real Windows rendering. Reports are `out/windows-agent/tests/ui005-*.xml`.
+
+The final normal Windows workflow passes 115 UI, 6 keyboard and 61 model records
+on 2026-10-31. The UI CTest timeout is 210 seconds for the expanded rendering suite;
+the passing UI run took 174.62 seconds. Existing earlier timeout/count notes above
+record their historical runs.
+
+The native regression requires Pillow, the fixed x86_64 APK on emulator-5580,
+and disposable app data. It changes only the emulator's Android night setting
+and restores it afterward. It checks actual rendered top/bottom surfaces, checked
+contrast and status-icon readability using ranges that allow the deliberate 20%
+wallpaper contribution. Native XML/system inset frames verify geometry; SQLite
+snapshots verify preserved items and checks. A bounded loaded-row wait handles
+first-launch/theme setup delays instead of treating an early frame as a bug.
+
+```powershell
+python tests/android/test_safeborder.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui005-final
+```
+
+`--profile` can isolate light, dark, system_light, system_dark, keyboard_light or
+light_on_dark_system. The System-Light case changes Android to dark mode while
+the app remains open. The Dark case backgrounds/resumes the live task. The
+keyboard case verifies the visible app area; the IME owns its own navigation bar.
+All 47 final native checks pass. The original APK fails six of the initial thirty
+surface/contrast checks, and a separate Dark probe fails native status-icon
+contrast. Reports and screenshots are in `ui005-before`,
+`ui005-before-native-icons` and `ui005-final` under `out/android-emulator`.
+
+Android appearance follows the resolved window backing color using the native
+WindowInsetsController API on API 30+, with a flag-preserving Android 9/10 fallback.
+The modern path was exercised on Android 16/API 36; the older path was compiled
+in both architectures but lacks runtime verification. No physical-phone install
+was performed by the agent. The user confirmed the supplied fix on the affected
+phone and requested closure and a commit on 2026-10-31.

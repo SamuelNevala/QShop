@@ -20,6 +20,50 @@
 #include <QQuickStyle>
 #include "model.h"
 
+#if defined(Q_OS_ANDROID)
+#include <QtCore/QJniObject>
+#include <QtCore/qcoreapplication_platform.h>
+#include <QtGui/QInputMethod>
+#include <QtQuick/QQuickWindow>
+
+static void updateSystemBarIcons(const QColor &color)
+{
+    const bool light = color.lightnessF() > 0.5;
+    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([light] {
+        if (!QNativeInterface::QAndroidApplication::isActivityContext()) {
+            return;
+        }
+        const QJniObject activity = QNativeInterface::QAndroidApplication::context();
+        const auto window = activity.callObjectMethod("getWindow", "()Landroid/view/Window;");
+        if (!window.isValid()) {
+            return;
+        }
+        if (QNativeInterface::QAndroidApplication::sdkVersion() >= 30) {
+            const auto controller = window.callObjectMethod("getInsetsController",
+                "()Landroid/view/WindowInsetsController;");
+            if (controller.isValid()) {
+                const auto mask = QJniObject::getStaticField<jint>("android/view/WindowInsetsController",
+                    "APPEARANCE_LIGHT_STATUS_BARS")
+                    | QJniObject::getStaticField<jint>("android/view/WindowInsetsController",
+                        "APPEARANCE_LIGHT_NAVIGATION_BARS");
+                controller.callMethod<void>("setSystemBarsAppearance", "(II)V", light ? mask : 0, mask);
+            }
+        } else {
+            // Android 9/10 use the earlier API; retain every unrelated UI flag.
+            const auto decor = window.callObjectMethod("getDecorView", "()Landroid/view/View;");
+            if (decor.isValid()) {
+                const auto mask = QJniObject::getStaticField<jint>("android/view/View",
+                    "SYSTEM_UI_FLAG_LIGHT_STATUS_BAR")
+                    | QJniObject::getStaticField<jint>("android/view/View",
+                        "SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR");
+                const auto flags = decor.callMethod<jint>("getSystemUiVisibility");
+                decor.callMethod<void>("setSystemUiVisibility", "(I)V", light ? flags | mask : flags & ~mask);
+            }
+        }
+    });
+}
+#endif
+
 int main(int argc, char *argv[])
 {
 
@@ -113,6 +157,25 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
         }
     }, Qt::QueuedConnection);
+#if defined(Q_OS_ANDROID)
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+        &application, [](QObject *object, const QUrl &) {
+            auto *window = qobject_cast<QQuickWindow *>(object);
+            if (!window) {
+                return;
+            }
+            const auto update = [window] { updateSystemBarIcons(window->color()); };
+            QObject::connect(window, &QQuickWindow::colorChanged, window, update);
+            QObject::connect(qGuiApp->inputMethod(), &QInputMethod::visibleChanged, window, update);
+            QObject::connect(qGuiApp, &QGuiApplication::applicationStateChanged, window,
+                [update](Qt::ApplicationState state) {
+                    if (state == Qt::ApplicationActive) {
+                        update();
+                    }
+                });
+            update();
+        });
+#endif
     engine.load(url);
     return QGuiApplication::exec();
 }

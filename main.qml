@@ -4,6 +4,7 @@ import QtCore
 
 LoaderWindow {
     id: window
+    color: Material.backgroundColor
     title: qsTr("QShopper") + (Theme.scaleable
         ? " (" + Math.round(Theme.effectiveScale * 100) + "%)" : "")
     source: Qt.resolvedUrl("View.qml")

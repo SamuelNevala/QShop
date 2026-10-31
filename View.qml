@@ -44,8 +44,8 @@ Style.Control {
 
     background: Quick.Item {
         id: safeAreaBackground
-        // Darken the system-bar and cutout areas without dimming the list.
-        readonly property string borderColor: "#A6000000"
+        // Match the normal row surface, including its resting opacity.
+        readonly property Quick.color borderColor: Style.Material.backgroundColor
 
         Background { anchors.fill: parent }
 
@@ -53,11 +53,13 @@ Style.Control {
             anchors { top: parent.top; left: parent.left; right: parent.right }
             height: root.topPadding
             color: safeAreaBackground.borderColor
+            opacity: 0.8
         }
         Quick.Rectangle {
             anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
             height: root.bottomPadding
             color: safeAreaBackground.borderColor
+            opacity: 0.8
         }
         Quick.Rectangle {
             anchors {
@@ -66,6 +68,7 @@ Style.Control {
             }
             width: root.leftPadding
             color: safeAreaBackground.borderColor
+            opacity: 0.8
         }
         Quick.Rectangle {
             anchors {
@@ -74,6 +77,7 @@ Style.Control {
             }
             width: root.rightPadding
             color: safeAreaBackground.borderColor
+            opacity: 0.8
         }
     }
     contentItem: ShopView {

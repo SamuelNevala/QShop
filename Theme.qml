@@ -42,7 +42,7 @@ Item {
     property alias theme: settings.theme
     property alias activeList: settings.activeList
     property alias swipeSensitivity: settings.swipeSensitivity
-    readonly property int inverseTheme: theme === Material.Dark ? Material.Light : Material.Dark
+    readonly property int inverseTheme: Material.theme === Material.Dark ? Material.Light : Material.Dark
 
     function accentColor() { return colorAccent(accent) }
     function primaryColor() { return color(primary) }

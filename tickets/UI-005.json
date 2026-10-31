@@ -1,14 +1,14 @@
 {
   "id": "UI-005",
   "title": "Safe-area border and swipeable background should match and follow the theme",
-  "status": "reported",
+  "status": "resolved",
   "type": "bug",
   "severity": "minor",
   "priority": "unassigned",
   "created": "2026-10-28",
   "environment": "Current updated phone build; Pixel 10 Pro XL running Android 17. Exact theme and row state at the time of the report are not yet recorded.",
   "reported_by": "user",
-  "reproduction_status": "Not independently reproduced during backlog gathering",
+  "reproduction_status": "Independently reproduced with rendered Qt Quick comparisons and native Android screenshots. Automated regressions pass, and the user confirmed the fix on the affected phone on 2026-10-31.",
   "reproduction_to_confirm": [
     "Open the shopping view and compare the safe-area border with the swipeable item background.",
     "Switch between Light, Dark, and System themes and repeat the comparison.",
@@ -17,11 +17,23 @@
   "actual": "The user reports that the safe-area border and swipeable background do not have matching theme-following colors and instead appear to use an arbitrary color.",
   "expected": "The safe-area border matches the intended swipeable background surface, and both follow the selected theme coherently.",
   "source_notes": [
-    "View.qml defines safeAreaBackground.borderColor as the fixed translucent color #A6000000.",
-    "The active item surface in TextDelegate.qml uses Material.backgroundColor and opacity; checked rows intentionally use Theme.inverseTheme.",
-    "These are investigation starting points, not a confirmed root cause. The active row implementation is TextDelegate.qml rather than the unused legacy Swipeable.qml."
+    "Before the fix, View.qml used the fixed translucent black #A6000000 for the safe-area strips, while normal rows use Material.backgroundColor with 0.8 resting opacity. Both the color role and opacity differed.",
+    "The shared surface is the normal unchecked row background in the current effective theme. Checked rows intentionally use the inverse theme, and swipe feedback retains its separate colors and opacity changes.",
+    "Native System/Dark verification also reproduced checked rows losing contrast because inverseTheme compared the raw System selection instead of the resolved Material theme.",
+    "Native screenshots showed dark status icons over dark app surfaces when the app theme differed from Android. Android system-bar appearance now follows the actual window background, including after resume and IME changes."
   ],
-  "relevant_files": ["View.qml", "TextDelegate.qml", "Theme.qml", "main.qml", "LoaderWindow.qml"],
+  "relevant_files": [
+    "View.qml",
+    "TextDelegate.qml",
+    "Theme.qml",
+    "main.qml",
+    "LoaderWindow.qml",
+    "main.cpp",
+    "tests/qml/tst_safeborder.qml",
+    "tests/android/test_safeborder.py",
+    "tests/CMakeLists.txt",
+    "tests/README.md"
+  ],
   "acceptance_criteria": [
     "Safe-area borders visually match the intended main swipeable background surface.",
     "Colors update correctly when switching Light, Dark, and System themes.",
@@ -29,11 +41,38 @@
     "Safe-area padding still keeps content clear of system bars and cutouts, including with the keyboard open.",
     "Verify the appearance on the affected phone; model tests alone cannot establish this visual result."
   ],
-  "open_questions": [
-    "Which theme and item state best demonstrate the mismatch?",
-    "Confirm the intended shared surface when checked and unchecked rows deliberately use different theme colors."
-  ],
+  "open_questions": [],
   "evidence": "User report in the QShopper development chat on 2026-10-28; severity explicitly described as minor.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "implementation": {
+    "date": "2026-10-31",
+    "change": "Use Material.backgroundColor for all four safe-area strips and render them with the same 0.8 opacity as resting normal rows. Preserve the wallpaper, safe-area geometry, row animations and action feedback.",
+    "system_theme": "Theme.inverseTheme now uses the resolved Material.theme so System/Dark keeps checked rows on the contrasting Light surface.",
+    "android_icons": "main.qml exposes the resolved Material surface as the window backing color. An Android-only helper in main.cpp applies status/navigation icon appearance on the Android UI thread when that color changes, the app resumes or IME visibility changes. It uses WindowInsetsController on API 30+ and preserves unrelated UI flags in the Android 9/10 fallback. It does not override Android or Qt system color-scheme preferences.",
+    "design": "Borders match the main unchecked surface at rest, not the inverse checked surface or transient swipe opacity. Checked distinctions, deliberate opacity and existing animations remain intact. The window backing color now follows its selected theme during the existing loader fade.",
+    "qml_regression": "tests/qml/tst_safeborder.qml loads the production main window and uses actual SafeArea propagation. A controlled solid underlay permits exact rendered-pixel comparisons of all four borders, normal rows and the empty-area filler. Tests cover Light/Dark/System, live theme changes, checked contrast and resized safe areas while editing.",
+    "before": "Five of seven focused QTest records fail with the original source. The original native matrix fails six of thirty checks: Light/System-Light/keyboard border colors and System-Dark checked contrast. A separate original-APK Dark probe fails status-icon contrast (one of seven checks).",
+    "windows_after": "All seven focused records pass offscreen and with real Windows rendering. The normal configure/build and CTest workflow passes all three suites: 115 UI, 6 keyboard and 61 model records. Final UI duration 174.62 seconds; total 180.82 seconds. UI timeout is raised from 180 to 210 seconds for the additional rendering scenarios and normal runtime variation.",
+    "android_after": "All 47 final native checks pass on emulator-5580: Light, Dark, both actual Android System modes, an explicit Light app with Android dark mode, live System mode changes, checked/unchecked contrast, top/bottom surfaces, status icons including resume, native IME, safe geometry and unchanged saved rows/check flags. The script restores the emulator night mode and isolates all app data/settings.",
+    "coverage_limits": "The modern API branch was exercised on the Android 16/API 36 emulator, and the user confirmed the fix on the affected Android 17 phone. The Android 9/10 fallback compiles in both APK architectures but was not runtime-tested on an older device.",
+    "apk": "Both APK architectures rebuilt. dist/QShopper-arm64-debug.apk is signed with ../debug.keystore; certificate SHA-256 7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b. APK SHA-256 eb55978a6b3d704f1d4fa8fd58f9a5c2ad64012d323650e5260572407a5616c6. No physical-device installation or data reset was performed by the agent.",
+    "remaining": "None for UI-005. Automated before/after regressions pass, and the user verified the fix on the phone and requested closure and a commit.",
+    "commands": [
+      "./tools/verify-windows.ps1",
+      "qshopper_ui_tests.exe -input tests/qml/tst_safeborder.qml -import out/windows-agent",
+      "python tests/android/test_safeborder.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui005-final"
+    ],
+    "artifacts": [
+      "out/windows-agent/tests/ui005-before.xml",
+      "out/windows-agent/tests/ui005-after.xml",
+      "out/windows-agent/tests/ui005-windows.xml",
+      "out/windows-agent/tests/ui005-verify.txt",
+      "out/android-emulator/ui005-before/results.json",
+      "out/android-emulator/ui005-before-native-icons/results.json",
+      "out/android-emulator/ui005-final/results.json"
+    ],
+    "phone_validation": "2026-10-31: user reported \"Verified on Phone. Mark fixed and make commit, please\" for the supplied UI-005 APK. No physical-device installation or data reset was performed by the agent."
+  },
+  "resolved": "2026-10-31"
 }

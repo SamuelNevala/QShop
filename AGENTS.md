@@ -77,6 +77,10 @@ see tests/README.md for commands and the Pillow requirement.
 A list-selection regression covers fresh default display, switching contents,
 drawer/model refresh and settings restoration in a fresh engine/new window.
 The native popup script's --restart option verifies actual cold-restart selection.
+A safe-border regression compares actual pixels across all four safe areas,
+normal/inverse rows, themes and viewport changes. Its native companion covers
+Android System-mode changes, system-bar icon contrast, resume and IME with
+isolated data; see tests/README.md. The UI suite timeout is 210 seconds.
 The Qt Quick Test suite runs offscreen; it does not certify the full app's menu or visual appearance.
 Coverage is optional and separate from the normal verification command.
 
