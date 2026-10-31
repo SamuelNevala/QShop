@@ -692,3 +692,42 @@ The modern path was exercised on Android 16/API 36; the older path was compiled
 in both architectures but lacks runtime verification. No physical-phone install
 was performed by the agent. The user confirmed the supplied fix on the affected
 phone and requested closure and a commit on 2026-10-31.
+
+## Android System drawer colors (UI-014)
+
+This failure is reported and reproduced on Android. Desktop passing results are
+regression controls, not proof of reproducing or fixing this platform case.
+The native theme harness adds an opt-in drawer comparison mode:
+
+```powershell
+python tests/android/test_safeborder.py --adb C:/android/sdk/platform-tools/adb.exe --drawer --output out/android-emulator/ui014-after
+```
+
+Use all profiles with `--drawer` so the test captures actual explicit Light and
+Dark references before selecting System through the real drawer buttons. It
+compares the rendered drawer padding and seven controls: list selector, action
+buttons, primary/accent selectors and sensitivity slider. Matching control crops must
+have equal dimensions and at most two RGB levels of pixel difference. The three theme
+buttons intentionally have different checked positions and are excluded from
+image comparison. Complete drawer images and native UI XML remain in each profile.
+
+The System-Light case changes Android to Dark and back while the drawer stays
+open. Every profile closes and reopens the drawer, waiting for the close transition
+before using the editor menu button again. The other native surface, status-icon,
+IME, resume and saved-data controls continue running. Data/settings are isolated
+and the original Android night setting is restored.
+
+Before the one-binding Menu.qml fix, 24 of 137 checks fail in live, initial and
+reopened System/Dark: the drawer background is (209,209,209) instead of the
+explicit Dark reference (20,20,20), altering the control composites. After the fix,
+all 137 pass (90 drawer comparisons plus 47 UI-005 controls). Reports are in
+`out/android-emulator/ui014-before` and `ui014-after`. Native screenshots were
+also inspected. The normal Windows workflow passes 115 UI, 6 keyboard and 61
+model records on 2026-10-31.
+
+The source compares the drawer's effective `root.Material.theme` rather than the
+raw preference, whose System value is neither explicit Light nor explicit Dark.
+Existing explicit-theme shades and primary/accent values are preserved. Both
+APKs were rebuilt and the shared-key ARM64 signature verified. The user confirmed
+the fix on an Android emulator and requested closure and a commit on 2026-10-31.
+This is emulator confirmation; no physical-phone verification is claimed.

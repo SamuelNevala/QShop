@@ -12,6 +12,6 @@ Drawer {
     Binding {
         target: root.background
         property: "color"
-        value: Material.shade(Theme.theme === Material.Dark ? "#FF424242" : "#FFFFFFFF", Material.Shade800)
+        value: Material.shade(root.Material.theme === Material.Dark ? "#FF424242" : "#FFFFFFFF", Material.Shade800)
     }
 }

@@ -1,0 +1,79 @@
+{
+  "id": "UI-014",
+  "title": "Drawer Material component colors are wrong with System theme selected",
+  "status": "resolved",
+  "type": "bug",
+  "severity": "major",
+  "priority": "unassigned",
+  "created": "2026-10-31",
+  "reported_by": "user",
+  "scope": "Selected by the user on 2026-10-31 (\"go for 104\", interpreted as UI-014 in context). Implement and verify the Android drawer-theme fix; user clarified the failure is Android-only.",
+  "environment": "Android-only according to the user. Independently reproduced and verified on QShopper_API_36, Android 16/API 36, Qt 6.12, emulator-5580. User confirmed the fix on an Android emulator and accepted closure; no physical-phone verification is claimed.",
+  "reproduction_status": "Reproduced on Android with real drawer/theme selection, rendered controls, live OS night-mode changes and drawer reopening. Native regression fails before the fix and passes afterward.",
+  "reproduction": [
+    "Open the drawer.",
+    "Select System in the Theme controls.",
+    "Observe incorrect colors on Material components inside the drawer."
+  ],
+  "actual": "Before the fix, System/Dark rendered a light drawer background behind Dark Material controls. Native comparisons identified mismatched composites for the list selector, three action buttons, two color selectors and sensitivity slider.",
+  "expected": "Drawer surfaces and Material controls use a coherent, readable palette matching the effective system Light/Dark appearance when System is selected, while respecting the chosen primary/accent settings.",
+  "impact": "Major visual/theme defect, severity explicitly assigned by the user. No data loss or input failure has been reported.",
+  "source_notes": [
+    "Confirmed root cause: Menu.qml selected its background branch using the raw Theme.theme preference. System is a separate enum value and always took the Light branch, even when Android and the Material controls resolved to Dark.",
+    "In the native System/Dark case, the drawer padding rendered as RGB (209,209,209), versus (20,20,20) in the matching explicit Dark drawer. Foregrounds and Material control styling already followed Dark, producing the inconsistent composite.",
+    "The fix compares root.Material.theme, the actual resolved palette of the drawer. Existing shade choices, explicit Light/Dark appearance, primary/accent settings and geometry remain unchanged.",
+    "UI-005 remains resolved. Its existing 47 native checks pass both before and after the drawer fix; the added failures isolate drawer rendering rather than reopening the safe-border issue."
+  ],
+  "relevant_files": [
+    "Menu.qml",
+    "View.qml",
+    "GroupBox.qml",
+    "ColorComboBox.qml",
+    "Theme.qml",
+    "main.qml",
+    "tests/qml",
+    "tests/android"
+  ],
+  "related_tickets": [
+    "UI-005",
+    "UX-001",
+    "UX-003",
+    "QA-003"
+  ],
+  "reproduction_to_collect": [],
+  "acceptance_criteria": [
+    "Reproduce and record the affected drawer controls and foreground/background color mismatch.",
+    "With System selected, drawer surfaces and Material components follow the effective Android appearance coherently, including live system changes and drawer reopening.",
+    "Explicit Light/Dark themes and the selected primary/accent settings retain their intended behavior, contrast and state feedback.",
+    "Preserve the phone-confirmed UI-005 safe-area, checked-row and native-icon behavior.",
+    "Add an automated regression exercising the actual drawer/theme-selection path and rendered result; demonstrate failure before the fix and success afterward. Include native Android System-light/System-dark coverage; the user accepted Android emulator appearance verification for closure on 2026-10-31."
+  ],
+  "evidence": "User backlog report on 2026-10-31: severity major; selecting System Theme from the drawer produces wrong colors on Material components in the drawer.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null,
+  "implementation": {
+    "date": "2026-10-31",
+    "change": "One binding change in Menu.qml: compare root.Material.theme with Material.Dark instead of comparing the raw Theme.theme selection.",
+    "design": "Use the effective palette for color derivation and the raw setting only to represent the selected Light/Dark/System option. Preserve the existing drawer shades, typography, gestures, touch dimensions and palette choices.",
+    "regression": "Extend tests/android/test_safeborder.py with --drawer. Native clicks select each theme in the real drawer. Screenshots capture explicit Light/Dark references and compare the System drawer background plus seven unchanged controls: list selector, three action buttons, two color selectors and sensitivity slider. Pixel channel tolerance is two levels. Theme-selection buttons are excluded from pixel matching because their checked positions intentionally differ.",
+    "before": "On the original UI-005 APK, 24 of 137 native checks fail: the background and seven control images differ in live System/Dark, initial System/Dark and reopened System/Dark. Controls-present checks, Light matches and all 47 UI-005 controls pass.",
+    "android_after": "All 137 native checks pass: 90 drawer comparisons and the existing 47 safe-area/theme/icon/IME/data checks. Coverage includes both actual Android System modes, live changes in both directions while the drawer is open, reopening in every profile and explicit app/OS theme overrides.",
+    "windows_after": "Normal Windows configure/build/CTest passes all three suites: 115 UI, 6 keyboard and 61 model records; UI duration 173.66 seconds and total 180.27 seconds. These are regression controls, not evidence of reproducing the Android-only defect.",
+    "isolation": "Only emulator-5580 was targeted. Each run uses a unique QSHOPPER_DATA_DIR; native night mode is restored afterward. No phone installation or data deletion was performed.",
+    "commands": [
+      "./tools/verify-windows.ps1",
+      "python tests/android/test_safeborder.py --adb C:/android/sdk/platform-tools/adb.exe --drawer --output out/android-emulator/ui014-after"
+    ],
+    "apk": "Both architectures rebuilt. dist/QShopper-arm64-debug.apk is signed with ../debug.keystore; certificate SHA-256 7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b. APK SHA-256 b2a89ecf59ee723e3e7dd920504db765a0cff19909dd3c07111e80408fbe7782.",
+    "remaining": "None for closure. The user accepted Android emulator verification and requested that UI-014 be closed and committed; the earlier physical-phone confirmation step is superseded by that acceptance.",
+    "artifacts": [
+      "out/android-emulator/ui014-before/results.json",
+      "out/android-emulator/ui014-after/results.json",
+      "out/android-emulator/ui014-before/system_dark/drawer.png",
+      "out/android-emulator/ui014-after/system_dark/drawer.png",
+      "out/windows-agent/tests/ui014-verify.txt"
+    ],
+    "user_validation": "2026-10-31: user reported \"Confirmed to work on with Android Emulator. Close ticked and do commit.\" Record this as Android emulator confirmation, not physical-phone confirmation."
+  },
+  "resolved": "2026-10-31"
+}

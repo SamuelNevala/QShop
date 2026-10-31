@@ -1,4 +1,4 @@
-"""UI-005: native theme surfaces, system bars and checked contrast, with isolated data.
+"""UI-005 surfaces and optional UI-014 drawer palette regression, with isolated data.
 
 Requires Pillow. Tests Light/Dark, both real Android System modes and an open IME.
 Pixel ranges allow the deliberate 20% wallpaper contribution to each surface.
@@ -17,7 +17,7 @@ import time
 import uuid
 import xml.etree.ElementTree as ET
 
-from PIL import Image
+from PIL import Image, ImageChops
 
 
 PACKAGE = "shopper.nevala.com"
@@ -31,7 +31,11 @@ def main():
     parser.add_argument("--output", type=Path, default=Path("out/android-safeborder"))
     parser.add_argument("--profile", choices=("all", "light", "dark", "system_light", "system_dark",
                                              "keyboard_light", "light_on_dark_system"), default="all")
+    parser.add_argument("--drawer", action="store_true",
+                        help="UI-014: compare rendered System drawer controls with matching explicit themes")
     args = parser.parse_args()
+    if args.drawer and args.profile != "all":
+        parser.error("Use --profile all with --drawer to capture matching explicit-theme references")
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator serial is allowed")
     args.output.mkdir(parents=True, exist_ok=True)
@@ -81,6 +85,43 @@ def main():
                  for y in range(int(top * 0.25), int(top * 0.8), 2)]
         check(name, min(clock) < 100 if light else max(clock) > 180,
               minimum=min(clock), maximum=max(clock))
+
+    drawer_references = {}
+
+    def drawer_snapshot(name):
+        ui = tree()
+        frame = Image.open(BytesIO(adb("exec-out", "screencap", "-p"))).convert("RGB")
+        frame.save(folder / (name + ".png"))
+        (folder / (name + ".xml")).write_bytes(ET.tostring(ui))
+        widgets = {}
+        for node in ui.iter("node"):
+            label = node.get("content-desc", "")
+            kind = node.get("class")
+            key = None
+            if kind == "android.widget.Spinner":
+                key = "color_" + label if "ColorComboBox_" in node.get("resource-id", "") else "lists"
+            elif kind == "android.widget.Button" and label.startswith(("Reset", "Remove", "Clear")):
+                key = label.replace("\n", "_")
+            elif kind == "android.widget.SeekBar":
+                key = "sensitivity"
+            if key:
+                left, top, right, bottom = bounds(node)
+                if right > left and bottom > top:
+                    widgets[key] = frame.crop((left, top, right, bottom))
+        assert len(widgets) >= 6, "Drawer controls were not visible"
+        # Sample the drawer padding, outside the controls and system bar.
+        spinners = [bounds(n) for n in ui.iter("node") if n.get("class") == "android.widget.Spinner"]
+        point = (max(rect[2] for rect in spinners) + 6, height // 2)
+        return frame.getpixel(point), widgets
+
+    def compare_drawer(name, actual, expected):
+        check(name + "_background", actual[0] == expected[0], actual=actual[0], expected=expected[0])
+        check(name + "_controls_present", set(actual[1]) == set(expected[1]))
+        for key, reference in expected[1].items():
+            current = actual[1].get(key)
+            same_size = current is not None and current.size == reference.size
+            error = max(high for low, high in ImageChops.difference(current, reference).getextrema()) if same_size else 255
+            check(name + "_" + key, same_size and error <= 2, maximum_channel_error=error)
 
     assert shell("getprop", "ro.kernel.qemu") == "1", "Target is not an emulator"
     old_mode = shell("cmd", "uimode", "night").rsplit(":", 1)[-1].strip()
@@ -145,6 +186,25 @@ def main():
                           and n.get("content-desc") == theme]
                 assert len(button) == 1, "Theme button was not found: " + theme
                 tap(button[0])
+                if args.drawer:
+                    palette = drawer_snapshot("drawer")
+                    if theme != "System":
+                        drawer_references[light] = palette
+                    else:
+                        assert light in drawer_references, "Run all profiles to capture explicit theme references"
+                        compare_drawer("drawer_system", palette, drawer_references[light])
+                    if profile == "system_light":
+                        shell("cmd", "uimode", "night", "yes")
+                        compare_drawer("drawer_live_dark", drawer_snapshot("drawer_live_dark"), drawer_references[False])
+                        shell("cmd", "uimode", "night", "no")
+                        compare_drawer("drawer_live_light", drawer_snapshot("drawer_live_light"), drawer_references[True])
+                    shell("input", "tap", int(width * 0.98), height // 2)
+                    closed = tree()
+                    assert not any(n.get("class") == "android.widget.Spinner" for n in closed.iter("node")), "Drawer did not close"
+                    left, top, right, bottom = bounds(editor(closed))
+                    shell("input", "tap", left + (bottom - top) // 2, (top + bottom) // 2)
+                    compare_drawer("drawer_reopened", drawer_snapshot("drawer_reopened"),
+                                   drawer_references[light] if theme == "System" else palette)
                 shell("input", "tap", int(width * 0.98), height // 2)
                 ui = tree()
                 if keyboard:
@@ -205,7 +265,7 @@ def main():
             shell("am", "force-stop", PACKAGE)
             shell("cmd", "uimode", "night", old_mode)
             shell("rm", staging)
-    assert all(record["passed"] for record in results), "Native safe-border checks failed; see results.json"
+    assert all(record["passed"] for record in results), "Native theme checks failed; see results.json"
 
 
 if __name__ == "__main__":

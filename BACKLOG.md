@@ -2,8 +2,8 @@
 
 Started: 2026-10-28. QShopper is near feature complete. Backlog gathering and
 prioritization are recorded below. UI-001, UI-004, UI-005, UI-007, UI-008, UI-009,
-UI-010 and UI-011 are resolved. UI-006 is implemented pending phone confirmation;
-remaining tickets stay deferred until selected.
+UI-010, UI-011 and UI-014 are resolved. UI-006 is implemented pending phone
+confirmation; remaining tickets stay deferred until selected.
 
 Use [DESIGN.md](DESIGN.md) when deciding what counts as correct behavior. Keep
 intentional gestures, text fitting, animation, and list ordering intact.
@@ -13,7 +13,7 @@ intentional gestures, text fitting, animation, and list ordering intact.
 - Capture reports first. Do not implement fixes during backlog gathering.
 - Feature and code-quality requests are also backlog intake during this phase,
   unless the user explicitly asks to implement them now.
-- Keep stable IDs. Add new UI reports from UI-012 onward; UI-002 is already resolved.
+- Keep stable IDs. Add new UI reports from UI-015 onward; UI-002 is already resolved.
 - Distinguish user reports, previously observed bugs, source-review candidates,
   missing features, code-quality work, and validation tasks. Missing test coverage
   is not evidence of a bug.
@@ -123,6 +123,22 @@ and 47 native Android checks pass, including real OS System-mode changes and
 keyboard use. The Android 9/10 fallback is compiled but lacks runtime coverage.
 The user verified the supplied APK on the affected phone and requested closure
 and a commit. No physical-device installation or data reset was performed by the agent.
+
+### [UI-014 — Drawer Material colors in System theme](tickets/UI-014.json)
+
+Selected on 2026-10-31; user clarified this is an Android-only failure. Reproduced
+and resolved with user Android emulator confirmation. The drawer
+compared the raw System selection to Dark and chose a light background despite
+Dark Material controls. It now uses the drawer's resolved `Material.theme`.
+
+The native regression selects themes through the real drawer and compares its
+background and seven Material controls with the corresponding explicit palette.
+Before the fix, 24 of 137 checks fail in live, initial and reopened System/Dark.
+Afterward all 137 pass, including 47 existing UI-005 controls. The Windows suites
+also pass as regression checks; they do not establish Android reproduction.
+Existing shade choices and other palette settings are preserved. The user accepted
+Android emulator verification and requested closure and a commit on 2026-10-31;
+physical-phone confirmation is not claimed.
 
 ### UI-003 — Check long-entry text fitting against the two-line design
 
@@ -294,6 +310,7 @@ emulator evidence exists. Physical-phone behavior remains a separate check.
 | [UI-007](tickets/UI-007.json) | Back cancellation leaks a long press and breaks the next item interaction | Reset the stale cancelled tap recognizer and reject cancelled swipe actions. Before/after QML and native Android tests pass; user confirmed the fix works on the phone on 2026-10-29 |
 | [UI-010](tickets/UI-010.json) | Long selector popup endpoints overlap unsafe screen areas | Use window safe-area margins for popup bounds; before/after regressions and 54 native Android checks pass. User confirmed the phone fix on 2026-10-29 |
 | [UI-011](tickets/UI-011.json) | Keep the Android phone app portrait-only | Manifest portrait request; 11 sensor/state checks, 18 popup checks and all Windows suites pass. User waived physical-phone testing on 2026-10-29; platform overrides are documented |
+| [UI-014](tickets/UI-014.json) | System theme gives Android drawer controls the wrong background | Use the resolved drawer Material theme. Before: 24/137 native checks fail; after: all 137 pass. Windows regressions pass. User confirmed on an Android emulator and requested closure on 2026-10-31 |
 | [UI-005](tickets/UI-005.json) | Safe-area background does not match rows or follow the theme | Match the normal Material surface and opacity, resolve System checked contrast and native bar icons. Before/after regressions, all Windows suites and 47 native checks pass; user confirmed the phone fix on 2026-10-31 |
 | [UI-001](tickets/UI-001.json) | Blank list selector on a fresh installation | Persist the resolved default UUID and bind the selector to the active value. Two failing-before cases now pass; six focused Windows records, full Windows suites and ten native Android checks including cold restart pass on 2026-10-31. User accepted the fix and waived phone testing |
 | [UI-008](tickets/UI-008.json) | Empty-area filler overlaps virtualized long-list rows | Full ListView extent and origin determine filler position; before/after pixel regressions, all Windows suites and 15 native Android checks pass. User confirmed the phone fix on 2026-10-31 |
@@ -325,3 +342,7 @@ coverage inventory and UI-003 text-fitting assessment in the original plan. The
 user instead selected UI-005; its theme/safe-area fix is resolved with
 regressions and user phone confirmation. QA-003 and the broader color-role
 reviews remain deferred.
+
+The user then selected UI-014 ("104") and clarified Android-only reproduction.
+Its one-binding drawer fix is resolved with native before/after rendering tests
+and user Android emulator confirmation. Broader color reviews remain deferred.

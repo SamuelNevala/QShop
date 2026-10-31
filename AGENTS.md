@@ -81,6 +81,9 @@ A safe-border regression compares actual pixels across all four safe areas,
 normal/inverse rows, themes and viewport changes. Its native companion covers
 Android System-mode changes, system-bar icon contrast, resume and IME with
 isolated data; see tests/README.md. The UI suite timeout is 210 seconds.
+The native theme harness's --drawer mode covers Android-only UI-014 by comparing
+System drawer pixels with matching explicit Light/Dark references, including live
+OS changes and reopening. Desktop passing results do not establish its reproduction.
 The Qt Quick Test suite runs offscreen; it does not certify the full app's menu or visual appearance.
 Coverage is optional and separate from the normal verification command.
 
@@ -102,6 +105,10 @@ persists Theme.scale at key scale, and main.qml persists x/y under the Window ca
 Window dimensions remain calculated from the 76.6 by 162.8 millimeter reference size
 using Theme.pixels().
 QShopper supplies LoaderWindow and DefaultAnimation in its own QML module.
+
+For theme-derived colors, use the owning control's resolved Material.theme;
+Theme.theme records the user's Light/Dark/System choice and is appropriate for
+selection indicators. A raw System value is not the effective Light/Dark palette.
 
 ## Desktop virtual keyboard
 
