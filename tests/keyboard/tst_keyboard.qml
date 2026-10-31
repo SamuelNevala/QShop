@@ -111,6 +111,9 @@ Item {
             shop.forceLayout()
             compare(shop.itemAtIndex(0).name.toLowerCase(), "milk")
             compare(shop.itemAtIndex(1).name, "Bread")
+            tapKey(Qt.Key_Return)
+            compare(shop.model.count, 3)
+            verify(Qt.inputMethod.visible)
         }
         function test_hide_button_and_reopen_preserve_window_and_input() {
             const field = editor()

@@ -22,7 +22,7 @@ def main():
     parser.add_argument("--adb", default="adb")
     parser.add_argument("--serial", default="emulator-5580")
     parser.add_argument("--output", type=Path, default=Path("out/android-reset"))
-    parser.add_argument("--case", choices=("all", "exact", "mixed", "pending"), default="all")
+    parser.add_argument("--case", choices=("all", "exact", "mixed", "pending", "clear", "remove"), default="all")
     args = parser.parse_args()
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator serial is allowed")
@@ -92,13 +92,14 @@ def main():
         assert editor(ui) is not None, "Could not enter edit mode"
         return ui
 
-    def reset(ui):
+    def drawer_action(ui):
         left, top, right, bottom = bounds(editor(ui))
         shell("input", "tap", left + (bottom - top) // 2, (top + bottom) // 2)
         ui = tree()
+        label = {"clear": "Clear", "remove": "Remove"}.get(case, "Reset")
         buttons = [n for n in ui.iter("node") if n.get("class") == "android.widget.Button"
-                   and n.get("content-desc", "").startswith("Reset")]
-        assert len(buttons) == 1, "Drawer Reset checks button was not found"
+                   and n.get("content-desc", "").startswith(label)]
+        assert len(buttons) == 1, "Drawer action button was not found: " + label
         left, top, right, bottom = bounds(buttons[0])
         shell("input", "tap", (left + right) // 2, (top + bottom) // 2)
         ui = tree()
@@ -111,9 +112,10 @@ def main():
         for case in cases:
             case_dir = args.output / case
             case_dir.mkdir(parents=True, exist_ok=True)
-            initial = ["A", "B", "1", "2", "3"] if case == "mixed" else ["1", "2", "3"]
-            checked_order = ["A", "B", "2", "1", "3"] if case == "mixed" else ["2", "1", "3"]
-            expected = ["A", "B", "3", "1", "2"] if case == "mixed" else ["3", "1", "2"]
+            mixed = case in ("mixed", "clear", "remove")
+            initial = ["A", "B", "1", "2", "3"] if mixed else ["1", "2", "3"]
+            checked_order = ["A", "B", "2", "1", "3"] if mixed else ["2", "1", "3"]
+            expected = ["A", "B", "3", "1", "2"] if mixed else ["3", "1", "2"]
             identities = {name: str(uuid.uuid4()) for name in initial}
             fixture = Path(temporary) / (case + ".sqlite")
             with closing(sqlite3.connect(fixture)) as db:
@@ -154,18 +156,26 @@ def main():
                     shell("input", "tap", x, y)
                     ui = tree()
                     assert editor(ui).get("text") == "3", "Could not edit the last checked item"
-                ui = reset(ui)
-                records = saved()
-                check("reset_restores_checking_order_and_clears_checks", [r[0] for r in records] == expected
-                      and all(not r[1] for r in records), ui)
-                if case == "pending":
-                    check("reset_preserves_edit_text", editor(ui).get("text") == "3", ui)
-                ui = reset(ui)
-                check("second_reset_is_unchanged", saved() == records, ui)
-                shell("am", "force-stop", PACKAGE)
-                ui = launch()
-                check("restart_preserves_order_flags_and_ids", saved() == records and all(
-                    str(uuid.UUID(r[2])) == identities[r[0]] for r in records), ui)
+                ui = drawer_action(ui)
+                if case in ("clear", "remove"):
+                    remaining = [] if case == "clear" else ["A", "B"]
+                    check("drawer_removes_expected_items", [r[0] for r in saved()] == remaining, ui)
+                    left, top, right, bottom = bounds(editor(ui))
+                    shell("input", "tap", left + (bottom - top) // 2, (top + bottom) // 2)
+                    ui = tree()
+                    check("undo_icon_restores_order_checks_and_ids", saved() == records, ui)
+                else:
+                    records = saved()
+                    check("reset_restores_checking_order_and_clears_checks", [r[0] for r in records] == expected
+                          and all(not r[1] for r in records), ui)
+                    if case == "pending":
+                        check("reset_preserves_edit_text", editor(ui).get("text") == "3", ui)
+                    ui = drawer_action(ui)
+                    check("second_reset_is_unchanged", saved() == records, ui)
+                    shell("am", "force-stop", PACKAGE)
+                    ui = launch()
+                    check("restart_preserves_order_flags_and_ids", saved() == records and all(
+                        str(uuid.UUID(r[2])) == identities[r[0]] for r in records), ui)
             finally:
                 shell("am", "force-stop", PACKAGE)
                 shell("rm", staging)

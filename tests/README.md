@@ -62,6 +62,17 @@ Verified with MSVC 19.44 / Qt 6.12: **94.56% (452/478 lines)**.
 
 ## UI behavior verification
 
+For the current control-to-test map, new user-flow suite, platform gaps and
+native commands, see [INTERACTIONS.md](INTERACTIONS.md). Historical counts below
+describe earlier verification stages. QA-003 adds a separate flow CTest entry
+with explicit input-readiness checks. UI-015 remains a transition-time validation
+candidate; normal flow assertions have no expected-failure or skip markers.
+Remaining native/dictation gaps are recorded explicitly. The optional native
+`test_back.py --selector-back` command currently fails for all three selectors:
+Back must dismiss only the popup, but also closes the drawer (UI-016). The
+normal Windows workflow passes; this separate Android regression stays failing
+until its app fix is selected.
+
 Run `./tools/verify-windows.ps1` from the project root to build the app and both
 suites, then run CTest. Qt Quick Test must be installed in the Qt kit.
 The UI harness uses the production QShopper module,

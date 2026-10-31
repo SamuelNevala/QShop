@@ -92,6 +92,15 @@ with native Windows rendering and the Android script documented in tests/README.
 The Qt Quick Test suite runs offscreen; it does not certify the full app's menu or visual appearance.
 Coverage is optional and separate from the normal verification command.
 
+The current interaction inventory and platform gaps are in tests/INTERACTIONS.md.
+The separate qshopper_flow_tests entry drives actual editor/drawer/list controls,
+undo/expiry, reordering, settings and mode pulls. For settled-path tests, wait for
+whole-list readiness; test intentional animation interruptions separately.
+Current flow assertions have no XFAIL/skip markers. UI-015 tracks transition-time
+input validation. Native entry tests use the configured English QWERTY Gboard layout; they never activate the microphone.
+Android selector-popup Back must close only the popup, preserving the drawer.
+The optional test_back.py --selector-back regression tracks UI-016 until fixed.
+
 ## QML sizing
 
 Use Theme.pixels(millimeter) for component geometry and Theme.millimeters(pixels)

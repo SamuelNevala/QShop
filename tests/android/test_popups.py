@@ -28,7 +28,7 @@ def main():
     parser.add_argument("--matrix", action="store_true",
                         help="Also test a rotated-device request and a real keyboard resize")
     parser.add_argument("--profile", choices=("portrait", "keyboard_resize", "rotated"), default="portrait")
-    parser.add_argument("--restart", action="store_true", help="UI-001: verify list selection after a cold restart")
+    parser.add_argument("--restart", action="store_true", help="Verify list/color selection after a cold restart")
     args = parser.parse_args()
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator serial is allowed")
@@ -238,7 +238,7 @@ def main():
                         with closing(sqlite3.connect(case_dir / "saved.sqlite")) as db:
                             saved = db.execute(f'SELECT name,checked FROM "{DEFAULT}" ORDER BY rowid').fetchall()
                         check("items_preserved", saved == [("milk", 0), ("bread", 0)], ui)
-                        if args.restart and selector == "lists":
+                        if args.restart:
                             shell("am", "force-stop", PACKAGE)
                             shell("am", "start", "-n", PACKAGE + "/org.qtproject.qt.android.bindings.QtActivity",
                                   "--es", "extraenvvars_QSHOPPER_DATA_DIR", data)
@@ -257,8 +257,18 @@ def main():
                             left, top, right, bottom = bounds(field)
                             shell("input", "tap", left + (bottom - top) // 2, (top + bottom) // 2)
                             ui = tree()
-                            selected = [n for n in ui.iter("node") if n.get("class") == "android.widget.Spinner"
-                                        and "ColorComboBox_" not in n.get("resource-id", "")]
+                            selected = []
+                            safe = safe_rect()
+                            for _ in range(8):
+                                selected = [n for n in ui.iter("node") if n.get("class") == "android.widget.Spinner"
+                                            and ("ColorComboBox_" in n.get("resource-id", "")) == (selector != "lists")
+                                            and n.get("content-desc") == label
+                                            and bounds(n)[1] >= safe[1] and bounds(n)[3] <= safe[3]]
+                                if selected:
+                                    break
+                                shell("input", "swipe", width // 3, safe[3] - 150,
+                                      width // 3, safe[1] + 150, 400)
+                                ui = tree()
                             check("restart_selection", len(selected) == 1
                                   and selected[0].get("content-desc") == label, ui)
         finally:

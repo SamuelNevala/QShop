@@ -1,0 +1,40 @@
+{
+  "id": "UI-016",
+  "title": "Android Back from a selector popup also closes the drawer",
+  "status": "open",
+  "type": "bug",
+  "severity": "minor",
+  "severity_basis": "Unexpected extra navigation requires reopening the drawer. No saved-list changes or loss were observed.",
+  "created": "2026-10-31",
+  "reported_by": "native_ui_test",
+  "environment": "Qt 6.12, isolated QShopper_API_36 Android 16 emulator-5580, gesture navigation, existing x86_64 debug APK.",
+  "expected": "User clarified on 2026-10-31: Close only the selector popup first. Leave the drawer open; another Back closes the drawer while preserving edit mode.",
+  "reproduction": [
+    "Launch with unique QSHOPPER_DATA_DIR and an isolated milk/bread fixture.",
+    "Enter edit mode, open the drawer, and open Lists, Accent or Primary.",
+    "Perform a completed Android left-edge Back gesture while the selector popup is open.",
+    "Observe that both popup and drawer close; editing and saved items remain."
+  ],
+  "observed": "Strict final run reproduces the extra drawer dismissal for all three selectors. An earlier observational run left Accent open, so the behavior may depend on timing or geometry; root cause is not established.",
+  "regression": {
+    "location": "tests/android/test_back.py --selector-back",
+    "command": "python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --selector-back --output out/android-emulator/qa003-popup-back-policy",
+    "failing_cases": [
+      "lists_popup_back_closes_only_selector",
+      "accent_popup_back_closes_only_selector",
+      "primary_popup_back_closes_only_selector"
+    ],
+    "before": "3 selector failures; 7 other Back/data controls pass. Script exits nonzero and retains screenshots, accessibility trees and results.json.",
+    "after": "Not run: no application fix implemented. After fixing, verify popup-only dismissal and the next Back closing only the drawer; preserve editor/draft, foreground and saved-list invariants.",
+    "platform_scope": "Real Android edge gestures; desktop Escape checks do not certify this behavior. Extend both-edge/native state coverage when fixing."
+  },
+  "related_tickets": [
+    "QA-003",
+    "UI-006"
+  ],
+  "artifacts": [
+    "out/android-emulator/qa003-popup-back-policy/results.json",
+    "out/android-emulator/qa003-popup-back-policy"
+  ],
+  "implementation_scope": "Recorded during QA-003 coverage work. App fix deferred to a separately selected ticket."
+}

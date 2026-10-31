@@ -33,6 +33,7 @@ def main():
                         help="Initial hold in ms; keep below Android's Back long-press timeout")
     parser.add_argument("--with-keyboard", action="store_true")
     parser.add_argument("--complete-gesture", action="store_true")
+    parser.add_argument("--selector-back", action="store_true", help="Also exercise Back with each drawer selector popup open")
     args = parser.parse_args()
     if args.matrix:
         args.check_cancellation = True
@@ -84,13 +85,14 @@ def main():
 
     results = []
 
-    def check(name, passed, ui):
+    def check(name, passed, ui, fatal=True, **details):
         (args.output / (name + ".xml")).write_bytes(ET.tostring(ui))
         (args.output / (name + ".png")).write_bytes(adb("exec-out", "screencap", "-p"))
-        results.append(dict(case=name, passed=bool(passed)))
+        results.append(dict(case=name, passed=bool(passed), **details))
         (args.output / "results.json").write_text(json.dumps(results, indent=2))
         print(("PASS " if passed else "FAIL ") + name, flush=True)
-        assert passed, name
+        if fatal:
+            assert passed, name
 
     if shell("getprop", "ro.kernel.qemu") != "1":
         raise RuntimeError("Target is not an emulator")
@@ -190,6 +192,34 @@ def main():
             ui = wait_ui(lambda current: editor(current) is not None)
             check("drawer_back_preserves_edit", foreground() and editor(ui) is not None
                   and not any(n.attrib.get("content-desc") == "Dark" for n in ui.iter("node")), ui)
+            if args.selector_back:
+                def popup_visible(current):
+                    return any("Popup" in n.get("resource-id", "") and bounds(n)[3] > bounds(n)[1]
+                               for n in current.iter("node"))
+
+                for selector, label in (("lists", "default"), ("accent", "Green"), ("primary", "Indogo")):
+                    left, top, right, bottom = bounds(editor(ui))
+                    shell("input", "tap", left + (bottom - top) // 2, (top + bottom) // 2)
+                    ui = wait_ui(lambda current: any(n.get("content-desc") == "Dark" for n in current.iter("node")))
+                    options = [n for n in ui.iter("node") if n.get("class") == "android.widget.Spinner"
+                               and n.get("content-desc") == label]
+                    assert len(options) == 1, "Drawer selector not found: " + selector
+                    left, top, right, bottom = bounds(options[0])
+                    shell("input", "tap", (left + right) // 2, (top + bottom) // 2)
+                    ui = wait_ui(popup_visible)
+                    assert popup_visible(ui), "Selector popup did not open"
+                    back()
+                    ui = wait_ui(lambda current: not popup_visible(current))
+                    drawer_open = any(n.get("content-desc") == "Dark" for n in ui.iter("node"))
+                    check(selector + "_popup_back_closes_only_selector", foreground() and editor(ui) is not None
+                          and not popup_visible(ui) and drawer_open
+                          and saved_items() == [("milk", 0), ("bread", 0)], ui,
+                          fatal=False, drawer_still_open=drawer_open)
+                    if drawer_open:
+                        back()
+                        ui = wait_ui(lambda current: not any(n.get("content-desc") == "Dark" for n in current.iter("node")))
+                        check(selector + "_next_back_closes_drawer_only", foreground() and editor(ui) is not None
+                              and not any(n.get("content-desc") == "Dark" for n in ui.iter("node")), ui)
             if args.check_cancellation:
                 ui = reorder_pair(ui, "reorder_control")
                 scenarios = [(args.edge, args.hold_start, args.with_keyboard, not args.complete_gesture)]
@@ -251,6 +281,7 @@ def main():
             ui = wait_ui(lambda current: editor(current) is None)
             check("back_leaves_edit_after_drawer", foreground() and editor(ui) is None and len(rows(ui)) == 2, ui)
             check("saved_items_unchanged", saved_items() == [("milk", 0), ("bread", 0)], ui)
+            assert all(result["passed"] for result in results), "Native Back checks failed; see results.json"
         finally:
             shell("am", "force-stop", PACKAGE)
             shell("rm", staging)

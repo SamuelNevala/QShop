@@ -1,12 +1,12 @@
 {
   "id": "QA-003",
   "title": "Expand UI tests to cover all implemented user interactions",
-  "status": "requested",
+  "status": "resolved",
   "type": "test_coverage",
   "priority": "unassigned",
   "created": "2026-10-28",
   "reported_by": "user",
-  "scope": "Backlog item only. Interaction inventory, test design, and suite expansion are deferred until implementation is requested.",
+  "scope": "Selected by the user on 2026-10-31: inventory real UI paths, reuse existing harnesses, add missing coverage incrementally, and record discovered application bugs separately.",
   "request": "Improve the UI test set to cover all user interactions.",
   "expected": "A documented interaction-to-test coverage matrix and repeatable UI tests covering the app's implemented controls, gestures, modes, and relevant state transitions, with appropriate Android-specific coverage.",
   "interaction_inventory": [
@@ -30,8 +30,33 @@
     "Coordinate known-bug regression tests with the corresponding fix tickets. Do not silently fix app behavior or weaken assertions just to make the expanded suite pass.",
     "Record any native/dictation automation limits explicitly. A platform-dependent interaction remains a coverage gap until it has appropriate repeatable verification."
   ],
-  "relevant_files": ["tests/qml", "tests/keyboard", "tests/test_ui.cpp", "tests/CMakeLists.txt", "tests/README.md", "tools/verify-windows.ps1", "ANDROID.md", "DESIGN.md"],
-  "related_tickets": ["QA-001", "QA-002", "UI-004", "UI-005", "UI-006", "UI-007", "UI-008", "UI-009", "UI-010"],
+  "relevant_files": [
+    "tests/qml",
+    "tests/keyboard",
+    "tests/test_ui.cpp",
+    "tests/CMakeLists.txt",
+    "tests/README.md",
+    "tools/verify-windows.ps1",
+    "ANDROID.md",
+    "DESIGN.md"
+  ],
+  "related_tickets": [
+    "QA-001",
+    "QA-002",
+    "UI-004",
+    "UI-005",
+    "UI-006",
+    "UI-007",
+    "UI-008",
+    "UI-009",
+    "UI-010",
+    "UI-001",
+    "UI-003",
+    "UI-011",
+    "UI-014",
+    "UI-015",
+    "UI-016"
+  ],
   "acceptance_criteria": [
     "Create an inventory of all implemented user interactions and relevant state transitions, mapped to named tests and supported platforms.",
     "Add missing automated UI coverage that exercises the real user path and checks observable results and data invariants.",
@@ -43,5 +68,55 @@
   ],
   "evidence": "Explicit user backlog request on 2026-10-28 to improve UI tests to cover all user interactions, following the requirement that every bug fix have a regression test.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "selected": "2026-10-31",
+  "implementation": {
+    "date": "2026-10-31",
+    "inventory": "tests/INTERACTIONS.md: maps actual controls, gestures, states, observable assertions and supported platforms; distinguishes model/fixture calls from user-path coverage.",
+    "windows": "Separate qshopper_flow_tests CTest entry uses existing qshopper_ui_tests executable with isolated data, actual editor/drawer/selector controls, mouse/touch/keys, real undo expiry and mode pull geometry. Existing suite timeouts unchanged.",
+    "new_flows": [
+      "Single-tap editor placement, typing/Return insertion, double-tap replacement, editor X/empty Return and new-window persistence.",
+      "Delete and actual Undo icon; drawer Remove checked/Clear list/undo and no-check no-op.",
+      "Shopping tap guard, checked-row tap/hold guard, reorder/drop persistence, left/right correction order.",
+      "Drawer outside/Escape and popup Escape with draft/data retained; settings through actual controls and saved values.",
+      "Undo expiry via real timer; invalidation via another actual row interaction; short/long resisted mode pulls."
+    ],
+    "known_failure": "No expected-failure or skip markers remain in the final suite. Initial Clear/Undo and focus failures were narrowed to test input before retiring delegates finished. Whole-list readiness resolves the settled paths without app changes; UI-015 retains only the transition-time validation candidate.",
+    "normal_verification": "Final configure/build/CTest passes all four entries: 148 UI, 19 flow, 6 real-keyboard and 61 model records; zero failures/skips/XFAIL. UI 172.41 seconds, flow 97.19 seconds, total 276.02 seconds. Earlier failing/expected-failure reports are superseded.",
+    "native_windows": "All 19 flow records pass with native Windows rendering, zero failures/skips/XFAIL (88.159 seconds). Fully settled controls are exercised with both mouse and touch.",
+    "android_changes": [
+      "Repaired stale accessibility lookup in test_swipes.py; added short/slow and continuous-pointer pullback rejection mode using existing BackGesture.jar.",
+      "Added test_entry.py: actual English QWERTY Gboard letters/Return, empty Return, clear/draft/drawer/Back, pending replacement cancellation, insertion/edit identity, single-delete Undo, checked-row guards, catalog create/rename/delete/Undo and theme/sensitivity cold restoration. No microphone activation.",
+      "Extended test_reset.py with optional clear/remove drawer-action and real Undo controls, preserving original reset cases.",
+      "Extended test_popups.py --restart to verify Accent/Primary as well as Lists through actual cold-restarted controls.",
+      "Added test_back.py --selector-back to enforce the user-selected popup-only dismissal rule with real Android edge gestures and saved-data controls. All three selectors currently fail that rule; UI-016 tracks the app fix separately."
+    ],
+    "android_verification": "Final Android runs: 65 of 68 checks pass. The 58 action/rejection, native Gboard/editor/catalog/settings, drawer Clear/Remove Undo and Accent/Primary cold-restart checks all pass. Native Back has 7 passing controls and 3 failing selector-popup cases (UI-016). The eight rejection checks also pass a separate repeat run with the final helper.",
+    "isolation": "All QML runs use UiSetup in-memory SQLite/temp settings. Native commands target emulator-5580 serially, seed unique QSHOPPER_DATA_DIR/settings and stop the app afterward. No physical installation or personal-data deletion.",
+    "remaining": "User accepted closure on 2026-10-31 with the recorded limits: real speech/dictation has no controlled fixture/manual result, and additional native timing/device permutations remain unverified. Continue physical-phone/dictation and multi-device validation under QA-001/QA-002; UI-015 tracks transition-time input investigation and UI-016 tracks the separately deferred selector Back fix. Closure does not claim those checks passed.",
+    "artifacts": [
+      "out/android-emulator/qa003-swipes/results.json",
+      "out/android-emulator/qa003-rejections/results.json",
+      "out/android-emulator/qa003-entry/results.json",
+      "out/android-emulator/qa003-clear/results.json",
+      "out/android-emulator/qa003-remove/results.json",
+      "out/android-emulator/qa003-accent/results.json",
+      "out/android-emulator/qa003-primary/results.json",
+      "out/qa003/verify-final.txt",
+      "out/qa003/flows-native-final.txt",
+      "out/android-emulator/qa003-popup-back/results.json",
+      "out/android-emulator/qa003-rejections-repeat/results.json",
+      "out/android-emulator/qa003-popup-back-policy/results.json"
+    ],
+    "driver_readiness": "Wait for the complete short-fixture delegate set to match the model and all rows to finish moving before clicks/typing. Deterministic helper double taps use 40 ms presses and a 60 ms interval; preload assertions preserve exact IME-submitted capitalization.",
+    "selector_back_policy": "User clarified on 2026-10-31: close only the selector popup first, leaving the drawer open until the next Back. Strict final run: Lists, Accent and Primary all close the drawer too (3 failures); the other 7 controls pass. An earlier observational run left Accent open but did not enforce the chosen policy. UI-016 records this variability; the strict run supersedes it as acceptance evidence."
+  },
+  "resolved": "2026-10-31",
+  "resolution": {
+    "date": "2026-10-31",
+    "accepted_by": "user",
+    "request": "Mark ticket closed and commit changes.",
+    "summary": "Accepted the interaction inventory, repeatable control-driven Windows/Android coverage, recorded test results and explicit validation limits. No application behavior changes included.",
+    "follow_up": "QA-001/QA-002 retain physical-device and dictation validation. UI-015 remains a reproduction candidate; UI-016 remains open with three failing native selector Back checks."
+  }
 }

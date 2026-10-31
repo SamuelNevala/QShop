@@ -16,6 +16,15 @@ if(WIN32)
     set_tests_properties(qshopper_ui_tests PROPERTIES ENVIRONMENT_MODIFICATION
         "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>")
 endif()
+add_test(NAME qshopper_flow_tests COMMAND qshopper_ui_tests
+    -input ${CMAKE_CURRENT_SOURCE_DIR}/flows -import ${CMAKE_BINARY_DIR}
+    -platform offscreen -o -,txt -o flow-tests.xml,junitxml)
+set_tests_properties(qshopper_flow_tests PROPERTIES TIMEOUT 120
+    ENVIRONMENT "QT_QUICK_BACKEND=software;QT_FORCE_STDERR_LOGGING=1")
+if(WIN32)
+    set_tests_properties(qshopper_flow_tests PROPERTIES ENVIRONMENT_MODIFICATION
+        "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>")
+endif()
 if(qshopper_keyboard_enabled)
     add_test(NAME qshopper_keyboard_tests COMMAND qshopper_ui_tests
         -input ${CMAKE_CURRENT_SOURCE_DIR}/keyboard -import ${CMAKE_BINARY_DIR}

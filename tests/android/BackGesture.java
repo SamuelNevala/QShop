@@ -44,6 +44,18 @@ public final class BackGesture {
         Class<?> manager = Class.forName("android.hardware.input.InputManagerGlobal");
         input = manager.getMethod("getInstance").invoke(null);
         inject = manager.getMethod("injectInputEvent", InputEvent.class, int.class);
+        if (args[0].equals("double-tap")) {
+            float x = Float.parseFloat(args[1]);
+            float y = Float.parseFloat(args[2]);
+            for (int tap = 0; tap < 2; ++tap) {
+                downTime = SystemClock.uptimeMillis();
+                send(MotionEvent.ACTION_DOWN, x, y);
+                SystemClock.sleep(40);
+                send(MotionEvent.ACTION_UP, x, y);
+                SystemClock.sleep(60);
+            }
+            return;
+        }
         float start = Float.parseFloat(args[0]);
         float outward = Float.parseFloat(args[1]);
         float y = Float.parseFloat(args[2]);

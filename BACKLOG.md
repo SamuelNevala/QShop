@@ -3,7 +3,7 @@
 Started: 2026-10-28. QShopper is near feature complete. Backlog gathering and
 prioritization are recorded below. UI-001, UI-003, UI-004, UI-005, UI-007, UI-008,
 UI-009, UI-010, UI-011 and UI-014 are resolved. UI-006 is implemented pending phone
-confirmation; remaining tickets stay deferred until selected.
+confirmation. QA-003 is closed by user acceptance; other unselected tickets stay deferred.
 
 Use [DESIGN.md](DESIGN.md) when deciding what counts as correct behavior. Keep
 intentional gestures, text fitting, animation, and list ordering intact.
@@ -13,7 +13,7 @@ intentional gestures, text fitting, animation, and list ordering intact.
 - Capture reports first. Do not implement fixes during backlog gathering.
 - Feature and code-quality requests are also backlog intake during this phase,
   unless the user explicitly asks to implement them now.
-- Keep stable IDs. Add new UI reports from UI-015 onward; UI-002 is already resolved.
+- Keep stable IDs. Add new UI reports from UI-017 onward; UI-002 is already resolved.
 - Distinguish user reports, previously observed bugs, source-review candidates,
   missing features, code-quality work, and validation tasks. Missing test coverage
   is not evidence of a bug.
@@ -48,7 +48,7 @@ test. This recommendation does not itself authorize starting implementation.
 | 5 | [UI-011](tickets/UI-011.json) — portrait-only Android | Resolved: native sensor and popup regressions pass; user waived physical-phone testing. Android's large-screen overrides are documented |
 | 6 | [UI-009](tickets/UI-009.json) — reset ordering | Closed with user confirmation: checked 2,1,3 resets to 3,1,2; unchecked entries stay first. Model/QML/native regressions cover pending edits, repeated Reset and restart persistence |
 | 7 | [UI-008](tickets/UI-008.json), then [UI-001](tickets/UI-001.json) | Both resolved: UI-008 has phone confirmation; UI-001 has before/after drawer-selection regressions, real Windows rendering and native Android cold-restart coverage |
-| 8 | [QA-003](tickets/QA-003.json), [UI-003](tickets/UI-003.json), and QA-001 | UI-003 is resolved with desktop acceptance. Complete remaining interaction coverage and use a physical-phone shopping pass to expose integration problems |
+| 8 | [QA-003](tickets/QA-003.json), [UI-003](tickets/UI-003.json), and QA-001 | UI-003 and QA-003 are closed by user acceptance. Continue physical-phone/dictation validation under QA-001/QA-002; UI-015/UI-016 remain separate follow-ups |
 | 9 | [UX-001](tickets/UX-001.json) → [UX-002](tickets/UX-002.json) → [UX-003](tickets/UX-003.json), then [UI-005](tickets/UI-005.json) and QA-002 | UI-005 selected directly and resolved with phone confirmation; broader color-role reviews remain deferred. Verify typography, contrast, physical sizing and visual continuity on devices |
 | 10 | [DEV-006](tickets/DEV-006.json) → [DEV-002](tickets/DEV-002.json) / [DEV-003](tickets/DEV-003.json) → [DEV-004](tickets/DEV-004.json) → [DEV-005](tickets/DEV-005.json), with DEV-001 | Establish practical KISS guidance, apply formatting in separate mechanical changes, simplify CMake, then run configured analyzers against a clear build. Investigate the remaining QML warning alongside quality work |
 | 11 | [REL-001](tickets/REL-001.json), with final QA-001/QA-002 checks | Prepare production signing/builds and store submission from the stabilized app. Repeat affected interaction/device checks after the quality changes before declaring release readiness |
@@ -80,7 +80,10 @@ regressions remain easy to trace.
 
 ## Bugs and candidates
 
-No open reported bugs or text-fitting candidates. Resolved findings are recorded below.
+| ID | Finding | Evidence/status | Severity |
+| --- | --- | --- | --- |
+| [UI-015](tickets/UI-015.json) | Validate fast Undo during the Clear-list animation | Input-readiness investigation: settled mouse/touch Undo passes after correcting the test driver; transition-time hit-target reproduction remains open | Unassigned |
+| [UI-016](tickets/UI-016.json) | Back from a selector popup also closes the drawer | User clarified popup-only dismissal; native strict tests fail for all three selectors. Targeted Android regression added; app fix deferred | Minor |
 
 ### [UI-008 — Long-list background continuity](tickets/UI-008.json)
 
@@ -284,7 +287,6 @@ Coordinate with DEV-002 through DEV-005 and record proposed refactors separately
 
 | ID | Area | Checks still needed |
 | --- | --- | --- |
-| [QA-003](tickets/QA-003.json) | Expand automated UI coverage to all implemented user interactions | Inventory and map controls, gestures, modes, cancellation/recovery, settings, persistence, and Android-specific flows to repeatable tests; implementation deferred |
 | QA-001 | Full shopping flow on the updated physical phone | One-handed check/correction, checked-item stack order, movable editor, long-press reordering, drawer and list switching, restart persistence, dictation, repeated Return, the end of a long list with the keyboard open, and UI-006 Back behavior once implemented |
 | QA-002 | Physical sizing and text on different displays | Check real touch dimensions, short/long-entry readability, and layout on different phone sizes/densities; desktop zoom alone does not establish physical Android usability |
 | DEV-001 | Repeated QML diagnostic | Investigate the `PopupList` `contentWidth` override warning in existing Windows UI/keyboard reports. Determine whether it is an app or Qt issue and whether it affects behavior; no user-visible failure is established |
@@ -305,6 +307,12 @@ Do not turn old notes saying Android was untested into duplicate bugs: later
 emulator evidence exists. Physical-phone behavior remains a separate check.
 
 ## Resolved history
+
+QA-003 closed by user acceptance on 2026-10-31: the interaction map and expanded
+control-driven coverage are accepted with validation limits recorded. All four
+Windows suites pass; Android passes 65/68 checks, with three selector Back
+failures tracked as UI-016. Dictation/physical-device checks continue under
+QA-001/QA-002; UI-015 remains a separate transition-time input candidate.
 
 | Reference | Finding | Resolution/evidence |
 | --- | --- | --- |
@@ -354,4 +362,11 @@ The user then selected UI-003 and asked to keep fitting simple and allow more th
 two lines. The final change caps Qt's built-in Text.Fit at three lines; no separate
 font scaler remains. Windows/Android tests cover the resulting behavior.
 The user confirmed the desktop appearance and accepted closure on 2026-10-31.
-QA-003 is the next planned work item.
+QA-003 was then selected. The interaction inventory is in tests/INTERACTIONS.md;
+coverage additions use real controls and isolated data. Initial Clear/Undo failures
+were narrowed to test input before outgoing delegates retired. Settled mouse/touch
+Undo passes with no app changes; UI-015 retains the transition-time validation
+candidate. The user accepted closure of QA-003 on 2026-10-31 with its documented
+platform/dictation limits retained under QA-001/QA-002. The user clarified
+selector-popup Back priority: dismiss only the popup first. All three selectors
+fail that native regression; UI-016 tracks the app fix separately.

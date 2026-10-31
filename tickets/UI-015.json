@@ -1,0 +1,34 @@
+{
+  "id": "UI-015",
+  "title": "Validate fast Undo while Clear-list delegates are retiring",
+  "status": "needs_reproduction",
+  "type": "validation_gap",
+  "severity": "unassigned",
+  "created": "2026-10-31",
+  "reported_by": "ui_test_investigation",
+  "environment": "Qt 6.12 Windows Qt Quick Test, native/offscreen. Android touch controls pass.",
+  "finding": "Early coverage tests sometimes lost Undo history when tapping before outgoing delegates had retired. This was initially classified too strongly as a confirmed Clear-list bug.",
+  "current_evidence": "Waiting for all short-fixture delegates to match the current model count and finish moving makes normal editor entry and both mouse/touch Clear/Undo pass without application changes. Full flip angle alone was not sufficient input readiness.",
+  "reproduction_status": "No confirmed defect in the settled user path. Fast input during the transition still needs a rendered-hit-target reproduction before assigning bug severity or implementing an app fix.",
+  "reproduction_to_collect": [
+    "Clear a list, then capture an actual pointer press on the visibly offered Undo icon while outgoing delegates remain.",
+    "Record the rendered state and receiver of the press; distinguish a retiring row intercepting input from the Undo button receiving it.",
+    "Compare with the fully settled control on Windows and Android."
+  ],
+  "expected": "A settled Undo control restores removed names, ordering, flags and IDs. Establish the intended/actual behavior for an interruption during the animation before declaring another defect.",
+  "tests": [
+    "tests/flows/tst_userflows.qml: UserFlows::test_drawer_removal:all_mouse and :all_touch retain full restoration assertions; no XFAIL or skip remains.",
+    "tests/android/test_reset.py --case clear verifies real native touch Undo, including saved order/checks/IDs."
+  ],
+  "history": "Earlier flows-stable.txt/undo-final-native.txt failures and expected-failure runs lacked whole-list settlement. They are investigation evidence, superseded as acceptance results by the final readiness-aware runs.",
+  "related_tickets": [
+    "QA-003"
+  ],
+  "artifacts": [
+    "out/qa003/settled.txt",
+    "out/qa003/flows-native-final.txt",
+    "out/qa003/verify-final.txt",
+    "out/android-emulator/qa003-clear/results.json"
+  ],
+  "implementation_scope": "No application fix is authorized or implemented for this candidate. Keep investigation separate from QA-003 test-driver changes."
+}
