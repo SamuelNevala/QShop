@@ -87,8 +87,9 @@ Item names in the shopping view start with a large, bold font so short entries
 are easy to read at a glance while shopping. `TextItem` uses a reference font
 size of **7 mm**.
 
-Shrinking the text and wrapping it across two lines are deliberate parts of the
-design. Short names stay large; long entries gain room without enlarging the
+Shrinking the text and normally wrapping it across two lines are deliberate parts
+of the design. A third line is allowed for exceptionally long entries. Short
+names stay large; long entries gain room without enlarging the
 reference row or requiring the user to shorten what they write. The intended
 presentation accommodates both short and very long entries within the same
 shopping list.
@@ -96,6 +97,10 @@ shopping list.
 Preserve this balance when changing typography or row layout. A uniformly small
 font would sacrifice glanceability, while a fixed large font with early
 truncation would sacrifice the useful detail in longer entries.
+
+Use Qt's `Text.Fit` with the large reference size and `maximumLineCount: 3`.
+Rely on Qt's built-in fitting and existing right-ellipsis fallback; do not add a
+separate font scaler. The saved name remains intact when display text is elided.
 
 ## Write in recall order, insert in shopping order
 
@@ -143,7 +148,7 @@ When evaluating a change, consider whether it:
 - Makes deliberate actions easy and accidental actions unlikely.
 - Keeps the most recent mistake nearby and quick to correct.
 - Preserves physical touch sizes across displays.
-- Keeps short item names large and lets long entries shrink and wrap to two lines.
+- Keeps short names large and lets long entries shrink and wrap, with a three-line cap.
 - Respects the user's list order and movable insertion point.
 - Supports continuous keyboard and voice entry.
 - Keeps the app's animation and visual character useful and responsive.

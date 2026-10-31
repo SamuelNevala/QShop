@@ -13,7 +13,7 @@ Text {
     fontSizeMode: Text.Fit
     elide: Text.ElideRight
     horizontalAlignment: Text.AlignHCenter
-    maximumLineCount: 8
+    maximumLineCount: 3
     textFormat: Text.PlainText
     verticalAlignment: Text.AlignVCenter
     wrapMode: Text.Wrap

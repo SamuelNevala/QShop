@@ -731,3 +731,45 @@ Existing explicit-theme shades and primary/accent values are preserved. Both
 APKs were rebuilt and the shared-key ARM64 signature verified. The user confirmed
 the fix on an Android emulator and requested closure and a commit on 2026-10-31.
 This is emulator confirmation; no physical-phone verification is claimed.
+
+## Shopping text line limit (UI-003)
+
+`qml/tst_textfitting.qml` checks the production TextDelegate at 55/76.6/90 mm
+widths and preview scales 1/2. It covers short, long, unbroken and oversized names,
+checked styling, reuse and resizing (33 focused records including lifecycle).
+The production change is just `maximumLineCount: 3`; keep `Text.Fit`, the 7 mm
+reference font and Qt's existing ellipsis behavior. No extra scaler is used.
+
+The normal Windows workflow includes these tests. Offscreen may have only a
+dummy/icon font, so also run the actual-font assertions with native rendering:
+
+```powershell
+$env:PATH = 'C:/Qt/6.12.0/msvc2022_64/bin;' + $env:PATH
+Remove-Item Env:QT_QUICK_BACKEND -ErrorAction SilentlyContinue
+./out/windows-agent/qshopper_ui_tests.exe -input tests/qml/tst_textfitting.qml -import out/windows-agent -o out/ui003-nativeqt/after-windows.txt,txt
+```
+
+With the x86_64 APK installed on the isolated portrait emulator, run:
+
+```powershell
+python tests/android/test_textfitting.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui003-nativeqt
+```
+
+Requires Pillow. It counts actual screenshot text bands in Light/Dark, checks
+large short text and smaller long text, and verifies stored names/flags remain
+intact. Each profile uses unique data/settings; only emulator serials are allowed.
+Screenshots, row crops, UI XML, SQLite and results remain in the output folder.
+The script stops the app afterward and never installs an APK or touches a phone.
+
+The original Windows preview can render four lines; this is the before/after
+regression trigger for the three-line cap. The tested Android configuration
+already limited extreme text to three lines geometrically, so its checks are
+platform controls rather than a claim of Android reproduction. Earlier reports
+for a strict two-line/custom-scaler approach are superseded by ui003-nativeqt.
+
+Final Qt-native results: four of 33 native Windows records fail with the original
+eight-line limit; all 33 pass with the three-line cap. The normal Windows workflow
+passes 148 UI, 6 keyboard and 61 model records. All 20 Android controls pass.
+Reports are in `out/ui003-nativeqt` and `out/android-emulator/ui003-nativeqt`.
+The user confirmed the desktop appearance and accepted closure on 2026-10-31;
+physical-phone verification is not claimed.

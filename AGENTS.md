@@ -10,7 +10,7 @@ Read [DESIGN.md](DESIGN.md) before changing UI, gestures, list ordering, sizing,
 or text entry. It records the user's design intent for one-handed shopping:
 deliberate horizontal swipes with pullback, nearby correction through first-in,
 last-out checked-item ordering, 9.27 mm reference rows, large item text that
-shrinks and wraps to two lines for long entries, a movable editor,
+shrinks and wraps for long entries (normally two lines, with a three-line cap), a movable editor,
 user-controlled shopping order, continuous keyboard/dictation entry, and an
 animated visual style. Evaluate proposed changes against these principles and
 make any tradeoffs explicit.
@@ -84,6 +84,11 @@ isolated data; see tests/README.md. The UI suite timeout is 210 seconds.
 The native theme harness's --drawer mode covers Android-only UI-014 by comparing
 System drawer pixels with matching explicit Light/Dark references, including live
 OS changes and reopening. Desktop passing results do not establish its reproduction.
+A text-fitting regression checks the production TextDelegate at three widths and
+two preview scales, including shrink/wrap, content retention, checked styling and
+reuse/resizing. Its Android companion counts actual screenshot text bands in both
+themes. Offscreen's dummy font does not certify typography; run the focused test
+with native Windows rendering and the Android script documented in tests/README.md.
 The Qt Quick Test suite runs offscreen; it does not certify the full app's menu or visual appearance.
 Coverage is optional and separate from the normal verification command.
 

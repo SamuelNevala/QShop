@@ -1,8 +1,8 @@
 # QShopper backlog
 
 Started: 2026-10-28. QShopper is near feature complete. Backlog gathering and
-prioritization are recorded below. UI-001, UI-004, UI-005, UI-007, UI-008, UI-009,
-UI-010, UI-011 and UI-014 are resolved. UI-006 is implemented pending phone
+prioritization are recorded below. UI-001, UI-003, UI-004, UI-005, UI-007, UI-008,
+UI-009, UI-010, UI-011 and UI-014 are resolved. UI-006 is implemented pending phone
 confirmation; remaining tickets stay deferred until selected.
 
 Use [DESIGN.md](DESIGN.md) when deciding what counts as correct behavior. Keep
@@ -48,7 +48,7 @@ test. This recommendation does not itself authorize starting implementation.
 | 5 | [UI-011](tickets/UI-011.json) — portrait-only Android | Resolved: native sensor and popup regressions pass; user waived physical-phone testing. Android's large-screen overrides are documented |
 | 6 | [UI-009](tickets/UI-009.json) — reset ordering | Closed with user confirmation: checked 2,1,3 resets to 3,1,2; unchecked entries stay first. Model/QML/native regressions cover pending edits, repeated Reset and restart persistence |
 | 7 | [UI-008](tickets/UI-008.json), then [UI-001](tickets/UI-001.json) | Both resolved: UI-008 has phone confirmation; UI-001 has before/after drawer-selection regressions, real Windows rendering and native Android cold-restart coverage |
-| 8 | [QA-003](tickets/QA-003.json), UI-003, and QA-001 | Complete remaining interaction coverage and assess the unconfirmed text-fitting discrepancy. Use a physical-phone shopping pass to expose integration problems |
+| 8 | [QA-003](tickets/QA-003.json), [UI-003](tickets/UI-003.json), and QA-001 | UI-003 is resolved with desktop acceptance. Complete remaining interaction coverage and use a physical-phone shopping pass to expose integration problems |
 | 9 | [UX-001](tickets/UX-001.json) → [UX-002](tickets/UX-002.json) → [UX-003](tickets/UX-003.json), then [UI-005](tickets/UI-005.json) and QA-002 | UI-005 selected directly and resolved with phone confirmation; broader color-role reviews remain deferred. Verify typography, contrast, physical sizing and visual continuity on devices |
 | 10 | [DEV-006](tickets/DEV-006.json) → [DEV-002](tickets/DEV-002.json) / [DEV-003](tickets/DEV-003.json) → [DEV-004](tickets/DEV-004.json) → [DEV-005](tickets/DEV-005.json), with DEV-001 | Establish practical KISS guidance, apply formatting in separate mechanical changes, simplify CMake, then run configured analyzers against a clear build. Investigate the remaining QML warning alongside quality work |
 | 11 | [REL-001](tickets/REL-001.json), with final QA-001/QA-002 checks | Prepare production signing/builds and store submission from the stabilized app. Repeat affected interaction/device checks after the quality changes before declaring release readiness |
@@ -80,9 +80,7 @@ regressions remain easy to trace.
 
 ## Bugs and candidates
 
-| ID | Finding | Evidence/status | Severity |
-| --- | --- | --- | --- |
-| UI-003 | Shopping text permits eight lines despite the intended two-line presentation | Source/design discrepancy; visible failure not established | Unassigned |
+No open reported bugs or text-fitting candidates. Resolved findings are recorded below.
 
 ### [UI-008 — Long-list background continuity](tickets/UI-008.json)
 
@@ -140,20 +138,24 @@ Existing shade choices and other palette settings are preserved. The user accept
 Android emulator verification and requested closure and a commit on 2026-10-31;
 physical-phone confirmation is not claimed.
 
-### UI-003 — Check long-entry text fitting against the two-line design
+### [UI-003 — Bound shopping text using Qt's built-in fitting](tickets/UI-003.json)
 
-- **Expected:** short names stay large and legible. Long entries shrink and wrap
-  across two lines within the 9.27 mm reference row.
-- **Evidence:** `TextItem.qml` has a 7 mm reference font, `Text.Fit`, wrapping, and
-  `maximumLineCount: 8`. The user explicitly described two-line fitting as intentional.
-- **Unknown:** whether the current row geometry actually renders more than two
-  lines or creates a visible readability problem. The property value alone does
-  not establish the rendered result.
-- **Reproduction to collect:** inspect short names, long multiword entries, and
-  long unbroken names on the phone. Record line count, clipping, and readability.
-- **Acceptance:** preserve large short names and readable long entries in the
-  intended two-line presentation. Do not reduce the line limit without checking
-  how it affects font fitting and content visibility.
+Selected on 2026-10-31. The original eight-line allowance produces up to four
+lines in native Windows preview cases and three on the tested Android emulator.
+The user relaxed the original strict two-line limit; the recommended cap is now
+three, preserving useful space for exceptionally long names.
+
+Resolved on 2026-10-31 with user desktop confirmation and acceptance of closure.
+Physical-phone confirmation is not claimed. The user requested the simple Qt-native
+approach: keep the 7 mm reference font, Text.Fit and 9.27 mm row, and set
+maximumLineCount to three. Qt handles shrinking, wrapping and the existing ellipsis
+fallback. The additional C++ font scaler has been removed as unnecessary complexity.
+
+The repeatable QML suite checks short, long, unbroken and oversized text at three
+widths and two preview scales, checked styling, row reuse and live resizing.
+Native screenshots check both themes and stored source text with isolated data.
+Regression results and commands are recorded in the ticket and tests/README.md.
+The user tested the desktop appearance, reported it looks good and requested a commit.
 
 ### UI-004 — Critical right-swipe regression
 
@@ -306,6 +308,7 @@ emulator evidence exists. Physical-phone behavior remains a separate check.
 
 | Reference | Finding | Resolution/evidence |
 | --- | --- | --- |
+| [UI-003](tickets/UI-003.json) | Bound long-entry text fitting | Keep Qt Text.Fit and 7 mm font, cap at three lines. Four native Windows cases fail before; all 33 pass afterward. Full Windows suites and 20 Android controls pass. User confirmed desktop appearance and accepted closure on 2026-10-31 |
 | [UI-004](tickets/UI-004.json) | Right-swipe selection/deletion and excessive swipe resistance | Absolute-distance fix and gravity tuning; before/after regressions pass. User confirmed half-width behavior and phone feel at 150% sensitivity on 2026-10-29 |
 | [UI-007](tickets/UI-007.json) | Back cancellation leaks a long press and breaks the next item interaction | Reset the stale cancelled tap recognizer and reject cancelled swipe actions. Before/after QML and native Android tests pass; user confirmed the fix works on the phone on 2026-10-29 |
 | [UI-010](tickets/UI-010.json) | Long selector popup endpoints overlap unsafe screen areas | Use window safe-area margins for popup bounds; before/after regressions and 54 native Android checks pass. User confirmed the phone fix on 2026-10-29 |
@@ -346,3 +349,9 @@ reviews remain deferred.
 The user then selected UI-014 ("104") and clarified Android-only reproduction.
 Its one-binding drawer fix is resolved with native before/after rendering tests
 and user Android emulator confirmation. Broader color reviews remain deferred.
+
+The user then selected UI-003 and asked to keep fitting simple and allow more than
+two lines. The final change caps Qt's built-in Text.Fit at three lines; no separate
+font scaler remains. Windows/Android tests cover the resulting behavior.
+The user confirmed the desktop appearance and accepted closure on 2026-10-31.
+QA-003 is the next planned work item.

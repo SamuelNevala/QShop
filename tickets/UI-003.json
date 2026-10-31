@@ -1,0 +1,71 @@
+{
+  "id": "UI-003",
+  "title": "Bound shopping text using Qt built-in fitting",
+  "status": "resolved",
+  "type": "bug",
+  "severity": "minor",
+  "severity_basis": "Agent assessment: typography/readability defect, without observed data loss or blocked shopping actions.",
+  "created": "2026-10-28",
+  "selected": "2026-10-31",
+  "reported_by": "source_review",
+  "scope": "User requested removing the extra C++ scaler and relying on Text.Fit with a large default font. They then relaxed the two-line limit; three was recommended as a practical cap.",
+  "environment": "Qt 6.12 MSVC Windows native rendering and Android 16/API 36 QShopper_API_36 emulator-5580 with host GPU rendering. User confirmed the desktop appearance and accepted closure; no physical-phone confirmation is claimed.",
+  "reproduction_status": "Original native Windows preview renders four lines in some long-entry cases. The tested Android configuration renders at most three already; Android checks are controls for the relaxed three-line policy.",
+  "reproduction": [
+    "Use a long unbroken or oversized multiword entry in a 9.27 mm row.",
+    "In the native Windows preview at scale 2, the original eight-line limit permits four lines."
+  ],
+  "actual": "The original maximumLineCount of eight permits more lines than needed.",
+  "expected": "Use Qt Text.Fit, the existing 7 mm default font and a three-line cap in the 9.27 mm row. Qt handles wrapping, shrinking and existing ellipsis. Keep saved names intact.",
+  "source_notes": [
+    "The user rejected the additional font scaler as unnecessary complexity. Both C++ files and their CMake registration were removed.",
+    "The production change is maximumLineCount: 8 to 3. Text.Fit, 7 mm font, alignment, wrapping and right ellipsis remain as before.",
+    "The earlier strict two-line/full-content requirement is superseded. Tests allow Qt to elide long text instead of imposing a separate fitting algorithm.",
+    "Offscreen may expose only a dummy/icon font; actual-font checks also run with native Windows rendering. Android screenshot bands check actual visible line counts, not accessibility source labels."
+  ],
+  "relevant_files": [
+    "TextItem.qml",
+    "tests/qml/tst_textfitting.qml",
+    "tests/android/test_textfitting.py"
+  ],
+  "related_tickets": [
+    "QA-002",
+    "QA-003"
+  ],
+  "acceptance_criteria": [
+    "At most three rendered lines, with a large short-name font and fixed row height.",
+    "Use Qt built-in fitting and ellipsis; no additional font scaler.",
+    "Preserve checked styling, row reuse, resize behavior and complete stored names.",
+    "Demonstrate a failing-before/passing-after regression for the three-line cap and run Windows plus Android controls.",
+    "User acceptance of appearance before closure. Desktop confirmation was accepted for closure on 2026-10-31."
+  ],
+  "implementation": {
+    "date": "2026-10-31",
+    "change": "Set maximumLineCount to 3 in TextItem.qml, retaining Text.Fit and the existing 7 mm font. No additional scaler is used.",
+    "regression_tests": [
+      "tests/qml/tst_textfitting.qml: 30 cases across five entry types, three widths and two scales, plus resize and two lifecycle records; 33 total.",
+      "tests/android/test_textfitting.py: 20 screenshot, font-size, palette and saved-text checks in Light/Dark."
+    ],
+    "windows_before": "Native Windows original eight-line component: four of 33 records fail because long/unbroken inputs occupy four lines. The original component was rebuilt for the comparison, then the three-line source restored and rebuilt.",
+    "windows_after": "All 33 focused native Windows records pass. The final configure/build/CTest workflow passes 148 UI, 6 keyboard and 61 model records (UI 173.50 seconds; total 179.74 seconds).",
+    "android_before": "Original Android captures show three lines for extreme inputs, already within the relaxed three-line cap. These are platform controls, not a claimed Android reproduction of a four-line defect.",
+    "android_after": "All 20 checks pass on the final Qt-native x86_64 APK in Light and Dark. Actual screenshot text bands, large short names, shrinking long text and complete stored names/flags are checked. Screenshots inspected.",
+    "commands": [
+      "./tools/verify-windows.ps1",
+      "./out/windows-agent/qshopper_ui_tests.exe -input tests/qml/tst_textfitting.qml -import out/windows-agent -o out/ui003-nativeqt/after-windows.txt,txt",
+      "python tests/android/test_textfitting.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui003-nativeqt"
+    ],
+    "isolation": "UI harness uses in-memory SQLite and temporary settings; native tests only target emulator-5580 with unique data/settings and stop the app afterward.",
+    "history": "Earlier UI-003 scaler/two-line reports are superseded. Final Qt-native reports use ui003-nativeqt paths.",
+    "remaining": "None for closure. The user accepted desktop verification and requested marking the ticket fixed and committing; this supersedes the earlier phone-acceptance step.",
+    "apk": "dist/QShopper-arm64-debug.apk; shared ../debug.keystore certificate SHA-256 7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b; APK SHA-256 26c4110f306bf00001934c4f20782ccf20669901462bed74eeb7981d3d76e254.",
+    "artifacts": [
+      "out/ui003-nativeqt/original-windows.txt",
+      "out/ui003-nativeqt/after-windows.txt",
+      "out/ui003-nativeqt/verify-windows.txt",
+      "out/android-emulator/ui003-nativeqt/results.json"
+    ],
+    "user_validation": "2026-10-31: user reported \"Tested on desktop look good. Mark fixed and commit\". Record this as desktop confirmation, not phone confirmation."
+  },
+  "resolved": "2026-10-31"
+}
