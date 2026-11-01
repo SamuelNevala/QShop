@@ -1,7 +1,6 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls.Material as Controls
-
-pragma ComponentBehavior: Bound
 
 Controls.GroupBox {
     id: root
@@ -21,13 +20,12 @@ Controls.GroupBox {
         font.pixelSize: Theme.pixels(3)
         elide: Text.ElideRight
     }
-
     background: Rectangle {
         radius: Theme.pixels(1)
         color: "transparent"
         border.width: Theme.pixels(0.4)
-        border.color: root.activeFocus ? root.Controls.Material.accentColor
-            : root.enabled && root.hovered ? root.Controls.Material.primaryTextColor
-            : root.Controls.Material.hintTextColor
+        border.color: root.activeFocus ? root.Controls.Material.accentColor : root.enabled && root.hovered
+                                         ? root.Controls.Material.primaryTextColor :
+                                           root.Controls.Material.hintTextColor
     }
 }

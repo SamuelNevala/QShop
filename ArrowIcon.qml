@@ -1,5 +1,5 @@
-import QtQuick.Controls.Material
 import QtQuick
+import QtQuick.Controls.Material
 
 TextIcon {
     id: root
@@ -10,18 +10,18 @@ TextIcon {
 
     function animate() {
         if (arrowAnimation.animated) {
-            return
+            return;
         }
-        arrowAnimation.animated = true
-        arrowAnimation.start()
+        arrowAnimation.animated = true;
+        arrowAnimation.start();
     }
 
     function reset() {
         if (!arrowAnimation.animated) {
-            return
+            return;
         }
-        arrowAnimation.animated = false
-        arrow.y = arrowAnimation.from
+        arrowAnimation.animated = false;
+        arrow.y = arrowAnimation.from;
     }
 
     clip: true
@@ -29,10 +29,10 @@ TextIcon {
 
     onRatioChanged: {
         if (ratio === 0) {
-            reset()
+            reset();
         }
         if (ratio > 1.0) {
-            animate()
+            animate();
         }
     }
 
@@ -40,11 +40,16 @@ TextIcon {
         id: arrowIcon
 
         color: Material.primaryTextColor
-        font { family: root.font.family }
-        height: parent.height * 0.35; width: parent.width
-        leftPadding: width * 0.32; rightPadding: width * 0.32
+        height: parent.height * 0.35
+        width: parent.width
+        leftPadding: width * 0.32
+        rightPadding: width * 0.32
         text: "\uf063"
         y: arrowAnimation.from
+
+        font {
+            family: root.font.family
+        }
 
         NumberAnimation {
             id: arrowAnimation
@@ -53,10 +58,14 @@ TextIcon {
 
             alwaysRunToEnd: true
             duration: 800
-            from: -arrowIcon.height; to: root.height / 3
-            easing { type: Easing.OutBack }
+            from: -arrowIcon.height
+            to: root.height / 3
             property: "y"
             target: arrowIcon
+
+            easing {
+                type: Easing.OutBack
+            }
         }
     }
 }

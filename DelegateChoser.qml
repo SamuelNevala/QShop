@@ -8,5 +8,11 @@ Loader {
 
     sourceComponent: input ? inputDelegate : textDelegate
 
-    DropArea { id: dropArea; anchors { fill: parent } }
+    DropArea {
+        id: dropArea
+
+        anchors {
+            fill: parent
+        }
+    }
 }

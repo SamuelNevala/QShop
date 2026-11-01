@@ -1,20 +1,27 @@
 {
   "id": "DEV-002",
   "title": "Choose Qt-aligned qmlformat settings and format all project QML sources",
-  "status": "requested",
+  "status": "resolved",
   "type": "code_quality",
   "priority": "unassigned",
   "created": "2026-10-28",
   "reported_by": "user",
-  "scope": "Backlog item only. Do not configure or apply formatting until implementation is explicitly requested.",
+  "scope": "User selected implementation on 2026-11-01, requested SortImports=true, and provided Qt QML coding-conventions and Qt Quick best-practices references. Keep this a mechanical formatting task; the broader best-practices/KISS review remains deferred.",
   "request": "Select a good qmlformat configuration close to The Qt Company's own QML ordering and formatting conventions, then apply it to all project QML files using the tool available with Qt Creator/the Qt kit.",
   "expected": "A repository-wide, repeatable QML style with a checked-in .qmlformat.ini, consistent attribute ordering and layout, and no intended behavior changes.",
-  "reference_order": ["id", "property declarations", "signal declarations", "JavaScript functions", "object properties/bindings", "child objects"],
+  "reference_order": [
+    "id",
+    "property declarations",
+    "signal declarations",
+    "JavaScript functions",
+    "object properties/bindings",
+    "child objects"
+  ],
   "implementation_notes": [
     "Use Qt's official QML Coding Conventions and the installed qmlformat version's supported settings when choosing the final configuration.",
     "A Qt 6.12.0 qmlformat.exe is present at C:/Qt/6.12.0/msvc2022_64/bin/qmlformat.exe. Verify the working CLI and Qt Creator integration when implementing.",
-    "Consider four-space indentation, category grouping, spacing between logical sections, and JavaScript semicolons in line with Qt's examples. Final options, including line width and grouping versus alphabetical normalization, remain to be chosen.",
-    "Preserve import order unless semantic safety is established: Qt documents that sorting imports can change type resolution.",
+    "Selected four spaces, 100-column target, category grouping without alphabetical normalization, blank lines between functions/objects, compact empty objects, LF and JavaScript semicolons. See .qmlformat.ini and tests/README.md.",
+    "User explicitly requested SortImports=true on 2026-11-01. Preserve existing type selection through import aliases in the five files with overlapping control imports; no style migration is intended.",
     "Include application QML, QML tests, and keyboard .qml.in templates. Preserve template placeholders and conditional resource suffixes; exclude generated build/deployment copies and external Qt sources.",
     "Keep the formatting change separate from functional backlog fixes so behavior changes are reviewable."
   ],
@@ -28,9 +35,43 @@
   ],
   "references": [
     "https://doc.qt.io/qt-6/qml-codingconventions.html",
-    "https://doc.qt.io/qt-6/qtqml-tooling-qmlformat.html"
+    "https://doc.qt.io/qt-6/qtqml-tooling-qmlformat.html",
+    "https://doc.qt.io/qt-6/qtquick-bestpractices.html",
+    "https://doc.qt.io/qtcreator/creator-preferences-qtquick-code-style.html"
   ],
   "evidence": "User request followed by explicit clarification on 2026-10-28 that this is still a backlog item. No QML formatting was applied during intake.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "selected": "2026-11-01",
+  "implementation": {
+    "date": "2026-11-01",
+    "tool": "qmlformat 6.12.0 at C:/Qt/6.12.0/msvc2022_64/bin/qmlformat.exe; supported options verified with --help and --output-options.",
+    "configuration": ".qmlformat.ini: four spaces, 100-column target, LF, GroupAttributesTogether=true, NormalizeOrder=false, SortImports=true, ObjectsSpacing/FunctionsSpacing/SingleLineEmptyObjects=true, SemicolonRule=always. Git attributes preserve LF checkouts for .qml and .qml.in.",
+    "scope": "54 tracked sources: 35 root/application QML, 17 QML tests and two keyboard .qml.in templates. Includes the unused Swipeable.qml as project-owned source; excludes generated/build/external files.",
+    "commands": [
+      "./tools/format-qml.ps1",
+      "./tools/format-qml.ps1 -Check",
+      "./tools/verify-windows.ps1"
+    ],
+    "templates": "Qt 6.12 rejects the .qml.in suffix. The helper formats uniquely named temporary .qml copies outside the checkout, restores the original template suffix and removes only its own temporary files. Placeholder values are unchanged; optional VKB imports remain hidden from deployment scans.",
+    "mechanical_adjustments": "Wrapped the existing unbraced if bodies in View.qml and test files to meet the standing project rule. qmlformat itself does not add these braces. No intended control-flow changes.",
+    "import_safety": "Controls aliases preserve generic AbstractButton/Drawer/Control selection in Icon.qml, Menu.qml, Pulley.qml and Weekdays.qml. Fusion.TextField preserves InputDelegate.qml original Fusion editor despite alphabetically sorting Fusion before Material. All original imported module sets are retained.",
+    "idempotence": "Final sorted configuration: repeated in-place formatting is byte-identical across all 54 files; -Check passes. Early exploratory 100-column normalization required an additional pass for Icon.qml and tst_swipe.qml; final sorted passes are stable.",
+    "structural_review": "Identifier, numeric and string token counts match the original snapshot in every source except the five deliberate import/type qualifications. This is a mechanical audit, not a semantic proof. Imports, placeholder counts, LF and braces inspected; runtime verification is separate.",
+    "creator_integration": "Qt Creator 20.0.2 is installed. Official Code Style/QMLFormat setup is documented in tests/README.md. Actual qmlformat automatic configuration discovery was checked on root View.qml and nested tests/qml/tst_back.qml. Interactive Creator inspection was stopped by the user; no Creator preferences were changed.",
+    "verification": "Windows configure/build/CTest passes all four entries: 157 UI, 19 flow, 6 real-keyboard and 61 model records, zero failures/skips. Total 286.75 seconds. All 19 user-flow records also pass with native Windows rendering. Final formatter -Check passes all 54 files; repeated final formatting is byte-identical. Imported module sets, template placeholders, scalar token counts and LF checkout attributes audited.",
+    "remaining": "None for the accepted formatting task. User accepted the result and requested closure and commit on 2026-11-01. Interactive Qt Creator preferences and physical-device checks were not part of the passing verification claim; unrelated earlier backlog intake is preserved.",
+    "artifacts": [
+      "out/dev002/source-manifest.json",
+      "out/dev002/final-first-hashes.json",
+      "out/dev002/format-sorted.txt",
+      "out/dev002/format-sorted-repeat.txt",
+      "out/dev002/check-final.txt",
+      "out/dev002/verify-windows.txt",
+      "out/dev002/verification-summary.json",
+      "out/dev002/flows-native-windows.txt"
+    ],
+    "user_validation": "2026-11-01: user requested \"Ok clsose ticket and commit changes\" after the formatter and Windows verification results were reported."
+  },
+  "resolved": "2026-11-01"
 }

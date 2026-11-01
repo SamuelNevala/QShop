@@ -1,13 +1,9 @@
-import QtQuick
 import Components
+import QtQuick
 import Shop.timer
 
 MouseArea {
     id: root
-
-    function resetX(delay) {
-        animate.to(0, delay)
-    }
 
     property int actionTreshold: Math.round(width / 2)
     property real widthInMillimeters: Theme.millimeters(width)
@@ -16,28 +12,34 @@ MouseArea {
     property real swipeSensitivity: 1.0
 
     signal action(bool rightSide)
-    
+
+    function resetX(delay) {
+        animate.to(0, delay);
+    }
+
     implicitHeight: Theme.pixels(9.27)
     drag.target: root
     drag.axis: Drag.XAxis
     drag.minimumX: -width
     drag.maximumX: width
     opacity: Math.max(opacityEnd, 1 - (Math.abs(x) / actionTreshold * opacityEnd))
+
     //propagateComposedEvents: true
-    
+
     resources: [
-        ElapsedTimer { id: timer }
+        ElapsedTimer {
+            id: timer
+        }
     ]
 
-    onPressed: (mouse) => {
+    onPressed: mouse => {
         startX = x;
         timer.start();
         mouse.accepted = true;
     }
-
-    onReleased: (mouse) => {
+    onReleased: mouse => {
         var elapsedTimeInSeconds = Math.abs(timer.elapsed() / 1000);
-        var distanceInMilimeters = Math.abs(Theme.millimeters(x - startX))
+        var distanceInMilimeters = Math.abs(Theme.millimeters(x - startX));
         var velocity = distanceInMilimeters / elapsedTimeInSeconds;
         // Grativy of this program is 9810 mm/s2 f = velocity^2 / gravity * sensitivity
         var force = velocity * velocity / 9810 * swipeSensitivity;
@@ -63,9 +65,19 @@ MouseArea {
             animate.restart();
         }
 
-        PauseAnimation { id: pause }
-        DefaultAnimation { id: xAnimation; target: drag.target; property: "x" }
-        ScriptAction { script: {
+        PauseAnimation {
+            id: pause
+        }
+
+        DefaultAnimation {
+            id: xAnimation
+
+            target: drag.target
+            property: "x"
+        }
+
+        ScriptAction {
+            script: {
                 if (drag.target.x != 0) {
                     root.action(drag.target.x > 0);
                 }

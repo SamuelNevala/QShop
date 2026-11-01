@@ -1,5 +1,5 @@
-import QtQuick.Controls.Material
 import QtQuick
+import QtQuick.Controls.Material
 
 RoundButton {
     id: root
@@ -23,12 +23,14 @@ RoundButton {
             width: Theme.pixels(5.5)
             font.family: root.font.family
             text: root.icon.name
-            color: !root.enabled ? Material.hintTextColor :
-                root.flat && root.highlighted ? Material.accentColor :
-                root.highlighted ? Material.primaryHighlightedTextColor : Material.foreground
+            color: !root.enabled ? Material.hintTextColor : root.flat && root.highlighted
+                                   ? Material.accentColor : root.highlighted
+                                     ? Material.primaryHighlightedTextColor : Material.foreground
         }
+
         Text {
             id: caption
+
             x: (parent.width - width) / 2
             y: Theme.pixels(8)
             width: maximumLineCount > 1 ? root.width : Math.max(root.width, Theme.pixels(14))

@@ -27,6 +27,19 @@ Use braces for every `if` body in QML/JavaScript and C++, including single-line
 bodies. Apply this to new or edited code; keep broad formatting in DEV-002/DEV-003.
 Do not use `continue` in new or edited C++ code; prefer structured conditionals.
 
+## QML formatting
+
+Use the repository .qmlformat.ini with Qt 6.12.0 qmlformat. Run
+`./tools/format-qml.ps1` and `./tools/format-qml.ps1 -Check` from PowerShell;
+see tests/README.md for configuration choices and Qt Creator setup.
+The script formats tracked QML sources, tests and .qml.in keyboard templates,
+excluding generated/external files. Add new source files to Git before running it.
+Template copies are temporary and outside the checkout; retain their .qml.in suffix.
+
+Imports are sorted at the user's request. Qualify types where overlapping imports
+could select a different control after sorting. Group attributes without alphabetic
+normalization, retain child order, and keep formatting separate from behavior changes.
+
 ## Backlog
 
 Use [BACKLOG.md](BACKLOG.md) to collect bugs and missing features, with linked reports in `tickets/`.

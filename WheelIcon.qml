@@ -1,5 +1,5 @@
-import QtQuick.Controls.Material
 import QtQuick
+import QtQuick.Controls.Material
 
 TextIcon {
     id: root
@@ -9,7 +9,8 @@ TextIcon {
 
     NumberAnimation {
         duration: 800
-        from: 0; to: 360
+        from: 0
+        to: 360
         property: "rotation"
         running: true
         loops: Animation.Infinite

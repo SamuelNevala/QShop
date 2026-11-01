@@ -1,4 +1,5 @@
 import QtQuick
+
 DragHandler {
     enum Direction {
         Left,
@@ -6,33 +7,27 @@ DragHandler {
         None
     }
 
-    signal swipe(int direction)
-
     property int actionTreshold: Math.round(target.width / 2)
     property real swipeSensitivity: Theme.swipeSensitivity
     property real widthInMillimeters: Theme.millimeters(target.width)
 
-    xAxis {
-        minimum: -target.width
-        maximum: target.width
-    }
-
-    yAxis { enabled: false }
+    signal swipe(int direction)
 
     onGrabChanged: (transition, point) => {
-        if (transition !== PointerDevice.UngrabExclusive
-                && transition !== PointerDevice.CancelGrabExclusive) {
+        if (transition !== PointerDevice.UngrabExclusive && transition
+                !== PointerDevice.CancelGrabExclusive) {
             return;
         }
 
         // TouchCancel can ungrab without a release; it must only return the row.
-        if (transition === PointerDevice.CancelGrabExclusive || point.state !== EventPoint.Released) {
+        if (transition === PointerDevice.CancelGrabExclusive || point.state
+                !== EventPoint.Released) {
             swipe(SwipeHandler.Direction.None);
             return;
         }
 
         const distance = Math.abs(point.pressPosition.x - point.position.x);
-        const distanceInMilimeters = Theme.millimeters(distance)
+        const distanceInMilimeters = Theme.millimeters(distance);
         const velocity = distanceInMilimeters / point.timeHeld;
         // Make 100% match the phone-tested feel of 150% at 1000 mm/s².
         const gravity = 666.67;
@@ -46,5 +41,14 @@ DragHandler {
         } else {
             swipe(SwipeHandler.Direction.None);
         }
+    }
+
+    xAxis {
+        minimum: -target.width
+        maximum: target.width
+    }
+
+    yAxis {
+        enabled: false
     }
 }

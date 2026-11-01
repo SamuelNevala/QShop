@@ -816,3 +816,61 @@ The final Windows configure/build/CTest workflow passes all four entries: 157 UI
 file also passes all 17 records. The user confirmed the fix on an Android emulator
 on 2026-11-01 and requested closure and commit; UI-016 is resolved. This is
 emulator confirmation, not physical-phone validation.
+
+## QML formatting (DEV-002)
+
+Use Qt 6.12.0 `qmlformat` with the root `.qmlformat.ini`:
+
+```powershell
+./tools/format-qml.ps1
+./tools/format-qml.ps1 -Check
+```
+
+Override `-QtRoot` to select another compatible desktop kit. The default is
+`C:/Qt/6.12.0/msvc2022_64`. The script uses Git's tracked source list: add new
+QML files to Git first. It includes application QML, tests and `.qml.in`
+templates, and excludes ignored build outputs and external Qt files. `-Check`
+formats to memory, reports drift and fails without changing source files.
+
+The settings use four spaces, a 100-column wrapping target, LF newlines,
+semicolons, spacing between functions/objects, and compact empty objects.
+Attribute categories follow Qt's order while keeping their relative order
+within each category (`GroupAttributesTogether=true`, `NormalizeOrder=false`).
+Child objects retain their order. `.gitattributes` keeps QML checkouts at LF even
+when Git's Windows newline conversion is enabled.
+
+`SortImports=true` is the user's explicit choice. Sorting overlapping imports
+can change type selection. Existing generic controls are qualified through the
+`Controls` alias in Icon, Menu, Pulley and Weekdays; InputDelegate explicitly uses
+`Fusion.TextField`. These retain the original selections after sorting. Preserve
+that qualification when editing imports. All existing unbraced `if` bodies were
+wrapped mechanically; qmlformat itself does not enforce that project rule.
+
+Qt 6.12 cannot parse the `.qml.in` suffix directly. The script formats temporary
+`.qml` copies outside the checkout and copies the result back with the original
+suffix and placeholders. Keeping the temporary files outside the checkout avoids
+exposing optional Virtual Keyboard imports to whole-tree deployment scans.
+The script also enables console-only Qt diagnostics for unattended execution,
+then restores the process environment.
+
+In Qt Creator, use **Preferences → Qt Quick → Code Style → Formatter Selection →
+QMLFormat** (or the per-project **Projects → Code Style** override). Creator's
+qmlformat integration discovers `.qmlformat.ini` in the source directory or its
+parents. A custom formatter can select this kit's `bin/qmlformat.exe`. Use the
+PowerShell script for `.qml.in` templates. These are documented setup steps;
+Automatic configuration discovery was verified with qmlformat on root and nested
+sources. Creator preferences were not changed or interactively verified.
+
+References: [Qt QML coding conventions](https://doc.qt.io/qt-6/qml-codingconventions.html),
+[qmlformat settings](https://doc.qt.io/qt-6/qtqml-tooling-qmlformat.html),
+[Qt Quick best practices](https://doc.qt.io/qt-6/qtquick-bestpractices.html), and
+[Qt Creator formatter setup](https://doc.qt.io/qtcreator/creator-preferences-qtquick-code-style.html).
+The best-practices review remains separate from this mechanical formatting pass.
+
+Verified on 2026-11-01 with qmlformat 6.12.0: all 54 sources pass `-Check` and a
+repeated final in-place pass is byte-identical. Module sets, template placeholders
+and the five deliberate control qualifications were audited. Windows configure,
+build and all four CTest entries pass (157 UI, 19 flow, 6 keyboard, 61 model
+records; zero failures/skips). All 19 flow records also pass with native Windows
+rendering. Reports are under `out/dev002`. No Qt Creator UI preference change
+or physical-device validation is claimed for this formatting pass.

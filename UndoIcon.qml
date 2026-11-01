@@ -1,16 +1,28 @@
-import QtQuick.Controls.Material
 import QtQuick
+import QtQuick.Controls.Material
 
 Icon {
     id: root
 
-    signal timeout()
+    signal timeout
 
     color: Material.foreground
+    bottomInset: Theme.pixels(0.5)
+    topInset: Theme.pixels(0.5)
+    leftInset: Theme.pixels(0.5)
+    rightInset: Theme.pixels(0.5)
+    padding: Theme.pixels(2)
+    text: "\uf829"
+    Material.theme: Theme.inverseTheme
 
     background: Rectangle {
         color: root.pressed ? Theme.accentColorLighter() : Theme.accentColor()
         radius: Material.FullScale
+        Material.theme: Theme.inverseTheme
+
+        Behavior on color {
+            ColorAnimation {}
+        }
 
         Canvas {
             id: canvas
@@ -24,17 +36,6 @@ Icon {
             property real startAngle: base * 3
             property real radius: arcX - lineWidth
 
-            anchors { fill: parent; margins: Theme.pixels(0.2) }
-
-            NumberAnimation {
-                id: animateDelay
-                duration: 15000
-                from: 1.0; to: 0.0
-                property: "delay"
-                target: canvas
-                onFinished: root.timeout()
-            }
-
             onDelayChanged: requestPaint()
             onPaint: {
                 const context = getContext("2d");
@@ -46,23 +47,35 @@ Icon {
                 context.arc(arcX, arcX, radius, startAngle, endAngle);
                 context.stroke();
             }
-        }
-        Behavior on color { ColorAnimation { } }
-        Material.theme: Theme.inverseTheme
-    }
 
-    bottomInset: Theme.pixels(0.5); topInset: Theme.pixels(0.5)
-    leftInset: Theme.pixels(0.5); rightInset: Theme.pixels(0.5)
-    font { pixelSize: Math.round(root.height * 0.47) }
-    padding: Theme.pixels(2)
-    text: "\uf829"
+            anchors {
+                fill: parent
+                margins: Theme.pixels(0.2)
+            }
+
+            NumberAnimation {
+                id: animateDelay
+
+                duration: 15000
+                from: 1.0
+                to: 0.0
+                property: "delay"
+                target: canvas
+
+                onFinished: root.timeout()
+            }
+        }
+    }
 
     onEnabledChanged: {
         if (enabled) {
-            animateDelay.restart()
+            animateDelay.restart();
         } else {
-            animateDelay.stop()
+            animateDelay.stop();
         }
     }
-    Material.theme: Theme.inverseTheme
+
+    font {
+        pixelSize: Math.round(root.height * 0.47)
+    }
 }
