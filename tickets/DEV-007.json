@@ -1,0 +1,48 @@
+{
+  "id": "DEV-007",
+  "title": "Replace the project proxy wrapper with Qt's QML SortFilterProxyModel",
+  "status": "requested",
+  "type": "code_quality",
+  "priority": "unassigned",
+  "created": "2026-11-01",
+  "reported_by": "user",
+  "scope": "Backlog intake only. Migration and removal of the project wrapper remain deferred until selected.",
+  "request": "Use Qt's SortFilterProxyModel exposed to QML instead of the project's custom C++ SortFilterProxyModel.",
+  "expected": "The drawer list catalog uses Qt's QML proxy type with explicit sort/filter configuration. The redundant project wrapper and its build/QML registration are removed without changing list selection or shopping behavior.",
+  "current_evidence": [
+    "View.qml creates the project SortFilterProxyModel over a read-only Model and uses it for the Lists selector, with name as textRole and id as valueRole.",
+    "sortfilterproxymodel.cpp configures Qt::CheckStateRole filtering with ^false$ and ascending column-0 sorting; its remaining parser-status hook is empty.",
+    "CMakeLists.txt compiles sortfilterproxymodel.h/.cpp into the QShopper QML module.",
+    "Qt documentation checked on 2026-11-01 exposes SortFilterProxyModel through QtQml.Models since Qt 6.10. The current Qt 6.12 documentation labels the API technology preview. No application defect is claimed."
+  ],
+  "implementation_notes": [
+    "Inspect the API in the supported Qt kits and use QtQml.Models sorters/filters to express the existing behavior directly; follow KISS and avoid another wrapper or generic filtering framework.",
+    "Preserve filtering of checked catalog entries and name sorting, including case, locale, equal-name ordering and the synthetic catalog entry. Establish the original behavior before choosing equivalent role/value and sorter settings.",
+    "Preserve active-list UUID binding, fresh-install default display, catalog reload on drawer opening, create/rename/delete/Undo and selection restoration after restart.",
+    "Keep this scoped to the drawer catalog proxy; preserve the user's shopping order, checked-item stack and Reset behavior.",
+    "Resolve the identical Qt/project type names explicitly during migration. Remove the obsolete C++ files, QML registration and CMake source references once the replacement is wired in.",
+    "Verify module import/deployment on Windows and Android and account for the documented preview status when recording supported versions. Coordinate only necessary build edits with DEV-004."
+  ],
+  "relevant_files": [
+    "View.qml",
+    "sortfilterproxymodel.h",
+    "sortfilterproxymodel.cpp",
+    "CMakeLists.txt",
+    "tests/qml/tst_listselection.qml",
+    "tests/flows/tst_userflows.qml",
+    "tests/android/test_popups.py",
+    "tests/android/test_entry.py"
+  ],
+  "related_tickets": ["DEV-004", "DEV-006", "UI-001", "QA-003"],
+  "acceptance_criteria": [
+    "Use Qt's QML SortFilterProxyModel for the drawer catalog and remove the project wrapper and stale build/QML references.",
+    "Add or strengthen automated characterization of filtering, sorting and dynamic catalog changes before migration; the same observable behavior must pass with the replacement.",
+    "Existing fresh/default selection, UUID, catalog edit/Undo and restart tests pass, with shopping contents/order and unfinished edits preserved.",
+    "Run tools/verify-windows.ps1 and appropriate native Android selector/catalog/deployment checks with isolated data.",
+    "Document the chosen Qt API/version and any material behavior differences; keep unrelated refactoring and app fixes separate."
+  ],
+  "sources": ["https://doc.qt.io/qt-6/qml-qtqml-models-sortfilterproxymodel.html"],
+  "evidence": "User backlog request on 2026-11-01 to replace the project's proxy with the Qt QML-exposed type.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

@@ -287,6 +287,7 @@ an option to evaluate, not an agreed migration; priority remains unassigned.
 | [DEV-004](tickets/DEV-004.json) | Review and simplify the CMake files using KISS principles, removing unnecessary complexity while preserving supported builds | Requested; review and cleanup deferred |
 | [DEV-005](tickets/DEV-005.json) | Set up clang-tidy and Clazy with suitable checks, analyze the project, triage findings, and fix actionable issues | Requested; setup, analysis, and fixes deferred |
 | [DEV-006](tickets/DEV-006.json) | Analyze QML and C++ for simplicity and write practical KISS-based coding guidelines grounded in the current code | Requested; review and full guide deferred; KISS recorded as a standing principle |
+| [DEV-007](tickets/DEV-007.json) | Replace the project C++ proxy wrapper with QtQml.Models SortFilterProxyModel | Requested; migration deferred. Preserve drawer catalog filtering, name sorting, UUID selection and restart behavior; remove the redundant wrapper/build registration |
 
 DEV-002 should establish a checked-in `.qmlformat.ini`, Qt-style attribute order,
 and a repeatable formatter invocation usable with Qt Creator. Preserve behavior
@@ -313,6 +314,14 @@ DEV-006 should produce `CODING_GUIDELINES.md` from a review of both languages.
 KISS means clear, direct implementations and justified abstractions, rather than
 the shortest possible code or removal of necessary correctness safeguards.
 Coordinate with DEV-002 through DEV-005 and record proposed refactors separately.
+
+DEV-007 replaces the catalog proxy in View.qml with Qt's QML-exposed type.
+The existing wrapper filters out checked catalog entries and sorts column 0.
+Characterize that behavior and preserve list UUID selection, catalog changes,
+Undo and cold restart before removing the C++ wrapper and its build references.
+Verify the supported Qt API and Windows/Android module deployment; the current
+Qt 6.12 documentation marks the type as technology preview. This is deferred
+code-quality work, with no reported shopping-list bug or ordering redesign.
 
 ## Test coverage and validation tasks — no failure claimed
 
