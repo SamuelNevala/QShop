@@ -1,7 +1,7 @@
 {
   "id": "UI-016",
   "title": "Android Back from a selector popup also closes the drawer",
-  "status": "open",
+  "status": "resolved",
   "type": "bug",
   "severity": "minor",
   "severity_basis": "Unexpected extra navigation requires reopening the drawer. No saved-list changes or loss were observed.",
@@ -15,7 +15,7 @@
     "Perform a completed Android left-edge Back gesture while the selector popup is open.",
     "Observe that both popup and drawer close; editing and saved items remain."
   ],
-  "observed": "Strict final run reproduces the extra drawer dismissal for all three selectors. An earlier observational run left Accent open, so the behavior may depend on timing or geometry; root cause is not established.",
+  "observed": "Original strict run reproduced extra drawer dismissal for all three selectors. An earlier run left Accent open. The subsequent touch regression established the initial outside press as the cause; see root_cause and before/after evidence.",
   "regression": {
     "location": "tests/android/test_back.py --selector-back",
     "command": "python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --selector-back --output out/android-emulator/qa003-popup-back-policy",
@@ -24,9 +24,9 @@
       "accent_popup_back_closes_only_selector",
       "primary_popup_back_closes_only_selector"
     ],
-    "before": "3 selector failures; 7 other Back/data controls pass. Script exits nonzero and retains screenshots, accessibility trees and results.json.",
-    "after": "Not run: no application fix implemented. After fixing, verify popup-only dismissal and the next Back closing only the drawer; preserve editor/draft, foreground and saved-list invariants.",
-    "platform_scope": "Real Android edge gestures; desktop Escape checks do not certify this behavior. Extend both-edge/native state coverage when fixing."
+    "before": "Native baseline: 3 selector failures and 7 passing Back/data controls. New QML outside-touch cases: 6 failures; 11 other records pass, including direct Key_Back routing. Original reports retained.",
+    "after": "All 17 focused QML records pass offscreen and with native Windows rendering. Full Windows configure/build/CTest passes all four entries: 157 UI, 19 flow, 6 keyboard and 61 model records (zero failures/skips). All 13 native Android checks pass from each edge (26 total), including next-Back drawer-only closure and retained draft/settings/data.",
+    "platform_scope": "Real Android Back gestures verified from both edges. Desktop Back/touch controls additionally cover outside press, cancellation and release; those controls alone do not certify native gesture handling."
   },
   "related_tickets": [
     "QA-003",
@@ -34,7 +34,41 @@
   ],
   "artifacts": [
     "out/android-emulator/qa003-popup-back-policy/results.json",
-    "out/android-emulator/qa003-popup-back-policy"
+    "out/android-emulator/qa003-popup-back-policy",
+    "out/ui016-touch-before-windows.txt",
+    "out/ui016-after-windows.txt",
+    "out/android-emulator/ui016-before/results.json",
+    "out/android-emulator/ui016-after-left/results.json",
+    "out/android-emulator/ui016-after-right/results.json",
+    "out/ui016-verify-windows.txt",
+    "out/ui016-build-android.txt",
+    "out/ui016-build-arm64.txt",
+    "out/ui016-native-windows.txt"
   ],
-  "implementation_scope": "Recorded during QA-003 coverage work. App fix deferred to a separately selected ticket."
+  "implementation_scope": "User selected UI-016 on 2026-10-31. Implement the popup-only Back behavior and regression coverage; no unrelated app refactoring.",
+  "selected": "2026-10-31",
+  "root_cause": "The selector closes on the initial outside touch at the edge, before Android recognizes Back and cancels that touch. The completed Back then reaches the drawer. Direct Key_Back selector/drawer ordering already passes without changing the app shortcut routing.",
+  "implementation": {
+    "change": "ComboBox.qml makes selector popups modal and closes them on outside release rather than outside press. CloseOnEscape and Qt native Back handling remain. Modal delivery is required for the release-outside policy and prevents a dismissing tap reaching controls below the popup.",
+    "tradeoff": "Outside taps dismiss on release rather than press. A cancelled outside touch leaves the popup open. This supports deliberate one-handed interaction and avoids closing two layers from one system gesture.",
+    "qml_regression": "tests/qml/tst_back.qml: three selector Back/drawer/edit sequences, plus six outside-touch cancel/release cases. The six touch cases fail with the original component at the initial-press assertion; all 17 focused offscreen records pass after the fix.",
+    "native_before": "Existing --selector-back regression rerun on the original installed APK: all three selectors fail popup-only dismissal; seven Back/data controls pass. Report out/android-emulator/ui016-before/results.json.",
+    "native_after": "Both left- and right-edge runs pass all 13 checks each (26 total), including next-Back drawer-only closure, retained editor draft, unchanged settings and saved items, keyboard/edit ordering and live-process background/return.",
+    "phone_validation": "User confirmed the fix on an Android simulator on 2026-11-01 and requested closure and commit. This is emulator confirmation, not physical-phone validation. The shared-key ARM64 APK remains available; no physical-device installation was performed.",
+    "apk": "dist/QShopper-arm64-debug.apk",
+    "apk_sha256": "8c86447f9c68f50fa01c43d99eba6bcf44aa1352d7db3dc2a349d85f09a7561c",
+    "certificate_sha256": "7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b",
+    "windows_after": "./tools/verify-windows.ps1: configure/build and all four CTest entries pass; 157 UI, 19 flow, 6 real-keyboard and 61 model records, zero failures/skips. Total 288.80 seconds. Focused native Windows rendering: 17 pass, zero failure/skip (18.071 seconds).",
+    "packaging": "ARM64 build/signing script completes and the shared certificate is verified. x86_64 CMake/Gradle produces the fixed APK successfully; its script stalls in post-build recursive APK discovery, so that discovery is cancelled and the exact generated APK is copied to dist directly. Native tests use that freshly built APK; dist/generated SHA-256 matches 5174c9c27b30188c4dd7f622a98d8ed5dedf7ccaf000884044153eb0128164bb.",
+    "commands": [
+      "./tools/verify-windows.ps1",
+      "./out/windows-agent/qshopper_ui_tests.exe -input tests/qml/tst_back.qml -import out/windows-agent -o out/ui016-native-windows.txt,txt",
+      "python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --selector-back --edge left --output out/android-emulator/ui016-after-left",
+      "python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --selector-back --edge right --output out/android-emulator/ui016-after-right",
+      "./build-android.ps1 -Architecture x86_64 -SdkRoot C:/android/sdk",
+      "./build-android.ps1 -Architecture arm64 -SdkRoot C:/android/sdk -DebugKeystore ../debug.keystore"
+    ],
+    "user_validation": "2026-11-01: user reported \"Confirmed to on Android simulator. Close ticker and commit change.\" Accepted as Android emulator confirmation and authorization to close UI-016."
+  },
+  "resolved": "2026-11-01"
 }

@@ -84,6 +84,86 @@ Item {
             verify(app.visible)
         }
 
+        function test_back_closes_selector_before_drawer_data() {
+            return [
+                { tag: "lists", index: 0 },
+                { tag: "accent", index: 3 },
+                { tag: "primary", index: 4 }
+            ]
+        }
+
+        function openSelector(index) {
+            editor().text = "unfinished"
+            shop.openMenu()
+            const menu = drawer()
+            tryCompare(menu, "opened", true)
+            const content = menu.contentItem
+            content.positionViewAtIndex(index, ListView.Contain)
+            content.forceLayout()
+            tryVerify(function() { return content.itemAtIndex(index) !== null })
+            const combo = content.itemAtIndex(index)
+            mouseClick(combo, combo.width / 2, combo.height * 0.7)
+            tryCompare(combo.popup, "opened", true)
+            return combo
+        }
+
+        function test_back_closes_selector_before_drawer(data) {
+            const combo = openSelector(data.index)
+            const selected = combo.currentValue
+            const menu = drawer()
+            keyClick(Qt.Key_Back)
+            tryCompare(combo.popup, "visible", false)
+            compare(menu.opened, true)
+            compare(combo.currentValue, selected)
+            compare(shop.editMode, true)
+            compare(editor().text, "unfinished")
+            keyClick(Qt.Key_Back)
+            tryCompare(menu, "visible", false)
+            compare(shop.editMode, true)
+            compare(editor().text, "unfinished")
+            keyClick(Qt.Key_Back)
+            tryCompare(shop, "editMode", false)
+            verifySavedItems()
+        }
+
+        function test_selector_outside_touch_data() {
+            return [
+                { tag: "lists_cancel", index: 0, cancel: true },
+                { tag: "accent_cancel", index: 3, cancel: true },
+                { tag: "primary_cancel", index: 4, cancel: true },
+                { tag: "lists_release", index: 0, cancel: false },
+                { tag: "accent_release", index: 3, cancel: false },
+                { tag: "primary_release", index: 4, cancel: false }
+            ]
+        }
+
+        function test_selector_outside_touch(data) {
+            const combo = openSelector(data.index)
+            const menu = drawer()
+            const selected = combo.currentValue
+            // The system Back gesture starts outside the popup at the window edge.
+            const surface = app.contentItem
+            const y = surface.height / 3
+            const touch = touchEvent(surface)
+            touch.press(0, surface, 1, y).commit()
+            try {
+                compare(combo.popup.opened, true)
+                if (data.cancel) {
+                    verify(uiSetup.cancelTouch())
+                    compare(combo.popup.opened, true)
+                }
+            } finally {
+                touch.release(0, surface, 1, y).commit()
+            }
+            if (!data.cancel) {
+                tryCompare(combo.popup, "visible", false)
+            }
+            compare(menu.opened, true)
+            compare(combo.currentValue, selected)
+            compare(editor().text, "unfinished")
+            compare(shop.editMode, true)
+        }
+
         function test_back_leaves_edit_without_focus_or_submitting_draft() {
             editor().text = "unfinished"
             view.forceActiveFocus()

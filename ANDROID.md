@@ -120,8 +120,11 @@ Artifacts are `out/android-emulator/resize-transitions.mp4`, `resize-cycles.json
 
 The view and drawer handle Back using Android-only window shortcuts. The drawer
 owns a separate shortcut because its modal popup blocks the view's shortcut.
-Each gesture closes the drawer, hides the keyboard while editing, or leaves edit
-mode, in that priority. In shopping mode both shortcuts are disabled: the validated
+Each gesture closes an open selector popup first, then the drawer, hides the
+keyboard while editing, or leaves edit mode, in that priority. Selector popups
+are modal and dismiss on outside release: an initial edge press must survive
+until Android recognizes Back and cancels its touch stream (UI-016). Outside
+taps still dismiss the popup on release without activating controls below it. In shopping mode both shortcuts are disabled: the validated
 Qt 6.12 Android platform backgrounds the task and keeps its process alive.
 `Window.onClosing` is not used. This backgrounding behavior is documented in
 [Qt's Android platform notes](https://doc.qt.io/qt-6/android-platform-notes.html#back-key-and-back-gesture).

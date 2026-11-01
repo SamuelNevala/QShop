@@ -183,6 +183,11 @@ def main():
             check("return_keeps_process_and_list", foreground() and shell("pidof", PACKAGE) == original_pid
                   and editor(ui) is None and len(rows(ui)) == 2, ui)
             ui = enter_edit(ui)
+            if args.selector_back:
+                left, top, right, bottom = bounds(editor(ui))
+                shell("input", "tap", (left + right) // 2, (top + bottom) // 2)
+                shell("input", "text", "popupdraft")
+                ui = tree()
             left, top, right, bottom = bounds(editor(ui))
             shell("input", "tap", left + (bottom - top) // 2, (top + bottom) // 2)
             ui = wait_ui(lambda current: any(n.attrib.get("content-desc") == "Dark"
@@ -208,17 +213,23 @@ def main():
                     shell("input", "tap", (left + right) // 2, (top + bottom) // 2)
                     ui = wait_ui(popup_visible)
                     assert popup_visible(ui), "Selector popup did not open"
+                    settings_before = shell("run-as", PACKAGE, "cat", data + "/Nevala/QShopper.ini")
+                    (args.output / (selector + "_popup_before.xml")).write_bytes(ET.tostring(ui))
+                    (args.output / (selector + "_popup_before.png")).write_bytes(adb("exec-out", "screencap", "-p"))
                     back()
                     ui = wait_ui(lambda current: not popup_visible(current))
                     drawer_open = any(n.get("content-desc") == "Dark" for n in ui.iter("node"))
                     check(selector + "_popup_back_closes_only_selector", foreground() and editor(ui) is not None
                           and not popup_visible(ui) and drawer_open
+                          and editor(ui).get("text") == "popupdraft" and not keyboard()
+                          and shell("run-as", PACKAGE, "cat", data + "/Nevala/QShopper.ini") == settings_before
                           and saved_items() == [("milk", 0), ("bread", 0)], ui,
                           fatal=False, drawer_still_open=drawer_open)
                     if drawer_open:
                         back()
                         ui = wait_ui(lambda current: not any(n.get("content-desc") == "Dark" for n in current.iter("node")))
                         check(selector + "_next_back_closes_drawer_only", foreground() and editor(ui) is not None
+                              and editor(ui).get("text") == "popupdraft"
                               and not any(n.get("content-desc") == "Dark" for n in ui.iter("node")), ui)
             if args.check_cancellation:
                 ui = reorder_pair(ui, "reorder_control")

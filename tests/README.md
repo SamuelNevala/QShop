@@ -67,11 +67,10 @@ native commands, see [INTERACTIONS.md](INTERACTIONS.md). Historical counts below
 describe earlier verification stages. QA-003 adds a separate flow CTest entry
 with explicit input-readiness checks. UI-015 remains a transition-time validation
 candidate; normal flow assertions have no expected-failure or skip markers.
-Remaining native/dictation gaps are recorded explicitly. The optional native
-`test_back.py --selector-back` command currently fails for all three selectors:
-Back must dismiss only the popup, but also closes the drawer (UI-016). The
-normal Windows workflow passes; this separate Android regression stays failing
-until its app fix is selected.
+Remaining native/dictation gaps are recorded explicitly. UI-016 subsequently
+fixes the selector Back regression: all 26 native left/right checks pass. The
+selector waits for outside release, so Android cancelling the initial edge
+touch cannot dismiss it before Back arrives. See the UI-016 section below.
 
 Run `./tools/verify-windows.ps1` from the project root to build the app and both
 suites, then run CTest. Qt Quick Test must be installed in the Qt kit.
@@ -784,3 +783,36 @@ passes 148 UI, 6 keyboard and 61 model records. All 20 Android controls pass.
 Reports are in `out/ui003-nativeqt` and `out/android-emulator/ui003-nativeqt`.
 The user confirmed the desktop appearance and accepted closure on 2026-10-31;
 physical-phone verification is not claimed.
+
+## UI-016 selector popup Back priority
+
+The native edge touch used to close a selector on press before Android delivered
+Back, so the same gesture also closed the drawer. `ComboBox.qml` now uses modal
+popups with `CloseOnEscape | CloseOnReleaseOutsideParent`. Modal delivery supports
+the release policy and prevents a dismissing tap from activating a control below.
+Back-key routing remains unchanged; outside taps dismiss on release.
+
+`tests/qml/tst_back.qml` tests Lists, Accent and Primary with real Back keys,
+followed by drawer-only Back and draft cancellation. Six additional touch cases
+check outside press/cancellation/release: all six fail with the original component
+at the initial-press assertion; all 17 focused records pass with the fix.
+
+Native regression commands (run serially against emulator-5580):
+
+```powershell
+python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --selector-back --edge left --output out/android-emulator/ui016-after-left
+python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --selector-back --edge right --output out/android-emulator/ui016-after-right
+```
+
+All 13 checks per edge pass, including popup-only and following drawer-only Back,
+unchanged drafts/settings/list data, keyboard/edit priority and background/return.
+The original native APK fails all three popup cases; seven other controls pass.
+Reports and build/verification commands are recorded in `tickets/UI-016.json`.
+The shared-key ARM64 APK is `dist/QShopper-arm64-debug.apk`; no physical-device
+installation or phone validation is claimed.
+
+The final Windows configure/build/CTest workflow passes all four entries: 157 UI,
+19 flow, 6 keyboard and 61 model records. The focused native Windows Back/touch
+file also passes all 17 records. The user confirmed the fix on an Android emulator
+on 2026-11-01 and requested closure and commit; UI-016 is resolved. This is
+emulator confirmation, not physical-phone validation.

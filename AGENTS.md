@@ -99,7 +99,9 @@ whole-list readiness; test intentional animation interruptions separately.
 Current flow assertions have no XFAIL/skip markers. UI-015 tracks transition-time
 input validation. Native entry tests use the configured English QWERTY Gboard layout; they never activate the microphone.
 Android selector-popup Back must close only the popup, preserving the drawer.
-The optional test_back.py --selector-back regression tracks UI-016 until fixed.
+The optional test_back.py --selector-back regression covers UI-016 from either
+edge. Selector popups wait for an outside release (with modal delivery), so an
+edge press cancelled by Android does not dismiss the popup before Back arrives.
 
 ## QML sizing
 

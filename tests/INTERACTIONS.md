@@ -50,7 +50,7 @@ rerun during QA-003. See the run record below for what actually ran.
 | Repeated text entry with Return and empty Return retains keyboard | `keyboard/tst_keyboard.qml::test_enter_keeps_keyboard_open_with_composed_input`: real VKB keys, explicit preedit/commit control and empty VKB Return | `test_entry.py`: actual English QWERTY Gboard letter/Return keys, empty Return, SQLite rows and native IME visibility |
 | Hide keyboard, reopen through editor | `DevelopmentKeyboard::test_hide_button_and_reopen_preserve_window_and_input` | `test_back.py` and `test_entry.py`: native keyboard state and retained draft |
 | Open drawer from editor dismisses keyboard; return keeps draft | `UserFlows::test_drawer_and_popup_dismissal_preserve_draft`; real keyboard dismissal also mapped in `tst_keyboard.qml` (that older case opens drawer by signal) | `test_entry.py` actual editor menu icon; `test_portrait.py` draft survives drawer close/rotation |
-| Drawer outside click and Escape; popup Escape without changing selection | `UserFlows::test_drawer_and_popup_dismissal_preserve_draft` | Outside click covered by native entry/portrait scripts. `test_back.py --selector-back` asserts popup-only dismissal; all three selectors fail (UI-016), while edit/data controls pass |
+| Drawer outside click and Escape; popup Escape without changing selection | `UserFlows::test_drawer_and_popup_dismissal_preserve_draft` | Outside click covered by native entry/portrait scripts. `test_back.py --selector-back --edge left/right` asserts popup-only dismissal, then drawer-only Back; all 26 UI-016 checks pass with drafts/settings/data preserved |
 | Back: drawer, keyboard, edit mode, background; unfinished replacement | `tst_back.qml`, real-key routing with only desktop platform gate overridden; real desktop VKB Back case | `test_back.py`: actual system edge gestures, live process/background return and saved rows. `test_entry.py` also verifies pending replacement cancellation through native Back, preserving original text/ID |
 | Cancelled Android edge gesture must not leak a hold or break next swipe | `tst_cancel.qml` desktop control; domain tests alone are insufficient | `test_back.py --matrix` + `BackGesture.java`, UI-007 evidence: 69 native checks |
 | Voice/dictation | App-side commit/continuous-entry behavior is covered by VKB and native Gboard entry | **Open validation gap:** no controlled speech/audio fixture; recognizer/network/permission behavior and voice punctuation/correction require manual or purpose-built native validation. Microphone is not activated by tests |
@@ -73,7 +73,7 @@ rerun during QA-003. See the run record below for what actually ran.
 QA-003 was **closed by user acceptance on 2026-10-31**. Core interactions have substantially more
 control-driven coverage, but the explicitly listed native permutations and real
 dictation are gaps, not passing claims. Selector-popup Back policy is clarified;
-UI-016 tracks its failing native regression and separate app fix. Additional native
+UI-016 subsequently fixes the native regression (26 left/right checks pass). Additional native
 expiry/invalidation permutations remain identified; real dictation needs a
 controlled speech fixture or manual validation. Physical
 one-handed shopping, dictation quality and multi-device readability remain
@@ -135,7 +135,10 @@ no failures, skips or expected-failure markers. All 19 native Windows flow recor
 also pass. Final Android runs pass 65 of 68 checks: 58 checks outside the native
 Back script, plus 7 passing Back controls. Three selector-popup Back cases fail
 (UI-016). The eight rejection checks passed a repeat run with the final helper.
-The optional `--selector-back` command currently exits nonzero for this open bug.
+These are the original QA-003 results. The subsequent UI-016 fix passes all
+13 checks from each edge (26 total); its focused QML Back/touch file passes all
+17 records, with six failing-before outside-touch cases. The user confirmed the
+fix on an Android emulator on 2026-11-01 and accepted closure of UI-016.
 Reports: `out/qa003/verify-final.txt`, `out/qa003/flows-native-final.txt`, and each
 native command's `results.json`. No application code changed.
 
@@ -143,7 +146,9 @@ The user selected popup-only dismissal, leaving the drawer open until the next
 Back. The strict final regression fails for Lists, Accent and Primary: all close
 the drawer too. An earlier observational run left Accent open; it did not assert
 the chosen policy and is superseded as acceptance evidence. Editor and saved
-items remain intact. No app fix is included in this coverage work.
+items remain intact. The later UI-016 fix changes selector popup dismissal to
+outside release with modal delivery; native left/right runs now pass, including
+the following drawer-only Back and unchanged draft/settings/list controls.
 
 For a manual dictation check, create a disposable list, dictate two entries
 (including quantities/punctuation and the user's normal language), submit each

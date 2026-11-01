@@ -2,7 +2,7 @@
 
 Started: 2026-10-28. QShopper is near feature complete. Backlog gathering and
 prioritization are recorded below. UI-001, UI-003, UI-004, UI-005, UI-007, UI-008,
-UI-009, UI-010, UI-011 and UI-014 are resolved. UI-006 is implemented pending phone
+UI-009, UI-010, UI-011, UI-014 and UI-016 are resolved. UI-006 is implemented pending phone
 confirmation. QA-003 is closed by user acceptance; other unselected tickets stay deferred.
 
 Use [DESIGN.md](DESIGN.md) when deciding what counts as correct behavior. Keep
@@ -83,7 +83,6 @@ regressions remain easy to trace.
 | ID | Finding | Evidence/status | Severity |
 | --- | --- | --- | --- |
 | [UI-015](tickets/UI-015.json) | Validate fast Undo during the Clear-list animation | Input-readiness investigation: settled mouse/touch Undo passes after correcting the test driver; transition-time hit-target reproduction remains open | Unassigned |
-| [UI-016](tickets/UI-016.json) | Back from a selector popup also closes the drawer | User clarified popup-only dismissal; native strict tests fail for all three selectors. Targeted Android regression added; app fix deferred | Minor |
 
 ### [UI-008 — Long-list background continuity](tickets/UI-008.json)
 
@@ -316,6 +315,7 @@ QA-001/QA-002; UI-015 remains a separate transition-time input candidate.
 
 | Reference | Finding | Resolution/evidence |
 | --- | --- | --- |
+| [UI-016](tickets/UI-016.json) | Android Back also closes the drawer behind a selector | Modal selector popups dismiss on outside release; six touch regressions fail before and all 17 focused records pass after. All four Windows suites and 26 native left/right checks pass. User confirmed on an Android emulator and requested closure on 2026-11-01 |
 | [UI-003](tickets/UI-003.json) | Bound long-entry text fitting | Keep Qt Text.Fit and 7 mm font, cap at three lines. Four native Windows cases fail before; all 33 pass afterward. Full Windows suites and 20 Android controls pass. User confirmed desktop appearance and accepted closure on 2026-10-31 |
 | [UI-004](tickets/UI-004.json) | Right-swipe selection/deletion and excessive swipe resistance | Absolute-distance fix and gravity tuning; before/after regressions pass. User confirmed half-width behavior and phone feel at 150% sensitivity on 2026-10-29 |
 | [UI-007](tickets/UI-007.json) | Back cancellation leaks a long press and breaks the next item interaction | Reset the stale cancelled tap recognizer and reject cancelled swipe actions. Before/after QML and native Android tests pass; user confirmed the fix works on the phone on 2026-10-29 |
@@ -370,3 +370,13 @@ candidate. The user accepted closure of QA-003 on 2026-10-31 with its documented
 platform/dictation limits retained under QA-001/QA-002. The user clarified
 selector-popup Back priority: dismiss only the popup first. All three selectors
 fail that native regression; UI-016 tracks the app fix separately.
+
+UI-016 selected on 2026-10-31. Outside press dismissed the selector before
+Android delivered Back, which then closed the drawer too. Modal popups now wait
+for outside release; Back routing is unchanged. Six QML cases fail before the
+fix and all 17 focused cases pass afterward, including native Windows rendering.
+Full Windows verification passes all four entries (157 UI/19 flow/6 keyboard/61
+model records); all 26 native left/right checks pass. Shared-key ARM64 APK is
+ready. The user confirmed the fix on an Android emulator on 2026-11-01 and
+requested closure and commit; UI-016 is resolved. No physical-phone confirmation
+is claimed.

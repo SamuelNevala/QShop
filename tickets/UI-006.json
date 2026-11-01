@@ -65,6 +65,6 @@
     "command": "python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --selector-back --output out/android-emulator/qa003-popup-back-policy",
     "expected": "User clarified: close only the selector popup first, leaving the drawer open.",
     "result": "Strict native run: Lists, Accent and Primary close the drawer too (3 failures); 7 remaining Back/data controls pass. An earlier observation left Accent open; it did not assert the chosen policy and is superseded as acceptance evidence.",
-    "scope": "Separate UI-016 regression and open app-fix ticket. Existing four-step implementation history and pending-phone status are preserved."
+    "scope": "Separate UI-016 regression and open app-fix ticket. Existing four-step implementation history and pending-phone status are preserved. UI-016 was subsequently implemented on 2026-10-31; all 26 native left/right checks pass, and the user confirmed the fix on an Android emulator on 2026-11-01 and accepted UI-016 closure."
   }
 }

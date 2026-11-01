@@ -84,6 +84,11 @@ Controls.ComboBox {
             ? root.Controls.Material.accent : root.Controls.Material.foreground
     }
 
+    // Android Back starts with an outside press, then cancels that touch.
+    // Wait for a real outside release so one gesture dismisses only this popup.
+    popup.modal: true
+    popup.closePolicy: Templates.Popup.CloseOnEscape | Templates.Popup.CloseOnReleaseOutsideParent
+
     // Avoid feeding ListView's viewport-dependent contentHeight back into its height.
     popup.height: Math.min(root.count * rowHeight + root.popup.topPadding + root.popup.bottomPadding,
                            Math.max(0, root.Window.height - root.popup.topMargin - root.popup.bottomMargin))
