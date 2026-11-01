@@ -1,0 +1,50 @@
+{
+  "id": "UI-013",
+  "title": "Replace existing backgrounds with original shopping-themed images",
+  "status": "requested",
+  "type": "visual_asset",
+  "severity": "unassigned",
+  "priority": "unassigned",
+  "created": "2026-10-30",
+  "reported_by": "user",
+  "scope": "Backlog intake only; image generation, asset removal and implementation are deferred until selected.",
+  "request": "Regenerate shopping-related background images at a 1920-pixel target. The user identifies _one.png as the original and believes it probably should not be used because of copyright.",
+  "expected": "QShopper uses new, original shopping-related background artwork with documented provenance, replacing affected existing images and derivatives.",
+  "evidence": [
+    "User backlog request on 2026-10-30; the copyright concern is user-reported, not a verified ownership or infringement finding.",
+    "No _one.png was found in the current checkout. Present assets include background_one.jpg, background_two.jpg, background_two.webp, background_three.jpg, background_four.jpg and background_five.jpg.",
+    "CMakeLists.txt packages the five JPG background variants. The relationship between those assets and the reported original has not yet been established."
+  ],
+  "implementation_notes": [
+    "Identify the original referred to as _one.png and inspect the current backgrounds and their usage before replacement.",
+    "Use the existing background only for broad visual direction; create distinct original shopping-themed compositions rather than copying the artwork.",
+    "The user specified 1920 without a second dimension. Confirm the intended dimensions/aspect ratio and number of new images when selected, accounting for portrait use and cropping.",
+    "Document how each replacement was created and any third-party inputs or notices; coordinate with the release asset inventory and About licenses.",
+    "Replace affected background variants, update resource and QML references, and remove obsolete affected assets from the shipped package.",
+    "Preserve DESIGN.md visual character, text readability over translucent rows, theme behavior and one-handed shopping usability."
+  ],
+  "relevant_files": [
+    "BackgroundImage.qml",
+    "CMakeLists.txt",
+    "background_one.jpg",
+    "background_two.jpg",
+    "background_two.webp",
+    "background_three.jpg",
+    "background_four.jpg",
+    "background_five.jpg",
+    "DESIGN.md"
+  ],
+  "related_tickets": [
+    "REL-001",
+    "UI-012",
+    "UX-003"
+  ],
+  "acceptance_criteria": [
+    "Deliver original shopping-related replacement images at the agreed 1920-pixel dimensions, with provenance recorded.",
+    "Every affected selectable background uses replacement artwork; obsolete affected assets and resource references are removed from the shipped app.",
+    "Check actual rendering on Windows and Android portrait for cropping, loading, themes, translucent rows and short/long item readability.",
+    "Add automated coverage appropriate to background selection and resource loading, and record visual checks separately. Any behavior bug discovered must have its own failing-before/passing-after regression."
+  ],
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

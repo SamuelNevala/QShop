@@ -29,7 +29,7 @@
     "Separate readiness analysis, approved preparation changes, store submission, and actual publication so each step has concrete evidence and appropriate user authorization."
   ],
   "relevant_files": ["ANDROID.md", "build-android.ps1", "CMakeLists.txt", "CMakePresets.json", "android/AndroidManifest.xml", "android/res", "tests/README.md", "BACKLOG.md", "DESIGN.md"],
-  "related_tickets": ["QA-003", "UI-004", "UI-006", "UI-007", "UI-008", "UI-009", "UI-010"],
+  "related_tickets": ["QA-003", "UI-004", "UI-006", "UI-007", "UI-008", "UI-009", "UI-010", "UI-012", "UI-013"],
   "acceptance_criteria": [
     "Create a publication checklist with ordered steps, dependencies, required inputs/decisions, and evidence required to finish each step.",
     "Confirm target store/account assumptions and cite current official requirements relevant to the selected publication path.",

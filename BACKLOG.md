@@ -211,6 +211,32 @@ QShopper's actual geometry on launch and rotation with shopping/edit modes,
 keyboard, drawer and unfinished text. Saved list order and checks are preserved.
 Android can override orientation restrictions on larger displays; see ANDROID.md.
 
+### [UI-012 — Drawer About and open-source licenses](tickets/UI-012.json)
+
+Requested on 2026-10-30; implementation deferred. Add an About component in the
+drawer where users can identify shipped open-source components and read their
+license texts and attribution notices offline. Inventory the actual libraries,
+fonts, icons and other third-party assets when implementing.
+
+Keep long license texts readable and scrollable within the safe area. Cover
+opening, scrolling, closing and Android Back with UI tests, preserving shopping
+data and unfinished edits. Coordinate the inventory with REL-001's licensing
+review. Priority and severity remain unassigned.
+
+### [UI-013 — Original shopping-themed background images](tickets/UI-013.json)
+
+Requested on 2026-10-30; image generation and replacement deferred. Create new,
+original shopping-related backgrounds with the user's requested 1920-pixel target.
+Confirm the exact dimensions/aspect ratio and number of variants when selected.
+The existing image may inform the broad visual direction; do not copy its artwork.
+
+The user identifies `_one.png` as the original and raises a copyright concern.
+That filename was not found in the current checkout; `background_one.jpg` and
+other background variants are present and packaged. Verify the original and any
+derivatives, then replace affected assets and remove obsolete packaged references.
+Record the new artwork's provenance and coordinate with REL-001/UI-012. Preserve
+text readability, themes, transparency and portrait cropping. Priority is unassigned.
+
 ## Release preparation
 
 | ID | Request | Status |
@@ -230,6 +256,7 @@ authorization; none is requested as part of backlog intake.
 | [UX-001](tickets/UX-001.json) | Analyze primary and accent color selection, derivation, and use against Android/Material color guidance | Requested; review deferred; explicitly limited to coloring, not an overall app redesign |
 | [UX-002](tickets/UX-002.json) | Evaluate red delete and green selection feedback, comparing alternatives for clarity, accessibility, and theme compatibility | Requested; review and color changes deferred |
 | [UX-003](tickets/UX-003.json) | Review whether primary/accent usage in custom and non-Material components is sensible, readable, and consistent | Requested; review and implementation deferred |
+| [UX-004](tickets/UX-004.json) | Consider replacing Font Awesome with [Tabler Icons](https://tabler.io/icons): icon coverage, readability, Qt/QML integration, licensing and maintenance | Requested; comparison and migration deferred |
 
 UX-001 covers primary/accent roles, palette choices, readability, state feedback,
 and behavior across Light, Dark, and System themes. Compare the actual Qt Material
@@ -245,6 +272,11 @@ UX-003 examines actual custom-component color bindings, theme propagation,
 semantic roles, and rendered combinations outside standard Material controls.
 Reuse UX-001/UX-002 findings where relevant; a custom Material color reference is
 not automatically wrong, and a component rewrite is not assumed.
+
+UX-004 should inventory current glyphs and map suitable replacements, compare
+visual clarity and theme behavior at the existing physical sizes, and recommend
+a KISS asset approach. Coordinate notices with UI-012 and REL-001. Switching is
+an option to evaluate, not an agreed migration; priority remains unassigned.
 
 ## Code-quality work
 

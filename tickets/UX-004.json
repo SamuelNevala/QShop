@@ -1,0 +1,53 @@
+{
+  "id": "UX-004",
+  "title": "Consider replacing Font Awesome with Tabler Icons",
+  "status": "requested",
+  "type": "design_review",
+  "priority": "unassigned",
+  "created": "2026-10-30",
+  "reported_by": "user",
+  "scope": "Backlog intake only. Compare the icon sets and recommend whether to switch; review and migration remain deferred until selected.",
+  "request": "Consider swapping Font Awesome for Tabler Icons: https://tabler.io/icons .",
+  "expected": "A practical recommendation based on icon coverage, shopping usability, visual consistency, Qt/QML integration, licensing and maintenance, with migration work scoped separately if recommended.",
+  "review_topics": [
+    "Inventory the actual Font Awesome glyphs, font loading and icon consumers, then map each used action to a suitable Tabler equivalent and identify gaps.",
+    "Compare clarity at the current physical sizes, outline/filled styles, stroke weight, checked/disabled states and readability over themed translucent backgrounds.",
+    "Evaluate the simplest Qt/QML asset approach, including bundled SVGs versus a font where appropriate, theme coloring, scaling, package size and runtime dependencies.",
+    "Verify the chosen assets and version against upstream license and attribution information; coordinate the notices with UI-012 and the release inventory with REL-001.",
+    "Estimate migration and maintenance effort, including removal of unused Font Awesome resources if a replacement is later selected. Keeping the current set is a valid review outcome."
+  ],
+  "implementation_notes": [
+    "Respect DESIGN.md, preserve touch targets and action meanings, and follow KISS rather than introducing an icon framework.",
+    "No icon replacement or dependency change is authorized by this backlog request alone.",
+    "If migration is selected, cover actual icon loading and affected controls with automated tests and inspect real Windows/Android rendering; any discovered behavior bug needs a failing-before/passing-after regression."
+  ],
+  "relevant_files": [
+    "Icon.qml",
+    "IconButton.qml",
+    "UndoIcon.qml",
+    "View.qml",
+    "CMakeLists.txt",
+    "fa-solid-900.ttf",
+    "DESIGN.md"
+  ],
+  "related_tickets": [
+    "UI-012",
+    "REL-001",
+    "UX-003"
+  ],
+  "acceptance_criteria": [
+    "Produce an inventory and proposed mapping of the icons currently used, recording any missing or ambiguous alternatives.",
+    "Assess visual readability, theme behavior, QML integration, asset size, licensing and maintenance with evidence from the actual app and upstream sources.",
+    "Record a recommendation and, if switching is worthwhile, a bounded migration and verification plan without implementing it during the review."
+  ],
+  "evidence": [
+    "Explicit user backlog request on 2026-10-30 to consider Tabler Icons instead of Font Awesome.",
+    "View.qml loads fa-solid-900.ttf through FontLoader awsome and uses its font family; CMakeLists.txt packages that font.",
+    "The user-linked Tabler Icons page was opened on 2026-10-30; no icon suitability or migration feasibility has yet been established."
+  ],
+  "sources": [
+    "https://tabler.io/icons"
+  ],
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

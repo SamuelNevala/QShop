@@ -1,0 +1,32 @@
+{
+  "id": "UI-012",
+  "title": "Add a drawer About component showing open-source licenses",
+  "status": "requested",
+  "type": "feature",
+  "severity": "unassigned",
+  "priority": "unassigned",
+  "created": "2026-10-30",
+  "reported_by": "user",
+  "scope": "Backlog intake only; implementation is deferred until selected.",
+  "request": "Add an About component to the drawer where users can view the open-source licenses used by QShopper.",
+  "expected": "Users can open About from the drawer, identify the included open-source components and read their license texts and attribution notices.",
+  "implementation_notes": [
+    "Inventory the actual shipped libraries, fonts, icons and other third-party assets; obtain license texts and attribution details from the corresponding bundled or upstream sources rather than guessing.",
+    "Bundle the license information so it is available offline. Identify each component and its applicable license; include relevant copyright and attribution notices.",
+    "Keep the presentation KISS, readable, scrollable and consistent with the app theme, safe areas and touch sizing. Choose the concrete About presentation when implementing.",
+    "Keep opening and closing About from disrupting the shopping list, checked state, editor position or unfinished text.",
+    "Coordinate the component inventory with REL-001's release licensing review; this feature alone does not establish release readiness."
+  ],
+  "relevant_files": ["View.qml", "Menu.qml", "CMakeLists.txt", "ANDROID.md", "DESIGN.md"],
+  "related_tickets": ["REL-001", "QA-003"],
+  "acceptance_criteria": [
+    "The drawer provides an accessible About component or entry that exposes the open-source license information.",
+    "The displayed inventory matches the dependencies and third-party assets actually shipped in the app, with identifiable components, license texts and attribution notices.",
+    "License information remains available without a network connection, and long texts can be scrolled to the end within the safe area.",
+    "Closing About, including through Android Back, preserves the list and unfinished editing state.",
+    "Add automated UI coverage for opening About from the drawer, reading/scrolling the license content and returning without changing app data. Verify Android presentation and Back behavior."
+  ],
+  "evidence": "User backlog request on 2026-10-30 to add a drawer About component for viewing the open-source licenses used.",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}
