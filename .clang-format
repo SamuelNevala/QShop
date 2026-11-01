@@ -1,0 +1,52 @@
+# Qt-aligned C++17 style; see tests/README.md for the project choices.
+BasedOnStyle: WebKit
+Language: Cpp
+Standard: c++17
+UseTab: Never
+IndentWidth: 4
+ContinuationIndentWidth: 8
+AlignAfterOpenBracket: true
+ColumnLimit: 100
+BreakStringLiterals: false
+LineEnding: LF
+DerivePointerAlignment: false
+PointerAlignment: Right
+ReferenceAlignment: Pointer
+NamespaceIndentation: None
+BreakBeforeBinaryOperators: NonAssignment
+BreakTemplateDeclarations: Yes
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: Never
+  AfterEnum: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: true
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+InsertBraces: true
+RemoveBracesLLVM: false
+SpaceBeforeCpp11BracedList: false
+BreakConstructorInitializers: BeforeColon
+ConstructorInitializerIndentWidth: 4
+IndentPPDirectives: AfterHash
+PPIndentWidth: 2
+IncludeBlocks: Preserve
+SortIncludes:
+  Enabled: false
+ReflowComments: Never
+QualifierAlignment: Leave
+RemoveParentheses: Leave
+RemoveSemicolon: false
+FixNamespaceComments: true
+ForEachMacros: [foreach, Q_FOREACH, forever, Q_FOREVER, QBENCHMARK, QBENCHMARK_ONCE]
+StatementMacros: [Q_OBJECT, Q_PROPERTY, Q_INTERFACES, Q_ENUM, QML_ELEMENT, QML_SINGLETON,
+                 Q_DECLARE_TYPEINFO, Q_UNUSED, QT_REQUIRE_VERSION]
+StatementAttributeLikeMacros: [Q_EMIT]
+AttributeMacros: [Q_INVOKABLE, Q_SIGNAL, Q_SLOT, Q_DECL_NOTHROW, Q_DECL_OVERRIDE]

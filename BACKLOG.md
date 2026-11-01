@@ -283,7 +283,7 @@ an option to evaluate, not an agreed migration; priority remains unassigned.
 | ID | Request | Status |
 | --- | --- | --- |
 | [DEV-002](tickets/DEV-002.json) | Choose a qmlformat configuration close to Qt's own QML conventions and apply it to all project QML sources, including tests and templates | Resolved 2026-11-01 with user acceptance: Qt 6.12 settings/helper applied to 54 sources; SortImports=true with preserved control selection, repeat pass stable, all four Windows suites and 19 native Windows flow records pass |
-| [DEV-003](tickets/DEV-003.json) | Choose a clang-format configuration and apply it to all project-owned C++ sources and headers, including tests | Requested; configuration and formatting deferred |
+| [DEV-003](tickets/DEV-003.json) | Choose a clang-format configuration and apply it to all project-owned C++ sources and headers, including tests | Resolved 2026-11-01 with user acceptance: Qt-aligned clang-format 22.1.8 settings/helper applied to all 11 sources; repeat pass and include/token audits pass, all four Windows suites and nine native Windows cancellation records pass |
 | [DEV-004](tickets/DEV-004.json) | Review and simplify the CMake files using KISS principles, removing unnecessary complexity while preserving supported builds | Requested; review and cleanup deferred |
 | [DEV-005](tickets/DEV-005.json) | Set up clang-tidy and Clazy with suitable checks, analyze the project, triage findings, and fix actionable issues | Requested; setup, analysis, and fixes deferred |
 | [DEV-006](tickets/DEV-006.json) | Analyze QML and C++ for simplicity and write practical KISS-based coding guidelines grounded in the current code | Requested; review and full guide deferred; KISS recorded as a standing principle |
@@ -347,6 +347,7 @@ QA-001/QA-002; UI-015 remains a separate transition-time input candidate.
 
 | Reference | Finding | Resolution/evidence |
 | --- | --- | --- |
+| [DEV-003](tickets/DEV-003.json) | Consistent C++ formatting | Root clang-format configuration and helper cover all 11 C++/header/test sources. Repeat pass, include/token audits, four Windows suites and nine native cancellation records pass. User accepted closure and commit on 2026-11-01 |
 | [DEV-002](tickets/DEV-002.json) | Consistent QML formatting | Qt 6.12 qmlformat, root configuration and repeatable helper cover all 54 QML/test/template sources. Sorted imports preserve existing control selection; repeat pass and Windows checks pass. User accepted closure and commit on 2026-11-01 |
 | [UI-016](tickets/UI-016.json) | Android Back also closes the drawer behind a selector | Modal selector popups dismiss on outside release; six touch regressions fail before and all 17 focused records pass after. All four Windows suites and 26 native left/right checks pass. User confirmed on an Android emulator and requested closure on 2026-11-01 |
 | [UI-003](tickets/UI-003.json) | Bound long-entry text fitting | Keep Qt Text.Fit and 7 mm font, cap at three lines. Four native Windows cases fail before; all 33 pass afterward. Full Windows suites and 20 Android controls pass. User confirmed desktop appearance and accepted closure on 2026-10-31 |

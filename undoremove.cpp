@@ -6,15 +6,11 @@
 
 #include <model.h>
 
-
-UndoRemove::UndoRemove(Model &model)
-    : m_model(model)
-{
-}
+UndoRemove::UndoRemove(Model &model) : m_model(model) { }
 
 void UndoRemove::undo()
 {
-    while(!m_items.empty()) {
+    while (!m_items.empty()) {
         m_model.insert(m_indexs.takeFirst(), std::move(m_items.takeFirst()));
     }
 }

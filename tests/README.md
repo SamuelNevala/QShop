@@ -874,3 +874,66 @@ build and all four CTest entries pass (157 UI, 19 flow, 6 keyboard, 61 model
 records; zero failures/skips). All 19 flow records also pass with native Windows
 rendering. Reports are under `out/dev002`. No Qt Creator UI preference change
 or physical-device validation is claimed for this formatting pass.
+
+## C++ formatting (DEV-003)
+
+Use the root `.clang-format` with **clang-format 22.1.8**, bundled at
+`C:/Qt/Tools/QtCreator/bin/clang/bin/clang-format.exe`:
+
+```powershell
+./tools/format-cpp.ps1
+./tools/format-cpp.ps1 -Check
+```
+
+Override `-ClangFormat` with a compatible executable path when needed. The helper
+formats Git-tracked `.cpp` and `.h` files, including tests; add new sources to Git
+first. Generated files, build trees and external Qt sources are excluded. `-Check`
+uses `--dry-run --Werror`; unknown options and incomplete formatting are failures.
+Neither a compilation database nor a Qt Creator session is needed for formatting.
+Use the validated formatter version for repeatable output; review configuration
+compatibility and formatting differences when upgrading it.
+
+The configuration follows Qt's WebKit-based style with four-space indentation,
+eight-space continuations, a 100-column target, aligned wrapped arguments, and
+pointer/reference symbols next to the variable. Function/class/struct opening
+braces start a new line; control-flow braces stay attached. Namespaces are not
+indented. Preprocessor indentation uses two spaces after `#` without reordering
+directives. Qt declarations and statement/attribute macros are configured explicitly.
+
+Project-specific choices: `InsertBraces=true` enforces braces for control bodies,
+including single statements. Review these edits: clang-format does not have full
+semantic information, and it deliberately skips some preprocessor/macro cases.
+`SortIncludes.Enabled=false` and `IncludeBlocks=Preserve` retain include order.
+Comments and string literals are not reflowed; qualifiers, parentheses and
+semicolons are not rewritten. The 100-column target can therefore be exceeded by
+an unbroken literal or comment. Git attributes preserve LF in C++ checkouts.
+
+The initial pass covers 11 files. The one existing `continue` in
+`UiSetup::cancelTouch()` was replaced with a guarded touch-device body to honor
+the standing project rule; the same devices receive the same cancellation event.
+All other code-token changes are added braces. This is not an application bug fix
+or a broader model/ownership cleanup. Includes retain their original sequence.
+
+Qt Creator uses Clang LibFormat. In **Projects → Code Style**, select **C++**,
+clear **Use global settings**, and use the repository `.clang-format` rather than
+custom editor settings. **Full Formatting** enables formatter-based Ctrl+I;
+format-on-save is optional. No Creator preferences are changed by the helper.
+Automatic `.clang-format` discovery is also available through the native tool's
+`--style=file`; the helper supplies the root configuration explicitly. If using
+**Beautifier → ClangFormat**, set **ClangFormat command** to the full executable
+path above; the bare name requires that directory to be on PATH.
+
+References: [Qt coding style](https://wiki.qt.io/Qt_Coding_Style),
+[Qt's upstream formatter configuration](https://github.com/qt/qt5/blob/dev/_clang-format),
+[Clang format options](https://clang.llvm.org/docs/ClangFormatStyleOptions.html),
+[Qt Creator C++ style](https://doc.qt.io/qtcreator/creator-preferences-cpp-code-style.html),
+and [project style setup](https://doc.qt.io/qtcreator/creator-code-style-settings.html).
+
+Verified on 2026-11-01 with clang-format 22.1.8: all 11 sources pass `-Check`, and
+repeated final in-place formatting is byte-identical. Ordered code tokens and
+include lists match the original snapshot, allowing added braces and the one
+equivalent touch-device guard. Windows configure/build/CTest passes all four
+entries (157 UI, 19 flow, 6 keyboard and 61 model records, zero failures/skips;
+285.97 seconds). All nine focused cancellation records also pass with native
+Windows rendering, exercising the adjusted helper. Reports are in `out/dev003`.
+No GUI settings were changed and no Android/physical-device run is claimed.

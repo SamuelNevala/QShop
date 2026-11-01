@@ -21,10 +21,10 @@
 #include "model.h"
 
 #if defined(Q_OS_ANDROID)
-#include <QtCore/QJniObject>
-#include <QtCore/qcoreapplication_platform.h>
-#include <QtGui/QInputMethod>
-#include <QtQuick/QQuickWindow>
+#  include <QtCore/QJniObject>
+#  include <QtCore/qcoreapplication_platform.h>
+#  include <QtGui/QInputMethod>
+#  include <QtQuick/QQuickWindow>
 
 static void updateSystemBarIcons(const QColor &color)
 {
@@ -39,25 +39,28 @@ static void updateSystemBarIcons(const QColor &color)
             return;
         }
         if (QNativeInterface::QAndroidApplication::sdkVersion() >= 30) {
-            const auto controller = window.callObjectMethod("getInsetsController",
-                "()Landroid/view/WindowInsetsController;");
+            const auto controller = window.callObjectMethod(
+                    "getInsetsController", "()Landroid/view/WindowInsetsController;");
             if (controller.isValid()) {
-                const auto mask = QJniObject::getStaticField<jint>("android/view/WindowInsetsController",
-                    "APPEARANCE_LIGHT_STATUS_BARS")
-                    | QJniObject::getStaticField<jint>("android/view/WindowInsetsController",
-                        "APPEARANCE_LIGHT_NAVIGATION_BARS");
-                controller.callMethod<void>("setSystemBarsAppearance", "(II)V", light ? mask : 0, mask);
+                const auto mask =
+                        QJniObject::getStaticField<jint>("android/view/WindowInsetsController",
+                                                         "APPEARANCE_LIGHT_STATUS_BARS")
+                        | QJniObject::getStaticField<jint>("android/view/WindowInsetsController",
+                                                           "APPEARANCE_LIGHT_NAVIGATION_BARS");
+                controller.callMethod<void>("setSystemBarsAppearance", "(II)V", light ? mask : 0,
+                                            mask);
             }
         } else {
             // Android 9/10 use the earlier API; retain every unrelated UI flag.
             const auto decor = window.callObjectMethod("getDecorView", "()Landroid/view/View;");
             if (decor.isValid()) {
-                const auto mask = QJniObject::getStaticField<jint>("android/view/View",
-                    "SYSTEM_UI_FLAG_LIGHT_STATUS_BAR")
-                    | QJniObject::getStaticField<jint>("android/view/View",
-                        "SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR");
+                const auto mask = QJniObject::getStaticField<jint>(
+                                          "android/view/View", "SYSTEM_UI_FLAG_LIGHT_STATUS_BAR")
+                        | QJniObject::getStaticField<jint>("android/view/View",
+                                                           "SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR");
                 const auto flags = decor.callMethod<jint>("getSystemUiVisibility");
-                decor.callMethod<void>("setSystemUiVisibility", "(I)V", light ? flags | mask : flags & ~mask);
+                decor.callMethod<void>("setSystemUiVisibility", "(I)V",
+                                       light ? flags | mask : flags & ~mask);
             }
         }
     });
@@ -66,7 +69,6 @@ static void updateSystemBarIcons(const QColor &color)
 
 int main(int argc, char *argv[])
 {
-
 
     QCoreApplication::setApplicationName(QStringLiteral("QShopper"));
     QCoreApplication::setOrganizationName(QStringLiteral("Nevala"));
@@ -93,8 +95,8 @@ int main(int argc, char *argv[])
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, testDataDirectory);
     }
     const auto dataDirectory = testDataDirectory.isEmpty()
-        ? QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
-        : testDataDirectory;
+            ? QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+            : testDataDirectory;
     const auto databaseLocation = QDir(dataDirectory).filePath(QStringLiteral("shop_list.sqlite"));
     qDebug() << "Database location: " << databaseLocation;
     const QDir dir(QFileInfo(databaseLocation).absolutePath());
@@ -108,26 +110,30 @@ int main(int argc, char *argv[])
     auto database = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"));
     database.setDatabaseName(databaseLocation);
     if (!database.open()) {
-        qWarning() << "Failed to open to the database. Error: " << database.lastError() << " Name: " << databaseLocation;
+        qWarning() << "Failed to open to the database. Error: " << database.lastError()
+                   << " Name: " << databaseLocation;
         return -1;
     }
 
     {
         QSqlQuery query;
         if (!query.exec(SQL::create().arg(SQL::tableLists()))) {
-            qWarning() << "Failed to create  "<< SQL::tableLists() <<" table. Error: " << query.lastError();
+            qWarning() << "Failed to create  " << SQL::tableLists()
+                       << " table. Error: " << query.lastError();
             return -1;
         }
 
         if (!query.exec(SQL::selectFrom().arg(SQL::tableLists()))) {
-            qWarning() << "Failed to select rows from "<< SQL::tableLists() <<" table. Error:" << query.lastError().text();
+            qWarning() << "Failed to select rows from " << SQL::tableLists()
+                       << " table. Error:" << query.lastError().text();
             return -1;
         }
 
         if (!query.next()) {
             const auto defaultTableId = QUuid::createUuid().toString(QUuid::WithoutBraces);
             if (!query.exec(SQL::create().arg(defaultTableId))) {
-                qWarning() << "Failed to create  "<< SQL::tableDefault() <<" table. Error: " << query.lastError();
+                qWarning() << "Failed to create  " << SQL::tableDefault()
+                           << " table. Error: " << query.lastError();
                 return -1;
             }
             query.prepare(SQL::insertTo().arg(SQL::tableLists()));
@@ -135,7 +141,8 @@ int main(int argc, char *argv[])
             query.addBindValue(SQL::tableDefault());
             query.addBindValue(false);
             if (!query.exec()) {
-                qWarning() << "Failed to insert "<< SQL::tableDefault() <<" table info to "<< SQL::tableLists() << " table. Error:" << query.lastError();
+                qWarning() << "Failed to insert " << SQL::tableDefault() << " table info to "
+                           << SQL::tableLists() << " table. Error:" << query.lastError();
                 return -1;
             }
             qDebug() << SQL::tableDefault() << " table created.";
@@ -151,30 +158,33 @@ int main(int argc, char *argv[])
     theme->setProperty("scaleable", true);
 #endif
     const QUrl url(QStringLiteral("qrc:/qt/qml/QShopper/main.qml"));
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &application, [url](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl) {
-            QCoreApplication::exit(-1);
-        }
-    }, Qt::QueuedConnection);
+    QObject::connect(
+            &engine, &QQmlApplicationEngine::objectCreated, &application,
+            [url](QObject *obj, const QUrl &objUrl) {
+                if (!obj && url == objUrl) {
+                    QCoreApplication::exit(-1);
+                }
+            },
+            Qt::QueuedConnection);
 #if defined(Q_OS_ANDROID)
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-        &application, [](QObject *object, const QUrl &) {
-            auto *window = qobject_cast<QQuickWindow *>(object);
-            if (!window) {
-                return;
-            }
-            const auto update = [window] { updateSystemBarIcons(window->color()); };
-            QObject::connect(window, &QQuickWindow::colorChanged, window, update);
-            QObject::connect(qGuiApp->inputMethod(), &QInputMethod::visibleChanged, window, update);
-            QObject::connect(qGuiApp, &QGuiApplication::applicationStateChanged, window,
-                [update](Qt::ApplicationState state) {
-                    if (state == Qt::ApplicationActive) {
-                        update();
-                    }
-                });
-            update();
-        });
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &application,
+                     [](QObject *object, const QUrl &) {
+                         auto *window = qobject_cast<QQuickWindow *>(object);
+                         if (!window) {
+                             return;
+                         }
+                         const auto update = [window] { updateSystemBarIcons(window->color()); };
+                         QObject::connect(window, &QQuickWindow::colorChanged, window, update);
+                         QObject::connect(qGuiApp->inputMethod(), &QInputMethod::visibleChanged,
+                                          window, update);
+                         QObject::connect(qGuiApp, &QGuiApplication::applicationStateChanged,
+                                          window, [update](Qt::ApplicationState state) {
+                                              if (state == Qt::ApplicationActive) {
+                                                  update();
+                                              }
+                                          });
+                         update();
+                     });
 #endif
     engine.load(url);
     return QGuiApplication::exec();

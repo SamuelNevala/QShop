@@ -15,12 +15,13 @@
 #include <QtGui/QUndoStack>
 #include <QtQml/QQmlParserStatus>
 #include <QtQmlIntegration/qqmlintegration.h>
- // #include <QtQmlIntegration>
+// #include <QtQmlIntegration>
 #include <optional>
 #include <utility>
 
 namespace SQL {
-static const QString &create() {
+static const QString &create()
+{
     static const QString kCreate = QStringLiteral("CREATE TABLE IF NOT EXISTS \"%1\" ("
                                                   "id TEXT PRIMARY KEY NOT NULL,"
                                                   "name TEXT NOT NULL,"
@@ -28,37 +29,46 @@ static const QString &create() {
     return kCreate;
 }
 
-static const QString &drop() {
+static const QString &drop()
+{
     static const QString kDrop = QStringLiteral("DROP TABLE IF EXISTS \"%1\"");
     return kDrop;
 }
 
-static const QString &deleteFrom() {
+static const QString &deleteFrom()
+{
     static const QString kDeleteFrom = QStringLiteral("DELETE FROM \"%1\"");
     return kDeleteFrom;
 }
 
-static const QString &insertTo() {
-    static const QString kInsertTo = QStringLiteral("INSERT INTO \"%1\" (id, name, checked) VALUES (?, ?, ?)");
+static const QString &insertTo()
+{
+    static const QString kInsertTo =
+            QStringLiteral("INSERT INTO \"%1\" (id, name, checked) VALUES (?, ?, ?)");
     return kInsertTo;
 }
 
-static const QString &selectFrom() {
+static const QString &selectFrom()
+{
     static const QString kSelectFrom = QStringLiteral("SELECT name, checked, id FROM \"%1\"");
     return kSelectFrom;
 }
 
-static const QString &selectAllTables() {
-    static const QString kSelectAllTables = QStringLiteral("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;");
+static const QString &selectAllTables()
+{
+    static const QString kSelectAllTables =
+            QStringLiteral("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;");
     return kSelectAllTables;
 }
 
-static const QString &tableLists() {
+static const QString &tableLists()
+{
     static const QString kListsTable = QStringLiteral("lists");
     return kListsTable;
 }
 
-static const QString &tableDefault() {
+static const QString &tableDefault()
+{
     static const QString kDefaultTable = QStringLiteral("default");
     return kDefaultTable;
 }
@@ -67,13 +77,19 @@ static const QString &tableDefault() {
 struct Item
 {
     Item() = default;
-    explicit Item(QString name) : name(std::move(name)), uuid(QUuid::createUuid()) {}
-    Item(QString name, bool checked) : name(std::move(name)), checked(checked), uuid(QUuid::createUuid()) {}
-    Item(QString name, bool checked, QUuid uuid) : name(std::move(name)), checked(checked), uuid(uuid) {}
-    Item(const Item&) = default;
-    Item& operator=(const Item&) = default;
-    Item(Item&&) noexcept = default;
-    Item& operator = (Item&&) noexcept = default;
+    explicit Item(QString name) : name(std::move(name)), uuid(QUuid::createUuid()) { }
+    Item(QString name, bool checked)
+        : name(std::move(name)), checked(checked), uuid(QUuid::createUuid())
+    {
+    }
+    Item(QString name, bool checked, QUuid uuid)
+        : name(std::move(name)), checked(checked), uuid(uuid)
+    {
+    }
+    Item(const Item &) = default;
+    Item &operator=(const Item &) = default;
+    Item(Item &&) noexcept = default;
+    Item &operator=(Item &&) noexcept = default;
     ~Item() = default;
     QString name;
     bool checked = false;
@@ -103,8 +119,10 @@ public:
     explicit Model(QObject *parent = nullptr) Q_DECL_NOTHROW;
 
     // from QAbstractListModel
-    [[nodiscard]] QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) Q_DECL_OVERRIDE;
+    [[nodiscard]] QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
+            Q_DECL_OVERRIDE;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole)
+            Q_DECL_OVERRIDE;
     [[nodiscard]] QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
     [[nodiscard]] int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
@@ -162,8 +180,8 @@ private:
     QList<Item> m_items;
     std::optional<Item> m_pendingEdit;
     QUndoStack m_stack;
-    qsizetype m_editorIndex { -1 };
-    bool m_readOnly { false };
+    qsizetype m_editorIndex{ -1 };
+    bool m_readOnly{ false };
 };
 
 #endif // MODEL_H

@@ -10,12 +10,13 @@
 class UndoRemove : public QUndoCommand
 {
 public:
-    explicit UndoRemove(Model& model);
+    explicit UndoRemove(Model &model);
     void undo() override;
     void append(Item &&item, qsizetype index);
     void append(const Item &item, qsizetype index);
+
 private:
-    Model& m_model;
+    Model &m_model;
     QList<Item> m_items;
     QList<qsizetype> m_indexs;
 };

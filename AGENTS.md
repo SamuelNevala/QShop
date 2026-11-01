@@ -40,6 +40,20 @@ Imports are sorted at the user's request. Qualify types where overlapping import
 could select a different control after sorting. Group attributes without alphabetic
 normalization, retain child order, and keep formatting separate from behavior changes.
 
+## C++ formatting
+
+Use the root .clang-format with Qt Creator's clang-format 22.1.8. Run
+`./tools/format-cpp.ps1` and `./tools/format-cpp.ps1 -Check` from PowerShell;
+override `-ClangFormat` for another compatible executable. The helper covers
+tracked .cpp/.h files, including tests, and excludes generated/external sources.
+Add new source files to Git before running it. See tests/README.md for the style
+choices and Qt Creator setup. Formatting is separate from analyzer fixes/refactors.
+
+Includes retain their order. Braces are inserted for control statements to honor
+the project rule; inspect that diff because clang-format has no full semantic
+model. Do not reintroduce continue, remove checks or modernize code during a
+formatting pass. Repeated formatting must be unchanged before committing.
+
 ## Backlog
 
 Use [BACKLOG.md](BACKLOG.md) to collect bugs and missing features, with linked reports in `tickets/`.

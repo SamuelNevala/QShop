@@ -1,12 +1,12 @@
 {
   "id": "DEV-003",
   "title": "Choose clang-format settings and format the project's C++ code",
-  "status": "requested",
+  "status": "resolved",
   "type": "code_quality",
   "priority": "unassigned",
   "created": "2026-10-28",
   "reported_by": "user",
-  "scope": "Backlog item only. Do not configure or apply formatting until implementation is explicitly requested.",
+  "scope": "User selected DEV-003 on 2026-11-01 after QML formatting. Configure and apply Qt-aligned clang-format to project-owned C++/headers/tests as a mechanical change, preserving intended behavior.",
   "request": "Select a good clang-format configuration and apply it consistently to the project's C++ code.",
   "expected": "A checked-in .clang-format and a repeatable formatting workflow covering project-owned C++ sources and headers, including tests, without intended behavior changes.",
   "implementation_notes": [
@@ -25,8 +25,48 @@
     "Document a repeatable invocation for future contributors and editor use.",
     "Review the eventual formatting diff and run tools/verify-windows.ps1; no functional fixes should be bundled into the formatting change."
   ],
-  "related_tickets": ["DEV-002"],
+  "related_tickets": [
+    "DEV-002"
+  ],
   "evidence": "Explicit user request to add C++ clang-format configuration and formatting to the backlog on 2026-10-28.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "selected": "2026-11-01",
+  "references": [
+    "https://wiki.qt.io/Qt_Coding_Style",
+    "https://github.com/qt/qt5/blob/dev/_clang-format",
+    "https://clang.llvm.org/docs/ClangFormatStyleOptions.html",
+    "https://doc.qt.io/qtcreator/creator-preferences-cpp-code-style.html",
+    "https://doc.qt.io/qtcreator/creator-code-style-settings.html"
+  ],
+  "implementation": {
+    "date": "2026-11-01",
+    "tool": "Qt Creator bundled clang-format 22.1.8 (Qt LLVM fork f80a7c45aab83bbf3ddd881b4c878c30bc4f0e98), C:/Qt/Tools/QtCreator/bin/clang/bin/clang-format.exe. Version, CLI options and configuration parsing verified.",
+    "configuration": ".clang-format uses WebKit as the Qt-upstream base, C++17, four spaces, eight-space continuations, aligned wrapped arguments, 100-column target, right-aligned pointer/reference symbols, Qt-style function/class/control braces and namespace/preprocessor indentation. Qt macros are configured; comments, string literals and includes preserve their contents/order.",
+    "scope": "All 11 tracked .cpp/.h files: five app/model implementations, four headers, two C++ test sources. Generated, build and external files excluded.",
+    "helper": "tools/format-cpp.ps1 invokes the actual formatter with explicit root configuration, warnings as errors and incomplete-format detection. -Check uses --dry-run. The formatter is not added as an app-build dependency.",
+    "style_adjustments": "InsertBraces=true applies the project braces rule. The one existing continue in UiSetup::cancelTouch() was replaced with a positive touch-device guard, preserving the same event delivery and return value. No broader control-flow cleanup or functional bug fix is included.",
+    "safety_audit": "All include lists retain original order. Ordered non-comment/non-brace tokens match original sources, accounting only for the documented equivalent test-helper guard. Identifiers, values, macro arguments and preprocessor expressions are retained. All source files use LF and no continue statements remain. This lexical audit complements verification rather than proving semantic equivalence.",
+    "idempotence": "All 11 files have identical SHA-256 hashes before/after a repeated final formatting pass. Final -Check passes. The pre-format check failed as expected.",
+    "editor_setup": "Native --style=file discovery checked for root model.cpp and nested tests/test_ui.cpp. Qt Creator project Code Style/C++ instructions documented in tests/README.md; no GUI automation or preference changes used.",
+    "verification": "Final Windows configure/build/CTest passes all four entries: 157 UI, 19 flow, 6 real-keyboard and 61 model records, zero failures/skips. Total 285.97 seconds. All nine focused PointerCancellation records also pass with native Windows rendering (17.585 seconds), exercising the guarded cancellation helper. All 11 formatter checks and final repeat hashes pass.",
+    "commands": [
+      "./tools/format-cpp.ps1",
+      "./tools/format-cpp.ps1 -Check",
+      "./tools/verify-windows.ps1"
+    ],
+    "artifacts": [
+      "out/dev003/source-manifest.json",
+      "out/dev003/check-before.txt",
+      "out/dev003/final-pass-hashes.json",
+      "out/dev003/final-audit.txt",
+      "out/dev003/check-final.txt",
+      "out/dev003/verify-windows-final.txt",
+      "out/dev003/cancel-native-windows.txt",
+      "out/dev003/verification-summary.json"
+    ],
+    "remaining": "None for the accepted formatting task. User accepted closure and requested commit on 2026-11-01. No GUI automation, Creator preference changes, Android rebuild or physical-device validation is claimed.",
+    "user_validation": "2026-11-01: user requested \"Ok close the ticket and commit changes\" after reviewing the formatter result and receiving the Qt Creator clang-format executable path."
+  },
+  "resolved": "2026-11-01"
 }

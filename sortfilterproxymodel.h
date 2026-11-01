@@ -15,7 +15,6 @@ public:
     // // from QQmlParserStatus
     void classBegin() Q_DECL_OVERRIDE;
     void componentComplete() Q_DECL_OVERRIDE;
-
 };
 
 #endif // SORTFILTERPROXYMODEL_H

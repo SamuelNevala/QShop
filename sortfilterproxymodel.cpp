@@ -1,9 +1,6 @@
 #include "sortfilterproxymodel.h"
 
-SortFilterProxyModel::SortFilterProxyModel(QObject *parent)
-    : QSortFilterProxyModel{parent}
-{
-}
+SortFilterProxyModel::SortFilterProxyModel(QObject *parent) : QSortFilterProxyModel{ parent } { }
 
 void SortFilterProxyModel::classBegin()
 {
@@ -12,6 +9,4 @@ void SortFilterProxyModel::classBegin()
     sort(0);
 }
 
-void SortFilterProxyModel::componentComplete()
-{
-}
+void SortFilterProxyModel::componentComplete() { }

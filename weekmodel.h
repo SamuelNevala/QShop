@@ -15,13 +15,14 @@
 #include <QtQml/QQmlEngine>
 #include <QtQmlIntegration/qqmlintegration.h>
 
-struct Day {
+struct Day
+{
     Day() = default;
-    Day(QString &&name, QString &&number) : name(std::move(name)), number(std::move(number)) {}
-    Day(const Day&) = default;
-    Day& operator=(const Day&) = default;
-    Day(Day&&) noexcept = default;
-    Day& operator = (Day&&) noexcept = default;
+    Day(QString &&name, QString &&number) : name(std::move(name)), number(std::move(number)) { }
+    Day(const Day &) = default;
+    Day &operator=(const Day &) = default;
+    Day(Day &&) noexcept = default;
+    Day &operator=(Day &&) noexcept = default;
     ~Day() = default;
 
     QString name;
@@ -40,7 +41,8 @@ public:
 
     // from QAbstractListModel
     [[nodiscard]] int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
-    [[nodiscard]] QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
+    [[nodiscard]] QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
+            Q_DECL_OVERRIDE;
     [[nodiscard]] QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
 
 protected:
@@ -52,7 +54,7 @@ private:
 
     int m_timerId = 0;
     QList<Day> m_week;
-    QDateTime m_today { QDateTime::currentDateTime() };
+    QDateTime m_today{ QDateTime::currentDateTime() };
 };
 
 #endif // WEEKMODEL_H

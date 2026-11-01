@@ -14,10 +14,9 @@
 
 using namespace std::chrono_literals;
 
-constexpr qint32 kDays { 6U };
+constexpr qint32 kDays{ 6U };
 
-WeekModel::WeekModel(QObject *parent) Q_DECL_NOTHROW
-    : QAbstractListModel(parent)
+WeekModel::WeekModel(QObject *parent) Q_DECL_NOTHROW : QAbstractListModel(parent)
 {
     populateModel();
     m_timerId = startTimer(1min);
@@ -31,10 +30,8 @@ int WeekModel::rowCount(const QModelIndex &parent) const
 
 QVariant WeekModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid()
-      || index.row() < 0
-      || index.row() >= rowCount()) {
-        return {};
+    if (!index.isValid() || index.row() < 0 || index.row() >= rowCount()) {
+        return { };
     }
 
     switch (role) {
@@ -45,15 +42,14 @@ QVariant WeekModel::data(const QModelIndex &index, int role) const
         return m_week[index.row()].number;
     }
     default: {
-        return {};
+        return { };
     }
     }
 }
 
 QHash<int, QByteArray> WeekModel::roleNames() const
 {
-    return QHash<int, QByteArray> {{ Qt::UserRole, "name" },
-                                   { Qt::UserRole + 1, "number" }};
+    return QHash<int, QByteArray>{ { Qt::UserRole, "name" }, { Qt::UserRole + 1, "number" } };
 }
 
 void WeekModel::timerEvent(QTimerEvent *event)
