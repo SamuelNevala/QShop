@@ -1,14 +1,14 @@
 {
   "id": "DEV-005",
   "title": "Configure clang-tidy and Clazy, analyze the C++ code, and fix actionable findings",
-  "status": "requested",
+  "status": "resolved",
   "type": "code_quality",
   "priority": "unassigned",
   "created": "2026-10-28",
   "reported_by": "user",
-  "scope": "Backlog item only. Tool setup, check selection, analysis, and fixes are deferred until implementation is explicitly requested.",
+  "scope": "Selected on 2026-11-01. After reviewing the initial analyzer setup, the user selected their existing Qt Creator Samuel configuration as the baseline. Capture and triage its full findings before applying fixes or exceptions.",
   "request": "Set up clang-tidy and the Qt-focused Clazy analyzer with suitable options, analyze the project, and fix the actionable findings.",
-  "expected": "A repeatable static-analysis workflow with useful checks for this Qt/C++17 project, recorded findings, and reviewed fixes that preserve intended behavior.",
+  "expected": "A repeatable static-analysis workflow with useful checks for this Qt/C++20 project, recorded findings, and reviewed fixes that preserve intended behavior.",
   "implementation_notes": [
     "Select tool versions compatible with the actual Qt, LLVM/Clang, and platform toolchain used for analysis. Record versions and supported execution environments rather than assuming both analyzers run directly in every installed kit.",
     "Use a compilation database or equivalent accurate build configuration with the project's real C++ standard, defines, include paths, and generated headers. Keep desktop and Android configurations distinct.",
@@ -29,8 +29,477 @@
     "Run tools/verify-windows.ps1 and targeted regressions or additional platform checks warranted by the actual fixes.",
     "Keep analyzer configuration, diagnostic evidence, and functional fixes distinguishable for review."
   ],
-  "related_tickets": ["DEV-003", "DEV-004"],
+  "related_tickets": [
+    "DEV-003",
+    "DEV-004"
+  ],
   "evidence": "Explicit user request to add clang-tidy/Clazy setup, suitable options, analysis, and fixes to the backlog on 2026-10-28.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "selected": "2026-11-01",
+  "implementation": {
+    "date": "2026-11-01",
+    "tools": "Qt Creator bundled clang-tidy LLVM 22.1.8 and clazy-standalone 1.16 (6d570cd), built with the same LLVM. Executables under C:/Qt/Tools/QtCreator/bin/clang/bin; no installation or Creator GUI settings changed.",
+    "configuration": "Root .clang-tidy enables Clang Static Analyzer, selected bugprone checks and performance checks (169 enabled in the validated tool). Clazy level1 includes level0 (53 checks). Style/naming, broad modernization and experimental check groups are not enabled. Named line-local optional-access exceptions are documented in the triage; no automatic fixes applied.",
+    "workflow": "CMakePresets.json exports the actual compilation database without making analysis a build dependency. tools/analyze-cpp.ps1 invokes the existing Windows build helper by default, then both analyzers serially for every tracked .cpp. It checks source coverage, records versions/checks/build metadata/database hash and per-source logs/fix suggestions/results, and fails on nonzero analyzer exits or displayed diagnostics (including Clazy's exit-zero warnings). Custom prebuilt configurations require -SkipBuild; -ApplicationOnly explicitly excludes desktop tests for Android.",
+    "scope": "Seven Windows units (five application and two test units), with all four project headers filtered through their including sources. Separate Android x86_64 compilation database covers all five application units, including JNI/system-bar code. Real C++20 defines/includes/generated headers retained; compilation commands are not rewritten. Generated/external primary units are excluded. Some moc-only checks are outside this scope.",
+    "initial_findings": "Windows baseline: 17 emitted diagnostics at 13 distinct locations, with four repeated emissions of the enum header warning. Seven of fourteen runs need review. Android adds one optional-access location during restorePendingEdit before its final local suppression. Full dispositions are committed in tests/STATIC_ANALYSIS.md.",
+    "changes": [
+      "Qualify the Q_INVOKABLE moveEditor argument/default as Model::Force. This clarifies meta-object metadata; a typed QMetaObject invocation already passes before cleanup on Qt 6.12, so no reproduced runtime bug is claimed.",
+      "Retain three local NOLINTNEXTLINE(bugprone-unchecked-optional-access) annotations with reasons. The guarded/assigned pending item remains populated across the known intervening methods; no edit logic is changed. Existing position, cancellation and persistence tests exercise those invariants.",
+      "Clean test code: direct QTest/QSignalSpy includes, constFirst for read access, const container snapshots/order lists, and two explicit bounded index conversions.",
+      "Add move_editor_through_meta_object as interface characterization: force editor movement through actual Qt invocation, remove the editor, reload, and verify saved contents. It passes before and after; it is not presented as a failing-before bug regression.",
+      "Document tooling, checks, scope, exclusions, triage, commands and results in tests/STATIC_ANALYSIS.md and link it from AGENTS.md/tests/README.md."
+    ],
+    "bug_policy": "No application behavior defect was confirmed or fixed in this task. Analyzer recommendations and conservative dataflow warnings are distinguished from bugs. Existing UI candidates remain unchanged. A future confirmed bug still requires its own failing-before/passing-after observable regression.",
+    "verification": {
+      "windows_analysis": "Default helper path, including configure/build, passes all 14 runs for seven units; no displayed project diagnostics or parsing failures. The original selected checks are retained.",
+      "android_analysis": "All ten runs for five units pass against Qt 6.12 x86_64, NDK r27c/Clang 18.0.3 and gnu++20. Android application shared library also builds; no APK install or native runtime check claimed for this task.",
+      "windows_tests": "tools/verify-windows.ps1 passes all four entries: 157 UI, 19 flow, 6 real-keyboard and 62 model records; zero failures/skips; 273.23 seconds.",
+      "native_rendering": "All nine PointerCancellation records pass with the native Windows platform after const-snapshot changes to UiSetup::cancelTouch (17.796 seconds). Harness uses isolated settings and in-memory SQLite.",
+      "controls": "The initial helper run fails on real baseline findings, including exit-zero Clazy warnings. An isolated unchecked-optional control still produces the named tidy error and exits 1 after all three local exceptions. All 11 C++ files pass clang-format; script syntax, ticket JSON and whitespace checks pass.",
+      "external_diagnostics": "A separate system-header audit reports vendor-library implementation diagnostics outside project sources. They remain out of scope rather than being fixed or suppressed in project code.",
+      "limitations": "No new Android runtime/physical-phone/ARM64 check. Offscreen tests do not certify full app visuals. No arbitrary reentrant model mutation from external signal handlers is certified. Static analysis is limited to selected checks and source scope, including the documented moc-only gap."
+    },
+    "commands": [
+      "./tools/analyze-cpp.ps1 -ReportDirectory out/dev005/final",
+      "./tools/analyze-cpp.ps1 -SkipBuild -ApplicationOnly -BuildDirectory out/dev004/android-x86 -ReportDirectory out/dev005/android-after",
+      "./tools/verify-windows.ps1",
+      "./tools/format-cpp.ps1 -Check",
+      "out/windows-agent/qshopper_ui_tests.exe -input tests/qml/tst_cancel.qml -import out/windows-agent -platform windows -o out/dev005/cancel-native-windows.txt,txt"
+    ],
+    "artifacts": [
+      "out/dev005/before/results.json",
+      "out/dev005/final/results.json",
+      "out/dev005/final/build.json",
+      "out/dev005/android-after/results.json",
+      "out/dev005/android-after/build.json",
+      "out/dev005/android-results-intermediate.json",
+      "out/dev005/android-model-intermediate.txt",
+      "out/dev005/android-build.txt",
+      "out/dev005/analysis-final.txt",
+      "out/dev005/verify-windows.txt",
+      "out/dev005/cancel-native-windows.txt",
+      "out/dev005/meta-before.txt",
+      "out/dev005/optional-control.txt",
+      "out/dev005/external-diagnostic-audit.txt",
+      "out/dev005/verification-summary.json"
+    ],
+    "remaining": "Initial workflow is implemented. Current work uses the Samuel baseline; its findings and remaining actions are recorded separately below.",
+    "phase": "Historical initial conservative-profile implementation; superseded by the user-selected Samuel baseline below."
+  },
+  "creator_profile_review": {
+    "date": "2026-11-01",
+    "user_context": "User identified their existing Qt Creator analyzer configuration named Samuel.",
+    "source": "Read the Samuel entry from the user's QtProject/QtCreator.ini and exported only that analyzer configuration to ignored local reports; no Creator setting was modified.",
+    "selection": "The installed tools expand Samuel to 505 clang-tidy checks and all 100 available Clazy checks. Tidy configuration verification passes. It includes bugprone, CERT, core guidelines, HIC++, modernization, readability and performance selections, plus all Clazy levels/manual checks.",
+    "comparison": "Samuel is substantially broader than the initial 169/53 project profile and the subsequent 257/75 trial. Use the existing user profile as the basis for the next configuration review, with explicit project-specific dispositions rather than assuming the initial conservative profile is the user's preferred baseline.",
+    "state": "User selected Samuel on 2026-11-01. Exact selections are now in .clang-tidy and tools/clazy-checks.txt; both platform baselines have been captured without automatic fixes or new suppressions.",
+    "artifacts": [
+      "out/dev005/samuel-creator-profile.json",
+      "out/dev005/samuel-tidy-checks.txt",
+      "out/dev005/samuel-clazy-checks.txt"
+    ]
+  },
+  "stricter_profile_review": {
+    "date": "2026-11-01",
+    "request": "User asks whether the check selection is the default and should be tighter.",
+    "available_checks": "Historical comparison: installed tools expose 604 tidy and 100 Clazy checks; the initial profile enabled 169/53, and the subsequent stricter trial enabled 257/75. Both are superseded by Samuel 505/100.",
+    "trial": "Read-only Windows analysis of all seven units: broaden tidy to all bugprone checks plus selected core-guideline/modernization/redundancy checks (257 total), and Clazy to level2 plus seven relevant manual checks (75 total). No code or profile configuration changed during this trial.",
+    "findings": "Expanded tidy emits no project diagnostics. Expanded Clazy finds editorIndex Q_PROPERTY int versus qsizetype accessor (repeated in five units), 94 QString-allocation recommendations mostly in tests, and two constructor-parent recommendations in standalone test fixtures. The property type mismatch is concrete, but a user-visible behavior failure is not established.",
+    "recommendation": "Adopt a stricter relevant correctness profile and triage the additional findings before closure. Keep test-fixture/style advice proportional; rerun Windows and Android analysis after any profile or source changes.",
+    "artifacts": [
+      "out/dev005/strict-trial/results.json",
+      "out/dev005/strict-trial/tidy-checks.txt",
+      "out/dev005/strict-trial/clazy-checks.txt"
+    ]
+  },
+  "samuel_baseline": {
+    "date": "2026-11-01",
+    "authorization": "User: Ok try that as baseline. User anticipates false-positive warnings.",
+    "configuration": "Exact Samuel selection: 505 tidy checks in .clang-tidy, 100 explicit Clazy names in tools/clazy-checks.txt. The helper reads and snapshots both files. Real CMake commands retained; Creator-specific -w and IDE flag mode are not copied.",
+    "platforms": {
+      "windows": {
+        "translation_units": 7,
+        "analyzer_runs": 14,
+        "runs_with_findings": 12,
+        "emitted_diagnostics": 265,
+        "unique_diagnostics": 261,
+        "compiler_errors": 0
+      },
+      "android": {
+        "translation_units": 5,
+        "analyzer_runs": 10,
+        "runs_with_findings": 8,
+        "emitted_diagnostics": 38,
+        "unique_diagnostics": 36,
+        "compiler_errors": 0
+      }
+    },
+    "diagnostic_identity": "File, line, column, message and check combination; repeated including units and matching platform findings deduplicated.",
+    "unique_across_platforms": 273,
+    "triage": "All 25 reported check combinations have an initial disposition in tests/STATIC_ANALYSIS.md. These are diagnostic counts, not bug counts. Individual hygiene/style suggestions remain subject to review.",
+    "false_positives": [
+      "QSignalSpy const suggestions overlook mutation through signal callbacks. Do not make recording spies const.",
+      "Replacing bool(build-option macro) with literal true would freeze the Debug value and break configurations whose macro is zero; IgnoreMacros is already true in this tool."
+    ],
+    "policy_advice": [
+      "Generic no-recursion warning flags a bounded remove/removeEditor cycle whose pending state is cleared before inner removal.",
+      "Explicit-signature JNI varargs and jint bitmask operations follow the selected Qt/Android API; generic policy warnings do not establish a bad call.",
+      "Reflected Qt test/Q_INVOKABLE methods and slots labels need framework-aware review before static/redundant-access fixes.",
+      "Most QString allocation, fixture-complexity, casts, linkage, magic-number and modernization advice is quality/style work rather than demonstrated behavior failure."
+    ],
+    "priority_finding": "Align editorIndex Q_PROPERTY int with its qsizetype getter, with focused contract/behavior verification. A real declaration inconsistency exists; user-visible failure has not been reproduced.",
+    "validation": "Both analyzers complete all 14 Windows and 10 Android runs without parser failures. Helpers deliberately fail on remaining findings: 12 Windows and 8 Android runs need review. Exact exported check selections match the Creator snapshot. No automatic fixes, additional app source changes, or new suppressions in this phase.",
+    "runtime_validation": "Not repeated for configuration/documentation-only changes in this phase. Earlier 157 UI/19 flow/6 keyboard/62 model records and 9 native cancellation records remain evidence for the unchanged app/test source tree, not proof that Samuel is clean.",
+    "artifacts": [
+      "out/dev005/samuel-windows/results.json",
+      "out/dev005/samuel-android/results.json",
+      "out/dev005/samuel-baseline-summary.json",
+      "out/dev005/samuel-findings.json",
+      "out/dev005/samuel-expanded-options.yaml"
+    ],
+    "remaining": "DEV-005 stays open. Review/fix actionable contract and dependency issues, then use narrowly justified options or local exceptions for confirmed false positives and intentional Qt patterns. Keep baseline findings visible until disposition; rerun affected analysis and regression checks after source changes."
+  },
+  "editor_index_contract_fix": {
+    "date": "2026-11-01",
+    "status": "verified_pending_review",
+    "authorization": "User accepted the proposed next step to fix the property/getter mismatch.",
+    "defect": "Q_PROPERTY editorIndex exposes int, but its READ accessor returned qsizetype. The actual QMetaProperty and C++ accessor meta-types disagree on the 64-bit kits.",
+    "change": "Keep the existing int QML property. Change the getter declaration/definition to int and explicitly convert the stored index, matching the existing rowCount conversion and Qt int row/index domain. Internal storage and ordering behavior are retained.",
+    "regression": {
+      "file": "tests/test_model.cpp",
+      "test": "ModelTest::editor_index_property_matches_accessor",
+      "before": "New test built and run before changing production code: one failure, property meta-type Int (2) versus getter meta-type LongLong (4).",
+      "after": "Three focused records pass, zero failures/skips. The test checks matching Qt/C++ types and property reads across editor creation, movement, removal before the editor, editor removal, reload and saved list contents."
+    },
+    "verification": {
+      "date": "2026-11-01",
+      "fix": "editorIndex getter matches int Q_PROPERTY",
+      "regression": "ModelTest::editor_index_property_matches_accessor",
+      "before": "Fails on Int (2) versus LongLong (4)",
+      "after": "Passes type contract and editor transition/property-read/persistence assertions",
+      "windows_tests": {
+        "ui": {
+          "tests": 157,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 63,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "ctest_seconds": 283.6,
+      "analysis": {
+        "windows": {
+          "runs": 14,
+          "property_mismatch_diagnostics": 0,
+          "other_diagnostics": 260,
+          "runs_with_other_findings": 11
+        },
+        "android": {
+          "runs": 10,
+          "property_mismatch_diagnostics": 0,
+          "other_diagnostics": 35,
+          "runs_with_other_findings": 7
+        }
+      },
+      "android": "Application shared library build passed; no APK install/native runtime check",
+      "samuel_checks_disabled": 0,
+      "new_suppressions": 0
+    },
+    "limits": "This is a verified property declaration-contract defect, not evidence that ordinary phone lists previously showed the wrong row. Android application build and full static analysis ran; no new Android APK installation/native runtime check is claimed. Overall Samuel analysis still reports other findings.",
+    "analysis_delta": "Property warnings removed: Windows 5 to 0, Android 3 to 0. The new test/direct includes also change unrelated test-advice counts: two more fixture QString allocation suggestions, one more complexity suggestion, three fewer include-cleaner findings. No broad checks were disabled or local suppression added for this fix.",
+    "artifacts": [
+      "out/dev005/editor-index/before.txt",
+      "out/dev005/editor-index/after.txt",
+      "out/dev005/editor-index/verify-windows.txt",
+      "out/dev005/editor-index/android-build.txt",
+      "out/dev005/editor-index/windows-analysis/results.json",
+      "out/dev005/editor-index/android-analysis/results.json",
+      "out/dev005/editor-index/verification-summary.json"
+    ],
+    "remaining": "Property correction verified and awaiting user review. DEV-005 remains open for the remaining findings and narrow false-positive/policy dispositions. No commit requested for this change yet."
+  },
+  "false_positive_followup": {
+    "date": "2026-11-01",
+    "status": "verified_pending_review",
+    "authorization": "User accepted handling confirmed false positives with narrow exceptions after the editorIndex correction.",
+    "changes": [
+      "Exclude exactly QSignalSpy through misc-const-correctness.AllowedTypes; its signal callback changes recorded data.",
+      "Replace bool(build-macro) with build-macro != 0 for the two expected harness flags, preserving zero/nonzero configurations. Do not replace them with literal true.",
+      "Add one named NOLINTNEXTLINE on public slots: to retain Qt setup discovery without suppressing other access labels or the separate Qt-keyword advice."
+    ],
+    "scope": "All 505 tidy and 100 Clazy checks retained. Only a type option, two equivalent test-harness expressions and one local annotation change in this phase; no application source behavior change or broad file/directory suppression.",
+    "verification": {
+      "date": "2026-11-01",
+      "enabled_checks": {
+        "clang_tidy": 505,
+        "clazy": 100
+      },
+      "windows_tests": {
+        "ui": {
+          "tests": 157,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 63,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "ctest_seconds": 280.74,
+      "release": {
+        "theme": 5,
+        "preview": 6,
+        "preview_macro": 0,
+        "keyboard_macro": 0
+      },
+      "analyzer_control": "QSignalSpy suggestion removed; ordinary int const and bool-literal findings retained; tool exits 1 as expected",
+      "diagnostics": {
+        "windows": {
+          "analyzer_runs": 14,
+          "remaining_diagnostic_emissions": 231,
+          "runs_with_findings": 11
+        },
+        "android": {
+          "analyzer_runs": 10,
+          "remaining_diagnostic_emissions": 35,
+          "runs_with_findings": 7
+        }
+      },
+      "removed_windows_diagnostics": {
+        "qsignalspy_const": 24,
+        "bool_macro_literals": 2,
+        "qt_slots_access": 1,
+        "cast_cleanup": 2
+      },
+      "new_exceptions": {
+        "type_option": "misc-const-correctness.AllowedTypes: ^QSignalSpy$",
+        "line_annotation": "readability-redundant-access-specifiers on the Qt slots label only"
+      },
+      "application_sources_edited_in_phase": false
+    },
+    "controls": "Before option: spy, ordinary int and literal-bool warnings all reproduced. After option: only spy suggestion disappears, with the other two still producing errors and exit 1. Existing Debug and Release harness gates verify both true and false expected values and successful Qt setup callbacks.",
+    "creator_integration": "Documented Preferences > Analyzer > Clang Tools > Prefer .clang-tidy file, if present so Creator can use project options. Creator preferences were not changed.",
+    "remaining": "DEV-005 remains in progress. 231 Windows and 35 Android emissions still need reviewed cleanup or policy dispositions; no claim of a clean Samuel scan. The next pass is worthwhile dependency/RAII cleanup, keeping confirmed bug fixes paired with regressions.",
+    "artifacts": [
+      "out/dev005/false-positives/control-before.txt",
+      "out/dev005/false-positives/control-after.txt",
+      "out/dev005/false-positives/windows-analysis/results.json",
+      "out/dev005/false-positives/android-analysis/results.json",
+      "out/dev005/false-positives/verify-windows.txt",
+      "out/dev005/false-positives/release-build.txt",
+      "out/dev005/false-positives/release-theme.txt",
+      "out/dev005/false-positives/release-preview.txt",
+      "out/dev005/false-positives/verification-summary.json"
+    ]
+  },
+  "cleanup_followup": {
+    "date": "2026-11-01",
+    "status": "verified_pending_review",
+    "authorization": "User accepted continuing the ticket after the false-positive pass. Scope: useful missing-public-include and ownership cleanup, keeping changes small.",
+    "changes": [
+      "Add direct public Qt environment, JNI/COLOR, proxy and test class/macro headers. No private Qt/NDK headers used.",
+      "Replace two std::unique_ptr constructions from raw new with std::make_unique; retain existing release/undo/failure behavior.",
+      "Use QStringLiteral for the Material style name and proxy regular expression without changing their values.",
+      "Two local include-provider exceptions retain the already-direct public QStringList and chrono headers; no check group or directory excluded."
+    ],
+    "verification": {
+      "date": "2026-11-01",
+      "checks": {
+        "clang_tidy": 505,
+        "clazy": 100
+      },
+      "windows_tests": {
+        "ui": {
+          "tests": 157,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 63,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "ctest_seconds": 277.6,
+      "analysis": {
+        "windows": {
+          "analyzer_runs": 14,
+          "remaining_emissions": 190,
+          "runs_with_findings": 8,
+          "targeted_include_make_unique_property_diagnostics": 0,
+          "production_qstring_allocation_diagnostics": 0
+        },
+        "android": {
+          "analyzer_runs": 10,
+          "remaining_emissions": 24,
+          "runs_with_findings": 4,
+          "targeted_include_make_unique_property_diagnostics": 0,
+          "production_qstring_allocation_diagnostics": 0
+        }
+      },
+      "app_startup": {
+        "passed": true,
+        "isolated_data": "C:\\Users\\samue\\OneDrive\\code\\Qt6\\QShopper\\out\\dev005\\cleanup\\app-smoke-b0e6729283cc4ac18a8f54999a609d70",
+        "database_created": true,
+        "alive_after_seconds": 5,
+        "platform": "offscreen",
+        "visual_certification": false
+      },
+      "android": "Application shared library build passed; no APK installation or native runtime test",
+      "new_exceptions": [
+        "misc-include-cleaner on QStringList helper return with its public header already directly included",
+        "misc-include-cleaner on chrono literal with <chrono> already directly included"
+      ],
+      "bug_fix_claim": "No additional behavior bug claimed; public dependencies, equivalent ownership construction and production literals only"
+    },
+    "test_scope": "No new behavior bug is claimed, so no implementation-mirroring test was added. Existing bulk removal/undo, catalog, persistence, editor-contract and UI suites all pass. The final test include adjustment rebuilt before model CTest; subsequent source edits were comments only and both platform builds were rechecked.",
+    "limits": "Offscreen startup is not a visual check. Existing PopupList contentWidth diagnostic stays DEV-001; the offscreen font notice does not establish an app bug. No ARM64 rebuild, APK installation, phone or Android runtime test in this phase.",
+    "remaining": "DEV-005 remains in progress. 190 Windows and 24 Android emissions remain visible; review remaining test-style, guarded-bounds/policy and Qt/JNI findings rather than claiming the full profile passes.",
+    "artifacts": [
+      "out/dev005/cleanup/verify-windows.txt",
+      "out/dev005/cleanup/model-include-build.txt",
+      "out/dev005/cleanup/final-windows-build.txt",
+      "out/dev005/cleanup/final-android-build.txt",
+      "out/dev005/cleanup/windows-analysis-final/results.json",
+      "out/dev005/cleanup/android-analysis-final/results.json",
+      "out/dev005/cleanup/app-smoke.json",
+      "out/dev005/cleanup/app-smoke-stderr.txt",
+      "out/dev005/cleanup/verification-summary.json"
+    ]
+  },
+  "remaining_valid_followup": {
+    "date": "2026-11-01",
+    "request": "Fix the remaining legitimate analyzer warnings, including test code.",
+    "changes": [
+      "Reviewed 94 test string conversions, const QFETCH, explicit size casts, bounded fixture values, QVariant conversion, reservations, and test helper/Qt macro/linkage cleanup.",
+      "Use const QList::at for reads and ranges::any_of; remove the bounded remove/removeEditor call cycle, preserving post-notification safety checks.",
+      "Use templated JNI object calls and unsigned system-bar flag arithmetic, retaining Java names/signatures and platform behavior."
+    ],
+    "analysis": {
+      "windows": {
+        "runs": 14,
+        "failed_runs": 0,
+        "emissions": 0
+      },
+      "android": {
+        "runs": 10,
+        "failed_runs": 0,
+        "emissions": 0
+      }
+    },
+    "enabled_checks": {
+      "clang_tidy": 505,
+      "clazy": 100
+    },
+    "windows_ctest": {
+      "entries": 4,
+      "seconds": 285.78,
+      "records": {
+        "ui": 157,
+        "flow": 19,
+        "keyboard": 6,
+        "model": 65
+      },
+      "failures": 0,
+      "skips": 0
+    },
+    "characterization": {
+      "name": "pending_editor_restore_respects_readonly",
+      "data_rows": [
+        "remove-editor",
+        "remove-row"
+      ],
+      "before": "4 passed with original recursion",
+      "after": "4 passed after direct removal refactor",
+      "bug_claim": "Behavior-preserving characterization; no newly discovered runtime bug claimed."
+    },
+    "dispositions": [
+      "Four mutable QList member writes have local named bounds-check exceptions, documenting explicit guard or existing pending-editor invariant. Read accesses were changed to at().",
+      "Cognitive complexity ignores macros; controlled experiment still reports 30 authored if statements above unchanged threshold 25. Macro arguments are also excluded by LLVM and remain a documented metric limitation.",
+      "Private Q_SLOTS label gets the existing narrow Qt access-label exception. Earlier include-provider, optional-access and QSignalSpy dispositions remain documented; no check names disabled."
+    ],
+    "android": {
+      "serial": "emulator-5580",
+      "api": 36,
+      "native_checks": 47,
+      "failed_checks": 0,
+      "physical_device_install": false,
+      "apk": "out/dev005/remaining-valid/QShopper-debug.apk",
+      "packaging": "Existing generated directory denied Gradle deletion. Native build passed; fresh temporary deployment directory packaged successfully without ACL edits. Installed matching debug certificate APK with -r.",
+      "runtime_limits": "Android 9/10 fallback compiled only; no ARM64 run."
+    },
+    "artifacts": [
+      "out/dev005/remaining-valid/windows-confirmed/results.json",
+      "out/dev005/remaining-valid/android-final/results.json",
+      "out/dev005/remaining-valid/verify-windows-final.txt",
+      "out/dev005/remaining-valid/model-final-build.txt",
+      "out/dev005/remaining-valid/callback-before.txt",
+      "out/dev005/remaining-valid/callback-after.txt",
+      "out/dev005/remaining-valid/complexity-before.txt",
+      "out/dev005/remaining-valid/complexity-after.txt",
+      "out/dev005/remaining-valid/reviewed-string-conversions.json",
+      "out/dev005/remaining-valid/android-native-final.txt",
+      "out/dev005/remaining-valid/android-package-final.txt",
+      "out/dev005/remaining-valid/android-theme/results.json",
+      "out/dev005/remaining-valid/source-after.json"
+    ],
+    "status": "Accepted by user; ticket closed on 2026-11-01."
+  },
+  "resolved": "2026-11-01",
+  "resolution": {
+    "summary": "Configured repeatable clang-tidy/Clazy analysis from the Samuel baseline, fixed actionable production/test warnings, and documented narrow Qt/tooling exceptions.",
+    "regression": "editor_index_property_matches_accessor fails with the original int/qsizetype mismatch and passes with the corrected getter. pending_editor_restore_respects_readonly characterizes both cancellation entry points before and after the recursion refactor.",
+    "verification": "All 247 Windows test records (157 UI, 19 flow, 6 keyboard, 65 model) and 47 native Android emulator theme checks pass. All 14 Windows and 10 Android analyzer runs pass with 505 tidy/100 Clazy checks retained. Recorded source hashes still match at closure.",
+    "evidence": "See editor_index_contract_fix, remaining_valid_followup and tests/STATIC_ANALYSIS.md for before/after results, commands, artifacts and exceptions.",
+    "limits": "Desktop UI runs offscreen; no complete Windows visual certification or physical-phone testing. API-36 x86_64 emulator runtime coverage; Android 9/10 fallback compiled only, no ARM64 runtime check.",
+    "user_validation": "2026-11-01: user reviewed the result and regression/UI coverage, then requested closure and commit."
+  }
 }

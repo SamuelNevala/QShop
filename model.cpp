@@ -50,13 +50,13 @@ QVariant Model::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::DisplayRole:
-        return m_items[index.row()].name;
+        return m_items.at(index.row()).name;
     case Qt::CheckStateRole:
-        return m_items[index.row()].checked;
+        return m_items.at(index.row()).checked;
     case Qt::EditRole:
         return index.row() == m_editorIndex;
     case Qt::UserRole + 1:
-        return m_items[index.row()].uuid.toString(QUuid::WithoutBraces);
+        return m_items.at(index.row()).uuid.toString(QUuid::WithoutBraces);
     default:
         return { };
     }
@@ -74,6 +74,8 @@ bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
         return false;
     }
 
+    // The entry guard validates this mutable QList access; at() is const-only.
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
     m_items[index.row()].checked = checked;
     Q_EMIT dataChanged(index, index, { Qt::CheckStateRole });
     return true;
@@ -119,6 +121,8 @@ void Model::insert(qsizetype index, Item &&item)
         item.uuid = m_pendingEdit->uuid;
         item.checked = m_pendingEdit->checked;
         m_pendingEdit.reset();
+        // A pending edit always has an existing editor placeholder.
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
         m_items[editor].uuid = QUuid();
         const auto editorModelIndex = this->index(static_cast<int>(editor));
         Q_EMIT dataChanged(editorModelIndex, editorModelIndex, { Qt::UserRole + 1 });
@@ -151,8 +155,12 @@ void Model::remove(qsizetype index)
     }
 
     if (m_pendingEdit && index == editorIndex()) {
-        removeEditor();
-        return;
+        restorePendingEdit();
+        index = editorIndex();
+        // Restoration emits notifications; a receiver may make the model read-only.
+        if (m_readOnly || index < 0 || index >= m_items.size()) {
+            return;
+        }
     }
 
     const auto previousEditor = m_editorIndex;
@@ -192,11 +200,14 @@ QString Model::editItem(qsizetype index)
     m_editorIndex = editorAfterRemoval;
     // Associate the placeholder with the original row until submission.
     const auto editorModelIndex = this->index(static_cast<int>(editorAfterRemoval));
+    // The guarded editor survives removal of a different row; the pending item was assigned above.
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access,cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
     m_items[editorAfterRemoval].uuid = m_pendingEdit->uuid;
     Q_EMIT dataChanged(editorModelIndex, editorModelIndex, { Qt::UserRole + 1 });
     moveEditor(index - (editor < index ? 1 : 0), Force::YES);
     Q_EMIT countChanged();
     save();
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access): moveEditor and save preserve the pending item.
     return m_pendingEdit->name;
 }
 
@@ -215,13 +226,12 @@ void Model::removeChecked()
         return;
     }
 
-    if (!std::any_of(m_items.cbegin(), m_items.cend(),
-                     [](const Item &value) { return value.checked; })) {
+    if (!std::ranges::any_of(m_items, [](const Item &value) { return value.checked; })) {
         return;
     }
 
     m_stack.clear();
-    std::unique_ptr<UndoRemove> remove{ new UndoRemove(*this) };
+    auto remove = std::make_unique<UndoRemove>(*this);
     for (qsizetype row = 0; row < m_items.size(); ++row) {
         if (m_items.at(row).checked) {
             remove->append(m_items.at(row), row);
@@ -294,6 +304,7 @@ void Model::reset()
 
     // Record checked positions, including the original item being edited.
     QList<qsizetype> checkedRows;
+    checkedRows.reserve(m_items.size());
     for (int row = 0; row < rowCount(); ++row) {
         const bool editedChecked = row == m_editorIndex && m_pendingEdit && m_pendingEdit->checked;
         if (m_items.at(row).checked || editedChecked) {
@@ -343,10 +354,6 @@ void Model::addEditor()
 
 void Model::removeEditor()
 {
-    if (m_readOnly) {
-        return;
-    }
-    restorePendingEdit();
     remove(editorIndex());
 }
 
@@ -391,9 +398,9 @@ void Model::reload()
     load();
 }
 
-qsizetype Model::editorIndex() const
+int Model::editorIndex() const
 {
-    return m_editorIndex;
+    return static_cast<int>(m_editorIndex);
 }
 
 bool Model::canUndo() const
@@ -513,7 +520,7 @@ void Model::removeAll(Save changes)
     auto position = editor ? 1 : 0;
     beginRemoveRows(QModelIndex(), position, static_cast<int>(m_items.size() - 1));
     m_stack.clear();
-    std::unique_ptr<UndoRemove> remove{ new UndoRemove(*this) };
+    auto remove = std::make_unique<UndoRemove>(*this);
     m_items.removeIf([&remove, &position](const Item &value) {
         if (!value.name.isEmpty()) {
             remove->append(value, position++);
@@ -539,10 +546,13 @@ void Model::restorePendingEdit()
     }
 
     const auto editor = editorIndex();
+    // A pending edit always has an existing editor placeholder.
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
     m_items[editor].uuid = QUuid();
     const auto editorModelIndex = index(static_cast<int>(editor));
     Q_EMIT dataChanged(editorModelIndex, editorModelIndex, { Qt::UserRole + 1 });
     beginInsertRows(QModelIndex(), static_cast<int>(editor), static_cast<int>(editor));
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access): guarded on entry; notifications preserve it.
     m_items.insert(editor, std::move(*m_pendingEdit));
     ++m_editorIndex;
     m_pendingEdit.reset();

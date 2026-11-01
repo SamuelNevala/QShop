@@ -1,24 +1,50 @@
-﻿#include <QtTest/QtTest>
+﻿#include <QtTest/QTest>
+#include <QtTest/QSignalSpy>
+#include <QtTest/qtestcase.h>
+#include <QtCore/QObject>
+#include <QtCore/QString>
+#include <QtCore/QModelIndex>
+#include <QtCore/QStringList>
+#include <QtCore/QHash>
+#include <QtCore/QList>
+#include <QtCore/QtTypes>
+#include <QtCore/qnamespace.h>
+#include <QtCore/qtmetamacros.h>
+#include <QtCore/QMetaProperty>
+#include <QtCore/QMetaObject>
+#include <QtCore/QMetaType>
+#include <QtCore/QVariant>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
 #include <limits>
 #include "model.h"
 
+namespace {
+
+using Qt::Literals::StringLiterals::operator""_s;
+
 class ModelTest : public QObject
 {
     Q_OBJECT
+
+public:
+    explicit ModelTest(QObject *parent = nullptr) : QObject(parent) { }
+
+private:
     QString defaultId;
 
-    void loadItems(Model &model) const
+    static void loadItems(Model &model)
     {
         model.classBegin();
-        model.setActiveList("default");
+        model.setActiveList(QStringLiteral("default"));
         model.componentComplete();
     }
+    // NOLINTNEXTLINE(misc-include-cleaner): QStringList's public header is included directly above.
     static QStringList names(const Model &model)
     {
         QStringList result;
+        result.reserve(model.rowCount());
         for (int row = 0; row < model.rowCount(); ++row) {
             result.append(model.data(model.index(row)).toString());
         }
@@ -29,12 +55,13 @@ class ModelTest : public QObject
         return model.data(model.index(row), Qt::UserRole + 1).toString();
     }
 
-private slots:
+    // NOLINTNEXTLINE(readability-redundant-access-specifiers): Q_SLOTS registers Qt test methods.
+private Q_SLOTS:
     void init()
     {
         // Fresh default connection per test; never opens the user's database.
-        auto database = QSqlDatabase::addDatabase("QSQLITE");
-        database.setDatabaseName(":memory:");
+        auto database = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"));
+        database.setDatabaseName(QStringLiteral(":memory:"));
         QVERIFY2(database.open(), qPrintable(database.lastError().text()));
         QSqlQuery query(database);
         QVERIFY(query.exec(SQL::create().arg("lists")));
@@ -46,13 +73,13 @@ private slots:
         query.addBindValue(false);
         QVERIFY(query.exec());
     }
-    void cleanup()
+    static void cleanup()
     {
         {
             auto database = QSqlDatabase::database();
             database.close();
         }
-        QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
+        QSqlDatabase::removeDatabase(static_cast<const char *>(QSqlDatabase::defaultConnection));
     }
 
     void roles_and_invalid_indexes()
@@ -67,9 +94,9 @@ private slots:
         QVERIFY(!model.data({ }).isValid());
         QVERIFY(!model.setData({ }, true, Qt::CheckStateRole));
         model.remove(-1);
-        model.remove(100);
+        model.remove(std::numeric_limits<qsizetype>::max());
         model.setChecked(-1, true);
-        model.insert(0, "Milk");
+        model.insert(0, QStringLiteral("Milk"));
         QCOMPARE(model.rowCount(model.index(0)), 0);
         QCOMPARE(model.data(model.index(0)).toString(), "Milk");
         QVERIFY(!model.data(model.index(0), Qt::CheckStateRole).toBool());
@@ -83,11 +110,11 @@ private slots:
         QCOMPARE(model.roleNames().value(Qt::UserRole + 1), "id");
     }
 
-    void editor_role_uses_explicit_index()
+    static void editor_role_uses_explicit_index()
     {
         Model model;
         loadItems(model);
-        model.insert(0, "");
+        model.insert(0, u""_s);
         QCOMPARE(model.editorIndex(), -1);
         QVERIFY(!model.data(model.index(0), Qt::EditRole).toBool());
 
@@ -106,14 +133,98 @@ private slots:
         QVERIFY(model.data(model.index(0), Qt::EditRole).toBool());
     }
 
-    void insert_move_and_reload_preserve_order_and_identity()
+    static void editor_index_property_matches_accessor()
+    {
+        Model model;
+        loadItems(model);
+        const int propertyIndex = model.metaObject()->indexOfProperty("editorIndex");
+        QVERIFY(propertyIndex >= 0);
+        const QMetaProperty property = model.metaObject()->property(propertyIndex);
+        QVERIFY(property.isReadable());
+        QCOMPARE(property.metaType().id(), QMetaType::Int);
+        QCOMPARE(property.metaType().id(),
+                 QMetaType::fromType<decltype(model.editorIndex())>().id());
+        QCOMPARE(property.read(&model).toInt(), -1);
+
+        model.insert(0, QStringLiteral("Milk"));
+        model.insert(1, QStringLiteral("Eggs"));
+        model.addEditor();
+        QCOMPARE(property.read(&model).toInt(), 0);
+        model.moveEditor(2, Model::Force::YES);
+        QCOMPARE(property.read(&model).toInt(), 2);
+        model.remove(0);
+        QCOMPARE(property.read(&model).toInt(), 1);
+        model.removeEditor();
+        QCOMPARE(property.read(&model).toInt(), -1);
+        model.reload();
+        QCOMPARE(property.read(&model).toInt(), -1);
+        QCOMPARE(names(model), QStringList({ "Eggs" }));
+    }
+
+    static void pending_editor_restore_respects_readonly_data()
+    {
+        QTest::addColumn<bool>("throughRowRemoval");
+        QTest::newRow("remove-editor") << false;
+        QTest::newRow("remove-row") << true;
+    }
+
+    static void pending_editor_restore_respects_readonly()
+    {
+        QFETCH(const bool, throughRowRemoval);
+        Model model;
+        loadItems(model);
+        model.insert(0, QStringLiteral("Milk"));
+        model.insert(1, QStringLiteral("Eggs"));
+        const QString milkId = id(model, 0);
+        model.addEditor();
+        QCOMPARE(model.editItem(1), QStringLiteral("Milk"));
+        QObject::connect(&model, &Model::rowsInserted, &model,
+                         [&model] { model.setReadOnly(true); });
+
+        if (throughRowRemoval) {
+            model.remove(model.editorIndex());
+        } else {
+            model.removeEditor();
+        }
+
+        QVERIFY(model.readOnly());
+        QCOMPARE(names(model),
+                 QStringList({ QStringLiteral("Milk"), u""_s, QStringLiteral("Eggs") }));
+        QCOMPARE(model.editorIndex(), 1);
+        QCOMPARE(id(model, 0), milkId);
+        model.setReadOnly(false);
+        model.removeEditor();
+        QCOMPARE(names(model), QStringList({ QStringLiteral("Milk"), QStringLiteral("Eggs") }));
+        QCOMPARE(model.editorIndex(), -1);
+        model.reload();
+        QCOMPARE(names(model), QStringList({ QStringLiteral("Milk"), QStringLiteral("Eggs") }));
+        QCOMPARE(id(model, 0), milkId);
+    }
+
+    static void move_editor_through_meta_object()
+    {
+        Model model;
+        loadItems(model);
+        model.insert(0, QStringLiteral("Milk"));
+        model.insert(1, QStringLiteral("Eggs"));
+        model.addEditor();
+        QVERIFY(QMetaObject::invokeMethod(&model, "moveEditor", Q_ARG(qsizetype, 2),
+                                          Q_ARG(Model::Force, Model::Force::YES)));
+        QCOMPARE(model.editorIndex(), 2);
+        QCOMPARE(names(model), QStringList({ "Milk", "Eggs", "" }));
+        model.removeEditor();
+        model.reload();
+        QCOMPARE(names(model), QStringList({ "Milk", "Eggs" }));
+    }
+
+    static void insert_move_and_reload_preserve_order_and_identity()
     {
         Model model;
         loadItems(model);
         QSignalSpy count(&model, &Model::countChanged);
-        model.insert(-1, "Milk");
-        model.insert(100, "Eggs");
-        model.insert(1, "Bread");
+        model.insert(-1, QStringLiteral("Milk"));
+        model.insert(std::numeric_limits<qsizetype>::max(), QStringLiteral("Eggs"));
+        model.insert(1, QStringLiteral("Bread"));
         QCOMPARE(count.count(), 3);
         const QString milkId = id(model, 0);
         QCOMPARE(names(model), QStringList({ "Milk", "Bread", "Eggs" }));
@@ -128,28 +239,31 @@ private slots:
         QCOMPARE(id(reloaded, 0), milkId);
     }
 
-    void move_rejects_invalid_rows_data()
+    static void move_rejects_invalid_rows_data()
     {
         QTest::addColumn<qsizetype>("source");
         QTest::addColumn<qsizetype>("destination");
-        QTest::newRow("negative-source") << qsizetype(-1) << qsizetype(0);
-        QTest::newRow("negative-destination") << qsizetype(0) << qsizetype(-1);
-        QTest::newRow("source-count") << qsizetype(2) << qsizetype(0);
-        QTest::newRow("destination-count") << qsizetype(0) << qsizetype(2);
-        QTest::newRow("same-row") << qsizetype(1) << qsizetype(1);
-        QTest::newRow("minimum-source") << std::numeric_limits<qsizetype>::min() << qsizetype(0);
+        QTest::newRow("negative-source") << static_cast<qsizetype>(-1) << static_cast<qsizetype>(0);
+        QTest::newRow("negative-destination")
+                << static_cast<qsizetype>(0) << static_cast<qsizetype>(-1);
+        QTest::newRow("source-count") << static_cast<qsizetype>(2) << static_cast<qsizetype>(0);
+        QTest::newRow("destination-count")
+                << static_cast<qsizetype>(0) << static_cast<qsizetype>(2);
+        QTest::newRow("same-row") << static_cast<qsizetype>(1) << static_cast<qsizetype>(1);
+        QTest::newRow("minimum-source")
+                << std::numeric_limits<qsizetype>::min() << static_cast<qsizetype>(0);
         QTest::newRow("maximum-destination")
-                << qsizetype(0) << std::numeric_limits<qsizetype>::max();
+                << static_cast<qsizetype>(0) << std::numeric_limits<qsizetype>::max();
     }
 
-    void move_rejects_invalid_rows()
+    static void move_rejects_invalid_rows()
     {
-        QFETCH(qsizetype, source);
-        QFETCH(qsizetype, destination);
+        QFETCH(const qsizetype, source);
+        QFETCH(const qsizetype, destination);
         Model model;
         loadItems(model);
-        model.insert(0, "A");
-        model.insert(1, "B");
+        model.insert(0, QStringLiteral("A"));
+        model.insert(1, QStringLiteral("B"));
         QSignalSpy moved(&model, &Model::rowsMoved);
         QSignalSpy count(&model, &Model::countChanged);
 
@@ -163,7 +277,7 @@ private slots:
         QCOMPARE(names(persisted), QStringList({ "A", "B" }));
     }
 
-    void checked_state_reorders_persists_and_resets()
+    static void checked_state_reorders_persists_and_resets()
     {
         Model model;
         loadItems(model);
@@ -171,9 +285,9 @@ private slots:
         model.reset();
         QCOMPARE(count.count(), 0);
 
-        model.insert(0, "Milk");
-        model.insert(1, "Eggs");
-        model.insert(2, "Bread");
+        model.insert(0, QStringLiteral("Milk"));
+        model.insert(1, QStringLiteral("Eggs"));
+        model.insert(2, QStringLiteral("Bread"));
         QSignalSpy changed(&model, &Model::dataChanged);
         model.setChecked(0, true);
         QCOMPARE(names(model), QStringList({ "Eggs", "Bread", "Milk" }));
@@ -184,7 +298,7 @@ private slots:
         model.reload();
         QVERIFY(model.data(model.index(1), Qt::CheckStateRole).toBool());
         model.toggleChecked(2);
-        QCOMPARE(names(model).first(), "Milk");
+        QCOMPARE(names(model).constFirst(), "Milk");
         model.reset();
         model.reload();
         for (int row = 0; row < model.rowCount(); ++row) {
@@ -196,13 +310,13 @@ private slots:
     {
         Model model;
         loadItems(model);
-        model.insert(0, "1");
-        model.insert(1, "2");
-        model.insert(2, "3");
-        for (const auto &name : QStringList({ "3", "1", "2" })) {
+        model.insert(0, QStringLiteral("1"));
+        model.insert(1, QStringLiteral("2"));
+        model.insert(2, QStringLiteral("3"));
+        const QStringList expected({ "3", "1", "2" });
+        for (const auto &name : expected) {
             model.setChecked(names(model).indexOf(name), true);
         }
-        const QStringList expected({ "3", "1", "2" });
         QCOMPARE(names(model), QStringList({ "2", "1", "3" }));
         const QStringList identities({ id(model, 2), id(model, 1), id(model, 0) });
         model.reset();
@@ -213,7 +327,7 @@ private slots:
         }
         model.reset();
         QCOMPARE(names(model), expected);
-        model.setActiveList("lists");
+        model.setActiveList(QStringLiteral("lists"));
         model.setActiveList(defaultId);
         QCOMPARE(names(model), expected);
         Model reopened;
@@ -225,25 +339,28 @@ private slots:
         }
     }
 
-    void reset_reverses_checked_group_data()
+    static void reset_reverses_checked_group_data()
     {
         QTest::addColumn<int>("editorPosition");
         QTest::newRow("without-editor") << -1;
         QTest::newRow("editor-front") << 0;
         QTest::newRow("editor-boundary") << 2;
         QTest::newRow("editor-in-checked-group") << 4;
-        QTest::newRow("editor-at-end") << 5;
+        constexpr int lastEditorPosition = 5;
+        QTest::newRow("editor-at-end") << lastEditorPosition;
     }
 
-    void reset_reverses_checked_group()
+    static void reset_reverses_checked_group()
     {
-        QFETCH(int, editorPosition);
+        QFETCH(const int, editorPosition);
         Model model;
         loadItems(model);
-        for (const auto &name : QStringList({ "A", "B", "1", "2", "3" })) {
+        const QStringList items({ "A", "B", "1", "2", "3" });
+        for (const auto &name : items) {
             model.insert(model.rowCount(), name);
         }
-        for (const auto &name : QStringList({ "3", "1", "2" })) {
+        const QStringList checkingOrder({ "3", "1", "2" });
+        for (const auto &name : checkingOrder) {
             model.setChecked(names(model).indexOf(name), true);
         }
         QCOMPARE(names(model), QStringList({ "A", "B", "2", "1", "3" }));
@@ -253,7 +370,7 @@ private slots:
         }
         QStringList expected({ "A", "B", "3", "1", "2" });
         if (editorPosition >= 0) {
-            expected.insert(editorPosition, "");
+            expected.insert(editorPosition, u""_s);
         }
         QHash<QString, QString> identities;
         for (int row = 0; row < model.rowCount(); ++row) {
@@ -278,23 +395,24 @@ private slots:
         }
     }
 
-    void reset_during_checked_item_edit_data()
+    static void reset_during_checked_item_edit_data()
     {
         QTest::addColumn<QString>("itemName");
-        QTest::newRow("first-checked") << QString("3");
-        QTest::newRow("middle-checked") << QString("1");
-        QTest::newRow("last-checked") << QString("2");
+        QTest::newRow("first-checked") << QStringLiteral("3");
+        QTest::newRow("middle-checked") << QStringLiteral("1");
+        QTest::newRow("last-checked") << QStringLiteral("2");
     }
 
-    void reset_during_checked_item_edit()
+    static void reset_during_checked_item_edit()
     {
-        QFETCH(QString, itemName);
+        QFETCH(const QString, itemName);
         Model model;
         loadItems(model);
-        model.insert(0, "1");
-        model.insert(1, "2");
-        model.insert(2, "3");
-        for (const auto &name : QStringList({ "3", "1", "2" })) {
+        model.insert(0, QStringLiteral("1"));
+        model.insert(1, QStringLiteral("2"));
+        model.insert(2, QStringLiteral("3"));
+        const QStringList checkingOrder({ "3", "1", "2" });
+        for (const auto &name : checkingOrder) {
             model.setChecked(names(model).indexOf(name), true);
         }
         model.addEditor();
@@ -313,33 +431,33 @@ private slots:
         }
     }
 
-    void toggle_checked_invalid_rows_data()
+    static void toggle_checked_invalid_rows_data()
     {
         QTest::addColumn<bool>("populated");
         QTest::addColumn<bool>("readOnly");
         QTest::addColumn<qsizetype>("row");
-        QTest::newRow("empty-negative") << false << false << qsizetype(-1);
-        QTest::newRow("empty-zero") << false << false << qsizetype(0);
-        QTest::newRow("populated-negative") << true << false << qsizetype(-1);
-        QTest::newRow("populated-count") << true << false << qsizetype(2);
-        QTest::newRow("populated-beyond-count") << true << false << qsizetype(3);
+        QTest::newRow("empty-negative") << false << false << static_cast<qsizetype>(-1);
+        QTest::newRow("empty-zero") << false << false << static_cast<qsizetype>(0);
+        QTest::newRow("populated-negative") << true << false << static_cast<qsizetype>(-1);
+        QTest::newRow("populated-count") << true << false << static_cast<qsizetype>(2);
+        QTest::newRow("populated-beyond-count") << true << false << static_cast<qsizetype>(3);
         QTest::newRow("minimum-index") << true << false << std::numeric_limits<qsizetype>::min();
         QTest::newRow("maximum-index") << true << false << std::numeric_limits<qsizetype>::max();
-        QTest::newRow("readonly-empty") << false << true << qsizetype(0);
-        QTest::newRow("readonly-negative") << true << true << qsizetype(-1);
-        QTest::newRow("readonly-count") << true << true << qsizetype(2);
+        QTest::newRow("readonly-empty") << false << true << static_cast<qsizetype>(0);
+        QTest::newRow("readonly-negative") << true << true << static_cast<qsizetype>(-1);
+        QTest::newRow("readonly-count") << true << true << static_cast<qsizetype>(2);
     }
 
-    void toggle_checked_invalid_rows()
+    static void toggle_checked_invalid_rows()
     {
-        QFETCH(bool, populated);
-        QFETCH(bool, readOnly);
-        QFETCH(qsizetype, row);
+        QFETCH(const bool, populated);
+        QFETCH(const bool, readOnly);
+        QFETCH(const qsizetype, row);
         Model model;
         loadItems(model);
         if (populated) {
-            model.insert(0, "Milk");
-            model.insert(1, "Eggs");
+            model.insert(0, QStringLiteral("Milk"));
+            model.insert(1, QStringLiteral("Eggs"));
         }
         model.setReadOnly(readOnly);
         const QStringList expected = names(model);
@@ -365,12 +483,12 @@ private slots:
         }
     }
 
-    void toggle_checked_reorders_persists_and_respects_readonly()
+    static void toggle_checked_reorders_persists_and_respects_readonly()
     {
         Model model;
         loadItems(model);
-        model.insert(0, "Milk");
-        model.insert(1, "Eggs");
+        model.insert(0, QStringLiteral("Milk"));
+        model.insert(1, QStringLiteral("Eggs"));
         const QString milkId = id(model, 0);
         QSignalSpy changed(&model, &Model::dataChanged);
         model.toggleChecked(0);
@@ -396,12 +514,12 @@ private slots:
         QVERIFY(!model.data(model.index(0), Qt::CheckStateRole).toBool());
     }
 
-    void remove_and_undo_restore_exact_row_and_uuid()
+    static void remove_and_undo_restore_exact_row_and_uuid()
     {
         Model model;
         loadItems(model);
-        model.insert(0, "Milk");
-        model.insert(1, "Eggs");
+        model.insert(0, QStringLiteral("Milk"));
+        model.insert(1, QStringLiteral("Eggs"));
         const QString milkId = id(model, 0);
         QSignalSpy undoChanged(&model, &Model::canUndoChanged);
         model.remove(0);
@@ -420,14 +538,14 @@ private slots:
         QCOMPARE(names(model), QStringList({ "Eggs" }));
     }
 
-    void remove_checked_and_undo_preserve_remaining_items()
+    static void remove_checked_and_undo_preserve_remaining_items()
     {
         Model model;
         loadItems(model);
         model.removeChecked();
-        model.insert(0, "A");
-        model.insert(1, "B");
-        model.insert(2, "C");
+        model.insert(0, QStringLiteral("A"));
+        model.insert(1, QStringLiteral("B"));
+        model.insert(2, QStringLiteral("C"));
         model.addEditor();
         model.setChecked(1, true);
         model.setChecked(1, true);
@@ -446,14 +564,14 @@ private slots:
         QCOMPARE(names(model), QStringList({ "", "C", "B", "A" }));
     }
 
-    void remove_checked_handles_scattered_rows()
+    static void remove_checked_handles_scattered_rows()
     {
         Model model;
         loadItems(model);
-        model.insert(0, "A");
-        model.insert(1, "B");
-        model.insert(2, "C");
-        model.insert(3, "D");
+        model.insert(0, QStringLiteral("A"));
+        model.insert(1, QStringLiteral("B"));
+        model.insert(2, QStringLiteral("C"));
+        model.insert(3, QStringLiteral("D"));
         const QString aId = id(model, 0);
         const QString bId = id(model, 1);
         const QString cId = id(model, 2);
@@ -488,7 +606,7 @@ private slots:
         QCOMPARE(id(model, 2), cId);
     }
 
-    void remove_all_preserves_editor_and_supports_undo()
+    static void remove_all_preserves_editor_and_supports_undo()
     {
         Model model;
         loadItems(model);
@@ -496,8 +614,8 @@ private slots:
         model.addEditor();
         model.removeAll();
         QCOMPARE(model.rowCount(), 1);
-        model.insert(0, "A");
-        model.insert(1, "B");
+        model.insert(0, QStringLiteral("A"));
+        model.insert(1, QStringLiteral("B"));
         model.removeAll();
         QCOMPARE(model.editorIndex(), 0);
         QCOMPARE(model.rowCount(), 1);
@@ -511,7 +629,7 @@ private slots:
         QCOMPARE(names(model), QStringList({ "A", "B" }));
     }
 
-    void readonly_remove_all_preserves_rows_and_undo_data()
+    static void readonly_remove_all_preserves_rows_and_undo_data()
     {
         QTest::addColumn<int>("editorPosition");
         QTest::newRow("no-editor") << -1;
@@ -520,14 +638,14 @@ private slots:
         QTest::newRow("editor-last") << 3;
     }
 
-    void readonly_remove_all_preserves_rows_and_undo()
+    static void readonly_remove_all_preserves_rows_and_undo()
     {
-        QFETCH(int, editorPosition);
+        QFETCH(const int, editorPosition);
         Model model;
         loadItems(model);
-        model.insert(0, "A");
-        model.insert(1, "B");
-        model.insert(2, "C");
+        model.insert(0, QStringLiteral("A"));
+        model.insert(1, QStringLiteral("B"));
+        model.insert(2, QStringLiteral("C"));
         if (editorPosition >= 0) {
             model.addEditor();
             model.moveEditor(editorPosition, Model::Force::YES);
@@ -537,8 +655,8 @@ private slots:
         QVERIFY(model.canUndo());
         const QStringList expected = names(model);
         const qsizetype expectedEditor = model.editorIndex();
-        const QString aId = id(model, expected.indexOf("A"));
-        const QString bId = id(model, expected.indexOf("B"));
+        const QString aId = id(model, static_cast<int>(expected.indexOf("A")));
+        const QString bId = id(model, static_cast<int>(expected.indexOf("B")));
         model.setReadOnly(true);
         QSignalSpy removed(&model, &Model::rowsRemoved);
         QSignalSpy changed(&model, &Model::dataChanged);
@@ -564,11 +682,11 @@ private slots:
         QCOMPARE(names(model), original);
     }
 
-    void readonly_remove_all_preserves_pending_edit()
+    static void readonly_remove_all_preserves_pending_edit()
     {
         Model model;
         loadItems(model);
-        model.insert(0, "Milk");
+        model.insert(0, QStringLiteral("Milk"));
         const QString milkId = id(model, 0);
         model.addEditor();
         QCOMPARE(model.editItem(1), "Milk");
@@ -584,37 +702,37 @@ private slots:
         QCOMPARE(changed.count(), 0);
         QCOMPARE(count.count(), 0);
         model.setReadOnly(false);
-        model.insert(model.editorIndex(), "Renamed");
+        model.insert(model.editorIndex(), QStringLiteral("Renamed"));
         model.removeEditor();
         model.reload();
         QCOMPARE(names(model), QStringList({ "Renamed" }));
         QCOMPARE(id(model, 0), milkId);
     }
 
-    void readonly_reload_still_replaces_rows()
+    static void readonly_reload_still_replaces_rows()
     {
         Model writer;
         loadItems(writer);
-        writer.insert(0, "Milk");
+        writer.insert(0, QStringLiteral("Milk"));
         Model reader;
         loadItems(reader);
         reader.setReadOnly(true);
         writer.removeAll();
-        writer.insert(0, "Eggs");
+        writer.insert(0, QStringLiteral("Eggs"));
         reader.reload();
         QCOMPARE(names(reader), QStringList({ "Eggs" }));
         QCOMPARE(id(reader, 0), id(writer, 0));
         QVERIFY(reader.readOnly());
     }
 
-    void editor_lifecycle_and_item_edit()
+    static void editor_lifecycle_and_item_edit()
     {
         Model model;
         loadItems(model);
         model.moveEditor(0);
         QVERIFY(model.editItem(-1).isEmpty());
-        model.insert(0, "A");
-        model.insert(1, "B");
+        model.insert(0, QStringLiteral("A"));
+        model.insert(1, QStringLiteral("B"));
         QSignalSpy editorChanged(&model, &Model::editorIndexChanged);
         model.addEditor();
         model.addEditor();
@@ -627,7 +745,7 @@ private slots:
         QCOMPARE(model.editorIndex(), 1);
         model.moveEditor(2, Model::Force::YES);
         QCOMPARE(model.editItem(0), "A");
-        model.insert(model.editorIndex(), "Renamed A");
+        model.insert(model.editorIndex(), QStringLiteral("Renamed A"));
         model.removeEditor();
         model.removeEditor();
         QCOMPARE(model.editorIndex(), -1);
@@ -640,8 +758,8 @@ private slots:
     {
         Model model;
         loadItems(model);
-        model.insert(0, "Milk");
-        model.insert(1, "Eggs");
+        model.insert(0, QStringLiteral("Milk"));
+        model.insert(1, QStringLiteral("Eggs"));
         const QString milkId = id(model, 0);
         model.addEditor();
         QCOMPARE(model.editItem(1), "Milk");
@@ -671,7 +789,7 @@ private slots:
         QCOMPARE(names(model), QStringList({ "Milk" }));
     }
 
-    void edit_item_at_each_position_data()
+    static void edit_item_at_each_position_data()
     {
         QTest::addColumn<int>("editorPosition");
         QTest::addColumn<int>("itemPosition");
@@ -683,14 +801,14 @@ private slots:
         QTest::newRow("editor-after-last") << 2 << 1;
     }
 
-    void edit_item_at_each_position()
+    static void edit_item_at_each_position()
     {
-        QFETCH(int, editorPosition);
-        QFETCH(int, itemPosition);
+        QFETCH(const int, editorPosition);
+        QFETCH(const int, itemPosition);
         Model model;
         loadItems(model);
-        model.insert(0, "A");
-        model.insert(1, "B");
+        model.insert(0, QStringLiteral("A"));
+        model.insert(1, QStringLiteral("B"));
         const QString originalId = id(model, itemPosition);
         const QString originalName = names(model).at(itemPosition);
         model.addEditor();
@@ -700,10 +818,10 @@ private slots:
         QCOMPARE(model.editItem(row), originalName);
         QCOMPARE(model.rowCount(), 2);
         QCOMPARE(model.editorIndex(), itemPosition);
-        model.insert(model.editorIndex(), "Renamed");
+        model.insert(model.editorIndex(), QStringLiteral("Renamed"));
         model.removeEditor();
         QStringList expected = { "A", "B" };
-        expected[itemPosition] = "Renamed";
+        expected.replace(itemPosition, QStringLiteral("Renamed"));
         QCOMPARE(names(model), expected);
         QCOMPARE(id(model, itemPosition), originalId);
         model.reload();
@@ -711,7 +829,7 @@ private slots:
         QCOMPARE(id(model, itemPosition), originalId);
     }
 
-    void edit_item_tags_adjusted_editor_row_data()
+    static void edit_item_tags_adjusted_editor_row_data()
     {
         QTest::addColumn<int>("editorPosition");
         QTest::addColumn<int>("itemPosition");
@@ -721,17 +839,17 @@ private slots:
         QTest::newRow("editor-before-edited-item") << 0 << 2 << 0;
     }
 
-    void edit_item_tags_adjusted_editor_row()
+    static void edit_item_tags_adjusted_editor_row()
     {
-        QFETCH(int, editorPosition);
-        QFETCH(int, itemPosition);
-        QFETCH(int, taggedRow);
+        QFETCH(const int, editorPosition);
+        QFETCH(const int, itemPosition);
+        QFETCH(const int, taggedRow);
 
         Model model;
         loadItems(model);
-        model.insert(0, "A");
-        model.insert(1, "B");
-        model.insert(2, "C");
+        model.insert(0, QStringLiteral("A"));
+        model.insert(1, QStringLiteral("B"));
+        model.insert(2, QStringLiteral("C"));
         const QString originalName = names(model).at(itemPosition);
         const QString originalId = id(model, itemPosition);
 
@@ -744,20 +862,20 @@ private slots:
         QCOMPARE(changed.count(), 1);
 
         const auto arguments = changed.takeFirst();
-        QCOMPARE(arguments.at(0).value<QModelIndex>().row(), taggedRow);
-        QCOMPARE(arguments.at(1).value<QModelIndex>().row(), taggedRow);
+        QCOMPARE(arguments.at(0).toModelIndex().row(), taggedRow);
+        QCOMPARE(arguments.at(1).toModelIndex().row(), taggedRow);
         QCOMPARE(arguments.at(2).value<QList<int>>(), QList<int>({ Qt::UserRole + 1 }));
         QCOMPARE(model.editorIndex(), itemPosition);
         QCOMPARE(id(model, itemPosition), originalId);
     }
 
-    void edit_item_rejects_missing_editor_and_invalid_rows()
+    static void edit_item_rejects_missing_editor_and_invalid_rows()
     {
         Model model;
         loadItems(model);
         QVERIFY(model.editItem(0).isEmpty());
-        model.insert(0, "A");
-        model.insert(1, "B");
+        model.insert(0, QStringLiteral("A"));
+        model.insert(1, QStringLiteral("B"));
         QSignalSpy removed(&model, &Model::rowsRemoved);
         QSignalSpy count(&model, &Model::countChanged);
         QVERIFY(model.editItem(0).isEmpty());
@@ -777,16 +895,16 @@ private slots:
         QCOMPARE(names(model), QStringList({ "", "A", "B" }));
     }
 
-    void pending_list_edit_keeps_table_and_item_identity()
+    static void pending_list_edit_keeps_table_and_item_identity()
     {
         Model catalog;
         catalog.componentComplete();
-        catalog.insert(1, "Weekly");
+        catalog.insert(1, QStringLiteral("Weekly"));
         const QString weeklyId = id(catalog, 1);
         Model items;
         items.setActiveList(weeklyId);
         items.componentComplete();
-        items.insert(0, "Milk");
+        items.insert(0, QStringLiteral("Milk"));
         catalog.addEditor();
         catalog.moveEditor(2, Model::Force::YES);
         QCOMPARE(catalog.editItem(1), "Weekly");
@@ -804,16 +922,16 @@ private slots:
         QCOMPARE(id(catalog, 1), weeklyId);
     }
 
-    void checked_item_edit_preserves_state_and_identity()
+    static void checked_item_edit_preserves_state_and_identity()
     {
         Model model;
         loadItems(model);
-        model.insert(0, "Milk");
+        model.insert(0, QStringLiteral("Milk"));
         model.setChecked(0, true);
         const QString milkId = id(model, 0);
         model.addEditor();
         QCOMPARE(model.editItem(1), "Milk");
-        model.insert(model.editorIndex(), "Renamed");
+        model.insert(model.editorIndex(), QStringLiteral("Renamed"));
         model.removeEditor();
         model.reload();
         QCOMPARE(names(model), QStringList({ "Renamed" }));
@@ -821,11 +939,11 @@ private slots:
         QVERIFY(model.data(model.index(0), Qt::CheckStateRole).toBool());
     }
 
-    void pending_edit_can_be_removed_and_undone()
+    static void pending_edit_can_be_removed_and_undone()
     {
         Model model;
         loadItems(model);
-        model.insert(0, "Milk");
+        model.insert(0, QStringLiteral("Milk"));
         const QString milkId = id(model, 0);
         model.addEditor();
         QCOMPARE(model.editItem(1), "Milk");
@@ -845,34 +963,34 @@ private slots:
         QCOMPARE(model.editorIndex(), -1);
     }
 
-    void switching_list_discards_pending_edit_without_losing_original()
+    static void switching_list_discards_pending_edit_without_losing_original()
     {
         Model catalog;
         catalog.componentComplete();
-        catalog.insert(1, "Weekly");
+        catalog.insert(1, QStringLiteral("Weekly"));
         const QString weeklyId = id(catalog, 1);
         Model model;
         loadItems(model);
-        model.insert(0, "Milk");
+        model.insert(0, QStringLiteral("Milk"));
         const QString milkId = id(model, 0);
         model.addEditor();
         QCOMPARE(model.editItem(1), "Milk");
         model.setActiveList(weeklyId);
         QCOMPARE(names(model), QStringList({ "" }));
-        model.insert(model.editorIndex(), "Eggs");
+        model.insert(model.editorIndex(), QStringLiteral("Eggs"));
         QVERIFY(id(model, 0) != milkId);
-        model.setActiveList("default");
+        model.setActiveList(QStringLiteral("default"));
         model.removeEditor();
         QCOMPARE(names(model), QStringList({ "Milk" }));
         QCOMPARE(id(model, 0), milkId);
     }
 
-    void readonly_blocks_item_mutations_and_allows_reload()
+    static void readonly_blocks_item_mutations_and_allows_reload()
     {
         Model model;
         loadItems(model);
-        model.insert(0, "A");
-        model.insert(1, "B");
+        model.insert(0, QStringLiteral("A"));
+        model.insert(1, QStringLiteral("B"));
         model.remove(1);
         QVERIFY(model.canUndo());
         QSignalSpy changed(&model, &Model::readOnlyChanged);
@@ -880,7 +998,7 @@ private slots:
         model.setReadOnly(true);
         QCOMPARE(changed.count(), 1);
         QVERIFY(!model.canUndo());
-        model.insert(0, "C");
+        model.insert(0, QStringLiteral("C"));
         model.remove(0);
         model.removeChecked();
         model.setChecked(0, true);
@@ -903,28 +1021,28 @@ private slots:
     {
         Model catalog;
         catalog.componentComplete();
-        catalog.insert(1, "Weekly");
+        catalog.insert(1, QStringLiteral("Weekly"));
         const QString weeklyId = id(catalog, 1);
         QVERIFY(QSqlDatabase::database().tables().contains(weeklyId));
         Model items;
         items.setActiveList(weeklyId);
         items.componentComplete();
-        items.insert(0, "Milk");
+        items.insert(0, QStringLiteral("Milk"));
         catalog.addEditor();
         catalog.moveEditor(2, Model::Force::YES);
         QCOMPARE(catalog.editItem(1), "Weekly");
-        catalog.insert(catalog.editorIndex(), "Renamed");
+        catalog.insert(catalog.editorIndex(), QStringLiteral("Renamed"));
         catalog.removeEditor();
         QCOMPARE(id(catalog, 1), weeklyId);
         items.reload();
         QCOMPARE(names(items), QStringList({ "Milk" }));
         QSignalSpy activeChanged(&items, &Model::activeListChanged);
         items.setActiveList(weeklyId);
-        items.setActiveList("");
+        items.setActiveList(u""_s);
         QCOMPARE(activeChanged.count(), 0);
-        items.setActiveList("default");
+        items.setActiveList(QStringLiteral("default"));
         QCOMPARE(items.activeList(), defaultId);
-        items.setActiveList("lists");
+        items.setActiveList(QStringLiteral("lists"));
         QCOMPARE(items.rowCount(), 2);
         QCOMPARE(activeChanged.count(), 2);
         catalog.remove(1);
@@ -948,21 +1066,24 @@ private slots:
         Model model;
         loadItems(model);
         const QUuid uuid = QUuid::createUuid();
-        model.insert(0, Item("Original", false, uuid));
-        model.insert(1, Item("Duplicate", false, uuid));
+        model.insert(0, Item(QStringLiteral("Original"), false, uuid));
+        model.insert(1, Item(QStringLiteral("Duplicate"), false, uuid));
         Model persisted;
         loadItems(persisted);
         QCOMPARE(names(persisted), QStringList({ "Original" }));
         auto database = QSqlDatabase::database();
         QVERIFY(database.transaction());
-        persisted.insert(1, "Unsaved");
+        persisted.insert(1, QStringLiteral("Unsaved"));
         QVERIFY(database.rollback());
         persisted.reload();
         QCOMPARE(names(persisted), QStringList({ "Original" }));
         QVERIFY(QSqlQuery().exec(SQL::drop().arg(defaultId)));
-        persisted.insert(1, "Missing table");
+        persisted.insert(1, QStringLiteral("Missing table"));
         QCOMPARE(persisted.rowCount(), 2);
     }
 };
+
+} // namespace
+
 QTEST_GUILESS_MAIN(ModelTest)
 #include "test_model.moc"

@@ -10,6 +10,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_CXX_COMPILER": "cl",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_PREFIX_PATH": "$env{QSHOPPER_QT_ROOT}",
         "CMAKE_MAKE_PROGRAM": "$env{QSHOPPER_NINJA}",
         "BUILD_TESTING": "ON",

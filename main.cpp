@@ -1,5 +1,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
+#include <QtCore/QtEnvironmentVariables>
+#include <QtCore/QtTypes>
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 #include <QtCore/QLocale>
@@ -20,11 +22,15 @@
 #include <QQuickStyle>
 #include "model.h"
 
-#if defined(Q_OS_ANDROID)
+#ifdef Q_OS_ANDROID
 #  include <QtCore/QJniObject>
 #  include <QtCore/qcoreapplication_platform.h>
 #  include <QtGui/QInputMethod>
+#  include <QtGui/QColor>
 #  include <QtQuick/QQuickWindow>
+#  include <jni.h>
+
+constexpr int kInsetsControllerApi = 30;
 
 static void updateSystemBarIcons(const QColor &color)
 {
@@ -34,33 +40,37 @@ static void updateSystemBarIcons(const QColor &color)
             return;
         }
         const QJniObject activity = QNativeInterface::QAndroidApplication::context();
-        const auto window = activity.callObjectMethod("getWindow", "()Landroid/view/Window;");
+        const auto window = activity.callMethod<QJniObject>("getWindow", "()Landroid/view/Window;");
         if (!window.isValid()) {
             return;
         }
-        if (QNativeInterface::QAndroidApplication::sdkVersion() >= 30) {
-            const auto controller = window.callObjectMethod(
+        if (QNativeInterface::QAndroidApplication::sdkVersion() >= kInsetsControllerApi) {
+            const auto controller = window.callMethod<QJniObject>(
                     "getInsetsController", "()Landroid/view/WindowInsetsController;");
             if (controller.isValid()) {
-                const auto mask =
-                        QJniObject::getStaticField<jint>("android/view/WindowInsetsController",
-                                                         "APPEARANCE_LIGHT_STATUS_BARS")
-                        | QJniObject::getStaticField<jint>("android/view/WindowInsetsController",
-                                                           "APPEARANCE_LIGHT_NAVIGATION_BARS");
-                controller.callMethod<void>("setSystemBarsAppearance", "(II)V", light ? mask : 0,
-                                            mask);
+                const auto mask = static_cast<quint32>(QJniObject::getStaticField<jint>(
+                                          "android/view/WindowInsetsController",
+                                          "APPEARANCE_LIGHT_STATUS_BARS"))
+                        | static_cast<quint32>(QJniObject::getStaticField<jint>(
+                                "android/view/WindowInsetsController",
+                                "APPEARANCE_LIGHT_NAVIGATION_BARS"));
+                controller.callMethod<void>("setSystemBarsAppearance", "(II)V",
+                                            light ? static_cast<jint>(mask) : 0,
+                                            static_cast<jint>(mask));
             }
         } else {
             // Android 9/10 use the earlier API; retain every unrelated UI flag.
-            const auto decor = window.callObjectMethod("getDecorView", "()Landroid/view/View;");
+            const auto decor =
+                    window.callMethod<QJniObject>("getDecorView", "()Landroid/view/View;");
             if (decor.isValid()) {
-                const auto mask = QJniObject::getStaticField<jint>(
-                                          "android/view/View", "SYSTEM_UI_FLAG_LIGHT_STATUS_BAR")
-                        | QJniObject::getStaticField<jint>("android/view/View",
-                                                           "SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR");
-                const auto flags = decor.callMethod<jint>("getSystemUiVisibility");
+                const auto mask = static_cast<quint32>(QJniObject::getStaticField<jint>(
+                                          "android/view/View", "SYSTEM_UI_FLAG_LIGHT_STATUS_BAR"))
+                        | static_cast<quint32>(QJniObject::getStaticField<jint>(
+                                "android/view/View", "SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR"));
+                const auto flags =
+                        static_cast<quint32>(decor.callMethod<jint>("getSystemUiVisibility"));
                 decor.callMethod<void>("setSystemUiVisibility", "(I)V",
-                                       light ? flags | mask : flags & ~mask);
+                                       static_cast<jint>(light ? flags | mask : flags & ~mask));
             }
         }
     });
@@ -149,7 +159,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    QQuickStyle::setStyle("Material");
+    QQuickStyle::setStyle(QStringLiteral("Material"));
     qputenv("QT_QUICK_CONTROLS_MATERIAL_VARIANT", "Normal");
 
     QQmlApplicationEngine engine;
@@ -166,7 +176,7 @@ int main(int argc, char *argv[])
                 }
             },
             Qt::QueuedConnection);
-#if defined(Q_OS_ANDROID)
+#ifdef Q_OS_ANDROID
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &application,
                      [](QObject *object, const QUrl &) {
                          auto *window = qobject_cast<QQuickWindow *>(object);

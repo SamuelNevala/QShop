@@ -19,6 +19,7 @@ constexpr qint32 kDays{ 6U };
 WeekModel::WeekModel(QObject *parent) Q_DECL_NOTHROW : QAbstractListModel(parent)
 {
     populateModel();
+    // NOLINTNEXTLINE(misc-include-cleaner): the chrono literal is provided by the direct <chrono> include.
     m_timerId = startTimer(1min);
 }
 
@@ -36,10 +37,10 @@ QVariant WeekModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::UserRole: {
-        return m_week[index.row()].name;
+        return m_week.at(index.row()).name;
     }
     case Qt::UserRole + 1: {
-        return m_week[index.row()].number;
+        return m_week.at(index.row()).number;
     }
     default: {
         return { };

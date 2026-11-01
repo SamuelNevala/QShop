@@ -143,11 +143,11 @@ public:
     Q_INVOKABLE void move(qsizetype source, qsizetype destination);
     Q_INVOKABLE void addEditor();
     Q_INVOKABLE void removeEditor();
-    Q_INVOKABLE void moveEditor(qsizetype destination, Force force = Force::NO);
+    Q_INVOKABLE void moveEditor(qsizetype destination, Model::Force force = Model::Force::NO);
     Q_INVOKABLE void undo();
     Q_INVOKABLE void clearUndoStack();
     Q_INVOKABLE void reload();
-    [[nodiscard]] qsizetype editorIndex() const;
+    [[nodiscard]] int editorIndex() const;
     [[nodiscard]] bool canUndo() const;
     [[nodiscard]] QString activeList() const;
     void setActiveList(const QString &identifier);

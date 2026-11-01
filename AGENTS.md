@@ -54,6 +54,17 @@ the project rule; inspect that diff because clang-format has no full semantic
 model. Do not reintroduce continue, remove checks or modernize code during a
 formatting pass. Repeated formatting must be unchanged before committing.
 
+## Static analysis
+
+Run `./tools/analyze-cpp.ps1` for the optional clang-tidy/Clazy workflow. It builds
+the Windows preset first, then checks all tracked C++ translation units using its
+exported compilation database. Use `-SkipBuild` only with current generated headers.
+Checks, scope, Android usage and diagnostic dispositions are documented in
+`tests/STATIC_ANALYSIS.md`. Do not apply exported fixes automatically or treat a
+warning as a confirmed bug without reproduction. Keep suppressions local and named.
+The baseline is the user's Samuel profile in `.clang-tidy` and
+`tools/clazy-checks.txt`; its captured findings remain open for triage/correction.
+
 ## Backlog
 
 Use [BACKLOG.md](BACKLOG.md) to collect bugs and missing features, with linked reports in `tickets/`.

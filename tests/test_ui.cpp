@@ -11,7 +11,17 @@
 #include <QPointingDevice>
 #include <QTouchEvent>
 #include <QWindow>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QEvent>
+#include <QtCore/QObject>
+#include <QtCore/QString>
+#include <QtCore/QtLogging>
+#include <QtCore/QtTypes>
+#include <QtCore/QVariant>
+#include <QtCore/qtmetamacros.h>
 #include "model.h"
+
+namespace {
 
 class UiSetup : public QObject
 {
@@ -19,14 +29,17 @@ class UiSetup : public QObject
     QTemporaryDir settingsDirectory;
 
 public:
-    Q_INVOKABLE bool cancelTouch()
+    explicit UiSetup(QObject *parent = nullptr) : QObject(parent) { }
+
+    [[nodiscard]] Q_INVOKABLE static bool cancelTouch()
     {
         auto *window = QGuiApplication::focusWindow();
-        if (!window) {
+        if (window == nullptr) {
             return false;
         }
         bool sent = false;
-        for (const auto *input : QInputDevice::devices()) {
+        const auto devices = QInputDevice::devices();
+        for (const auto *input : devices) {
             if (input->type() == QInputDevice::DeviceType::TouchScreen) {
                 const auto *device = qobject_cast<const QPointingDevice *>(input);
                 QTouchEvent cancel(QEvent::TouchCancel, device);
@@ -37,35 +50,36 @@ public:
         return sent;
     }
 
-    Q_INVOKABLE QVariant savedSetting(const QString &key) const
+    [[nodiscard]] Q_INVOKABLE static QVariant savedSetting(const QString &key)
     {
         QSettings settings;
         settings.sync();
         return settings.value(key);
     }
-    Q_INVOKABLE qreal restoredThemeScale() const
+    [[nodiscard]] Q_INVOKABLE static qreal restoredThemeScale()
     {
         QQmlEngine engine;
         auto *theme = engine.singletonInstance<QObject *>("QShopper", "Theme");
-        if (!theme) {
+        if (theme == nullptr) {
             qFatal("Cannot create Theme in a fresh engine");
         }
         return theme->property("scale").toReal();
     }
-    Q_INVOKABLE QString restoredActiveList() const
+    [[nodiscard]] Q_INVOKABLE static QString restoredActiveList()
     {
         QQmlEngine engine;
         auto *theme = engine.singletonInstance<QObject *>("QShopper", "Theme");
-        if (!theme) {
+        if (theme == nullptr) {
             qFatal("Cannot create Theme in a fresh engine");
         }
         return theme->property("activeList").toString();
     }
-    Q_INVOKABLE void resetDatabase()
+    Q_INVOKABLE static void resetDatabase()
     {
         const auto database = QSqlDatabase::database();
         QSqlQuery query(database);
-        for (const auto &table : database.tables()) {
+        const auto tables = database.tables();
+        for (const auto &table : tables) {
             if (!query.exec(QStringLiteral("DROP TABLE \"%1\"").arg(table))) {
                 qFatal("Cannot reset UI test database");
             }
@@ -82,19 +96,20 @@ public:
             qFatal("Cannot seed UI test list");
         }
     }
-public slots:
+    // NOLINTNEXTLINE(readability-redundant-access-specifiers): slots enables Qt setup discovery.
+public Q_SLOTS:
     void applicationAvailable()
     {
         if (!settingsDirectory.isValid()) {
             qFatal("Cannot isolate UI test settings");
         }
-        QCoreApplication::setOrganizationName("QShopperUiTests");
-        QCoreApplication::setApplicationName("IsolatedRun");
+        QCoreApplication::setOrganizationName(QStringLiteral("QShopperUiTests"));
+        QCoreApplication::setApplicationName(QStringLiteral("IsolatedRun"));
         QSettings::setDefaultFormat(QSettings::IniFormat);
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsDirectory.path());
-        QQuickStyle::setStyle("Material");
-        auto database = QSqlDatabase::addDatabase("QSQLITE");
-        database.setDatabaseName(":memory:");
+        QQuickStyle::setStyle(QStringLiteral("Material"));
+        auto database = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"));
+        database.setDatabaseName(QStringLiteral(":memory:"));
         if (!database.open()) {
             qFatal("Cannot open isolated UI database");
         }
@@ -106,12 +121,15 @@ public slots:
         auto *theme = engine->singletonInstance<QObject *>("QShopper", "Theme");
         theme->setProperty("scaleable", true);
 #endif
-        engine->rootContext()->setContextProperty("uiSetup", this);
-        engine->rootContext()->setContextProperty("previewExpected", bool(QSHOPPER_EXPECT_PREVIEW));
-        engine->rootContext()->setContextProperty("keyboardExpected",
-                                                  bool(QSHOPPER_DESKTOP_KEYBOARD));
+        engine->rootContext()->setContextProperty(QStringLiteral("uiSetup"), this);
+        engine->rootContext()->setContextProperty(QStringLiteral("previewExpected"),
+                                                  QSHOPPER_EXPECT_PREVIEW != 0);
+        engine->rootContext()->setContextProperty(QStringLiteral("keyboardExpected"),
+                                                  QSHOPPER_DESKTOP_KEYBOARD != 0);
     }
 };
+
+} // namespace
 
 QUICK_TEST_MAIN_WITH_SETUP(qshopper_ui, UiSetup)
 #include "test_ui.moc"

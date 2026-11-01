@@ -1,5 +1,8 @@
 # Model QTest suite (MSVC)
 
+For optional clang-tidy and Clazy checks, commands, scope and finding dispositions,
+see [STATIC_ANALYSIS.md](STATIC_ANALYSIS.md). Runtime verification remains separate.
+
 The test executable compiles only `test_model.cpp` and links to the production
 `QShopper` QML backing library. The application links to the same library, so
 `model.cpp` and `undoremove.cpp` are compiled once.
@@ -13,6 +16,20 @@ Each test gets fresh in-memory SQLite storage.
 
 Toggle regressions cover empty models, negative and out-of-range indexes,
 extreme indexes, read-only calls, reordering, identity, and persistence.
+
+The DEV-005 `editor_index_property_matches_accessor` regression compares the
+actual Qt property meta-type with the C++ getter's return type, then reads the
+property through editor creation, movement, row removal, editor removal and
+reload. It fails on the original int/qsizetype mismatch. The getter now returns
+int, preserving the existing QML property and -1 sentinel; internal storage still
+uses qsizetype, with an explicit conversion like rowCount(). See
+[STATIC_ANALYSIS.md](STATIC_ANALYSIS.md) for before/after results and remaining findings.
+
+`pending_editor_restore_respects_readonly` characterizes cancellation when a
+rowsInserted receiver makes the model read-only during pending-edit restoration.
+Both removeEditor() and remove(editorIndex()) must preserve the placeholder and
+original item identity until writes are re-enabled, then retain the saved rows.
+It passes before and after the DEV-005 recursion simplification.
 
 Read-only bulk removal regressions verify unchanged rows, editor position,
 pending edits, undo history, and saved contents. Internal reloads still replace
