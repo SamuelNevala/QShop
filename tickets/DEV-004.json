@@ -1,12 +1,12 @@
 {
   "id": "DEV-004",
   "title": "Review and simplify the CMake build files using KISS principles",
-  "status": "requested",
+  "status": "resolved",
   "type": "code_quality",
   "priority": "unassigned",
   "created": "2026-10-28",
   "reported_by": "user",
-  "scope": "Backlog item only. Review and refactoring are deferred until implementation is explicitly requested.",
+  "scope": "Selected by the user on 2026-11-01. Simplify root/test CMake and adopt the explicitly selected C++20 baseline, keeping application behavior and public build options unchanged.",
   "request": "The user considers the CMake files to be in poor shape and wants them reviewed and fixed to be as simple as practical: keep it simple, straightforward, and easy to maintain.",
   "expected": "Clear, minimal CMake files that express the application's real build requirements without redundant settings, obsolete fragments, or unnecessary abstraction, while preserving supported build behavior.",
   "relevant_files": ["CMakeLists.txt", "tests/CMakeLists.txt", "CMakePresets.json", "tools/verify-windows.ps1", "build-android.ps1"],
@@ -29,5 +29,54 @@
   ],
   "evidence": "Explicit user request to add a KISS-oriented CMake review and cleanup to the backlog on 2026-10-28.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "selected": "2026-11-01",
+  "related_tickets": ["DEV-003", "DEV-008"],
+  "implementation": {
+    "date": "2026-11-01",
+    "baseline": "User selected C++20 as the stable baseline. Set the required standard once, synchronize .clang-format and AGENTS.md, and require CMake 3.25 at the root to match the existing preset requirement. Qt minimum remains 6.10. No application C++ or QML source changes.",
+    "simplification": [
+      "Remove duplicate standard requirements, stale import/debug comments and diagnostic output, the child minimum-version declaration, and explicit AUTOMOC settings already supplied by qt_standard_project_setup.",
+      "Flatten the desktop-keyboard condition without changing AUTO/ON/OFF behavior. Let configure_file create its output directory.",
+      "Keep the library declaration and its dependencies together, followed by the executable and platform settings. Retain direct CMake rather than adding helper abstractions.",
+      "Set common QML test environment values and Windows DLL-path modifications once; append only the keyboard test's plugin environment separately. Preserve test commands, timeouts and isolation.",
+      "Review CMakePresets.json, tools/verify-windows.ps1 and build-android.ps1; no script/preset changes needed. Document configuration commands and validation in tests/README.md."
+    ],
+    "retained_complexity": "Production QShopper library ownership of model compilation; conditional keyboard .qml.in resources and module dependencies; Android manifest/icon staging and native IME override; macOS bundle properties; independent tests and optional model coverage.",
+    "verification": {
+      "toolchain": "CMake 3.30.5, Ninja 1.12.1, Qt 6.12.0 msvc2022_64 kit with installed MSVC 19.51.36260; Android NDK r27c Clang 18.0.3.",
+      "windows": "tools/verify-windows.ps1 passes configure/build and all four CTest entries: 157 UI, 19 flow, 6 real-keyboard and 61 model records, zero failures/skips (284.73 seconds). Generated compile flags select C++20.",
+      "contracts": "Before/after CTest plans retain names, commands, timeouts and environment values (environment order normalized). All three generated resource manifests retain identical content after line-ending normalization; the baseline JSON capture stored normalized text rather than raw bytes.",
+      "release": "Fresh Ninja Release/AUTO builds app/tests with keyboard disabled; 61 model, 5 theme/build-gate and 6 preview records pass.",
+      "multi_config": "Fresh Ninja Multi-Config/ON Release builds app/tests; 61 model, 5 theme/build-gate, 6 preview and 6 actual-keyboard records pass. Fresh Debug/OFF, Multi-Config/OFF and Multi-Config/AUTO configurations verify disabled loader/module dependencies and three-test registration; these three configurations were not built or run.",
+      "coverage": "Fresh coverage-ON configuration locates Python and the MS collector, exposes model_coverage and retains PROFILE/DEBUG:FULL/INCREMENTAL:NO instrumentation flags. No new coverage collection or percentage result is claimed.",
+      "android": "Fresh x86_64 Debug APK builds using gnu++20 with the desktop keyboard explicitly requested ON but correctly disabled by Android. Signed APK installed only on emulator-5580. All 13 native Back/IME/popup/saved-data checks pass. The build log records successful packaging; the lingering command session was stopped after artifact/signature/native verification, so its cleanup exit is not reported as build exit zero.",
+      "limits": "No physical-device install, ARM64 app rebuild or macOS build. An ARM64 C++20 syntax probe passed but does not certify the full app. Offscreen desktop tests do not certify complete visual appearance."
+    },
+    "packaging_observation": "Old and new x86_64 APKs contain byte-identical Qt Virtual Keyboard native library/plugin payload despite the disabled QML loader. No new runtime regression is established; deferred deployment review is tracked separately as DEV-008.",
+    "commands": [
+      "./tools/verify-windows.ps1",
+      "./tools/verify-windows.ps1 -Action Build",
+      "./tools/format-cpp.ps1 -Check",
+      "powershell -File out/dev004/verify-options.ps1",
+      "python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --selector-back --output out/dev004/android-back"
+    ],
+    "artifacts": [
+      "out/dev004/verification-summary.json",
+      "out/dev004/verify-windows.txt",
+      "out/dev004/windows-matrix.json",
+      "out/dev004/test-plan-before.json",
+      "out/dev004/test-plan-after.json",
+      "out/dev004/resources-before.json",
+      "out/dev004/coverage-configure.txt",
+      "out/dev004/coverage-targets.txt",
+      "out/dev004/android-configure.txt",
+      "out/dev004/android-build.txt",
+      "out/dev004/android-back/results.json",
+      "out/dev004/android-package-check.json"
+    ],
+    "remaining": "None for the accepted CMake cleanup. DEV-008 remains a separate deferred packaging review.",
+    "user_validation": "2026-11-01: user accepted the result and requested ticket closure and commit."
+  },
+  "resolved": "2026-11-01"
 }

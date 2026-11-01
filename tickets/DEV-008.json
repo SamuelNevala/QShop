@@ -1,0 +1,32 @@
+{
+  "id": "DEV-008",
+  "title": "Review Virtual Keyboard native libraries packaged in the Android APK",
+  "status": "requested",
+  "type": "code_quality",
+  "priority": "unassigned",
+  "created": "2026-11-01",
+  "reported_by": "build_configuration_review",
+  "scope": "Packaging review candidate discovered during DEV-004; investigation and any deployment change are deferred. No runtime keyboard defect is established.",
+  "finding": "Android APKs contain the Qt Virtual Keyboard native library and platform input-context plugin even though the app's desktop keyboard loader is disabled and its QML module has no Virtual Keyboard dependency.",
+  "evidence": [
+    "The existing dist/QShopper-x86_64-debug.apk and fresh out/dev004/android-x86 APK both contain libQt6VirtualKeyboard_x86_64.so (466304 bytes) and libplugins_platforminputcontexts_qtvirtualkeyboardplugin_x86_64.so (14496 bytes). Their contents are byte-identical between those APKs.",
+    "The previous ARM64 APK also contains the corresponding native libraries.",
+    "The fresh Android build explicitly requests QSHOPPER_DESKTOP_KEYBOARD=ON to verify the platform override: the generated loader source is empty and qmldir has no Virtual Keyboard dependency. This preserves the runtime native-keyboard configuration.",
+    "An initial package audit assumed these files should be absent; baseline comparison showed the payload predates DEV-004. Treat this as a packaging investigation, not a new build-cleanup regression."
+  ],
+  "expected": "Determine whether the native payload is required by Qt deployment or can be excluded cleanly while retaining Android's system IME and the desktop development keyboard.",
+  "implementation_notes": [
+    "Trace androiddeployqt, QML import scanning and platform-input-context plugin dependencies before identifying a cause; no particular scanner or source file is proven responsible.",
+    "Keep any supported exclusion KISS and confined to Android. Avoid post-build deletion workarounds without establishing the actual dependency chain.",
+    "Characterize the intended deployment contract before treating library presence as a bug. If removing it is appropriate, add a repeatable APK-content check and verify fresh packages for both shipped ABIs.",
+    "Verify real Gboard entry, retained keyboard on Return, hide/reopen and native Back with isolated emulator data; keep desktop keyboard builds/tests working.",
+    "Coordinate the actual shipped-dependency inventory with release preparation and About notices."
+  ],
+  "relevant_files": ["CMakeLists.txt", "build-android.ps1", "keyboard", "tests/android", "ANDROID.md"],
+  "related_tickets": ["DEV-004", "REL-001", "UI-012"],
+  "artifacts": ["out/dev004/android-package-check.json", "out/dev004/android-build.txt"],
+  "acceptance_criteria": [
+    "Document the dependency path and decide whether the libraries are required or unnecessary payload.",
+    "If an exclusion is justified, implement it separately with package-content and native-IME verification; otherwise document why the payload remains."
+  ]
+}

@@ -23,7 +23,7 @@ position preserves its UUID and checked state. Removing the editor restores the
 original; reload or list switching cancels the edit. A second edit is rejected
 until the current one is submitted or cancelled.
 
-Use CMake 3.22+, the MSVC Qt kit, and an x64 Native Tools Command Prompt (or
+Use CMake 3.25+, the MSVC Qt kit, and an x64 Native Tools Command Prompt (or
 Developer PowerShell) for Visual Studio. Configure from the project root so the
 production library target is available:
 
@@ -937,3 +937,57 @@ entries (157 UI, 19 flow, 6 keyboard and 61 model records, zero failures/skips;
 285.97 seconds). All nine focused cancellation records also pass with native
 Windows rendering, exercising the adjusted helper. Reports are in `out/dev003`.
 No GUI settings were changed and no Android/physical-device run is claimed.
+
+## Build configuration (DEV-004)
+
+The root build requires **CMake 3.25+**, **C++20**, and **Qt 6.10+**. The normal
+Windows workflow remains `./tools/verify-windows.ps1`; its preset and target names
+are unchanged. Qt's standard project setup supplies AUTOMOC. App and test targets
+still share the production QShopper library, so model code is compiled once per
+build. The root/test CMake files keep direct target and test declarations, with
+shared QML test environment and Windows DLL-path properties set once.
+
+`QSHOPPER_DESKTOP_KEYBOARD` retains AUTO/ON/OFF. AUTO enables the desktop keyboard
+for single-configuration Debug builds; choose ON or OFF explicitly for multi-
+configuration builds. Android always disables the loader and its QML dependency,
+even with ON requested. The conditional raw `.qml.in` resource/import setup and
+Android manifest/icon staging are retained. The source/test lists, test commands,
+timeouts, environment values, data isolation and optional coverage workflow remain.
+
+Use a separate build directory for every additional configuration. From an x64
+Visual Studio Developer PowerShell, a Release/AUTO build can be checked with:
+
+```powershell
+cmake -S . -B out/windows-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=C:/Qt/6.12.0/msvc2022_64 -DCMAKE_MAKE_PROGRAM=C:/Qt/Tools/Ninja/ninja.exe -DBUILD_TESTING=ON
+cmake --build out/windows-release --parallel 2
+ctest --test-dir out/windows-release -R '^qshopper_tests$' --output-on-failure
+```
+
+For Ninja Multi-Config, use `-G "Ninja Multi-Config"`, a fresh directory, and an
+explicit `-DQSHOPPER_DESKTOP_KEYBOARD=ON` or `OFF`. Omit CMAKE_BUILD_TYPE; select
+`--config Release` at build time and `-C Release` for CTest. Android build commands
+remain documented in ANDROID.md. C++20 uses the stable MSVC mode rather than
+CMake 3.30's C++23 mapping to c++latest; no C++23 features are required.
+
+Validation on 2026-11-01 (CMake 3.30.5, Qt 6.12, MSVC 19.51, Android NDK r27c /
+Clang 18.0.3):
+
+| Configuration | Validation |
+| --- | --- |
+| Desktop Debug/AUTO | App/build and all four CTest entries pass: 157 UI, 19 flow, 6 keyboard, 61 model records |
+| Fresh Release/AUTO | App and tests build; 61 model, 5 theme/build-gate and 6 preview records pass with keyboard disabled |
+| Fresh Debug/OFF | Configure, generated loader/module dependencies and three-test registration checked; no build/run claimed |
+| Ninja Multi-Config/ON, Release | App and tests build; 61 model, 5 theme/build-gate, 6 preview and 6 real-keyboard records pass |
+| Ninja Multi-Config/OFF and AUTO | Fresh configurations, disabled loader/dependencies and three-test registration checked; no build/run claimed |
+| Android x86_64 Debug with desktop keyboard ON | Fresh C++20 APK built with loader disabled, installed only on emulator-5580; all 13 native Back/IME/popup/data checks pass |
+| Optional model coverage ON | Fresh configuration finds the collector/Python, generates model_coverage and retains PROFILE/DEBUG:FULL/INCREMENTAL:NO flags; no new collection run |
+
+The original and new main CTest plans have identical commands, timeouts and
+environment values; all three generated resource manifests retain identical
+content after line-ending normalization.
+Reports are in `out/dev004`. The primary development build was restored after the
+configuration matrix. No physical-device installation or macOS build is claimed.
+
+Package inspection found the same Virtual Keyboard native plugin/library bytes
+in both the previous and new Android APKs. This does not establish a native-IME
+regression; investigate required deployment payload separately under DEV-008.

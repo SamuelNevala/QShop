@@ -1,6 +1,6 @@
 # QShopper agent workflow
 
-QShopper uses C++17, Qt 6.10 or newer, and CMake.
+QShopper uses C++20, Qt 6.10 or newer, and CMake 3.25 or newer.
 The validated Windows development kit is Qt 6.12.0 MSVC 2022 x64.
 Qt Creator and its MCP server are optional; all verification runs from PowerShell.
 

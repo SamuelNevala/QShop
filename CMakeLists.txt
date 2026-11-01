@@ -1,14 +1,10 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.25)
 
 project(QShopper VERSION 0.1 LANGUAGES CXX)
 
-set(CMAKE_AUTOMOC ON)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# set(QML_IMPORT_PATH "${CMAKE_CURRENT_BINARY_DIR}" CACHE STRING "Qt Creator QML import paths" FORCE)
 set(QT_QML_GENERATE_QMLLS_INI ON)
-# set(QML_IMPORT_TRACE  1)
 
 find_package(Qt6 6.10 REQUIRED COMPONENTS Core Qml Quick Sql QuickControls2)
 
@@ -22,11 +18,10 @@ if(NOT QSHOPPER_DESKTOP_KEYBOARD MATCHES "^(AUTO|ON|OFF)$")
     message(FATAL_ERROR "QSHOPPER_DESKTOP_KEYBOARD must be AUTO, ON, or OFF")
 endif()
 set(qshopper_keyboard_enabled OFF)
-if(NOT ANDROID)
-    if(QSHOPPER_DESKTOP_KEYBOARD STREQUAL "ON"
-       OR (QSHOPPER_DESKTOP_KEYBOARD STREQUAL "AUTO" AND CMAKE_BUILD_TYPE STREQUAL "Debug"))
-        set(qshopper_keyboard_enabled ON)
-    endif()
+if(NOT ANDROID AND
+   (QSHOPPER_DESKTOP_KEYBOARD STREQUAL "ON"
+    OR (QSHOPPER_DESKTOP_KEYBOARD STREQUAL "AUTO" AND CMAKE_BUILD_TYPE STREQUAL "Debug")))
+    set(qshopper_keyboard_enabled ON)
 endif()
 if(qshopper_keyboard_enabled)
     find_package(Qt6 REQUIRED COMPONENTS VirtualKeyboard)
@@ -39,15 +34,10 @@ if(qshopper_keyboard_enabled)
 else()
     set(qshopper_keyboard_url "")
 endif()
-file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(qshopper_keyboard_qml "${CMAKE_CURRENT_BINARY_DIR}/generated/DevelopmentKeyboard.qml")
 configure_file(keyboard/DevelopmentKeyboard.qml.in "${qshopper_keyboard_qml}" @ONLY)
 set_source_files_properties("${qshopper_keyboard_qml}" PROPERTIES
     QT_RESOURCE_ALIAS DevelopmentKeyboard.qml)
-
-qt_add_executable(application
-    main.cpp
-)
 
 set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
@@ -108,6 +98,16 @@ qt_add_qml_module(QShopper
     DEPENDENCIES QtCore ${qshopper_keyboard_dependencies}
 )
 
+target_link_libraries(QShopper PUBLIC Qt6::Quick Qt6::Sql Qt6::Core Qt6::Qml Qt6::QuickControls2)
+target_include_directories(QShopper PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(QShopper PUBLIC
+    QSHOPPER_DESKTOP_KEYBOARD=$<BOOL:${qshopper_keyboard_enabled}>)
+if(qshopper_keyboard_enabled)
+    target_link_libraries(QShopper PRIVATE Qt6::VirtualKeyboard)
+endif()
+
+qt_add_executable(application main.cpp)
+target_link_libraries(application PRIVATE QShopper QShopperplugin)
 set_target_properties(application PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER shopper.nevala.com
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
@@ -133,15 +133,6 @@ if(ANDROID)
     )
 endif()
 
-target_link_libraries(QShopper PUBLIC Qt6::Quick Qt6::Sql Qt6::Core Qt6::Qml Qt6::QuickControls2)
-target_include_directories(QShopper PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(application PRIVATE QShopper QShopperplugin)
-target_compile_definitions(QShopper PUBLIC
-    QSHOPPER_DESKTOP_KEYBOARD=$<BOOL:${qshopper_keyboard_enabled}>)
-if(qshopper_keyboard_enabled)
-    target_link_libraries(QShopper PRIVATE Qt6::VirtualKeyboard)
-endif()
-
 include(CTest)
 if(BUILD_TESTING)
     add_subdirectory(tests)
@@ -150,5 +141,3 @@ endif()
 install(TARGETS application
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-message("QML_IMPORT_PATH" ${QML_IMPORT_PATH})

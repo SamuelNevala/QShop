@@ -284,10 +284,11 @@ an option to evaluate, not an agreed migration; priority remains unassigned.
 | --- | --- | --- |
 | [DEV-002](tickets/DEV-002.json) | Choose a qmlformat configuration close to Qt's own QML conventions and apply it to all project QML sources, including tests and templates | Resolved 2026-11-01 with user acceptance: Qt 6.12 settings/helper applied to 54 sources; SortImports=true with preserved control selection, repeat pass stable, all four Windows suites and 19 native Windows flow records pass |
 | [DEV-003](tickets/DEV-003.json) | Choose a clang-format configuration and apply it to all project-owned C++ sources and headers, including tests | Resolved 2026-11-01 with user acceptance: Qt-aligned clang-format 22.1.8 settings/helper applied to all 11 sources; repeat pass and include/token audits pass, all four Windows suites and nine native Windows cancellation records pass |
-| [DEV-004](tickets/DEV-004.json) | Review and simplify the CMake files using KISS principles, removing unnecessary complexity while preserving supported builds | Requested; review and cleanup deferred |
+| [DEV-004](tickets/DEV-004.json) | Simplify root/test CMake using KISS and adopt the user-selected C++20 baseline | Resolved 2026-11-01; user accepted. Windows suites, selected build configurations and 13 Android emulator checks pass |
 | [DEV-005](tickets/DEV-005.json) | Set up clang-tidy and Clazy with suitable checks, analyze the project, triage findings, and fix actionable issues | Requested; setup, analysis, and fixes deferred |
 | [DEV-006](tickets/DEV-006.json) | Analyze QML and C++ for simplicity and write practical KISS-based coding guidelines grounded in the current code | Requested; review and full guide deferred; KISS recorded as a standing principle |
 | [DEV-007](tickets/DEV-007.json) | Replace the project C++ proxy wrapper with QtQml.Models SortFilterProxyModel | Requested; migration deferred. Preserve drawer catalog filtering, name sorting, UUID selection and restart behavior; remove the redundant wrapper/build registration |
+| [DEV-008](tickets/DEV-008.json) | Review Virtual Keyboard native libraries packaged in Android despite the native-IME configuration | Packaging candidate; same payload appears in old and new APKs. Investigate deployment requirements separately; no runtime keyboard defect established |
 
 DEV-002 should establish a checked-in `.qmlformat.ini`, Qt-style attribute order,
 and a repeatable formatter invocation usable with Qt Creator. Preserve behavior

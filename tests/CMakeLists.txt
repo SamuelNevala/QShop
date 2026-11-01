@@ -1,55 +1,44 @@
-cmake_minimum_required(VERSION 3.22)
-
 find_package(Qt6 REQUIRED COMPONENTS Test QuickTest)
 
 add_executable(qshopper_ui_tests test_ui.cpp)
-set_target_properties(qshopper_ui_tests PROPERTIES AUTOMOC ON)
 target_link_libraries(qshopper_ui_tests PRIVATE QShopper QShopperplugin Qt6::QuickTest)
 target_compile_definitions(qshopper_ui_tests PRIVATE
     QUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/qml"
     QSHOPPER_EXPECT_PREVIEW=$<AND:$<NOT:$<BOOL:${ANDROID}>>,$<CONFIG:Debug>>)
 add_test(NAME qshopper_ui_tests COMMAND qshopper_ui_tests
     -import ${CMAKE_BINARY_DIR} -platform offscreen -o -,txt -o ui-tests.xml,junitxml)
-set_tests_properties(qshopper_ui_tests PROPERTIES TIMEOUT 210
-    ENVIRONMENT "QT_QUICK_BACKEND=software;QT_FORCE_STDERR_LOGGING=1")
-if(WIN32)
-    set_tests_properties(qshopper_ui_tests PROPERTIES ENVIRONMENT_MODIFICATION
-        "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>")
-endif()
+set_tests_properties(qshopper_ui_tests PROPERTIES TIMEOUT 210)
 add_test(NAME qshopper_flow_tests COMMAND qshopper_ui_tests
     -input ${CMAKE_CURRENT_SOURCE_DIR}/flows -import ${CMAKE_BINARY_DIR}
     -platform offscreen -o -,txt -o flow-tests.xml,junitxml)
-set_tests_properties(qshopper_flow_tests PROPERTIES TIMEOUT 120
-    ENVIRONMENT "QT_QUICK_BACKEND=software;QT_FORCE_STDERR_LOGGING=1")
-if(WIN32)
-    set_tests_properties(qshopper_flow_tests PROPERTIES ENVIRONMENT_MODIFICATION
-        "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>")
-endif()
+set_tests_properties(qshopper_flow_tests PROPERTIES TIMEOUT 120)
+set(qshopper_qml_tests qshopper_ui_tests qshopper_flow_tests)
 if(qshopper_keyboard_enabled)
     add_test(NAME qshopper_keyboard_tests COMMAND qshopper_ui_tests
         -input ${CMAKE_CURRENT_SOURCE_DIR}/keyboard -import ${CMAKE_BINARY_DIR}
         -platform offscreen -o -,txt -o keyboard-tests.xml,junitxml)
-    set_tests_properties(qshopper_keyboard_tests PROPERTIES TIMEOUT 90
-        ENVIRONMENT "QT_IM_MODULE=qtvirtualkeyboard;QT_VIRTUALKEYBOARD_DESKTOP_DISABLE=1;QT_QUICK_BACKEND=software;QT_FORCE_STDERR_LOGGING=1")
-    if(WIN32)
-        set_tests_properties(qshopper_keyboard_tests PROPERTIES ENVIRONMENT_MODIFICATION
-            "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>")
-    endif()
+    set_tests_properties(qshopper_keyboard_tests PROPERTIES TIMEOUT 90)
+    list(APPEND qshopper_qml_tests qshopper_keyboard_tests)
 endif()
-option(QSHOPPER_MODEL_COVERAGE "Measure model.h/model.cpp coverage and enforce 80%" OFF)
+set_tests_properties(${qshopper_qml_tests} PROPERTIES
+    ENVIRONMENT "QT_QUICK_BACKEND=software;QT_FORCE_STDERR_LOGGING=1")
+if(qshopper_keyboard_enabled)
+    set_property(TEST qshopper_keyboard_tests APPEND PROPERTY ENVIRONMENT
+        "QT_IM_MODULE=qtvirtualkeyboard" "QT_VIRTUALKEYBOARD_DESKTOP_DISABLE=1")
+endif()
 
 # The production QML backing library owns Model and UndoRemove. Compile only
 # the test source here; the application and tests share the same library.
 add_executable(qshopper_tests test_model.cpp)
-set_target_properties(qshopper_tests PROPERTIES AUTOMOC ON)
 target_link_libraries(qshopper_tests PRIVATE QShopper Qt6::Test)
 add_test(NAME qshopper_tests COMMAND qshopper_tests -o -,txt -o model-tests.xml,junitxml)
 set_tests_properties(qshopper_tests PROPERTIES ENVIRONMENT "QT_FORCE_STDERR_LOGGING=1" TIMEOUT 30)
 if(WIN32)
-    set_tests_properties(qshopper_tests PROPERTIES ENVIRONMENT_MODIFICATION
+    set_tests_properties(${qshopper_qml_tests} qshopper_tests PROPERTIES ENVIRONMENT_MODIFICATION
         "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>")
 endif()
 
+option(QSHOPPER_MODEL_COVERAGE "Measure model.h/model.cpp coverage and enforce 80%" OFF)
 if(QSHOPPER_MODEL_COVERAGE)
     if(NOT MSVC)
         message(FATAL_ERROR "Model coverage requires the MSVC toolchain")

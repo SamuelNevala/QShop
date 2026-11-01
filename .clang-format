@@ -1,7 +1,7 @@
-# Qt-aligned C++17 style; see tests/README.md for the project choices.
+# Qt-aligned C++20 style; see tests/README.md for the project choices.
 BasedOnStyle: WebKit
 Language: Cpp
-Standard: c++17
+Standard: c++20
 UseTab: Never
 IndentWidth: 4
 ContinuationIndentWidth: 8
