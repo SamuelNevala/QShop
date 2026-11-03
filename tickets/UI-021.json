@@ -1,0 +1,113 @@
+{
+  "id": "UI-021",
+  "title": "Table cleanup drops active lists after an unsuccessful catalog read",
+  "status": "resolved",
+  "type": "bug",
+  "severity": "major",
+  "severity_basis": "Source review: seeded list tables containing data are deleted under confirmed SQL-read failure. Frequency and on-device incidence are unknown.",
+  "created": "2026-11-02",
+  "reported_by": "DEV-006 source review",
+  "environment": "Actual model.cpp/undoremove.cpp compiled in a temporary Qt 6.12 MSVC x64 probe. Each run creates a fresh in-memory SQLite database; no personal database or application installation is used.",
+  "source": "Model::dropRemovedTables collects catalog rows without checking initial or iteration errors, then reuses the query for sqlite_master and deletes UUID tables absent from the incomplete collection.",
+  "evidence": [
+    "Initial failure fixture: catalog view lacks the required id column. Read returns no rows with a valid SQL error; componentComplete drops both seeded active list tables and the orphan.",
+    "Iteration failure fixture: required id projection raises SQLite integer overflow on the second catalog row. exec succeeds, one row is read, then lastError is valid; cleanup preserves the first active table but drops the second active table and orphan.",
+    "Healthy complete-catalog control preserves both active tables and removes only the orphan.",
+    "Read-only control under the partial-read fault preserves all three tables."
+  ],
+  "expected": "Only classify tables as orphaned after a complete successful catalog read. On a read error, retain every existing table and its contents, report the error and abort cleanup. An error-free empty catalog remains a valid cleanup input.",
+  "reproduction": [
+    "Create a memory database with two catalog identities, two associated UUID-named tables containing rows, and an orphan UUID table.",
+    "Inject an initial read failure or an error fetching the second required ID through a catalog view; independently verify exec/row/error state.",
+    "Create the production Model and call componentComplete, which invokes dropRemovedTables.",
+    "Inspect sqlite_master: active tables missing from the incomplete read have been dropped. Repeat healthy/read-only controls."
+  ],
+  "scope_limits": "This is deterministic fault injection at the Model boundary, not an observed phone incident or full-app failure reproduction. main.cpp checks the initial catalog exec during startup; that does not establish protection against a later/partial Model read failure. The injected views are test fixtures, not the normal app schema.",
+  "regression": {
+    "probe": "out/dev006/cleanup-read/probe.cpp",
+    "runner": "out/dev006/cleanup-read/check.py",
+    "results": "out/dev006/cleanup-read/results.json",
+    "before": "Both faulted-read preservation checks fail (exit 1); healthy and read-only controls pass (exit 0). Logs record query state and surviving tables.",
+    "permanent_test_required": "Completed: both fault scenarios fail in normal QTest before/pass after; controls verify retained data and intended healthy cleanup.",
+    "source_sha256": {
+      "model.cpp": "5bc8029583964b8800f039eb8e1d8303866d309d3e8e068c6a78f71b25e51616",
+      "model.h": "482c52d90f2fd1ad084f916983f7e49046ceae1157a6114e3ad7079b27aeced4",
+      "undoremove.cpp": "f379d787b87c0ae5fb6ca6832e95e68f31ccdbe8c5f46dfe49bd472e99118ecf",
+      "undoremove.h": "b30bbddd7b50d64b9a69b95b5e3096ded83e5ef2b3b90f827e94c4446ca2dced"
+    },
+    "permanent_test": "tests/test_model.cpp::ModelTest::cleanup_requires_complete_catalog",
+    "permanent_before": "5 records pass, 2 fail because active tables are missing after initial/iteration failure. Controls pass.",
+    "permanent_after": "All 7 focused records pass; preserved table contents/UUIDs and healthy/empty/read-only policies checked.",
+    "permanent_logs": [
+      "out/dev006/ui021/regression-before.txt",
+      "out/dev006/ui021/regression-after.txt"
+    ]
+  },
+  "implementation_scope": "Selected read-validation fix plus permanent QTest regression/documentation. Check catalog lastError after iteration and return before table inventory/DROP on failure; storage schema and cleanup membership logic retained.",
+  "related_tickets": [
+    "DEV-006"
+  ],
+  "references": [
+    "https://doc.qt.io/qt-6/qsqlquery.html#next",
+    "https://doc.qt.io/qt-6/qsqlquery.html#lastError"
+  ],
+  "selected": "2026-11-02",
+  "resolved": "2026-11-02",
+  "resolution": {
+    "change": "After catalog iteration, check query.lastError and report/return on error before the query is reused or any table inventory/drop occurs. Existing read-only guard, membership algorithm and schema remain.",
+    "permanent_test": "tests/test_model.cpp::ModelTest::cleanup_requires_complete_catalog",
+    "before": "5 records pass, 2 fail on missing active tables after initial and mid-iteration catalog faults. Healthy/read-only/empty controls pass.",
+    "after": "All 7 focused records pass. Verify table existence, names, checked flags and UUIDs; failed reads retain all seeded tables, healthy cleanup removes only orphans, empty/read-only policies retained.",
+    "verification": {
+      "date": "2026-11-02",
+      "windows_ctest_entries": 4,
+      "records": {
+        "ui": {
+          "tests": 184,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 80,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "total_records": 289,
+      "full_run_seconds": 292.22,
+      "focused_records": 7,
+      "changed_unit_analyzer_runs": 4,
+      "analyzer_failed": 0,
+      "format_files": 11,
+      "source_sha256": {
+        "model.cpp": "a4139f20587837ae4eeb93dcab30c14d47c45b3577053146649b8c3120000584",
+        "tests/test_model.cpp": "a6b1c460b97477f6f43e2b519de4e8bb8242c921144830c4e36ccb7a9866ed4a"
+      },
+      "limits": "Actual Model/SQLite fault injection establishes cleanup safety, not an observed phone incident, corrupt-file repair or general loading-error recovery. Existing full app interactions run offscreen; no new Android/native rendering certification.",
+      "artifacts": [
+        "out/dev006/ui021/regression-before.txt",
+        "out/dev006/ui021/regression-after.txt",
+        "out/dev006/ui021/build-before.txt",
+        "out/dev006/ui021/build-after.txt",
+        "out/dev006/ui021/verify-windows.txt",
+        "out/dev006/ui021/analysis/results.json",
+        "out/dev006/ui021/format.txt"
+      ]
+    },
+    "commit": "Committed with this ticket's source changes and permanent regression tests; see Git history and DEV-006 closure."
+  }
+}

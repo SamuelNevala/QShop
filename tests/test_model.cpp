@@ -1137,6 +1137,106 @@ private Q_SLOTS:
         QCOMPARE(selector.rowCount(), 2);
     }
 
+    static void cleanup_requires_complete_catalog_data()
+    {
+        QTest::addColumn<QString>("fault");
+        QTest::addColumn<bool>("readOnly");
+        QTest::addColumn<bool>("emptyCatalog");
+        QTest::newRow("initial-read-failure") << u"initial"_s << false << false;
+        QTest::newRow("iteration-read-failure") << u"iteration"_s << false << false;
+        QTest::newRow("readonly-read-failure") << u"iteration"_s << true << false;
+        QTest::newRow("healthy-catalog") << u"none"_s << false << false;
+        QTest::newRow("healthy-empty-catalog") << u"none"_s << false << true;
+    }
+
+    void cleanup_requires_complete_catalog()
+    {
+        QFETCH(const QString, fault);
+        QFETCH(const bool, readOnly);
+        QFETCH(const bool, emptyCatalog);
+        const auto database = QSqlDatabase::database();
+        QSqlQuery query(database);
+        const auto otherList = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        const auto orphan = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        const QString metadata = QStringLiteral("retained_metadata");
+        const QStringList savedTables{ defaultId, otherList, orphan, metadata };
+        QHash<QString, QUuid> identities;
+        for (const auto &table : savedTables) {
+            QVERIFY(query.exec(SQL::create().arg(table)));
+            const auto identity = QUuid::createUuid();
+            identities.insert(table, identity);
+            query.prepare(SQL::insertTo().arg(table));
+            query.addBindValue(identity);
+            query.addBindValue(QStringLiteral("Retained fixture"));
+            query.addBindValue(true);
+            QVERIFY(query.exec());
+        }
+        query.prepare(SQL::insertTo().arg(SQL::tableLists()));
+        query.addBindValue(otherList);
+        query.addBindValue(QStringLiteral("weekly"));
+        query.addBindValue(false);
+        QVERIFY(query.exec());
+        if (emptyCatalog) {
+            QVERIFY(query.exec(SQL::deleteFrom().arg(SQL::tableLists())));
+        }
+        if (fault != u"none"_s) {
+            QVERIFY(query.exec(QStringLiteral("ALTER TABLE lists RENAME TO catalog_entries")));
+            if (fault == u"initial"_s) {
+                QVERIFY(query.exec(QStringLiteral("CREATE VIEW lists AS "
+                                                  "SELECT name, checked FROM catalog_entries")));
+            } else {
+                QVERIFY(query.exec(QStringLiteral(
+                        "CREATE VIEW lists AS SELECT name, checked, "
+                        "CASE WHEN name='weekly' THEN abs(-9223372036854775808) ELSE id END AS id "
+                        "FROM catalog_entries")));
+            }
+        }
+        // Establish the fault stage independently, before production cleanup runs.
+        {
+            QSqlQuery catalog(database);
+            const bool executed = catalog.exec(SQL::selectFrom().arg(SQL::tableLists()));
+            int rows = 0;
+            while (catalog.next()) {
+                ++rows;
+            }
+            if (fault == u"initial"_s) {
+                QVERIFY(!executed);
+                QCOMPARE(rows, 0);
+                QVERIFY(catalog.lastError().isValid());
+            } else if (fault == u"iteration"_s) {
+                QVERIFY(executed);
+                QCOMPARE(rows, 1);
+                QVERIFY(catalog.lastError().isValid());
+            } else {
+                QVERIFY(executed);
+                QCOMPARE(rows, emptyCatalog ? 0 : 2);
+                QVERIFY(!catalog.lastError().isValid());
+            }
+        }
+
+        Model model;
+        model.setReadOnly(readOnly);
+        model.componentComplete();
+
+        const auto remainingTables = database.tables();
+        for (const auto &table : savedTables) {
+            const bool keep = readOnly || fault != u"none"_s || table == metadata
+                    || (!emptyCatalog && table != orphan);
+            QCOMPARE(remainingTables.contains(table), keep);
+            if (keep) {
+                QVERIFY(query.exec(SQL::selectFrom().arg(table)));
+                QVERIFY(query.next());
+                QCOMPARE(query.value(QStringLiteral("name")).toString(),
+                         QStringLiteral("Retained fixture"));
+                QVERIFY(query.value(QStringLiteral("checked")).toBool());
+                QCOMPARE(query.value(QStringLiteral("id")).toUuid(), identities.value(table));
+                QVERIFY(!query.next());
+            }
+        }
+        QVERIFY(remainingTables.contains(fault == u"none"_s ? SQL::tableLists()
+                                                            : QStringLiteral("catalog_entries")));
+    }
+
     void failed_save_rolls_back_database_contents()
     {
         Model model;

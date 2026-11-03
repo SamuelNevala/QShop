@@ -712,6 +712,12 @@ void Model::dropRemovedTables() const
                                 query.value(kId).toUuid()));
     }
 
+    if (query.lastError().isValid()) {
+        qWarning() << "Failed to read list catalog before table cleanup. Error:"
+                   << query.lastError();
+        return;
+    }
+
     if (!query.exec(SQL::selectAllTables())) {
         qWarning() << "Failed to all tables. Error:" << query.lastError();
         return;
