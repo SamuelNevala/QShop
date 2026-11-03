@@ -1,0 +1,49 @@
+{
+  "id": "UI-023",
+  "title": "Undo is hidden with the movable editor and discarded by routine interactions",
+  "status": "reported",
+  "type": "bug_with_design_proposal",
+  "severity": "major",
+  "created": "2026-11-03",
+  "reported_by": "user",
+  "report": "Undo is tied to input, can be offscreen during deletion, and moving accepts deletion, risking unintended permanent data loss. User proposes an animated Gmail-style Undo notification.",
+  "scope": "Visual design accepted 2026-11-03; application fix remains pending selection and implementation. Keep separate from DEV-011's renderer migration.",
+  "design_acceptance": {
+    "date": "2026-11-03",
+    "user_feedback": "this looks good.",
+    "accepted": "Floating Undo bar with a full-height tinted background fill receding from right to left. Message, Font Awesome icon-only Undo action, outer shape and touch target stay fixed; use the preceding floating-bar slide/settle treatment and keyboard/safe-area placement.",
+    "pending": "Successive-deletion batching, timer restart and other recovery lifecycle policies remain proposals requiring a decision during implementation. Visual approval does not close the bug or establish a working application fix."
+  },
+  "evidence": [
+    "InputDelegate.qml owns the UndoIcon and its 15000 ms countdown through a Flipable, so recovery UI and timer lifetime are coupled to a movable/instantiated editor delegate.",
+    "ShopView.qml clears the Undo stack on TextDelegate.onPressed, ListView.onMovementStarted and the view-level TapHandler.onGrabChanged. InputDelegate submission also emits timeout, clearing Undo.",
+    "Model::remove saves the deletion immediately. clearUndoStack discards its recovery command; ordinary movement does not defer a database commit.",
+    "Model::remove clears an existing command before pushing the next deletion. Merely keeping the bar visible would not preserve a sequence of deleted items.",
+    "UndoRemove currently records numeric insertion positions. Safe recovery across subsequent editor movement, insertions, checks and reordering needs characterization; deleting the QML invalidation handlers alone is not a complete safe redesign.",
+    "tests/flows/tst_userflows.qml currently characterizes dismissal through test_other_interaction_dismisses_undo. Replace the obsolete policy assertion with a real failing-before regression when this ticket is selected."
+  ],
+  "reproduction": [
+    "Use isolated data with a list longer than the viewport, enter edit mode and position/scroll the editor outside the visible rows.",
+    "Swipe a visible row right to delete it. Observe whether any reachable Undo action appears.",
+    "Within 15 seconds, scroll, press another row, move the editor or type/submit. Check whether deletion is still recoverable and whether the stored data can be restored.",
+    "Delete multiple rows in succession, then attempt recovery; establish the current loss of earlier commands and specify the intended batching policy."
+  ],
+  "expected": "Recovery remains visible and reachable independently of the editor and scrolling. Routine navigation, typing and editor movement do not silently revoke it. Define safe behavior for further deletions and list mutations, with a clear countdown owned outside delegates.",
+  "design_proposal": [
+    "Floating snackbar-like bar anchored to the visible view, above bottom safe area or native keyboard, keeping the editor and its draft intact.",
+    "Font Awesome curved Undo arrow as an icon-only action, at least the existing 9.27 mm touch target. A short notification can identify the removed entry/count; no text label inside the action.",
+    "Accepted visual treatment: brief upward slide/settle on entry; use the whole bar as the timer, with a theme-tinted background fill receding across its full height. Keep the message, Undo icon, outer bounds and touch target stationary. Scrolling must not dismiss the bar or restart its deadline.",
+    "Proposed policy for review: further deletions join the current recovery batch and restart the 15-second window; Undo restores that batch in its intended order. This policy is not yet accepted or implemented.",
+    "Keep ownership and recovery logic KISS. The floating bar does not itself provide persistence across app termination; specify that separately if requested."
+  ],
+  "acceptance_criteria": [
+    "Add a regression first: delete with the editor offscreen, then scroll/press/move the editor and still activate a visible Undo action. Confirm original behavior fails and the fix passes.",
+    "Check actual saved names, UUIDs, checked flags and ordering after Undo across successive deletions, insertions, pending edits, editor movement, reorder/check operations, and list switching according to the chosen policy.",
+    "Verify view-owned deadline delivery despite delegate recycling; check exact expiry, repeated deletion, activation near expiry, keyboard show/hide and background/resume policy.",
+    "Validate actual Android keyboard/safe-area placement and one-handed reachability using isolated data; scrolling must remain possible and the bar must not obscure the last reachable row.",
+    "Record policy decisions, failing-before/passing-after regression results and rendering/platform evidence before closure."
+  ],
+  "related_tickets": ["DEV-011", "QA-003", "UI-006"],
+  "relevant_files": ["ShopView.qml", "InputDelegate.qml", "UndoIcon.qml", "View.qml", "model.cpp", "undoremove.cpp", "tests/flows/tst_userflows.qml", "DESIGN.md"],
+  "sources": ["https://developer.android.com/develop/ui/views/notifications/snackbar/action", "https://m3.material.io/components/snackbar/overview"]
+}

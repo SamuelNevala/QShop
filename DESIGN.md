@@ -49,6 +49,14 @@ text and restoring the original item when cancelling an unfinished edit.
 Accidental actions will still happen. The correction should require little
 movement and no search through the list.
 
+Accepted Undo visual design, 2026-11-03 (UI-023, implementation pending): use a
+floating bar above the keyboard or bottom safe area, independent of the movable
+editor. A tinted fill recedes across the whole background to show time remaining.
+Keep the message, Font Awesome Undo arrow, outer shape and full touch area fixed.
+The Undo action is icon-only; a short message identifies the removed item/count.
+Use a brief slide/settle animation and keep recovery reachable while scrolling.
+Successive-deletion batching and deadline rules remain proposals in UI-023.
+
 Checked items follow first-in, last-out order: the most recently checked item
 stays nearest the unchecked items. This puts the most likely mistake within easy
 reach. Preserve that ordering and the ability to reverse a check quickly.

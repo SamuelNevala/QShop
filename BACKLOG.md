@@ -13,7 +13,7 @@ intentional gestures, text fitting, animation, and list ordering intact.
 - Capture reports first. Do not implement fixes during backlog gathering.
 - Feature and code-quality requests are also backlog intake during this phase,
   unless the user explicitly asks to implement them now.
-- Keep stable IDs. Add new UI reports from UI-023 onward; UI-002 is already resolved.
+- Keep stable IDs. Add new UI reports from UI-024 onward; UI-002 is already resolved.
 - Distinguish user reports, previously observed bugs, source-review candidates,
   missing features, code-quality work, and validation tasks. Missing test coverage
   is not evidence of a bug.
@@ -89,6 +89,19 @@ regressions remain easy to trace.
 | [UI-020](tickets/UI-020.json) | canUndo bindings stay stale when readOnly changes | Resolved 2026-11-02: permanent QML binding regression fails before/passes after; all 284 Windows records, analyzers and formatting pass. Committed 790790d1; no normal phone-flow failure claimed | Unassigned |
 | [UI-021](tickets/UI-021.json) | Cleanup drops active list tables after catalog-read failure | Resolved 2026-11-02: permanent initial/partial-read regressions fail before/pass after; all 289 Windows records, analyzers and format pass. Committed e64e008e; no phone incident established | Major |
 | [UI-022](tickets/UI-022.json) | Failed reload exposes incomplete rows that a later edit saves over original data | Resolved 2026-11-03: permanent initial/partial read, editor/Undo and failed-switch regressions fail before/pass after; all 302 Windows records, analyzers and format pass. Committed 88e31d0b; no phone incident established | Major |
+
+### [UI-023 — Reachable Undo that survives routine interaction](tickets/UI-023.json)
+
+Major user report, 2026-11-03: Undo lives in the movable editor, which may be
+offscreen, and routine movement loses recovery. Source confirms scroll, row press
+and general pointer-grab handlers clear the stack; the deletion is already saved.
+Record separately from DEV-011. Visual design accepted 2026-11-03: an animated
+floating Undo bar above the keyboard/safe area, with a full-background countdown
+fill and stationary message, Font Awesome action and touch target. Implementation
+is pending; review batching/deadline policy when selecting the fix.
+Regression coverage must assert visible recovery and actual restored data after
+scrolling, editor movement and subsequent mutations; the current dismissal test
+encodes the old policy and must be replaced when the fix is selected.
 
 ### [UI-008 — Long-list background continuity](tickets/UI-008.json)
 
