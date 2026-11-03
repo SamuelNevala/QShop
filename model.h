@@ -86,11 +86,6 @@ struct Item
         : name(std::move(name)), checked(checked), uuid(uuid)
     {
     }
-    Item(const Item &) = default;
-    Item &operator=(const Item &) = default;
-    Item(Item &&) noexcept = default;
-    Item &operator=(Item &&) noexcept = default;
-    ~Item() = default;
     QString name;
     bool checked = false;
     QUuid uuid;
@@ -172,7 +167,6 @@ private:
     static QUuid resolve(const QString &name);
     static QString resolve(QUuid identifier);
     void createList(const Item &row);
-    [[nodiscard]] const QUuid &activeListId() const;
     void setActiveListId(QUuid identifier);
     void dropRemovedTables() const;
 

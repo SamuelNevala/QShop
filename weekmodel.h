@@ -1,8 +1,6 @@
 #ifndef WEEKMODEL_H
 #define WEEKMODEL_H
 
-#include <utility>
-
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QDate>
 #include <QtCore/QHash>
@@ -17,14 +15,6 @@
 
 struct Day
 {
-    Day() = default;
-    Day(QString &&name, QString &&number) : name(std::move(name)), number(std::move(number)) { }
-    Day(const Day &) = default;
-    Day &operator=(const Day &) = default;
-    Day(Day &&) noexcept = default;
-    Day &operator=(Day &&) noexcept = default;
-    ~Day() = default;
-
     QString name;
     QString number;
 };
@@ -53,7 +43,6 @@ protected:
 private:
     void populateModel(QDate today);
 
-    int m_timerId = 0;
     QList<Day> m_week;
     QDate m_today;
 };

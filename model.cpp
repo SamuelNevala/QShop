@@ -32,11 +32,6 @@ constexpr QByteArrayView kEditor{ "editor" };
 constexpr QByteArrayView kId{ "id" };
 constexpr QByteArrayView kName{ "name" };
 
-static inline bool operator==(const Item &left, const Item &right)
-{
-    return left.name == right.name && left.checked == right.checked;
-}
-
 Model::Model(QObject *parent) Q_DECL_NOTHROW : QAbstractListModel(parent)
 {
     connect(&m_stack, &QUndoStack::canUndoChanged, this, &Model::canUndoChanged);
@@ -283,7 +278,7 @@ void Model::setChecked(qsizetype index, bool checked)
         return;
     }
 
-    move(index, checked ? checkedIndex(index) - 1 : 0);
+    move(index, checked ? checkedIndex(index) - 1 : 0, Save::NO);
     save();
 }
 
@@ -474,15 +469,14 @@ void Model::move(qsizetype source, qsizetype destination, Save changes)
         return;
     }
 
-    if (m_readOnly
-        || !beginMoveRows(QModelIndex(), static_cast<int>(source), static_cast<int>(source),
-                          QModelIndex(),
-                          static_cast<int>(destination + (destination > source ? 1 : 0)))) {
+    if (!beginMoveRows(QModelIndex(), static_cast<int>(source), static_cast<int>(source),
+                       QModelIndex(),
+                       static_cast<int>(destination + (destination > source ? 1 : 0)))) {
         return;
     }
 
     const auto previousEditor = m_editorIndex;
-    m_items.insert(destination, 1, m_items.takeAt(source));
+    m_items.move(source, destination);
     if (m_editorIndex == source) {
         m_editorIndex = destination;
     } else if (source < m_editorIndex && destination >= m_editorIndex) {
@@ -536,7 +530,6 @@ void Model::removeAll(Save changes)
     endRemoveRows();
     Q_EMIT countChanged();
     if (changes == Save::NO) {
-        remove.reset();
         return;
     }
     save();
@@ -587,7 +580,6 @@ void Model::save()
     }
 
     query.prepare(SQL::insertTo().arg(table));
-    QSqlError error;
     for (const auto &item : std::as_const(m_items)) {
         // The editor is only a placeholder until the replacement is submitted.
         const auto &savedItem =
@@ -600,17 +592,12 @@ void Model::save()
             query.addBindValue(savedItem.checked);
 
             if (!query.exec()) {
-                error = query.lastError();
                 qWarning() << "Failed to insert item to " << resolve(m_activeListId) << "("
-                           << m_activeListId << ") while saving. Error:" << error;
-                break;
+                           << m_activeListId << ") while saving. Error:" << query.lastError();
+                database.rollback();
+                return;
             }
         }
-    }
-
-    if (error.isValid()) {
-        database.rollback();
-        return;
     }
 
     if (!database.commit()) {
@@ -692,11 +679,6 @@ void Model::createList(const Item &row)
     }
 }
 
-const QUuid &Model::activeListId() const
-{
-    return m_activeListId;
-}
-
 void Model::setActiveListId(QUuid identifier)
 {
     if (m_activeListId == identifier) {
@@ -714,13 +696,11 @@ void Model::dropRemovedTables() const
         return;
     }
 
-    QList<Item> activeLists;
+    QList<QUuid> activeLists;
     QSqlQuery query(SQL::selectFrom().arg(SQL::tableLists()), QSqlDatabase::database());
     while (query.next()) {
-        activeLists.append(Item(query.value(kName).toString(), query.value(kChecked).toBool(),
-                                query.value(kId).toUuid()));
+        activeLists.append(query.value(kId).toUuid());
     }
-
     if (query.lastError().isValid()) {
         qWarning() << "Failed to read list catalog before table cleanup. Error:"
                    << query.lastError();
@@ -740,12 +720,8 @@ void Model::dropRemovedTables() const
         }
     }
 
-    const auto begin = activeLists.cbegin();
-    const auto end = activeLists.cend();
     for (const auto &uuid : uuids) {
-        const auto result =
-                std::find_if(begin, end, [&uuid](const Item &value) { return value.uuid == uuid; });
-        if (result == end) {
+        if (!activeLists.contains(uuid)) {
             qWarning() << "Drop table " << uuid;
             if (!query.exec(SQL::drop().arg(uuid.toString(QUuid::WithoutBraces)))) {
                 qWarning() << "Failed to drop table " << uuid << ". Error:" << query.lastError();

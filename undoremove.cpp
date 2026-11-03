@@ -11,18 +11,17 @@ UndoRemove::UndoRemove(Model &model) : m_model(model) { }
 void UndoRemove::undo()
 {
     while (!m_items.empty()) {
-        m_model.insert(m_indexs.takeFirst(), std::move(m_items.takeFirst()));
+        auto removed = m_items.takeFirst();
+        m_model.insert(removed.index, std::move(removed.item));
     }
 }
 
 void UndoRemove::append(Item &&item, qsizetype index)
 {
-    m_items.append(std::move(item));
-    m_indexs.append(index);
+    m_items.append(RemovedItem{ .item = std::move(item), .index = index });
 }
 
 void UndoRemove::append(const Item &item, qsizetype index)
 {
-    m_items.append(item);
-    m_indexs.append(index);
+    m_items.append(RemovedItem{ .item = item, .index = index });
 }

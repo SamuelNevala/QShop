@@ -20,7 +20,7 @@ WeekModel::WeekModel(QObject *parent) Q_DECL_NOTHROW : QAbstractListModel(parent
 {
     populateModel(QDate::currentDate());
     // NOLINTNEXTLINE(misc-include-cleaner): the chrono literal is provided by the direct <chrono> include.
-    m_timerId = startTimer(1min);
+    startTimer(1min);
 }
 
 int WeekModel::rowCount(const QModelIndex &parent) const
@@ -71,17 +71,12 @@ void WeekModel::updateDate(QDate today)
 
 void WeekModel::populateModel(QDate today)
 {
-    if (!m_week.isEmpty()) {
-        beginRemoveRows(QModelIndex(), 0, static_cast<int>(m_week.count() - 1));
-        m_week.clear();
-        endRemoveRows();
-    }
-
     beginResetModel();
+    m_week.clear();
     m_today = today;
     for (qint32 days = 0; days <= kDays; ++days) {
-        m_week.append(Day(m_today.addDays(days).toString(QStringLiteral("ddd")),
-                          m_today.addDays(days).toString(QStringLiteral("d"))));
+        m_week.append(Day{ .name = m_today.addDays(days).toString(QStringLiteral("ddd")),
+                           .number = m_today.addDays(days).toString(QStringLiteral("d")) });
     }
     endResetModel();
 }

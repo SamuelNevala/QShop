@@ -16,9 +16,14 @@ public:
     void append(const Item &item, qsizetype index);
 
 private:
+    struct RemovedItem
+    {
+        Item item;
+        qsizetype index;
+    };
+
     Model &m_model;
-    QList<Item> m_items;
-    QList<qsizetype> m_indexs;
+    QList<RemovedItem> m_items;
 };
 
 #endif // UNDOREMOVE_H

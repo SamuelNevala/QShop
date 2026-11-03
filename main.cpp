@@ -110,11 +110,9 @@ int main(int argc, char *argv[])
     const auto databaseLocation = QDir(dataDirectory).filePath(QStringLiteral("shop_list.sqlite"));
     qDebug() << "Database location: " << databaseLocation;
     const QDir dir(QFileInfo(databaseLocation).absolutePath());
-    if (!dir.exists()) {
-        if (!dir.mkpath(QStringLiteral("."))) {
-            qWarning() << "Failed to create directory for database. Name: " << databaseLocation;
-            return -1;
-        }
+    if (!dir.mkpath(QStringLiteral("."))) {
+        qWarning() << "Failed to create directory for database. Name: " << databaseLocation;
+        return -1;
     }
 
     auto database = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"));
@@ -169,13 +167,8 @@ int main(int argc, char *argv[])
 #endif
     const QUrl url(QStringLiteral("qrc:/qt/qml/QShopper/main.qml"));
     QObject::connect(
-            &engine, &QQmlApplicationEngine::objectCreated, &application,
-            [url](QObject *obj, const QUrl &objUrl) {
-                if (!obj && url == objUrl) {
-                    QCoreApplication::exit(-1);
-                }
-            },
-            Qt::QueuedConnection);
+            &engine, &QQmlApplicationEngine::objectCreationFailed, &application,
+            [] { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
 #ifdef Q_OS_ANDROID
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &application,
                      [](QObject *object, const QUrl &) {
