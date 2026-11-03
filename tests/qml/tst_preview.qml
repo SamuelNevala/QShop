@@ -31,7 +31,6 @@ Item {
 
         IconButton {
             width: Theme.pixels(18)
-            maximumLineCount: 2
             text: "Remove checked"
         }
     }

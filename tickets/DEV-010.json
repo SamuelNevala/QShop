@@ -1,0 +1,239 @@
+{
+  "id": "DEV-010",
+  "title": "Use a layout for IconButton content and honor inherited display modes",
+  "status": "resolved",
+  "type": "code_quality",
+  "created": "2026-11-01",
+  "selected": "2026-11-01",
+  "reported_by": "User during DEV-006 IconButton review",
+  "scope": "User requested replacing the contentItem Item/manual positioning with a Layout variant, preferring Layout containers over Row/Column positioners, and asked that the inherited button display mode be respected. Subsequent user-requested simplification removes the public line-count alias, fixes captions at two lines, uses content-driven height, and removes redundant false fill settings.",
+  "expected": "One FlexboxLayout arranges the existing icon-font glyph and caption. IconOnly, TextOnly, TextBesideIcon and TextUnderIcon work on creation and when changed. Explicit TextUnderIcon default preserves the current drawer presentation.",
+  "implementation_notes": [
+    "Keep caller-owned sizes and the existing 8 mm circle and 5.5 mm glyph. Captions use a shared internal two-line cap and natural implicit height rounded up; one-line captions stay compact. Preserve existing font glyphs and Material colors.",
+    "Use preferred sizes, fill policies and directional margins on direct layout children; remove their manual x/y/width/height positioning.",
+    "Reserve caption height by rounding up to whole pixels, preventing Yoga pixel rounding from eliding the last line.",
+    "Keep directional Layout margins: replacing them with Layout.margins did not retain the glyph top offset in the supported Qt 6.12 Flexbox setup.",
+    "Do not combine unrelated UI-017 changes or a font/icon-library migration."
+  ],
+  "regression": {
+    "file": "tests/qml/tst_iconbutton.qml",
+    "before": "Original implementation: 15 passed / 4 failed. Explicit IconOnly, TextOnly and TextBesideIcon expectations fail; explicit default/live-mode contract also fails. The 12 existing drawer geometry cases pass.",
+    "after_focused": "21 records pass with no warnings on native Windows and offscreen after final simplification and qmlformat.",
+    "coverage": "Six current drawer labels at scales 1/2, circle/glyph/caption geometry and resizing, four display modes, live mode changes, click delivery and disabled-click rejection. Real font/line assertions run where actual text fonts exist. Caption text changes grow/shrink the button and enforce a two-line cap without caller configuration.",
+    "artifacts": [
+      "out/dev010/before-native.txt",
+      "out/dev010/final-windows.txt",
+      "out/dev010/final-offscreen.txt"
+    ],
+    "before_detail": "The three explicit IconOnly/TextOnly/TextBesideIcon cases reproduce ignored inherited display behavior. The fourth failure enforces the newly explicit under-icon default/live-switch contract; legacy drawer geometry passes all 12 data rows."
+  },
+  "verification": {
+    "date": "2026-11-01",
+    "windows": {
+      "ctest_entries": 4,
+      "records": {
+        "ui": {
+          "tests": 178,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 65,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "total": 268,
+      "seconds": 291.43,
+      "passed": true
+    },
+    "focused": {
+      "original_native": {
+        "passed": 15,
+        "failed": 4
+      },
+      "final_native": {
+        "passed": 21,
+        "failed": 0
+      },
+      "final_offscreen": {
+        "passed": 21,
+        "failed": 0
+      },
+      "before_simplification_native": {
+        "passed": 10,
+        "failed": 11
+      }
+    },
+    "android": {
+      "serial": "emulator-5580",
+      "checks": 137,
+      "failed": 0,
+      "drawer_default": "TextUnderIcon",
+      "package": "out/dev010/QShopper-simplified-debug.apk",
+      "native_library_verified_after_strip": true,
+      "isolated_data": true,
+      "physical_device_install": false,
+      "headless_emulator_started_and_stopped_for_task": true
+    },
+    "format": {
+      "passed": true,
+      "files": 54
+    },
+    "visual": {
+      "four_mode_preview": "out/dev010/iconbutton-modes.png",
+      "android_drawer_inspected": "out/dev010/simplify/android-drawer/light/drawer.png"
+    },
+    "source_sha256": {
+      "IconButton.qml": "229acec4654d9f5db0c17a6d0236446aa8e25e1d5aa1176ee6c60e5df14eda78",
+      "View.qml": "f0f924e5b7e515fa5023214631715c834769642a4ba73a39bed2a4fe5913bb71",
+      "tests/qml/tst_iconbutton.qml": "c64ed03dee222b65580c79827b7033aad4c6d8f4baec3fd238923e10a3481c92",
+      "tests/qml/tst_preview.qml": "6d0cd0e7375ad7f4e5052015a8f2cf70ffadb6cdb515ff94fda55d28c4b2f431",
+      "CMakeLists.txt": "db671af8b81c8299e3d1eb56f2b00e3677736dbc9c3b5d3ab2e4d0cb8295c38e",
+      "CartOutIcon.qml": "cb5c0adb8c10cab7539f6fd6d6ff0fb04b6e49ee832b34ec3e0ee5d94d227f19"
+    },
+    "limits": "All four modes tested on native Windows/offscreen. Android checks exercise the production under-icon drawer and native theme surfaces, not custom alternative-mode screens. No physical phone/ARM64 runtime or exhaustive translated-label/RTL certification. C++ unchanged; analyzer scans were not rerun."
+  },
+  "related_tickets": [
+    "DEV-006"
+  ],
+  "references": [
+    "https://doc.qt.io/qt-6/qml-qtquick-controls-abstractbutton.html#display-prop",
+    "https://doc.qt.io/qt-6/qml-qtquick-layouts-flexboxlayout.html"
+  ],
+  "implementation_state": "ready_for_user_review",
+  "priority": "unassigned",
+  "verification_commands": [
+    "./tools/verify-windows.ps1 -Jobs 2",
+    "qshopper_ui_tests.exe -input tests/qml/tst_iconbutton.qml -import out/windows-agent -platform windows",
+    "cmake --build out/dev004/android-x86 --target application --parallel 2",
+    "python tests/android/test_safeborder.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --drawer --output out/dev010/simplify/android-drawer"
+  ],
+  "artifacts": [
+    "out/dev010/verification-summary.json",
+    "out/dev010/before-native.txt",
+    "out/dev010/final-windows.txt",
+    "out/dev010/final-offscreen.txt",
+    "out/dev010/verify-windows-final.txt",
+    "out/dev010/android-native-final.txt",
+    "out/dev010/android-package-final.txt",
+    "out/dev010/apk-native-check.json",
+    "out/dev010/android-drawer/results.json",
+    "out/dev010/iconbutton-modes.png",
+    "out/dev010/simplify/verification-summary.json",
+    "out/dev010/simplify/verify-windows.txt",
+    "out/dev010/simplify/android-native.txt",
+    "out/dev010/simplify/android-package.txt",
+    "out/dev010/simplify/apk-native-check.json",
+    "out/dev010/simplify/format-check.json",
+    "out/dev010/simplify/android-drawer/results.json"
+  ],
+  "review_notes": "Final source uses directional margins, content-driven caption height rounded up, and an internal two-line cap. Redundant caller overrides and false fill settings are removed. qmlformat and combined verification pass. Changes remain uncommitted; closure/commit await user acceptance.",
+  "verification_before_simplification": {
+    "date": "2026-11-01",
+    "windows": {
+      "ctest_entries": 4,
+      "records": {
+        "ui": {
+          "tests": 176,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 65,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "total": 266,
+      "seconds": 288.13,
+      "passed": true
+    },
+    "focused": {
+      "original_native": {
+        "passed": 15,
+        "failed": 4
+      },
+      "final_native": {
+        "passed": 19,
+        "failed": 0
+      },
+      "final_offscreen": {
+        "passed": 19,
+        "failed": 0
+      }
+    },
+    "android": {
+      "serial": "emulator-5580",
+      "checks": 137,
+      "failed": 0,
+      "drawer_default": "TextUnderIcon",
+      "package": "out/dev010/QShopper-final-debug.apk",
+      "native_library_verified_after_strip": true,
+      "isolated_data": true,
+      "physical_device_install": false,
+      "headless_emulator_started_and_stopped_for_task": true
+    },
+    "format": {
+      "passed": true,
+      "files": 54
+    },
+    "visual": {
+      "four_mode_preview": "out/dev010/iconbutton-modes.png",
+      "android_drawer_inspected": "out/dev010/android-drawer/light/drawer.png"
+    },
+    "source_sha256": {
+      "IconButton.qml": "969251869008b3d3641c42beb8ec43146118d4b0b1e34e7305ad26aa91c525cf",
+      "tests/qml/tst_iconbutton.qml": "fc43c142618ec868e2225709ce66c2347348d7b713e811e07dd654a622c8662e",
+      "CMakeLists.txt": "db671af8b81c8299e3d1eb56f2b00e3677736dbc9c3b5d3ab2e4d0cb8295c38e",
+      "CartOutIcon.qml": "cb5c0adb8c10cab7539f6fd6d6ff0fb04b6e49ee832b34ec3e0ee5d94d227f19"
+    },
+    "limits": "All four modes tested on native Windows/offscreen. Android checks exercise the production under-icon drawer and native theme surfaces, not custom alternative-mode screens. No physical phone/ARM64 runtime or exhaustive translated-label/RTL certification. C++ unchanged; analyzer scans were not rerun."
+  },
+  "simplification": {
+    "before": "Updated contract tests on previous implementation: 10 passed / 11 failed.",
+    "after": "21 passed natively and offscreen; 268 full Windows records and 137 Android drawer checks pass.",
+    "fill_defaults": "16 combinations across modes, scales and width constraints; 18 records including fixtures pass without explicit false fills.",
+    "format": "All 54 current QML/template sources pass qmlformat with .qmlformat.ini.",
+    "artifacts": [
+      "out/dev010/simplify/before-native.txt",
+      "out/dev010/simplify/after-windows.txt",
+      "out/dev010/simplify/after-offscreen.txt",
+      "out/dev010/fill-defaults/native.txt"
+    ]
+  },
+  "resolved": "2026-11-03",
+  "resolution": {
+    "summary": "Selected layout/display-mode implementation and subsequent caption simplifications accepted through DEV-006 closure. Included with its caller changes and permanent IconButton tests.",
+    "verification": "Final 302 Windows records pass; earlier 21-record native/offscreen IconButton checks and 137 native Android checks remain recorded above.",
+    "user_acceptance": "2026-11-03: user accepted completed review and requested ticket closure and several focused commits."
+  }
+}

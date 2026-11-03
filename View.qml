@@ -237,7 +237,6 @@ Style.Control {
 
                                 IconButton {
                                     implicitWidth: Theme.pixels(12)
-                                    maximumLineCount: 2
                                     text: qsTr("Reset\nchecks")
 
                                     onClicked: {
@@ -256,7 +255,6 @@ Style.Control {
 
                                 IconButton {
                                     implicitWidth: Theme.pixels(12)
-                                    maximumLineCount: 2
                                     text: qsTr("Remove\nchecked")
 
                                     onClicked: {
@@ -275,7 +273,6 @@ Style.Control {
 
                                 IconButton {
                                     implicitWidth: Theme.pixels(12)
-                                    maximumLineCount: 2
                                     text: qsTr("Clear\nlist")
 
                                     onClicked: {
