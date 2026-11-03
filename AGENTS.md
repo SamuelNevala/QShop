@@ -1,6 +1,6 @@
 # QShopper agent workflow
 
-QShopper uses C++20, Qt 6.10 or newer, and CMake 3.25 or newer.
+QShopper uses C++20, Qt 6.12 or newer, and CMake 3.25 or newer.
 The validated Windows development kit is Qt 6.12.0 MSVC 2022 x64.
 Qt Creator and its MCP server are optional; all verification runs from PowerShell.
 
@@ -156,7 +156,14 @@ A button-layout regression preserves the six drawer captions at two preview scal
 and checks all four inherited display modes, live mode changes and enabled/disabled
 click delivery. It uses the production IconButton; native Windows runs establish
 actual text-font/line behavior that offscreen's fallback font cannot certify.
-The Qt Quick Test suite runs offscreen; it does not certify the full app's menu or visual appearance.
+The general Qt Quick Tests run offscreen/software; they do not render Canvas2D
+and may log its unsupported-renderer warning. The separate Windows
+qshopper_canvas_tests entry uses a native window and D3D11 WARP for real QRhi
+rendering. It checks the Undo arc in both themes, at two preview scales/sizes,
+plus countdown start/stop/restart and initial-enabled caller behavior.
+Harness rendering does not certify the full app's menu or Android appearance.
+tests/android/test_undocanvas.py checks native Android arc progression, expiry and
+actual Undo restoration in both themes with disposable data.
 Coverage is optional and separate from the normal verification command.
 
 The current interaction inventory and platform gaps are in tests/INTERACTIONS.md.

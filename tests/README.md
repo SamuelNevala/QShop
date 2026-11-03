@@ -126,6 +126,45 @@ Verified with MSVC 19.44 / Qt 6.12: **94.56% (452/478 lines)**.
 
 ## UI behavior verification
 
+DEV-011 migrates UndoIcon to `QtCanvas2D.Canvas2D` (Qt 6.12 technology preview)
+with `Qt6::CanvasPainter` linked and `QtCanvas2D` declared as a module dependency.
+Its fill is explicitly transparent with alpha blending; Canvas2D clears each
+frame, so the previous Canvas `clearRect()` is unnecessary. The 15-second
+animation, enable/stop/restart and caller-owned timeout/Undo remain unchanged.
+
+General QML CTest entries retain offscreen/software behavior coverage. They cannot
+render Canvas2D and can log `No QRhi found ... QQuickRhiItem will not be functional`.
+The additional Windows rendering entry uses a native window and D3D11 WARP:
+the offscreen platform cannot create its swapchain. WARP renders through the
+graphics pipeline with a software adapter. This entry briefly shows a window and
+requires a Windows desktop session. It fails on warnings or an absent/opaque arc;
+offscreen passes alone do not establish correct Canvas2D rendering.
+
+The additional `qshopper_canvas_tests` entry runs `rendering/tst_undocanvas.qml`.
+It samples the actual arc, verifies the underlying background remains visible,
+and checks bounds, stroke/color, full/half/empty sweeps, two themes, two preview
+scales and two sizes. It also checks stopping/restarting and the initial-enabled
+InputDelegate path. The existing `UserFlows::test_undo_expires` verifies real
+15-second timeout delivery and retained deletion. Run everything normally:
+
+```powershell
+./tools/verify-windows.ps1 -Jobs 2
+```
+
+The native Android companion uses the production APK, disposable data and
+screenshots at the beginning, midpoint and expiry of the countdown, then taps
+the actual Undo control to verify restoration in Light and Dark. It requires
+Pillow and targets only an emulator:
+
+```powershell
+python tests/android/test_undocanvas.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-undocanvas
+```
+
+Qt Canvas Painter is distributed under commercial or GPLv3 terms, as listed in
+[Qt's module documentation](https://doc.qt.io/qt-6/qtcanvaspainter-index.html).
+Include this dependency in UI-012's About/licenses inventory and REL-001's
+publication review. Module availability and an x86_64 test do not certify ARM64.
+
 DEV-007's `qml/tst_catalogproxy.qml` exercises the actual drawer proxy and selector.
 The same six characterization records run against the original C++ wrapper and
 its QtQml.Models replacement. They verify unchecked-only catalog filtering,
@@ -239,8 +278,9 @@ drawer's list and color selector geometry. The former blank fresh-install select
 is resolved as UI-001, with current rendering verification documented below.
 That earlier run did not cover the later changes.
 
-The offscreen suite does not validate the complete drawer, list switching,
-long-press reordering, touch input, actual monitor/DPI switching, or Android behavior.
+The harness does not certify every full-app drawer/list/reordering interaction,
+actual monitor/DPI switching, or Android behavior; use the linked native checks
+and interaction inventory for the current coverage.
 
 ## Desktop Debug preview scale
 
@@ -345,7 +385,8 @@ exercise on-screen letter and Enter keys, submission of committed preedit text,
 hide/reopen without resizing the window, preview resize, and drawer dismissal.
 Its JUnit report is `out/windows-agent/tests/keyboard-tests.xml`.
 These tests use the same in-memory database and temporary settings as the ordinary
-UI suite. Native Windows rendering checks complement the offscreen CTest run.
+UI suite. Native Windows rendering checks complement the offscreen CTest run;
+DEV-011 adds its focused native rendering entry to normal Windows verification.
 
 Verified on Windows, 2026-10-27: Debug application build and all three CTest entries
 passed (52 model records, 27 ordinary QML records, 5 keyboard records). Release
@@ -743,7 +784,7 @@ and 61 model records on 2026-10-31. Reports use the `ui001-*` prefix under
 The model resolves the initial `default` alias to a UUID. ShopView now persists
 that resolved UUID, and the drawer binds `currentValue` to the active setting
 instead of maintaining duplicate index assignments. The writable ComboBox value
-is supported by the project's Qt 6.10 minimum. Display names and UUIDs keep their
+is supported by the project's Qt 6.12 minimum. Display names and UUIDs keep their
 separate roles; the zero-UUID lists-management entry is preserved.
 
 The native popup script now checks initial list selection and optionally verifies
@@ -1042,7 +1083,7 @@ No GUI settings were changed and no Android/physical-device run is claimed.
 
 ## Build configuration (DEV-004)
 
-The root build requires **CMake 3.25+**, **C++20**, and **Qt 6.10+**. The normal
+The root build requires **CMake 3.25+**, **C++20**, and **Qt 6.12+**. The normal
 Windows workflow remains `./tools/verify-windows.ps1`; its preset and target names
 are unchanged. Qt's standard project setup supplies AUTOMOC. App and test targets
 still share the production QShopper library, so model code is compiled once per

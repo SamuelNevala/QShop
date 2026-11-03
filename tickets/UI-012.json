@@ -15,10 +15,11 @@
     "Bundle the license information so it is available offline. Identify each component and its applicable license; include relevant copyright and attribution notices.",
     "Keep the presentation KISS, readable, scrollable and consistent with the app theme, safe areas and touch sizing. Choose the concrete About presentation when implementing.",
     "Keep opening and closing About from disrupting the shopping list, checked state, editor position or unfinished text.",
-    "Coordinate the component inventory with REL-001's release licensing review; this feature alone does not establish release readiness."
+    "Coordinate the component inventory with REL-001's release licensing review; this feature alone does not establish release readiness.",
+    "DEV-011 adds Qt Canvas Painter / QtCanvas2D. The installed module and official documentation identify commercial or GPL-3.0-only licensing; include its actual bundled license and notices in the shipped dependency inventory. See https://doc.qt.io/qt-6/qtcanvaspainter-index.html."
   ],
   "relevant_files": ["View.qml", "Menu.qml", "CMakeLists.txt", "ANDROID.md", "DESIGN.md"],
-  "related_tickets": ["REL-001", "QA-003"],
+  "related_tickets": ["REL-001", "QA-003", "DEV-011"],
   "acceptance_criteria": [
     "The drawer provides an accessible About component or entry that exposes the open-source license information.",
     "The displayed inventory matches the dependencies and third-party assets actually shipped in the app, with identifiable components, license texts and attribution notices.",

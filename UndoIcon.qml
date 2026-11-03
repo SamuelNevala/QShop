@@ -1,3 +1,4 @@
+import QtCanvas2D
 import QtQuick
 import QtQuick.Controls.Material
 
@@ -24,7 +25,7 @@ Icon {
             ColorAnimation {}
         }
 
-        Canvas {
+        Canvas2D {
             id: canvas
 
             property real angle: base * 9
@@ -36,10 +37,12 @@ Icon {
             property real startAngle: base * 3
             property real radius: arcX - lineWidth
 
+            fillColor: "transparent"
+            alphaBlending: true
+
             onDelayChanged: requestPaint()
             onPaint: {
                 const context = getContext("2d");
-                context.clearRect(0, 0, width, height);
                 context.strokeStyle = root.color;
                 context.lineWidth = lineWidth;
                 context.beginPath();

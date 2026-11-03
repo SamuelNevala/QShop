@@ -8,6 +8,8 @@ or gesture works. Direct model calls in UI fixtures only arrange test data.
 and actual controls in a separate repeatable CTest entry. Native Windows runs
 check the same flows with real rendering. `keyboard/` loads the real desktop VKB.
 Android scripts drive only the isolated emulator and use disposable data/settings.
+DEV-011 adds `rendering/tst_undocanvas.qml` as a native Windows/WARP CTest entry
+for the rendered Undo arc; general offscreen tests do not render Canvas2D.
 Older ticket evidence is mapped here without claiming every native matrix was
 rerun during QA-003. See the run record below for what actually ran.
 
@@ -37,7 +39,7 @@ rerun during QA-003. See the run record below for what actually ran.
 | Remove checked from drawer; Undo restores checked stack | `UserFlows::test_drawer_removal:checked`: actual drawer button and icon, order/checks | `test_reset.py --case remove`: SQLite names/order/checks/IDs |
 | Clear list from drawer; Undo restores | `UserFlows::test_drawer_removal:all`: actual mouse/touch Undo after all departing delegates settle; full restoration assertions | `test_reset.py --case clear`: passing native touch control |
 | Remove checked with no checks is a no-op | `UserFlows::test_remove_checked_without_checks_is_noop` | Generic native no-check action not yet added |
-| Undo expires at its actual timeout | `UserFlows::test_undo_expires`: wait for the real 15-second timer, then verify menu access and retained deletion | Shared timer path; no separate native expiry run |
+| Undo expires at its actual timeout | `UserFlows::test_undo_expires`: wait for the real 15-second timer, then verify menu access and retained deletion; `rendering/tst_undocanvas.qml`: rendered sweep, physical sizing, themes and restart/stop | `test_undocanvas.py`: native beginning/midpoint/expiry screenshots and actual Undo restoration in both themes |
 | Another row interaction dismisses Undo | `UserFlows::test_other_interaction_dismisses_undo` | Dedicated native tap/scroll invalidation gap |
 | Reset checks, including mixed/pending edits and repeated Reset | `tst_reset.qml::test_drawer_reset`: real checks, drawer Reset, exact resulting order, retained draft and new window | `test_reset.py` default three cases: exact/mixed/pending plus force-stop/relaunch persistence |
 | Open list catalog through selector; create, rename, delete and Undo a list | `UserFlows::test_catalog_create_rename_delete_undo`: actual selection/entry/edit/delete/Undo, unchanged list ID and preserved contents | `test_entry.py`: native create/rename/delete/Undo/select, unchanged UUID and independent list contents |

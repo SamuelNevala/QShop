@@ -26,10 +26,11 @@
     "Reuse ANDROID.md, build-android.ps1, the verification workflow, and existing tickets rather than duplicating build or bug-tracking instructions.",
     "Record unknown account-specific requirements and user decisions explicitly instead of inventing account access, completed verification, or policy compliance.",
     "Do not commit signing secrets or store credentials. Define the release-key handling process before producing publication artifacts.",
-    "Separate readiness analysis, approved preparation changes, store submission, and actual publication so each step has concrete evidence and appropriate user authorization."
+    "Separate readiness analysis, approved preparation changes, store submission, and actual publication so each step has concrete evidence and appropriate user authorization.",
+    "DEV-011 raises the Qt baseline to 6.12 and adds Qt Canvas Painter / QtCanvas2D (commercial or GPLv3; Canvas2D is technology preview). Include its distribution terms/notices and target ABI deployment in release dependency review, linked to UI-012."
   ],
   "relevant_files": ["ANDROID.md", "build-android.ps1", "CMakeLists.txt", "CMakePresets.json", "android/AndroidManifest.xml", "android/res", "tests/README.md", "BACKLOG.md", "DESIGN.md"],
-  "related_tickets": ["QA-003", "UI-004", "UI-006", "UI-007", "UI-008", "UI-009", "UI-010", "UI-012", "UI-013"],
+  "related_tickets": ["QA-003", "UI-004", "UI-006", "UI-007", "UI-008", "UI-009", "UI-010", "UI-012", "UI-013", "DEV-011"],
   "acceptance_criteria": [
     "Create a publication checklist with ordered steps, dependencies, required inputs/decisions, and evidence required to finish each step.",
     "Confirm target store/account assumptions and cite current official requirements relevant to the selected publication path.",

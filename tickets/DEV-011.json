@@ -1,19 +1,19 @@
 {
   "id": "DEV-011",
   "title": "Migrate Undo countdown drawing from Canvas to Qt Canvas2D",
-  "status": "requested",
+  "status": "resolved",
   "type": "code_quality",
   "priority": "unassigned",
   "created": "2026-11-03",
   "reported_by": "user",
   "request": "Qt has also new Canvas migrate to that.",
-  "scope": "Backlog intake only. Migrate project Canvas drawing to QtCanvas2D.Canvas2D when selected; the current live Canvas use is UndoIcon.qml's countdown arc. No application change is implemented by this ticket intake.",
+  "scope": "Selected and resolved 2026-11-03. User approved the Qt 6.12 Canvas2D migration and requested closure and commit. The floating Undo redesign remains separate in UI-023.",
   "evidence": [
     "Current project-owned QML search finds one Canvas instance in UndoIcon.qml. Its delay property animates from 1 to 0 over 15000 ms, requests painting on delay changes, and emits timeout when the animation finishes.",
     "The arc is drawn through getContext(\"2d\"), clearRect, beginPath, arc and stroke, using Theme-derived line width and the owning icon color. InputDelegate.qml instantiates UndoIcon and forwards timeout.",
     "Official Qt documentation identifies Canvas2D in import QtCanvas2D, introduced in Qt 6.12 and currently technology preview. It is backed by Qt Canvas Painter.",
     "QtCanvas2D module metadata is present in the installed Qt 6.12 Windows MSVC x64, Android x86_64 and Android ARM64 kits. Availability of metadata alone is not deployment or rendered-behavior validation.",
-    "QShopper currently declares Qt 6.10 as its minimum. The normal QML CTest entries use an offscreen platform and software scene-graph backend."
+    "At intake QShopper declared Qt 6.10 minimum; normal QML CTest entries use offscreen/software. DEV-011 raises the minimum to 6.12 and adds a separate native rendering entry."
   ],
   "expected": "UndoIcon uses the new Canvas2D API with the same countdown appearance, physical sizing, theme response, enable/restart/stop behavior and timeout contract. Keep the implementation direct and consistent with DESIGN.md and CODING_GUIDELINES.md.",
   "implementation_notes": [
@@ -42,10 +42,277 @@
     "tests/README.md",
     "ANDROID.md"
   ],
-  "related_tickets": ["DEV-006", "UI-012", "REL-001"],
+  "related_tickets": [
+    "DEV-006",
+    "UI-012",
+    "REL-001"
+  ],
   "sources": [
     "https://doc.qt.io/qt-6/qtcanvas2d-qmlmodule.html",
     "https://doc.qt.io/qt-6/qml-qtcanvas2d-canvas2d.html",
-    "https://www.qt.io/blog/canvas2d-new-qml-canvas-element-using-qt-canvas-painter"
-  ]
+    "https://www.qt.io/blog/canvas2d-new-qml-canvas-element-using-qt-canvas-painter",
+    "https://doc.qt.io/qt-6/qcanvaspainteritem.html",
+    "https://doc.qt.io/qt-6/qtquick-visualcanvas-scenegraph-renderer.html"
+  ],
+  "implementation": {
+    "date": "2026-11-03",
+    "summary": "Import QtCanvas2D and use Canvas2D with explicit transparent fill and alpha blending. Remove redundant clearRect because Canvas2D clears every frame. Preserve geometry, theme-derived stroke, 15000 ms animation, enable/restart/stop and caller-owned Undo/timeout.",
+    "build": "Qt 6.12 minimum, required CanvasPainter component/link and explicit QtCanvas2D QML dependency. No compatibility branch or alternate production renderer.",
+    "tests": [
+      "tests/rendering/tst_undocanvas.qml: full/half/empty sweep, transparent background, themes, two scales/sizes, ring bounds/color, start/stop/restart and initial-enabled caller path.",
+      "tests/android/test_undocanvas.py: 12 native before/after checks for actual arc progression, 15-second expiry/deletion and Undo restoration in both themes.",
+      "Existing UserFlows::test_undo_expires and deletion/Undo, drawer, editor and keyboard suites remain in normal verification."
+    ],
+    "licensing": "Qt Canvas Painter is commercial or GPLv3. Add actual bundled notices to UI-012 and review distribution terms during REL-001; no store publication is part of this migration.",
+    "verification": {
+      "command": "./tools/verify-windows.ps1 -Jobs 2",
+      "windows": {
+        "ui": {
+          "records": 190,
+          "seconds": 186.906,
+          "passed": true
+        },
+        "flow": {
+          "records": 19,
+          "seconds": 89.146,
+          "passed": true
+        },
+        "keyboard": {
+          "records": 6,
+          "seconds": 5.994,
+          "passed": true
+        },
+        "model": {
+          "records": 93,
+          "seconds": 0.199,
+          "passed": true
+        },
+        "canvas": {
+          "records": 8,
+          "seconds": 8.128,
+          "passed": true
+        }
+      },
+      "windows_total": 316,
+      "baseline": "Original Canvas: all 8 characterization records passed; all 6 focused rendered records also passed with the strengthened background assertion against a HEAD source copy. Final Canvas2D: all 8 normal native/WARP records pass.",
+      "android": {
+        "kit": "Qt 6.12.0 Android x86_64",
+        "serial": "emulator-5580",
+        "before": [
+          {
+            "case": "0_arc_initial",
+            "passed": true,
+            "samples": 32
+          },
+          {
+            "case": "0_delete",
+            "passed": true
+          },
+          {
+            "case": "0_arc_half",
+            "passed": true,
+            "samples": 17
+          },
+          {
+            "case": "0_arc_expired",
+            "passed": true,
+            "samples": 0
+          },
+          {
+            "case": "0_expiry_keeps_deletion",
+            "passed": true
+          },
+          {
+            "case": "0_undo_restores",
+            "passed": true
+          },
+          {
+            "case": "1_arc_initial",
+            "passed": true,
+            "samples": 32
+          },
+          {
+            "case": "1_delete",
+            "passed": true
+          },
+          {
+            "case": "1_arc_half",
+            "passed": true,
+            "samples": 17
+          },
+          {
+            "case": "1_arc_expired",
+            "passed": true,
+            "samples": 0
+          },
+          {
+            "case": "1_expiry_keeps_deletion",
+            "passed": true
+          },
+          {
+            "case": "1_undo_restores",
+            "passed": true
+          }
+        ],
+        "after": [
+          {
+            "case": "0_arc_initial",
+            "passed": true,
+            "samples": 31
+          },
+          {
+            "case": "0_delete",
+            "passed": true
+          },
+          {
+            "case": "0_arc_half",
+            "passed": true,
+            "samples": 17
+          },
+          {
+            "case": "0_arc_expired",
+            "passed": true,
+            "samples": 0
+          },
+          {
+            "case": "0_expiry_keeps_deletion",
+            "passed": true
+          },
+          {
+            "case": "0_undo_restores",
+            "passed": true
+          },
+          {
+            "case": "1_arc_initial",
+            "passed": true,
+            "samples": 32
+          },
+          {
+            "case": "1_delete",
+            "passed": true
+          },
+          {
+            "case": "1_arc_half",
+            "passed": true,
+            "samples": 17
+          },
+          {
+            "case": "1_arc_expired",
+            "passed": true,
+            "samples": 0
+          },
+          {
+            "case": "1_expiry_keeps_deletion",
+            "passed": true
+          },
+          {
+            "case": "1_undo_restores",
+            "passed": true
+          }
+        ],
+        "apk_libraries": [
+          "lib/x86_64/libQt6Canvas2D_x86_64.so",
+          "lib/x86_64/libQt6CanvasPainter_x86_64.so",
+          "lib/x86_64/libqml_QtCanvas2D_canvas2dplugin_x86_64.so"
+        ],
+        "isolated_data": true,
+        "physical_device_install": false,
+        "started_emulator_stopped": true,
+        "final_with_empty_list_guard": [
+          {
+            "case": "0_arc_initial",
+            "passed": true,
+            "samples": 31
+          },
+          {
+            "case": "0_delete",
+            "passed": true
+          },
+          {
+            "case": "0_arc_half",
+            "passed": true,
+            "samples": 17
+          },
+          {
+            "case": "0_arc_expired",
+            "passed": true,
+            "samples": 0
+          },
+          {
+            "case": "0_expiry_keeps_deletion",
+            "passed": true
+          },
+          {
+            "case": "0_undo_restores",
+            "passed": true
+          },
+          {
+            "case": "1_arc_initial",
+            "passed": true,
+            "samples": 32
+          },
+          {
+            "case": "1_delete",
+            "passed": true
+          },
+          {
+            "case": "1_arc_half",
+            "passed": true,
+            "samples": 17
+          },
+          {
+            "case": "1_arc_expired",
+            "passed": true,
+            "samples": 0
+          },
+          {
+            "case": "1_expiry_keeps_deletion",
+            "passed": true
+          },
+          {
+            "case": "1_undo_restores",
+            "passed": true
+          }
+        ]
+      },
+      "formatting": {
+        "cpp": 9,
+        "qml": 56
+      },
+      "source_sha256": {
+        "UndoIcon.qml": "a6fe74e7cbcc92200213da9ad1cb7c2b604e5f20ff7c9bbd328758ceb8910a94",
+        "CMakeLists.txt": "8baa59ba080f936c06f8dcbd00e5e4d4ae8c813336cacf049f1ca7ba9d5bc03a",
+        "tests/CMakeLists.txt": "5d9570e058aee053a2ff3243e301dc7357f43f7637f9cab55a584a0dfc32c5b6",
+        "tests/rendering/tst_undocanvas.qml": "f20f4629ec0e975cfa0ca1b3aa235c75b887a691b949fcb6a2a858cb8d3183fb",
+        "tests/android/test_undocanvas.py": "104c21d7a08ae4bdd30ac6a8978cbc763a10c14fa087a9b944335a033ae82c38"
+      },
+      "warnings": "General offscreen/software tests cannot paint Canvas2D and log No QRhi found/QQuickRhiItem warnings. Existing DEV-001 PopupList member override remains. The native Undo rendering test fails on warnings. Android deployment scans may report historical imports from ignored build trees; the shipped Canvas2D plugin and real app launch are verified.",
+      "limits": [
+        "QtCanvas2D is a Qt 6.12 technology-preview API; recheck on upgrades.",
+        "ARM64 kit metadata exists but ARM64 build/runtime and physical phone were not tested.",
+        "A broad exploratory native Windows run produced 181 passes and 9 failures (SafeBorderColors 4, SwipeSensitivity 3, ThemeSizing 2). The general suite remains on its existing offscreen runner. Native density correction and screenshot assumptions need separate investigation before moving that entire suite to native rendering; this migration certifies the focused Undo rendering and Android paths only."
+      ],
+      "artifacts": [
+        "out/dev011/before-windows.txt",
+        "out/dev011/before-render-final.txt",
+        "out/dev011/verify-windows.log",
+        "out/dev011/android-configure.log",
+        "out/dev011/android-build.log",
+        "out/dev011/android-before/results.json",
+        "out/dev011/android-after/results.json",
+        "out/dev011/ui-native.txt",
+        "out/dev011/format.json",
+        "out/dev011/android-final/results.json"
+      ]
+    },
+    "migration_probe": "The initial type/import-only migration failed two dark-theme rendered records because Canvas2D defaults to an opaque black fill. Explicit transparent fill and alpha blending restore the original appearance; all eight final records pass, including the strengthened background assertion."
+  },
+  "resolved": "2026-11-03",
+  "resolution": {
+    "summary": "Use QtCanvas2D.Canvas2D with explicit transparency and alpha blending, preserve the Undo countdown contract, require Qt 6.12 and declare CanvasPainter/QtCanvas2D dependencies.",
+    "user_acceptance": "2026-11-03: ok close current ticket and commit changes.",
+    "verification": "All five normal Windows CTest entries pass: 316 records including 8 native Undo rendering records. Original Canvas characterization and 12 before/after native Android checks pass. Source hashes were rechecked before commit; QML formatting and git diff checks pass.",
+    "limits": "Existing offscreen QRhi and DEV-001 warnings, exploratory broad native Windows probe failures, preview API status and untested ARM64/physical-phone limits remain recorded in implementation.verification. UI-023 retains the separately reported Undo reachability/lifetime bug and accepted visual design.",
+    "commit": "Included with source, tests and documentation; see Git history."
+  }
 }
