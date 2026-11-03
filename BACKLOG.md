@@ -293,7 +293,7 @@ an option to evaluate, not an agreed migration; priority remains unassigned.
 | [DEV-004](tickets/DEV-004.json) | Simplify root/test CMake using KISS and adopt the user-selected C++20 baseline | Resolved 2026-11-01; user accepted. Windows suites, selected build configurations and 13 Android emulator checks pass |
 | [DEV-005](tickets/DEV-005.json) | Set up clang-tidy and Clazy with suitable checks, analyze the project, triage findings, and fix actionable issues | Resolved 2026-11-01; user accepted. All 505/100 checks retained: zero findings in 14 Windows and 10 Android analyzer runs, with narrow exceptions documented. Four Windows suites (247 records) and 47 native Android theme checks pass |
 | [DEV-006](tickets/DEV-006.json) | Analyze QML and C++ for simplicity and write practical KISS-based coding guidelines grounded in the current code | Resolved 2026-11-03; user accepted closure. All 11 C++ and 56 QML/template targets reviewed, guide complete. Changes split into ten focused commits, including five independent bug fixes with regressions. Combined 302 Windows records, ten native Windows records, analyzers and formatting pass; intermediate model states also build/pass. UI-017 and other deferred tickets remain separate |
-| [DEV-007](tickets/DEV-007.json) | Replace the project C++ proxy wrapper with QtQml.Models SortFilterProxyModel | Requested; migration deferred. Preserve drawer catalog filtering, name sorting, UUID selection and restart behavior; remove the redundant wrapper/build registration |
+| [DEV-007](tickets/DEV-007.json) | Replace the project C++ proxy wrapper with QtQml.Models SortFilterProxyModel | Resolved 2026-11-03; user confirmed the change works and requested commit. Baseline/replacement characterization, all 308 Windows records, 12 native Windows records and 38 native Android checks pass. Wrapper removed; Qt 6.10 API alias retained and Qt 6.12 kits validated |
 | [DEV-008](tickets/DEV-008.json) | Review Virtual Keyboard native libraries packaged in Android despite the native-IME configuration | Packaging candidate; same payload appears in old and new APKs. Investigate deployment requirements separately; no runtime keyboard defect established |
 | [DEV-009](tickets/DEV-009.json) | Remove unused WheelIcon, its module registration and disabled cart-wheel snippets | Resolved 2026-11-01 at user request. File, CMake entry and inactive snippets removed; 247 Windows records, Android native build/module checks and formatting of 53 remaining QML/templates pass. Committed 2044afc5 |
 | [DEV-010](tickets/DEV-010.json) | Use a layout for IconButton content and honor inherited display modes | Resolved 2026-11-03 with DEV-006 acceptance; committed cff0e6a4. Four modes, caption limits, caller sizing and clicks verified; final combined suites pass |
@@ -330,13 +330,15 @@ anchors and Layout ownership. No-change outcomes are valid. Track progress in
 [reviews/DEV-006.md](reviews/DEV-006.md); the guide is a working draft until the
 source review is complete.
 
-DEV-007 replaces the catalog proxy in View.qml with Qt's QML-exposed type.
-The existing wrapper filters out checked catalog entries and sorts column 0.
-Characterize that behavior and preserve list UUID selection, catalog changes,
-Undo and cold restart before removing the C++ wrapper and its build references.
-Verify the supported Qt API and Windows/Android module deployment; the current
-Qt 6.12 documentation marks the type as technology preview. This is deferred
-code-quality work, with no reported shopping-list bug or ordering redesign.
+DEV-007 now uses QtQml.Models.SortFilterProxyModel for the drawer catalog, with
+ValueFilter on checked=false and RoleSorter on name. The legacy C++ wrapper and
+build registration are removed. Characterization preserves case-sensitive lexical
+ordering, duplicate UUID order, the synthetic catalog entry, live changes and
+active UUID selection; native Android checks include restart and catalog Undo.
+The model property retains the Qt 6.10/6.11 documented API and remains an alias in
+the validated Qt 6.12 kit. This type is still technology preview: recheck its API
+when upgrading Qt. Qt 6.10/6.11 runtime and ARM64 were not retested. The user accepted the migration on 2026-11-03; it does not change the user's
+shopping order.
 
 ## Test coverage and validation tasks — no failure claimed
 

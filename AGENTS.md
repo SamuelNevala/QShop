@@ -44,6 +44,14 @@ Use braces for every `if` body in QML/JavaScript and C++, including single-line
 bodies. Apply this to new or edited code; keep broad formatting in DEV-002/DEV-003.
 Do not use `continue` in new or edited C++ code; prefer structured conditionals.
 
+The drawer catalog uses QtQml.Models.SortFilterProxyModel with ValueFilter on
+checked=false and RoleSorter on name. Its model property preserves the Qt 6.10
+API (a retained alias in Qt 6.12). Keep this sorting confined to the catalog;
+shopping order belongs to Model. QtQml.Models is an explicit module dependency.
+tests/qml/tst_catalogproxy.qml characterizes filtering, locale-independent name
+order, duplicate names, live changes and UUID selection. Recheck this preview API
+when upgrading Qt; validated migration kits are Qt 6.12 Windows/Android x86_64.
+
 ## QML formatting
 
 Use the repository .qmlformat.ini with Qt 6.12.0 qmlformat. Run

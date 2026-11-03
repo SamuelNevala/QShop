@@ -88,6 +88,29 @@ closing the drawer then tapping the editor reopens it. Android dumpsys reports
 `imeOptions=0x40000000` (IME_FLAG_NO_ENTER_ACTION) for the editor. Screenshots and
 inspection output are in `out/android-emulator`; the check used a unique isolated
 data directory. This is an emulator check, not a physical Pixel device check.
+
+## Catalog proxy migration verification (DEV-007)
+
+The drawer uses QtQml.Models.SortFilterProxyModel; the Android package must deploy
+the QtQml.Models plugin as well as the native QmlModels library. On 2026-11-03,
+the fresh Qt 6.12 x86_64 APK at
+`out/dev007/android/android-build/build/outputs/apk/debug/android-build-debug.apk`
+contained both and passed ten list-selector/cold-restart checks and 28 native
+entry/catalog lifecycle checks on QShopper_API_36. Those checks use unique
+QSHOPPER_DATA_DIR values and target only emulator-5580:
+
+```powershell
+python tests/android/test_popups.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --selector lists --restart --output out/dev007/android-popups
+python tests/android/test_entry.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --gesture-jar out/dev007/gesture-helper/gesture.jar --output out/dev007/android-entry
+```
+
+The test-only gesture helper was built with `tools/build-android-gesture-test.ps1`.
+Results include actual create/rename/delete/Undo, preserved UUIDs/list contents,
+selection after process restart, Gboard entry and Back. The headless emulator was
+stopped afterward. No physical phone was installed; Qt 6.10/6.11 and ARM64 runtime
+were not retested. The model property preserves the older documented QML API,
+retained as an alias in the validated Qt 6.12 kit.
+
 ## Keyboard resize verification
 
 The activity manifest explicitly sets `android:windowSoftInputMode="adjustResize"`.

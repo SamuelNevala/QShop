@@ -126,6 +126,19 @@ Verified with MSVC 19.44 / Qt 6.12: **94.56% (452/478 lines)**.
 
 ## UI behavior verification
 
+DEV-007's `qml/tst_catalogproxy.qml` exercises the actual drawer proxy and selector.
+The same six characterization records run against the original C++ wrapper and
+its QtQml.Models replacement. They verify unchecked-only catalog filtering,
+case-sensitive lexical order (including digits and accented names) under C,
+Finnish and Swedish default locales, stable duplicate-name UUIDs, the synthetic
+catalog entry, and live check/uncheck/rename/delete/Undo with selection preserved.
+The test-only locale bridge restores the previous process locale after each case.
+Existing selector persistence and catalog user-flow tests remain in normal CTest.
+Qt's model property keeps the Qt 6.10/6.11 API while using its retained alias in
+the validated Qt 6.12 kits; this preview API must be rechecked on Qt upgrades.
+The pre-existing PopupList member-override warning remains DEV-001, separate from
+the proxy migration; binding-loop warnings fail the characterization.
+
 For the current control-to-test map, new user-flow suite, platform gaps and
 native commands, see [INTERACTIONS.md](INTERACTIONS.md). Historical counts below
 describe earlier verification stages. QA-003 adds a separate flow CTest entry

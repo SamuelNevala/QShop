@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 import Qt.labs.qmlmodels
+import QtQml.Models as Models
 import QtQuick as Quick
 import QtQuick.Controls.Material as Style
 import QtQuick.Layouts
@@ -374,10 +375,19 @@ Style.Control {
         onActivated: root.navigateBack()
     }
 
-    SortFilterProxyModel {
+    Models.SortFilterProxyModel {
         id: sortedModel
 
-        sourceModel: Model {
+        filters: Models.ValueFilter {
+            roleName: "checked"
+            value: false
+            column: 0
+        }
+        sorters: Models.RoleSorter {
+            roleName: "name"
+        }
+        // Qt 6.10/6.11 use model; Qt 6.12 retains it as an alias.
+        model: Model {
             id: listsModel
 
             readOnly: true

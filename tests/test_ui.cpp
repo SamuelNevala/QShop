@@ -18,6 +18,7 @@
 #include <QtCore/QtLogging>
 #include <QtCore/QtTypes>
 #include <QtCore/QVariant>
+#include <QtCore/QLocale>
 #include <QtCore/qtmetamacros.h>
 #include "model.h"
 
@@ -30,6 +31,13 @@ class UiSetup : public QObject
 
 public:
     explicit UiSetup(QObject *parent = nullptr) : QObject(parent) { }
+
+    [[nodiscard]] Q_INVOKABLE static QString exchangeLocale(const QString &name)
+    {
+        const auto previous = QLocale().name();
+        QLocale::setDefault(QLocale(name));
+        return previous;
+    }
 
     [[nodiscard]] Q_INVOKABLE static bool cancelTouch()
     {

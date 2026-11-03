@@ -1,20 +1,14 @@
 {
   "id": "DEV-007",
   "title": "Replace the project proxy wrapper with Qt's QML SortFilterProxyModel",
-  "status": "requested",
+  "status": "resolved",
   "type": "code_quality",
   "priority": "unassigned",
   "created": "2026-11-01",
   "reported_by": "user",
-  "scope": "Backlog intake only. Migration and removal of the project wrapper remain deferred until selected.",
+  "scope": "Drawer-only Qt QML proxy migration implemented and verified. User confirmed the change works and requested ticket closure and a commit on 2026-11-03.",
   "request": "Use Qt's SortFilterProxyModel exposed to QML instead of the project's custom C++ SortFilterProxyModel.",
   "expected": "The drawer list catalog uses Qt's QML proxy type with explicit sort/filter configuration. The redundant project wrapper and its build/QML registration are removed without changing list selection or shopping behavior.",
-  "current_evidence": [
-    "View.qml creates the project SortFilterProxyModel over a read-only Model and uses it for the Lists selector, with name as textRole and id as valueRole.",
-    "sortfilterproxymodel.cpp configures Qt::CheckStateRole filtering with ^false$ and ascending column-0 sorting; its remaining parser-status hook is empty.",
-    "CMakeLists.txt compiles sortfilterproxymodel.h/.cpp into the QShopper QML module.",
-    "Qt documentation checked on 2026-11-01 exposes SortFilterProxyModel through QtQml.Models since Qt 6.10. The current Qt 6.12 documentation labels the API technology preview. No application defect is claimed."
-  ],
   "implementation_notes": [
     "Inspect the API in the supported Qt kits and use QtQml.Models sorters/filters to express the existing behavior directly; follow KISS and avoid another wrapper or generic filtering framework.",
     "Preserve filtering of checked catalog entries and name sorting, including case, locale, equal-name ordering and the synthetic catalog entry. Establish the original behavior before choosing equivalent role/value and sorter settings.",
@@ -31,9 +25,18 @@
     "tests/qml/tst_listselection.qml",
     "tests/flows/tst_userflows.qml",
     "tests/android/test_popups.py",
-    "tests/android/test_entry.py"
+    "tests/android/test_entry.py",
+    "tests/qml/tst_catalogproxy.qml",
+    "tests/test_ui.cpp",
+    "tests/README.md",
+    "ANDROID.md"
   ],
-  "related_tickets": ["DEV-004", "DEV-006", "UI-001", "QA-003"],
+  "related_tickets": [
+    "DEV-004",
+    "DEV-006",
+    "UI-001",
+    "QA-003"
+  ],
   "acceptance_criteria": [
     "Use Qt's QML SortFilterProxyModel for the drawer catalog and remove the project wrapper and stale build/QML references.",
     "Add or strengthen automated characterization of filtering, sorting and dynamic catalog changes before migration; the same observable behavior must pass with the replacement.",
@@ -41,8 +44,191 @@
     "Run tools/verify-windows.ps1 and appropriate native Android selector/catalog/deployment checks with isolated data.",
     "Document the chosen Qt API/version and any material behavior differences; keep unrelated refactoring and app fixes separate."
   ],
-  "sources": ["https://doc.qt.io/qt-6/qml-qtqml-models-sortfilterproxymodel.html"],
+  "sources": [
+    "https://doc.qt.io/qt-6/qml-qtqml-models-sortfilterproxymodel.html",
+    "https://doc.qt.io/qt-6.10/qml-qtqml-models-sortfilterproxymodel.html",
+    "https://doc.qt.io/qt-6/qml-qtqml-models-rolesorter.html",
+    "https://doc.qt.io/qt-6/qml-qtqml-models-valuefilter.html"
+  ],
   "evidence": "User backlog request on 2026-11-01 to replace the project's proxy with the Qt QML-exposed type.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "baseline_evidence": [
+    "View.qml creates the project SortFilterProxyModel over a read-only Model and uses it for the Lists selector, with name as textRole and id as valueRole.",
+    "sortfilterproxymodel.cpp configures Qt::CheckStateRole filtering with ^false$ and ascending column-0 sorting; its remaining parser-status hook is empty.",
+    "CMakeLists.txt compiles sortfilterproxymodel.h/.cpp into the QShopper QML module.",
+    "Qt documentation checked on 2026-11-01 exposes SortFilterProxyModel through QtQml.Models since Qt 6.10. The current Qt 6.12 documentation labels the API technology preview. No application defect is claimed."
+  ],
+  "selected": "2026-11-03",
+  "implementation_complete": true,
+  "implementation": {
+    "changes": [
+      "Use Models.SortFilterProxyModel, ValueFilter checked=false and RoleSorter name in View.qml with explicit module alias.",
+      "Use model property to retain Qt 6.10/6.11 API compatibility while validating its alias in Qt 6.12; no added compatibility wrapper.",
+      "Remove sortfilterproxymodel.cpp/.h and CMake source registration; declare QtQml.Models dependency.",
+      "Add permanent actual-drawer characterization and a test-only scoped locale exchange helper; preserve existing selection, user-flow and platform tests.",
+      "Update agent guidance, coding guide and test/Android documentation to reflect the replacement."
+    ],
+    "verification": {
+      "date": "2026-11-03",
+      "baseline_commit": "e4620b96aeaf96ebf3ff770b8d4cb989424d9168",
+      "characterization": {
+        "test": "tests/qml/tst_catalogproxy.qml",
+        "before_records": 6,
+        "after_records": 6,
+        "coverage": "Actual drawer proxy/selector; unchecked filtering; case-sensitive lexical names including numbers/accents under C/fi_FI/sv_SE; stable duplicate UUIDs; synthetic catalog entry; live check/uncheck/rename/delete/Undo; retained active UUID and shopping contents.",
+        "kind": "Behavior-preserving migration characterization, not an application bug fix; no artificial failing-before test."
+      },
+      "windows_ctest_entries": 4,
+      "windows_records": {
+        "ui": {
+          "tests": 190,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 93,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "total_windows_records": 308,
+      "windows_seconds": 283.03,
+      "native_windows_records": 12,
+      "native_android": {
+        "android-popups": {
+          "checks": 10,
+          "failed": 0,
+          "cases": [
+            "portrait_lists_first_initial_selection",
+            "portrait_lists_first_reachable",
+            "portrait_lists_first_selected",
+            "portrait_lists_first_items_preserved",
+            "portrait_lists_first_restart_selection",
+            "portrait_lists_last_initial_selection",
+            "portrait_lists_last_reachable",
+            "portrait_lists_last_selected",
+            "portrait_lists_last_items_preserved",
+            "portrait_lists_last_restart_selection"
+          ]
+        },
+        "android-entry": {
+          "checks": 28,
+          "failed": 0,
+          "cases": [
+            "native_keyboard_open",
+            "milk_native_return_keeps_keyboard",
+            "bread_native_return_keeps_keyboard",
+            "empty_native_return_is_noop",
+            "clear_editor_preserves_list",
+            "drawer_hides_native_keyboard",
+            "sensitivity_control_reaches_maximum",
+            "theme_and_sensitivity_saved",
+            "drawer_dismissal_keeps_draft",
+            "back_hides_keyboard_keeps_draft",
+            "back_discards_draft_leaves_edit",
+            "cold_restart_restores_light_theme_and_items",
+            "cold_restart_restores_sensitivity_control",
+            "tap_places_editor_for_insertion",
+            "double_tap_replaces_preserving_identity",
+            "pending_edit_back_hides_ime_only",
+            "pending_edit_back_restores_original",
+            "single_delete_through_swipe",
+            "single_delete_undo_icon",
+            "checked_tap_and_hold_leave_editor_and_order",
+            "correction_restores_unchecked_order",
+            "catalog_create_through_editor",
+            "new_list_has_independent_contents",
+            "catalog_rename_keeps_identity_and_contents",
+            "catalog_delete_through_swipe",
+            "catalog_delete_undo_restores_identity_and_order",
+            "renamed_list_remains_selectable",
+            "catalog_workflow_preserves_original_list"
+          ]
+        }
+      },
+      "total_android_checks": 38,
+      "android_build": {
+        "qt": "6.12.0",
+        "abi": "x86_64",
+        "serial": "emulator-5580",
+        "fresh_build": "out/dev007/android",
+        "apk": "out/dev007/android/android-build/build/outputs/apk/debug/android-build-debug.apk",
+        "apk_sha256": "3fbd2b0b97b4a2d03673a3bb0164c3d930f5314f300618cc10dc79b38561bce3",
+        "required_libraries": [
+          "lib/x86_64/libQt6QmlModels_x86_64.so",
+          "lib/x86_64/libqml_QtQml_Models_modelsplugin_x86_64.so"
+        ],
+        "deployment": "QtQml.Models declared in host/Android qmldir; QmlModels library and Models plugin present in APK; successful real app launches and native catalog workflows.",
+        "isolated_data": true,
+        "physical_device_install": false,
+        "started_emulator_stopped": true
+      },
+      "analyzers": {
+        "runs": 2,
+        "failed": 0,
+        "scope": "Changed tests/test_ui.cpp under existing clang-tidy/Clazy profiles; production C++ only deleted."
+      },
+      "formatting": {
+        "cpp": 9,
+        "qml": 55
+      },
+      "api": {
+        "import_module": "QtQml.Models",
+        "filter": "ValueFilter { roleName: \"checked\"; value: false; column: 0 }",
+        "sorter": "RoleSorter { roleName: \"name\" }",
+        "source_property": "model: Qt 6.10/6.11 documented name, retained alias in Qt 6.12 (deprecated on C++ side). Keep stated minimum instead of introducing a version branch/wrapper.",
+        "status": "Technology preview; recheck API when upgrading Qt.",
+        "tested": "Qt 6.12.0 MSVC x64 and Android x86_64; Qt 6.10/6.11 runtime and ARM64 not retested."
+      },
+      "warnings": "Existing DEV-001 PopupList contentWidth override diagnostic remains. Android scanner reports historical QDynamics/Components/Shop.timer imports from old generated trees; all 55 current project QML/template files have none. No binding-loop or test failures.",
+      "source_sha256": {
+        "CMakeLists.txt": "017ee7f262ec35229a1223e8b705c977b8f14e8da18c7754ba6100d9623fa737",
+        "View.qml": "e608ded017d816192aeb41297e8e3a69b7827f4ce41f4ef0e679d8a85df3d3ed",
+        "tests/test_ui.cpp": "492d98662742d27d1c164cfecdc3a82498504d3ab28c2d02e209a74ca643b211",
+        "tests/qml/tst_catalogproxy.qml": "5bfb6d6ac5875c7e93142426020aeddb61c55fa1ad0c5a0831d7aa56d738e24f"
+      },
+      "legacy_source_sha256": {
+        "sortfilterproxymodel.cpp": "cbff4467738c4898d993a4bb0c91110fd8d5621b990b987b601f4d906c928189",
+        "sortfilterproxymodel.h": "06d182a00dc9c4ecfb7834be575682a892b7d29de65e52336984d10b5d5bd9a4",
+        "View.qml": "f0f924e5b7e515fa5023214631715c834769642a4ba73a39bed2a4fe5913bb71"
+      },
+      "artifacts": [
+        "out/dev007/catalog-before.txt",
+        "out/dev007/catalog-final.txt",
+        "out/dev007/catalog-native.txt",
+        "out/dev007/selection-native.txt",
+        "out/dev007/verify-windows.txt",
+        "out/dev007/android-configure.txt",
+        "out/dev007/android-build.txt",
+        "out/dev007/android-popups/results.json",
+        "out/dev007/android-entry/results.json",
+        "out/dev007/analysis/results.json",
+        "out/dev007/format.json"
+      ]
+    },
+    "preserved": "Catalog source remains read-only with drawer-open reload. UUID selection, synthetic lists entry, duplicate ordering, existing shopping order, drafts and storage schema are preserved.",
+    "commit": "Included with the source, characterization tests and documentation in this ticket's commit; see Git history."
+  },
+  "resolved": "2026-11-03",
+  "resolution": {
+    "summary": "Use QtQml.Models SortFilterProxyModel with ValueFilter checked=false and RoleSorter name; remove the project C++ wrapper and source registration. Filtering/order, synthetic entry, live catalog changes, UUID selection and restart behavior preserved.",
+    "user_acceptance": "2026-11-03: Change works, close ticket and commit changes.",
+    "verification": "Recorded in implementation.verification: 308 Windows records, 12 native Windows records, 38 native Android checks, analyzers and formatting pass.",
+    "remaining": "None in the selected migration. Existing DEV-001/DEV-008 and untested kit/platform limits stay separate."
+  }
 }

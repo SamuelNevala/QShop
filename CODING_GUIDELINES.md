@@ -32,8 +32,9 @@ Let a local unique_ptr clean up on scope exit; do not reset it immediately befor
 return unless earlier destruction has a concrete purpose. Keep release() where
 ownership is actually transferred to QUndoStack.
 Record proposed application changes before implementing them during a review.
-Keep the proxy's existing parser-status hooks and QML initialization phase, as
-requested by the user; do not move that setup into the constructor as a cleanup.
+The legacy proxy's parser-status hooks were retained during review at the user's
+request. DEV-007 subsequently replaced that entire wrapper with Qt's QML proxy;
+this is distinct from moving initialization into its constructor as a cleanup.
 
 ## C++ value types
 

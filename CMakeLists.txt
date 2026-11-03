@@ -83,7 +83,6 @@ qt_add_qml_module(QShopper
         YAnimation.qml
     SOURCES
         model.h model.cpp
-        sortfilterproxymodel.h sortfilterproxymodel.cpp
         undoremove.h undoremove.cpp
         weekmodel.h weekmodel.cpp
     RESOURCES
@@ -94,7 +93,7 @@ qt_add_qml_module(QShopper
         background_four.jpg
         background_five.jpg
         fa-solid-900.ttf
-    DEPENDENCIES QtCore ${qshopper_keyboard_dependencies}
+    DEPENDENCIES QtCore QtQml.Models ${qshopper_keyboard_dependencies}
 )
 
 target_link_libraries(QShopper PUBLIC Qt6::Quick Qt6::Sql Qt6::Core Qt6::Qml Qt6::QuickControls2)
