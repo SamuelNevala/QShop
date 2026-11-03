@@ -153,11 +153,19 @@ Item {
         }
 
         function test_live_theme_changes() {
-            for (const theme of [Material.Light, Material.Dark, Material.System, Material.Light]) {
-                Theme.theme = theme;
-                wait(350);
-                verifySurfaces();
-            }
+            Theme.theme = Material.Light;
+            wait(350);
+            const light = verifySurfaces();
+            Theme.theme = Material.Dark;
+            wait(350);
+            const dark = verifySurfaces();
+            verify(!Qt.colorEqual(light, dark), "Light and Dark must change the surface color");
+            Theme.theme = Material.System;
+            wait(350);
+            compare(verifySurfaces(), view.Material.theme === Material.Light ? light : dark);
+            Theme.theme = Material.Light;
+            wait(350);
+            compare(verifySurfaces(), light);
         }
 
         function test_resized_safe_areas_in_edit_mode() {

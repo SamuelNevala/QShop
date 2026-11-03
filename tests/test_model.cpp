@@ -1067,14 +1067,28 @@ private Q_SLOTS:
         loadItems(model);
         model.insert(0, QStringLiteral("A"));
         model.insert(1, QStringLiteral("B"));
-        model.remove(1);
+        model.insert(2, QStringLiteral("C"));
+        const QString aId = id(model, 0);
+        const QString bId = id(model, 1);
+        const QString cId = id(model, 2);
+        model.remove(2);
         QVERIFY(model.canUndo());
         QSignalSpy changed(&model, &Model::readOnlyChanged);
+        QSignalSpy moved(&model, &Model::rowsMoved);
         model.setReadOnly(true);
         model.setReadOnly(true);
         QCOMPARE(changed.count(), 1);
         QVERIFY(!model.canUndo());
-        model.insert(0, QStringLiteral("C"));
+        // Both moves are valid when writable; same-row movement cannot test this guard.
+        model.move(0, 1);
+        QCOMPARE(names(model), QStringList({ "A", "B" }));
+        QCOMPARE(moved.count(), 0);
+        model.move(1, 0);
+        QCOMPARE(names(model), QStringList({ "A", "B" }));
+        QCOMPARE(moved.count(), 0);
+        QCOMPARE(id(model, 0), aId);
+        QCOMPARE(id(model, 1), bId);
+        model.insert(0, QStringLiteral("D"));
         model.remove(0);
         model.removeChecked();
         model.setChecked(0, true);
@@ -1086,11 +1100,24 @@ private Q_SLOTS:
         model.undo();
         model.clearUndoStack();
         QVERIFY(model.editItem(0).isEmpty());
-        QCOMPARE(names(model), QStringList({ "A" }));
-        model.reload();
-        QCOMPARE(names(model), QStringList({ "A" }));
+        QCOMPARE(names(model), QStringList({ "A", "B" }));
+        Model persisted;
+        loadItems(persisted);
+        QCOMPARE(names(persisted), QStringList({ "A", "B" }));
+        QCOMPARE(id(persisted, 0), aId);
+        QCOMPARE(id(persisted, 1), bId);
         model.setReadOnly(false);
         QCOMPARE(changed.count(), 2);
+        QVERIFY(model.canUndo());
+        model.undo();
+        QCOMPARE(names(model), QStringList({ "A", "B", "C" }));
+        QCOMPARE(id(model, 2), cId);
+        model.setReadOnly(true);
+        model.reload();
+        QCOMPARE(names(model), QStringList({ "A", "B", "C" }));
+        QVERIFY(model.readOnly());
+        model.setReadOnly(false);
+        QCOMPARE(changed.count(), 4);
     }
 
     void lists_create_rename_switch_and_cleanup()

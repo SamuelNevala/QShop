@@ -24,7 +24,6 @@ Item {
             tryCompare(app, "visible", true);
             const shop = app.contentItem.children[0].item.contentItem;
             shop.openMenu();
-            wait(300);
             let drawer = null;
             for (let child of shop.data) {
                 if (typeof child.open === "function" && child.contentItem) {
@@ -32,6 +31,7 @@ Item {
                 }
             }
             verify(drawer !== null);
+            tryCompare(drawer, "opened", true);
             const list = drawer.contentItem;
             for (let scale of [0.5, 1.7, 3, 4]) {
                 Theme.scale = scale;
