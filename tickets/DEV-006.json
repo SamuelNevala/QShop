@@ -1,12 +1,12 @@
 {
   "id": "DEV-006",
   "title": "Review QML and C++ for simplicity and establish KISS-based coding guidelines",
-  "status": "requested",
+  "status": "resolved",
   "type": "code_quality",
   "priority": "unassigned",
   "created": "2026-10-28",
   "reported_by": "user",
-  "scope": "Backlog item in the current gathering phase. Record KISS as a standing user preference now; defer the code review and full coding-guideline document until implementation is requested.",
+  "scope": "Selected after DEV-005. Use Google C++ Style Guide as a critically assessed base and review QML one file at a time, tracing definitions and all instantiation points. No-change findings are valid. Keep the guide a working draft while source review is incomplete.",
   "request": "KISS is important to the user. Analyze both the QML and C++ code and establish project coding guidelines based on that analysis.",
   "expected": "A practical, concise CODING_GUIDELINES.md grounded in QShopper's actual code and Qt usage, with simplicity as a central decision criterion.",
   "review_topics": [
@@ -26,22 +26,1899 @@
     "Keep the guidelines specific enough to guide real changes and short enough to consult regularly."
   ],
   "implementation_notes": [
-    "Base recommendations on cited project examples and supported Qt/C++17 practices; avoid imposing a generic style guide without analyzing this codebase.",
+    "Base recommendations on cited project examples and supported Qt/C++20 practices; avoid imposing a generic style guide without analyzing this codebase.",
     "Coordinate formatting guidance with DEV-002/DEV-003, build simplicity with DEV-004, and analyzer guidance with DEV-005 instead of duplicating or contradicting their configuration.",
     "Separate mechanical formatting rules from architectural, correctness, and maintainability guidance.",
     "Capture proposed refactors as separate backlog work rather than performing a broad rewrite while writing the guide.",
     "Link the resulting guide from AGENTS.md once it exists."
   ],
-  "related_tickets": ["DEV-002", "DEV-003", "DEV-004", "DEV-005"],
+  "related_tickets": [
+    "DEV-002",
+    "DEV-003",
+    "DEV-004",
+    "DEV-005"
+  ],
   "acceptance_criteria": [
     "Review both QML and C++ and record representative findings with project file references.",
     "Create CODING_GUIDELINES.md with practical language-specific guidance and shared KISS principles grounded in those findings.",
     "Include concrete examples or decision criteria for when an abstraction helps and when direct code is preferable.",
     "Make the guidance consistent with product design, Qt model/ownership requirements, formatting choices, and the supported build workflow.",
     "List actionable simplification candidates separately and retain justified complexity.",
-    "Update AGENTS.md to point future contributors to the completed guide; no functional changes should be bundled into the review/documentation task."
+    "Update AGENTS.md to point future contributors to the completed guide; no functional changes should be bundled into the review/documentation task.",
+    "Assess Google C++ guide rules against Qt, KISS and established project conventions, recording reasons for adaptations rather than blindly importing policy.",
+    "Review QML sequentially with definition/use-site geometry responsibilities and valid no-change outcomes recorded."
   ],
   "evidence": "User emphasized KISS and requested QML/C++ analysis leading to coding guidelines during backlog gathering on 2026-10-28.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "selected": "2026-11-01",
+  "user_direction": [
+    "Use https://google.github.io/styleguide/cppguide.html as the C++ base, without accepting every rule at face value.",
+    "Progress one QML file at a time and review both its definition and instantiation points, including implicit sizes at definition and width/height/Layout/anchors at use sites.",
+    "It is acceptable that no changes are needed.",
+    "Prefer Layout variants over Row/Column positioners for new/revised layout composition.",
+    "During IconButton review, replace its contentItem Item/manual positioning with a Layout and honor inherited button display modes.",
+    "Continue reviewing sequentially without stopping at each no-change file; stop at the first concrete KISS improvement for discussion. Keep verification and notes proportionate.",
+    "Keep the three explicit Dark/Light/System theme buttons in View; user declined replacing them with a Repeater.",
+    "Keep SortFilterProxyModel parser-status hooks and current initialization phase; user declined moving their setup to the constructor. DEV-007 remains separate.",
+    "For test assets, fix review findings directly without asking for approval of each test-only change (2026-11-03)."
+  ],
+  "review_method": [
+    "Trace base types, content, derived components, delegates, Loaders, dynamic creation and test instantiations.",
+    "Record actual sizing and positioning ownership on both axes and consider padding, insets, font/text, state and scale dependencies.",
+    "Record keep/change/no-change decisions with evidence; reading a caller is not completion of that caller review.",
+    "Keep suspected bugs, confirmed bugs, simplification candidates and validation gaps distinct. Do not bundle functional fixes into the documentation review."
+  ],
+  "review_progress": {
+    "qml_inventory": [
+      "ArrowIcon.qml",
+      "Background.qml",
+      "BackgroundImage.qml",
+      "CartInIcon.qml",
+      "CartOutIcon.qml",
+      "ColorComboBox.qml",
+      "ColorModel.qml",
+      "ComboBox.qml",
+      "DefaultAnimation.qml",
+      "Delegate.qml",
+      "DelegateChoser.qml",
+      "GroupBox.qml",
+      "Icon.qml",
+      "IconButton.qml",
+      "IconChoser.qml",
+      "InputDelegate.qml",
+      "LoaderWindow.qml",
+      "Menu.qml",
+      "OpacityAnimation.qml",
+      "Pulley.qml",
+      "ShopView.qml",
+      "Slider.qml",
+      "SwipeHandler.qml",
+      "Swipeable.qml",
+      "TextDelegate.qml",
+      "TextIcon.qml",
+      "TextItem.qml",
+      "Theme.qml",
+      "TrashIcon.qml",
+      "UndoIcon.qml",
+      "View.qml",
+      "Weekdays.qml",
+      "WheelIcon.qml",
+      "YAnimation.qml",
+      "keyboard/DesktopKeyboard.qml.in",
+      "keyboard/DevelopmentKeyboard.qml.in",
+      "main.qml",
+      "tests/flows/tst_userflows.qml",
+      "tests/keyboard/tst_keyboard.qml",
+      "tests/qml/tst_back.qml",
+      "tests/qml/tst_cancel.qml",
+      "tests/qml/tst_combobox.qml",
+      "tests/qml/tst_listbackground.qml",
+      "tests/qml/tst_listselection.qml",
+      "tests/qml/tst_persistence.qml",
+      "tests/qml/tst_popupsafearea.qml",
+      "tests/qml/tst_preview.qml",
+      "tests/qml/tst_reset.qml",
+      "tests/qml/tst_safeborder.qml",
+      "tests/qml/tst_shopview.qml",
+      "tests/qml/tst_swipe.qml",
+      "tests/qml/tst_swipesensitivity.qml",
+      "tests/qml/tst_textfitting.qml",
+      "tests/qml/tst_theme.qml",
+      "tests/qml/tst_iconbutton.qml",
+      "tests/qml/tst_modelproperties.qml"
+    ],
+    "reviewed_qml": [
+      {
+        "file": "Icon.qml",
+        "outcome": "No changes needed for its current component and use-site contract.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Existing ThemeSizing 5 records and PreviewScaling 6 records pass offscreen, including fixtures; no source/test changes. Known DEV-001 and offscreen font notice remain."
+      },
+      {
+        "file": "TextIcon.qml",
+        "outcome": "No changes needed for the glyph renderer and its current allocation/font contracts.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Native Windows exploratory probe using packaged icon font: 8 passing records, no warnings after correcting the Pulley parent signal fixture; covers small/reference-size nested arrows, control content allocation, font overrides and resizing. No tracked app/test code changed.",
+        "limits": "No Android run, exhaustive theme-contrast or full interaction certification. WheelIcon has no active tracked use and remains pending its own review."
+      },
+      {
+        "file": "ArrowIcon.qml",
+        "outcome": "Sizing, aliases and gesture latch structure retained. Two reset/rearm/resize observations captured as validation candidate UI-017; no application fix.",
+        "record": "reviews/DEV-006.md",
+        "verification": "11 native Windows component-probe records characterize three variants through IconChoser: settled cycles, rapid rearm and idle resize. No warnings. Observation tests are not bug-fix acceptance.",
+        "limits": "Real rendered pointer-gesture impact and Android reproduction remain unestablished; candidate deferred."
+      },
+      {
+        "file": "CartInIcon.qml",
+        "outcome": "No changes needed. Keep the small declarative specialization and proportional overrides; both TextDelegate instantiation sites supply coherent allocation, signed ratio and font/opacity.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source review traced both actual caller sites and inherited geometry. Reused unchanged-source native Windows TextIcon/ArrowIcon probes that already cover this variant; no new runtime test run.",
+        "limits": "Per-side real pointer gesture and Android rendering not newly certified. Inherited UI-017 candidate remains deferred; no variant workaround or app/test changes."
+      },
+      {
+        "file": "CartOutIcon.qml",
+        "outcome": "No changes needed. Keep the small declarative reversed-animation variant, proportional endpoints/padding and QtQuick import for Easing; both checked-state caller sites supply coherent allocation, signed ratio, font/opacity and theme.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source review traced both actual caller sites and inherited geometry. Reused existing unchanged-source native Windows TextIcon/ArrowIcon probes covering this variant; no new runtime test run.",
+        "limits": "Per-side pointer gestures, Android and exhaustive contrast not newly certified. UI-017 remains inherited and deferred. Commented wheel experiments are inactive; WheelIcon registration/cleanup remains pending its own review. No app/test code changed.",
+        "subsequent_cleanup": "DEV-009 removed the two inactive WheelIcon comment blocks; live glyph and animation overrides are retained."
+      },
+      {
+        "file": "TrashIcon.qml",
+        "outcome": "No changes needed. Keep the minimal glyph/destination specialization; the single edit-mode caller owns allocation and ratio, and the destination resolves to root height.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source review traced the production TextDelegate caller. Reused existing variant probes and ran a focused native Windows endpoint-scope/resize probe: 3 passing records, no warnings; no app/tracked-test changes.",
+        "limits": "No new real pointer/deletion/Android certification. Inherited UI-017 reset/rearm/resize candidate remains deferred; no variant workaround."
+      },
+      {
+        "file": "WheelIcon.qml",
+        "outcome": "Reviewed and subsequently removed at user request under resolved DEV-009, together with its module registration and inactive caller snippets.",
+        "record": "reviews/DEV-006.md",
+        "verification": "247 Windows records pass, Android x86_64 native build passes, 12 module/build artifacts have no WheelIcon references and all 53 remaining QML/templates pass formatting. See DEV-009.",
+        "limits": "No runtime performance bug claimed. No Android APK installation/runtime or physical-device test for this unused-definition cleanup."
+      },
+      {
+        "file": "IconChoser.qml",
+        "outcome": "No changes needed. Keep the direct selection binding and Loader ownership. Left caller supports edit-priority trash/cart selection; right caller deliberately retains checked/unchecked-only cart selection. Both supply coherent square geometry.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source review traced both instantiation points and component/state bindings. Reused native ArrowIcon Loader probes and latest DEV-009 full Windows verification (247 records); no new runtime test or app/tracked-test changes.",
+        "limits": "Every state combination and Android rendered interaction are not independently certified by this source review. UI-017 remains separate."
+      },
+      {
+        "file": "UndoIcon.qml",
+        "outcome": "No change needed for the actual square editor/Flipable allocation and enable-transition countdown contract. Keep presentation/model responsibilities separate. Unused arcY is a minor cleanup note, not a current centering defect.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Native Windows exploratory probe: 5 records pass without warnings using the real ShopView creation path with Undo already available, plus enable/disable/re-enable checks. Existing DEV-009 full suite includes passing actual Undo, 15-second expiry and dismissal paths. No app/tracked-test changes.",
+        "limits": "Standalone initial enabled=true does not start a timer, but the current editor path does and no app bug was established. Preliminary fixture issues are documented. No new Android, arbitrary rectangular geometry, background timing or transition-hit-target certification; UI-015 remains deferred."
+      },
+      {
+        "file": "IconButton.qml",
+        "outcome": "Reviewed with both drawer caller groups. User selected FlexboxLayout composition and inherited display support as DEV-010; preserves explicit TextUnderIcon default and physical geometry. No font/icon library migration.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Original permanent tests: 15 passed/4 failed. Caption simplification expectations before: 10 pass/11 fail. Final focused native Windows/offscreen: 21 pass each. Complete Windows suite: 268 records pass. Android build/APK and 137 native drawer/theme checks pass. All 54 QML/template files formatted. DEV-010 ready for review, uncommitted.",
+        "limits": "All four modes are tested on Windows. Android production drawer exercises the preserved under-icon default; final Android results are in DEV-010."
+      },
+      {
+        "file": "Pulley.qml",
+        "outcome": "No changes needed. Keep Control implicit sizing, caller-owned anchors/pull padding and the delayed action signal; ShopView owns mode/model changes.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Native Windows real-ShopView probe: 5 records pass without warnings at scales 1/2, including delayed one-shot action after return. Existing real-touch mode-pull flow: 3 records pass; existing DEV-001 PopupList warning. Pulley.qml matches qmlformat. No app/permanent-test changes.",
+        "limits": "No new Android, overlapping-pull, hidden/destroyed timer or exact-threshold visual certification. Previously deferred interaction tickets remain separate."
+      },
+      {
+        "file": "Weekdays.qml",
+        "outcome": "No changes needed. Keep the 13 mm natural height, ShopView anchors/pull position, two layout levels, seven-role delegates and decorative background Item.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Native Windows characterization: 12 records pass without warnings, covering scales 1/2, widths 60/76.6 mm, Light/Dark, text bounds, marker geometry, reactive palette/width/scale and actual ShopView placement. Rendered header inspected. Weekdays.qml matches qmlformat. No app/permanent-test changes.",
+        "limits": "No new Android, date rollover/clock-change, broad locale/font/RTL or exhaustive contrast certification. WeekModel C++ review and UX-003 remain pending."
+      },
+      {
+        "file": "DefaultAnimation.qml",
+        "outcome": "No changes needed. Keep the shared NumberAnimation timing/easing default; Behavior, explicit-target and transition callers supply their own target/property context and duration overrides.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source and actual instantiation review only; file matches qmlformat. No app/test change or new runtime run.",
+        "limits": "Source/use-site review does not newly certify rendered animation behavior."
+      },
+      {
+        "file": "OpacityAnimation.qml",
+        "outcome": "No changes needed. Keep the short opacity/timing specialization used in all four Background push/pop transitions.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source and actual instantiation review only; file matches qmlformat. No app/test change or new runtime run.",
+        "limits": "Source/use-site review does not newly certify rendered animation behavior."
+      },
+      {
+        "file": "YAnimation.qml",
+        "outcome": "No changes needed. Keep the short y/timing specialization used in all four Background push/pop transitions; endpoint values remain caller-owned.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source and actual instantiation review only; file matches qmlformat. No app/test change or new runtime run.",
+        "limits": "Source/use-site review does not newly certify rendered animation behavior."
+      },
+      {
+        "file": "Background.qml",
+        "outcome": "Review complete after selected transition-wrapper cleanup. Keep explicit direction flag/guards, resource instances and reactive image dimensions; no further abstraction selected.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Reused existing native production full-cycle and resize characterization from the accepted cleanup; qmlformat matches. No additional source/runtime change.",
+        "limits": "No new Android/lifecycle/image-error certification; image licensing/replacement remains separate."
+      },
+      {
+        "file": "BackgroundImage.qml",
+        "outcome": "No changes needed. Five actual resource instances justify the small shared Image specialization; callers own source/actual dimensions, StackView owns presentation.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source and all five use sites reviewed; reused existing Background native characterization. qmlformat matches. No source/test changes.",
+        "limits": "Initial/loading-error and broader lifecycle visuals not newly certified."
+      },
+      {
+        "file": "Swipeable.qml",
+        "outcome": "Reviewed and removed at user request: no live instances, dynamic consumers or module registration; obsolete imports and implementation retained only in historical ignored artifacts.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Windows build and 42 existing offscreen interaction records pass. Current-source scan drops Components/Shop.timer; 53 remaining QML/templates match qmlformat.",
+        "limits": "Whole-directory scan still finds historical ignored source/build copies; these were retained. No Android install/runtime or full CTest run."
+      },
+      {
+        "file": "GroupBox.qml",
+        "outcome": "No changes needed: three drawer instances supply width/content/padding overrides; retain definition label/border metrics and explicit bottomPadding against the Material base.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/base and actual use-site review only; qmlformat matches. No application change or new runtime check.",
+        "limits": "No new platform/rendering or exhaustive alternate-state certification."
+      },
+      {
+        "file": "Slider.qml",
+        "outcome": "No changes needed: one sensitivity instance owns width/range/settings; retain physical natural sizes and direct handle/track geometry with inherited input.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/base and actual use-site review only; qmlformat matches. No application change or new runtime check.",
+        "limits": "No new platform/rendering or exhaustive alternate-state certification."
+      },
+      {
+        "file": "Menu.qml",
+        "outcome": "No changes needed: View owns actual drawer geometry/content; Menu owns physical insets, overlay-safe padding and existing background palette binding.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/base and actual use-site review only; qmlformat matches. No application change or new runtime check.",
+        "limits": "No new platform/rendering or exhaustive alternate-state certification."
+      },
+      {
+        "file": "LoaderWindow.qml",
+        "outcome": "No changes needed: main owns window dimensions/theme/source; aliases support actual app/tests, Loader fills the window and controls initial reveal/fade.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/base and actual use-site review only; qmlformat matches. No application change or new runtime check.",
+        "limits": "No new platform/rendering or exhaustive alternate-state certification."
+      },
+      {
+        "file": "ColorModel.qml",
+        "outcome": "No structural change needed: retain explicit translated text/stable Material color roles for the sole ColorComboBox model use; existing Indogo spelling noted without a bundled fix.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/base and actual use-site review only; qmlformat matches. No application change or new runtime check.",
+        "limits": "No new platform/rendering or exhaustive alternate-state certification."
+      },
+      {
+        "file": "ColorComboBox.qml",
+        "outcome": "Selected shared-content refactor implemented. One local swatch/label definition, four explicit display inputs; retain base popup safety, palette ownership and both actual selector use sites.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Build passes; native before/after 10 records each, 32 RGBA item captures identical; 11 existing offscreen popup records pass; all 53 QML/templates formatted.",
+        "limits": "No full CTest or Android runtime rerun; no exhaustive RTL/platform/accessibility/translation certification."
+      },
+      {
+        "file": "ComboBox.qml",
+        "outcome": "No structural change needed: retain typed content padding bindings, physical caption/row geometry and popup constraints/close policy. Actual default/derived selectors and fixtures traced.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/base and actual caller review; qmlformat matches. No source change or new runtime check.",
+        "limits": "No newly repeated platform/interaction certification."
+      },
+      {
+        "file": "Delegate.qml",
+        "outcome": "No changes needed: small Control index/name base shared by text/input delegates; callers/loaders own allocation, subclasses own presentation and signals.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/base and actual caller review; qmlformat matches. No source change or new runtime check.",
+        "limits": "No newly repeated platform/interaction certification."
+      },
+      {
+        "file": "DelegateChoser.qml",
+        "outcome": "No changes needed: direct component selection and used DropArea alias; ShopView owns required roles and actual row allocation. Retain essential chooser.editor/input selection.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/base and actual caller review; qmlformat matches. No source change or new runtime check.",
+        "limits": "No newly repeated platform/interaction certification."
+      },
+      {
+        "file": "InputDelegate.qml",
+        "outcome": "Source/use-site review complete with selected stale-code cleanup. Keep Fusion editor/IME handling, actual signals and square menu/Undo/clear placement; deferred transition-input ticket stays separate.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Windows build, 36 existing offscreen entry/Undo/Back/keyboard records and edited-file qmlformat checks pass.",
+        "limits": "No full CTest, Android runtime or new visual checks."
+      },
+      {
+        "file": "TextItem.qml",
+        "outcome": "No changes needed. Preserve direct Qt Text.Fit, 7 mm starting font, three-line cap, plain text and checked styling. TextDelegate/Control allocate the caller-owned row rectangle.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source and production/fixture use paths reviewed; qmlformat matches. No source change or new runtime run.",
+        "limits": "No newly repeated Android/native typography certification; retain earlier accepted text-fitting results."
+      },
+      {
+        "file": "TextDelegate.qml",
+        "outcome": "Completed after selected DragBorder sharing. Retain explicit swipe sides, direction/completion latch, moved-index return delay, reparented reorder state and verified cancellation recognizer workaround.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/caller review; reused latest unchanged-gesture 26 cancellation/Back records from DragBorder cleanup. qmlformat matches. No new app change/runtime run.",
+        "limits": "No new Android or deferred UI-015/UI-017 certification; action-color design remains separate."
+      },
+      {
+        "file": "SwipeHandler.qml",
+        "outcome": "No changes needed. Retain cancellation/release guards, horizontal bounds and None result; preserve literal phone-tested gravity, sensitivity and independent half-width fallback.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source and actual TextDelegate/interaction-test use paths reviewed; qmlformat matches. Existing swipe/sensitivity/cancel coverage is supporting history, not rerun.",
+        "limits": "No new physical-device feel, cancellation or platform certification."
+      },
+      {
+        "file": "Theme.qml",
+        "outcome": "Completed with unused primaryColorLighter removal. Keep actual Screen/window parenting, Debug preview gate, settings aliases, physical conversion and used palette helpers. Color-policy assessment remains separate.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Windows build, 15 existing Theme/preview/settings/Undo records and edited-file qmlformat pass.",
+        "limits": "No full CTest or new Android runtime/rendering certification."
+      },
+      {
+        "file": "main.qml",
+        "outcome": "No changes needed. Own reference window dimensions, deferred density resize, palette/source/title, preview shortcuts and x/y persistence; attach Theme to the actual window content item.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/base/build-gate and actual caller review; qmlformat matches. Reused prior supporting checks; no new source change or runtime test.",
+        "limits": "No newly repeated Android/visual or deferred transition-input certification."
+      },
+      {
+        "file": "keyboard/DevelopmentKeyboard.qml.in",
+        "outcome": "No changes needed. Keep configured source/build gate and available/opened/occupiedHeight contracts; View owns width/placement and panel implicit height supplies height without double scaling.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/base/build-gate and actual caller review; qmlformat matches. Reused prior supporting checks; no new source change or runtime test.",
+        "limits": "No newly repeated Android/visual or deferred transition-input certification."
+      },
+      {
+        "file": "keyboard/DesktopKeyboard.qml.in",
+        "outcome": "No changes needed. Conditional InputPanel resource and closeOnReturn=false serve continuous entry; suffix/dependencies preserve deployment gating.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/base/build-gate and actual caller review; qmlformat matches. Reused prior supporting checks; no new source change or runtime test.",
+        "limits": "No newly repeated Android/visual or deferred transition-input certification."
+      },
+      {
+        "file": "ShopView.qml",
+        "outcome": "No further change selected after unused editor pass-through removal. Keep model/UI ownership, required roles, reference rows, explicit transition phases, UUID resolution and whole-list background geometry.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source/base/build-gate and actual caller review; qmlformat matches. Reused prior supporting checks; no new source change or runtime test.",
+        "limits": "No newly repeated Android/visual or deferred transition-input certification."
+      },
+      {
+        "file": "View.qml",
+        "outcome": "Complete with no further change selected. Keep explicit theme buttons by user decision, action callbacks, Control safe/keyboard padding, non-overlapping background strips, overlay drawer geometry, Back priorities and model/settings ownership. DEV-007 separate.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source and actual main/test creation paths reviewed; qmlformat matches. No new source change or runtime run.",
+        "limits": "No newly repeated Android/visual certification; existing fixes and deferred tickets preserved."
+      },
+      {
+        "file": "tests/qml/tst_iconbutton.qml",
+        "outcome": "No change: actual IconButton content/display modes, caption bounds, clicks and scale changes. Local part discovery serves geometry assertions; retain native-font conditional limits.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_theme.qml",
+        "outcome": "No change: attached Screen conversion, fixed reference geometry and keyboard build gate. Deliberately sized scene parents Theme; no Dimensions dependency.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_persistence.qml",
+        "outcome": "No change: fresh-engine singleton scale and new-window position restoration, isolated settings and asynchronous persistence waits.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_modelproperties.qml",
+        "outcome": "No change: real QML binding and notifications across readOnly/Undo states, no-op assignments and preserved command. Temporary observer/spies match the property contract.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_textfitting.qml",
+        "outcome": "No change: real row geometry, short/long/unbroken/overflow names, checked style and reuse/resize. Retain native-font limits and three-line product cap.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_preview.qml",
+        "outcome": "No change: platform/build gates, reactive geometry, limits and real keyboard shortcuts preserve model identity/data. Explicit scene sizes are test inputs.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_combobox.qml",
+        "outcome": "Improved: wait for drawer.opened rather than a fixed 300 ms delay. Retain popup scrolling, resizing/zoom stress and binding-loop failure checks.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_popupsafearea.qml",
+        "outcome": "No change: actual selector endpoint activation inside propagated SafeArea, viewport changes and Theme values. Dynamic app and menu delegates are intentional consumer fixtures.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_swipe.qml",
+        "outcome": "No change: real touch/mouse input, velocity versus distance alternatives, rejected strokes and pullback. Preserve deliberate timing and production check/delete observations.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_swipesensitivity.qml",
+        "outcome": "No change: actual slider and the same physical swipe at different sensitivity, limits and persistence. Wider timed fixture explicitly provides jitter room.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_safeborder.qml",
+        "outcome": "Strengthened: Light and Dark colors must differ; System must match resolved Material palette; returning to Light restores prior color. Keep stable underlay and actual pixel/safe-area checks.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_listbackground.qml",
+        "outcome": "No change: full-model/reference-row geometry and rendered row interiors across virtualization, touch scrolling, resize and mutations. Geometry-only checks for intentionally inverse checked rows are explicit.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_listselection.qml",
+        "outcome": "No change: actual drawer selection, UUID persistence, catalog entry, refresh and new-window restoration. Small fixtures fit visible delegate assertions.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_reset.qml",
+        "outcome": "No change: actual swipe checking/drawer action, pending edits, mixed lists, idempotence and reopen. Keep checking-order/FILO product expectations.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_shopview.qml",
+        "outcome": "No change: real editor keys/taps and swipes, empty input, mode changes, bulk removal/Undo and menu request. Local helper sizes follow real consumer allocations.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_cancel.qml",
+        "outcome": "No change: cancel before release, verify parent/state/action recovery, then retry hold/swipe. finally blocks terminate synthetic input; desktop is not Android certification.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/qml/tst_back.qml",
+        "outcome": "No change: desktop platform-gate override drives real Back route, popup/drawer priority, drafts and cancellation. Native Android backgrounding/edge delivery remains separately covered.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/keyboard/tst_keyboard.qml",
+        "outcome": "No change: real enabled VKB plugin, key clicks, composed text, continuous entry, hide/reopen, zoom and Back. Dynamic test-only imports intentionally avoid deployment scans.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      },
+      {
+        "file": "tests/flows/tst_userflows.qml",
+        "outcome": "No change: actual controls and stable whole-list readiness, correction, list lifecycle, Undo expiry, reordering/settings and pull thresholds. Preserve settled-path coverage and separate UI-015; no timing/abstraction rewrite.",
+        "record": "reviews/DEV-006.md",
+        "verification": "Source, fixture ownership and production use sites reviewed. Final four-entry Windows run passes 302 records; all 54 current QML/template files match formatting.",
+        "limits": "Offscreen does not certify native rendering/Android; only the changed safe-border/popup files received focused native Windows rendering in this step. Existing native/font/dictation/transition limits retained."
+      }
+    ],
+    "next_qml": null,
+    "cpp_review": "All 11 C++ source/header/test targets reviewed. Test-only improvements pass isolated mutation verification, 302 Windows records, ten native Windows rendering records, analyzers and formatting.",
+    "guide": "CODING_GUIDELINES.md complete for the reviewed source/test inventory; Google baseline adapted to Qt, product intent and accepted user decisions. Separate follow-ups retained.",
+    "followup_candidates": [
+      "UI-017"
+    ],
+    "inventory_note": "Review inventory retains removed WheelIcon/Swipeable and includes new tst_iconbutton.qml and tst_modelproperties.qml: 56 review targets, 54 current QML/template files. New test-file independent reviews remain pending.",
+    "removed_qml": [
+      "WheelIcon.qml",
+      "Swipeable.qml"
+    ],
+    "resolved_followups": [
+      "DEV-009",
+      "UI-018",
+      "UI-019",
+      "UI-020",
+      "UI-021",
+      "UI-022"
+    ],
+    "added_qml": [
+      "tests/qml/tst_iconbutton.qml",
+      "tests/qml/tst_modelproperties.qml"
+    ],
+    "selected_followups": [
+      "DEV-010"
+    ],
+    "review_stop": "User accepted closure on 2026-11-03. DEV-006 resolved; nine source/test commits created and this final documentation commit records closure. Full combined verification and independently built intermediate model states pass.",
+    "simplification_candidates": [
+      {
+        "file": "Background.qml",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Remove redundant top-level ParallelAnimation wrappers in three StackView transitions",
+        "locations": [
+          66,
+          79,
+          103
+        ],
+        "evidence": "pushEnter, pushExit and popExit each wrap two animations without group-specific state. Transition already executes its top-level animations in parallel; popEnter already uses that form.",
+        "expected": "Remove only the three wrappers; preserve endpoints, durations, easing and slideshow sequence.",
+        "reference": "https://doc.qt.io/qt-6/qml-qtquick-transition.html#animations-prop",
+        "validation": {
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "native_windows": "Production Background full forward/back cycle: 3 records pass before and after, no warnings; concurrent mid-transition y/opacity, final states, visibility and resize preserved.",
+          "format": "Background.qml matches .qmlformat.ini after qmlformat.",
+          "full_ctest": "Not rerun for this bounded quality cleanup.",
+          "android": "Not rerun.",
+          "source_sha256": "60e992350ff9ebdab14dc44063b0645d757bca69996444093b677970872385f9",
+          "artifacts": [
+            "out/dev006/background-review/build.txt",
+            "out/dev006/background-review/before-native.txt",
+            "out/dev006/background-review/after-native.txt"
+          ]
+        },
+        "selected": "2026-11-01",
+        "implementation": "Removed only the three top-level ParallelAnimation wrappers; qmlformat applied. Uncommitted. Remaining Background review stays pending."
+      },
+      {
+        "file": "Background.qml",
+        "status": "withdrawn",
+        "type": "code_quality",
+        "title": "Remove redundant !push guard at the lower slideshow endpoint",
+        "evidence": "The depth-one branch assigns push=true. When push is already true, the same assignment leaves the same state; the guard does not affect the endpoint result.",
+        "expected": "Replace if (!push && stack.depth === 1) with if (stack.depth === 1); retain the direction flag and other endpoint logic.",
+        "validation": "Source-review candidate only, not implemented. Reuse the existing production Background full-cycle characterization if selected.",
+        "decision": "User challenged necessity. Callback ordering confirms the direction change at depth one is essential. Removing only !push would preserve the current result, but the predicate makes the reverse-after-pop intent explicit; no worthwhile KISS gain. Keep existing code."
+      },
+      {
+        "file": "Swipeable.qml",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Remove unused legacy swipe implementation and obsolete Android warning note",
+        "evidence": [
+          "No in-repository instances, subclasses or dynamic loading paths; absent from CMake QML_FILES.",
+          "Current TextDelegate instantiates SwipeHandler and its own return animation.",
+          "ANDROID.md identifies Swipeable as unused; existing Android package log contains unresolved Components and Shop.timer warnings."
+        ],
+        "expected": "Delete Swipeable.qml and its obsolete warning note in ANDROID.md; no CMake entry exists to remove. Retain historical ticket records.",
+        "validation": {
+          "windows_build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "offscreen_records": {
+            "swipe": 22,
+            "swipesensitivity": 11,
+            "cancel": 9
+          },
+          "total_records": 42,
+          "source_check": {
+            "format_files": 53,
+            "format_passed": true,
+            "current_source_legacy_imports_before": [
+              "Components",
+              "Shop.timer"
+            ],
+            "current_source_legacy_imports_after": [],
+            "whole_directory_scan": "Historical ignored copies under out/dev002/original still import Components and Shop.timer; old build outputs also import QDynamics. These were retained. A whole-directory deployment scan still sees them."
+          },
+          "full_ctest": "Not rerun for unused-source removal.",
+          "android_runtime": "Not run; no installation.",
+          "artifacts": [
+            "out/dev006/swipeable-removal/build.txt",
+            "out/dev006/swipeable-removal/swipe.txt",
+            "out/dev006/swipeable-removal/swipesensitivity.txt",
+            "out/dev006/swipeable-removal/cancel.txt",
+            "out/dev006/swipeable-removal/current-imports-before.json",
+            "out/dev006/swipeable-removal/current-imports-after.json",
+            "out/dev006/swipeable-removal/source-check.json"
+          ]
+        },
+        "selected": "2026-11-01",
+        "implementation": "Deleted unused Swipeable.qml and its obsolete Android warning note; no CMake entry existed. Live SwipeHandler/TextDelegate unchanged. Uncommitted."
+      },
+      {
+        "file": "ColorComboBox.qml",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Share repeated swatch-and-label content through one private inline component",
+        "locations": [
+          14,
+          58
+        ],
+        "evidence": "Selected-field and popup-row RowLayouts duplicate swatch dimensions/border, spacing, mirroring and text elision/alignment. Callers differ in text, swatch color, font and text color.",
+        "expected": "One local inline component with four explicit display inputs; preserve current control/delegate palette and interaction owners. Retain duplication if the interface makes the result less readable.",
+        "validation": {
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "native_before": 10,
+          "native_after": 10,
+          "offscreen_popup_records": 11,
+          "identical_rgba_images": 32,
+          "format_files": 53,
+          "source_sha256": "9df061d3b10c329861048f5afa9371fbe627aacadc12acf271a5838711e0335c",
+          "original_baseline": "HEAD:ColorComboBox.qml; explicit QShopper import added for local type visibility only.",
+          "capture": "Item.grabToImage on actual field/delegate items; early QtTest region captures are diagnostic only.",
+          "limits": "No full CTest or Android runtime rerun; no exhaustive RTL/platform/accessibility/translation certification.",
+          "artifacts": [
+            "out/dev006/color-content/build.txt",
+            "out/dev006/color-content/before-native.txt",
+            "out/dev006/color-content/after-native.txt",
+            "out/dev006/color-content/image-comparison.json",
+            "out/dev006/color-content/combobox.txt",
+            "out/dev006/color-content/popupsafearea.txt"
+          ]
+        },
+        "selected": "2026-11-01",
+        "implementation": "Local ColorContent RowLayout with four aliases shared by selected field and popup delegate; caller palette/selection expressions retained. qmlformat applied; uncommitted."
+      },
+      {
+        "file": "InputDelegate.qml",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Remove unused editor property/pass-through and obsolete Voice comment block",
+        "locations": [
+          9,
+          65
+        ],
+        "evidence": "InputDelegate.editor is assigned only by ShopView, with no readers or change handlers. Real editor-role readers target DelegateChoser/model rows. Disabled Voice block refers to absent component/root.text/mainView.",
+        "expected": "Remove only InputDelegate.editor, its ShopView assignment and disabled Voice block; retain chooser.editor/input selection and actual IME/dictation/Undo behavior.",
+        "validation": {
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "offscreen_records": {
+            "shopview": 9,
+            "back": 17,
+            "flows": 4,
+            "keyboard": 6
+          },
+          "total_records": 36,
+          "format_files": [
+            "InputDelegate.qml",
+            "ShopView.qml"
+          ],
+          "source_sha256": {
+            "InputDelegate.qml": "f6d5eff16c8f37fb485bb97d75416c7ecbfc59890789b740a33fd8eca7d77ea9",
+            "ShopView.qml": "7a0ce5de37c0b0255da74c21924e37cf8dea32ac1a55487f4701af1f33ca8cdb"
+          },
+          "scope": "Existing entry/clear, actual Undo controls, Back routing and desktop VKB/composition. Unused-code cleanup, not a behavior bug fix; no artificial failing-before test added.",
+          "limits": "No full CTest, Android runtime or new visual checks.",
+          "artifacts": [
+            "out/dev006/input-cleanup/build.txt",
+            "out/dev006/input-cleanup/shopview.txt",
+            "out/dev006/input-cleanup/back.txt",
+            "out/dev006/input-cleanup/flows.txt",
+            "out/dev006/input-cleanup/keyboard-ctest.txt"
+          ]
+        },
+        "selected": "2026-11-01",
+        "implementation": "Removed unused InputDelegate.editor, its ShopView assignment and inactive Voice block. Essential chooser.editor/input selection retained; qmlformat applied; uncommitted."
+      },
+      {
+        "file": "TextDelegate.qml",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Share duplicated top/bottom drag-border presentation and animations",
+        "evidence": "Two Rectangle blocks repeat thickness, left/right anchors, long-press color/opacity and identical Behaviors; only top versus bottom anchoring differs.",
+        "expected": "One local inline DragBorder Rectangle with no extra configuration properties; each use supplies its vertical anchor. Keep gesture/cancellation machinery unchanged.",
+        "validation": {
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "native_before": 6,
+          "native_after": 6,
+          "offscreen_cancel": 9,
+          "offscreen_back": 17,
+          "identical_rgba_images": 16,
+          "format": "TextDelegate.qml matches .qmlformat.ini after qmlformat.",
+          "source_sha256": "db10947d884b4d6858fc2416a55ec3eeb97e6574cf6733674fa9e209ea30bde7",
+          "limits": "Quality-refactor characterization; no new bug claim, permanent test, full CTest rerun or Android runtime check.",
+          "artifacts": [
+            "out/dev006/drag-border/build.txt",
+            "out/dev006/drag-border/before-native.txt",
+            "out/dev006/drag-border/after-native.txt",
+            "out/dev006/drag-border/image-comparison.json",
+            "out/dev006/drag-border/cancel.txt",
+            "out/dev006/drag-border/back.txt"
+          ]
+        },
+        "selected": "2026-11-01",
+        "implementation": "Shared local DragBorder Rectangle used at top/bottom with no added configuration properties. Gesture/cancellation logic unchanged; qmlformat applied; uncommitted."
+      },
+      {
+        "file": "Theme.qml",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Remove unused primaryColorLighter palette helper",
+        "evidence": "Repository source/tests/C++ search finds primaryColorLighter only at its definition. In contrast accentColorLighter is used by UndoIcon, and primaryColor/color/colorAccent have current app consumers.",
+        "expected": "Delete primaryColorLighter only; retain all used palette helpers, selected colors, settings and scaling behavior.",
+        "validation": {
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "offscreen_records": {
+            "theme": 5,
+            "preview": 6,
+            "flows": 4
+          },
+          "total_records": 15,
+          "format": "Theme.qml matches .qmlformat.ini after qmlformat.",
+          "source_sha256": "26f662570c80798d794e6580fa1d2cf4fac5cd2b13741473df5188721844caea",
+          "scope": "Unused helper deletion; existing Theme/preview and actual theme/palette settings plus Undo control flows. No new bug claim or artificial regression test.",
+          "limits": "No full CTest or new Android runtime/rendering certification.",
+          "artifacts": [
+            "out/dev006/theme-helper/build.txt",
+            "out/dev006/theme-helper/theme.txt",
+            "out/dev006/theme-helper/preview.txt",
+            "out/dev006/theme-helper/flows.txt"
+          ]
+        },
+        "selected": "2026-11-01",
+        "implementation": "Deleted primaryColorLighter only; all used palette helpers/settings/scaling retained. qmlformat applied; uncommitted."
+      },
+      {
+        "file": "View.qml",
+        "status": "declined",
+        "type": "code_quality",
+        "title": "Render the three theme buttons from local data using one IconButton delegate",
+        "evidence": "Dark/Light/System objects repeat exclusivity, selection/highlight bindings, font and click assignment; only theme value, translated label and glyph differ.",
+        "expected": "One Quick.Repeater in the existing FlexboxLayout with three explicit local data entries; preserve sibling parent, order, raw theme-choice binding and settings/font behavior. No generic new control.",
+        "validation": "Not implemented. If selected, characterize geometry/selection before/after and run actual settings/palette interactions, then qmlformat. Other View/proxy/palette-policy work remains separate.",
+        "decision": "User explicitly requested keeping the three theme buttons as they are. Preserve the explicit declarations; do not propose this same Repeater consolidation again. No app change."
+      },
+      {
+        "file": "weekmodel.h",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Use compiler-generated operations for passive Day record",
+        "evidence": "Day has only two public QString fields, defaulted lifecycle/copy/move operations and a forwarding two-rvalue constructor. Only populateModel constructs it from the two date strings.",
+        "expected": "Aggregate Day with the same fields/Qt type-info declaration; remove special members/forwarding constructor and unused utility include, use brace construction in populateModel.",
+        "references": [
+          "https://google.github.io/styleguide/cppguide.html#Copyable_Movable_Types",
+          "https://google.github.io/styleguide/cppguide.html#Structs_vs._Classes"
+        ],
+        "validation": {
+          "date": "2026-11-02",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "native_weekdays_records": 12,
+          "model_records": 65,
+          "format_files": 11,
+          "analyzer_final_runs": 14,
+          "analyzer_failed": 0,
+          "analyzer_scope": "Full initial 14-run Samuel sweep; designated-initializer style diagnostic corrected, both affected WeekModel runs repeated; 12 clean unchanged-unit results retained. Configurations unchanged.",
+          "source_sha256": {
+            "weekmodel.h": "b0997d0dacbdc4ebe635afc106820ca28ac4aa50b14ea6bdb564384e0cffdc73",
+            "weekmodel.cpp": "ecb34dc40c88ee57aa2516121192db77ee7a36ecedcb59ae7412311f2eddc6f2"
+          },
+          "limits": "Quality refactor, not a runtime bug fix. No new permanent test, full runtime CTest or Android/date-rollover certification.",
+          "artifacts": [
+            "out/dev006/day-aggregate/build-final.txt",
+            "out/dev006/day-aggregate/format.txt",
+            "out/dev006/day-aggregate/weekdays-native-final.txt",
+            "out/dev006/day-aggregate/model-ctest-final.txt",
+            "out/dev006/day-aggregate/analysis/results.json",
+            "out/dev006/day-aggregate/analysis/weekmodel-final-results.json"
+          ]
+        },
+        "selected": "2026-11-02",
+        "implementation": "Day is a two-QString aggregate with unchanged Qt metadata. Removed special members/forwarding constructor and utility include; use .name/.number designated initializers required by the profile. clang-format applied; uncommitted."
+      },
+      {
+        "file": "weekmodel.cpp",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Use one reset phase when replacing the full week",
+        "evidence": "After UI-019, populateModel still removes all seven rows with remove notifications before a full reset. Weekdays.qml is the sole production consumer (Repeater); it has no custom rowsRemoved dependency. A reset already invalidates previous model data.",
+        "expected": "Move m_week.clear() inside one beginResetModel/endResetModel sequence and remove the separate beginRemoveRows/endRemoveRows block. Preserve seven date roles, full-date update guard and existing consumer behavior.",
+        "validation": {
+          "date": "2026-11-02",
+          "windows_ctest_entries": 4,
+          "records": {
+            "ui": {
+              "tests": 178,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "flow": {
+              "tests": 19,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "keyboard": {
+              "tests": 6,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "model": {
+              "tests": 75,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            }
+          },
+          "total_records": 278,
+          "full_run_seconds": 287.68,
+          "native_before_records": 4,
+          "native_after_records": 4,
+          "controlled_refreshes_per_run": 10,
+          "identical_rgba_images": 10,
+          "format_files": 11,
+          "changed_unit_analyzer_runs": 2,
+          "analyzer_failed": 0,
+          "temporary_adapter_restored": true,
+          "source_sha256": {
+            "weekmodel.cpp": "bae1c9bdd6a7fb8fb135680a57405d03c0bf11dae455b628205a0bfccb91e403",
+            "tests/test_ui.cpp": "95c46460c9c7688850836d70aa54366bebb2f3815f8b88ac14b8a447b28bea18"
+          },
+          "limits": "Code-quality refactor; existing permanent date/contract regressions retained. Temporary native characterization uses actual Weekdays with a test-only subclass of its production model assigned to its Repeater. No new Android certification or actual OS date change.",
+          "artifacts": [
+            "out/dev006/week-reset/native-before.txt",
+            "out/dev006/week-reset/native-after.txt",
+            "out/dev006/week-reset/image-comparison.json",
+            "out/dev006/week-reset/test_ui.probe.cpp",
+            "out/dev006/week-reset/tst_week_refresh.qml",
+            "out/dev006/week-reset/build-final.txt",
+            "out/dev006/week-reset/verify-windows.txt",
+            "out/dev006/week-reset/analysis/results.json",
+            "out/dev006/week-reset/format.txt"
+          ]
+        },
+        "references": [
+          "https://doc.qt.io/qt-6/qabstractitemmodel.html#beginResetModel"
+        ],
+        "selected": "2026-11-02",
+        "implementation": "Clear and repopulate within one reset; removed separate remove-all notification block. Date guard, roles and timer unchanged. clang-format applied; uncommitted."
+      },
+      {
+        "file": "weekmodel.h",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Remove the unused stored timer ID",
+        "evidence": "m_timerId appears only in its member declaration and the constructor assignment. The class never reads it, calls killTimer or distinguishes multiple timer IDs. The current Qt startTimer overload is not nodiscard, and Qt documentation includes direct calls without storing the return value.",
+        "expected": "Remove m_timerId and call startTimer(1min) directly. Keep the existing QObject timer, interval and timerEvent path; no replacement timer abstraction.",
+        "validation": {
+          "date": "2026-11-02",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "model_ctest_entries": 1,
+          "model_records": {
+            "tests": 75,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "changed_unit_analyzer_runs": 2,
+          "analyzer_failed": 0,
+          "format_files": 11,
+          "source_sha256": {
+            "weekmodel.h": "abe1d3238d51e33986d6d0a50c682f21a7743dd8fc8e0d8708f40ff7f935a84a",
+            "weekmodel.cpp": "e85b854715f81d86bd37e3cb113c5da6f5a2648475a38e044bc44aedda4372ce"
+          },
+          "limits": "Unused-state deletion; no new bug test or minute-long timer test. UI/flow/keyboard/native/Android suites not rerun; previous full 278-record and native results belong to the single-reset cleanup.",
+          "artifacts": [
+            "out/dev006/timer-id/build.txt",
+            "out/dev006/timer-id/model-tests.txt",
+            "out/dev006/timer-id/analysis/results.json",
+            "out/dev006/timer-id/format.txt"
+          ]
+        },
+        "references": [
+          "https://doc.qt.io/qt-6/qobject.html#startTimer"
+        ],
+        "selected": "2026-11-02",
+        "implementation": "Removed m_timerId and call startTimer(1min) directly. Timer interval and update path retained. clang-format applied; uncommitted."
+      },
+      {
+        "file": "undoremove.h",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Store each removed item together with its restore index",
+        "evidence": "UndoRemove maintains parallel QList<Item> m_items and QList<qsizetype> m_indexs. Both append overloads update both lists and undo consumes their first entries together. The item and its restore position form one logical record.",
+        "expected": "Use one QList of a private named record containing Item item and qsizetype index. Keep the current append overloads and capture/restore order. No generic undo framework, command ownership or Model API changes.",
+        "callers": [
+          "Model::remove(qsizetype) moves one removed Item into the command.",
+          "Model::removeChecked() copies checked rows and their original indexes in ascending row order.",
+          "Model::removeAll(Save) copies named rows with their restore positions, preserving an editor placeholder."
+        ],
+        "validation": {
+          "date": "2026-11-02",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "model_ctest_entries": 1,
+          "model_records": {
+            "tests": 75,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "focused_ui_records": 7,
+          "focused_ui_scenarios": [
+            "UserFlows::test_delete_and_undo_icon",
+            "UserFlows::test_drawer_removal (checked, all_touch, all_mouse)",
+            "UserFlows::test_catalog_create_rename_delete_undo"
+          ],
+          "changed_unit_analyzer_runs": 4,
+          "analyzer_failed": 0,
+          "format_files": 11,
+          "source_sha256": {
+            "undoremove.h": "b30bbddd7b50d64b9a69b95b5e3096ded83e5ef2b3b90f827e94c4446ca2dced",
+            "undoremove.cpp": "f379d787b87c0ae5fb6ca6832e95e68f31ccdbe8c5f46dfe49bd472e99118ecf",
+            "model.cpp": "dc9ed54036c1ea22df9fbe379b4025f8de9664c13e5bba7a6add6b3f929507ee"
+          },
+          "limits": "Quality refactor reuses existing tests. Focused UI runs offscreen with isolated storage, not native rendering or Android certification. Full UI/keyboard/flow suites not repeated; deferred UI-015 transition-time investigation unchanged.",
+          "artifacts": [
+            "out/dev006/undo-record/build.txt",
+            "out/dev006/undo-record/model-tests.txt",
+            "out/dev006/undo-record/ui-undo.txt",
+            "out/dev006/undo-record/analysis/results.json",
+            "out/dev006/undo-record/format.txt"
+          ]
+        },
+        "selected": "2026-11-02",
+        "implementation": "Private RemovedItem aggregate stores Item and restore index in one QList. Both append overloads construct named records; undo takes one complete record and reinserts it. FIFO order, public API and ownership preserved. clang-format applied; uncommitted."
+      },
+      {
+        "file": "sortfilterproxymodel.h",
+        "status": "declined",
+        "type": "code_quality",
+        "title": "Initialize proxy defaults in the constructor instead of parser-status hooks",
+        "evidence": "The sole View instance sets sourceModel after construction. classBegin only sets fixed CheckStateRole, ^false$ filter and ascending column-zero sorting; componentComplete is empty. No configuration depends on QML-assigned properties or completion.",
+        "expected": "Move the same three settings into the constructor; remove QQmlParserStatus inheritance, Q_INTERFACES and both hooks. Retain QML registration and the existing wrapper. Built-in QML proxy migration remains DEV-007, unselected.",
+        "validation": "Source-only refactor proposal. If selected, characterize the QML-created production proxy/filter/sort behavior, run list-selection/catalog-edit/Undo flows, build, format and analyze the affected unit. No application bug or permanent new regression requirement claimed.",
+        "references": [
+          "https://doc.qt.io/qt-6/qqmlparserstatus.html#classBegin"
+        ],
+        "decision": "User requested leaving the proxy as it is and retaining its QML parser lifecycle, citing QML values being unavailable during construction. Do not repeat the constructor-move proposal. No source change."
+      },
+      {
+        "file": "main.cpp",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Remove the redundant directory-existence check before mkpath",
+        "evidence": "Database startup nests mkpath under !dir.exists(). QDir::mkpath already succeeds when the directory exists, so the outer branch is unnecessary.",
+        "expected": "Use one if (!dir.mkpath(QStringLiteral(\".\"))) with the same warning and early return. Keep storage paths and database setup unchanged.",
+        "validation": {
+          "date": "2026-11-02",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "startup_cases_before": 3,
+          "startup_cases_after": 3,
+          "startup_cases": [
+            "Nonexistent nested data directory is created and default catalog/table initialized",
+            "Existing directory restarts with identical catalog UUID and seeded row name/UUID/checked state",
+            "Regular file blocks requested directory: nonzero exit with expected warning, obstruction unchanged"
+          ],
+          "isolation": "Each phase uses its own unique QSHOPPER_DATA_DIR under out/dev006/startup-directory, with spaces in the path. Actual application runs offscreen for three seconds, then the spawned process is terminated after the smoke check.",
+          "model_records": {
+            "tests": 75,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "changed_unit_analyzer_runs": 2,
+          "analyzer_failed": 0,
+          "format_files": 11,
+          "source_sha256": "b5f48fb9fb7a7374171834fc1c3237f2b527d37d8a9ce475c44e095e76c96c70",
+          "limits": "Startup behavior characterization, not native visual/interaction or Android certification. Quality cleanup reuses existing tests; no new permanent bug regression. Broad UI/flow/keyboard suites not rerun.",
+          "artifacts": [
+            "out/dev006/startup-directory/main-before.cpp",
+            "out/dev006/startup-directory/check_startup.py",
+            "out/dev006/startup-directory/before-results.json",
+            "out/dev006/startup-directory/after-results.json",
+            "out/dev006/startup-directory/build.txt",
+            "out/dev006/startup-directory/model-tests.txt",
+            "out/dev006/startup-directory/analysis/results.json",
+            "out/dev006/startup-directory/format.txt"
+          ]
+        },
+        "references": [
+          "https://doc.qt.io/qt-6/qdir.html#mkpath"
+        ],
+        "selected": "2026-11-02",
+        "implementation": "Removed outer !dir.exists() check; one mkpath failure guard retains the warning and early return. Storage/database code unchanged. clang-format applied; uncommitted."
+      },
+      {
+        "file": "main.cpp",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Use the engine creation-failure signal for startup failure handling",
+        "evidence": "Startup listens to objectCreated, captures the main URL and checks both a null object and matching URL solely to exit on load failure. QQmlApplicationEngine provides objectCreationFailed since Qt 6.4, supported by the Qt >=6.10 baseline. This application loads one explicit root URL through the engine.",
+        "expected": "Connect objectCreationFailed to a capture-free exit(-1) callback with Qt::QueuedConnection. Keep the root load URL and Android successful-object listener. No loadFromModule migration or extra error framework.",
+        "validation": {
+          "date": "2026-11-02",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "engine_probe_before_cases": 3,
+          "engine_probe_after_cases": 3,
+          "engine_probe_cases": [
+            "Valid root loads and exits 0",
+            "Syntactically invalid root queues exit(-1)",
+            "Missing root queues exit(-1)"
+          ],
+          "engine_probe_scope": "Connection block extracted verbatim from main.cpp into a temporary QCoreApplication/QQmlApplicationEngine fixture. Each load occurs before exec; a distinct watchdog exit 42 detects a lost queued error exit. This is not a packaged-app root-failure injection.",
+          "actual_app_startup_cases": 3,
+          "actual_app_scope": "Real application with isolated QSHOPPER_DATA_DIR: missing directory, existing database/fixture identity retention, file obstruction. Offscreen startup smoke only.",
+          "model_records": {
+            "tests": 75,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "changed_unit_analyzer_runs": 2,
+          "analyzer_failed": 0,
+          "format_files": 11,
+          "source_sha256": "c61dae455a6c0404254d9727de6dc9ce3ae27760ba3426560e88962a277927df",
+          "limits": "Code-quality refactor, no new bug or permanent regression. Broad UI/flow/keyboard, native rendering and Android not repeated. Android successful-object listener retained unchanged.",
+          "artifacts": [
+            "out/dev006/engine-failure/prepare_probe.py",
+            "out/dev006/engine-failure/before-probe.cpp",
+            "out/dev006/engine-failure/after-probe.cpp",
+            "out/dev006/engine-failure/before-results.json",
+            "out/dev006/engine-failure/after-results.json",
+            "out/dev006/engine-failure/startup-after-results.json",
+            "out/dev006/engine-failure/build.txt",
+            "out/dev006/engine-failure/model-tests.txt",
+            "out/dev006/engine-failure/analysis/results.json",
+            "out/dev006/engine-failure/format.txt"
+          ]
+        },
+        "references": [
+          "https://doc.qt.io/qt-6/qqmlapplicationengine.html#objectCreationFailed"
+        ],
+        "selected": "2026-11-02",
+        "implementation": "Connect objectCreationFailed to a capture-free queued exit(-1) callback. Removed null/URL filtering and capture. Root URL/load and Android successful-object connection retained; clang-format applied; uncommitted."
+      },
+      {
+        "file": "model.h",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Use implicit copy/move/destruction for the Item value type",
+        "evidence": "Item has public QString, bool and QUuid fields, plus defaulted copy constructor, copy assignment, noexcept move constructor/assignment and destructor. Those five operations perform no custom work. Its default and value constructors separately implement necessary placeholder/new UUID/loaded UUID behavior.",
+        "expected": "Remove only the five defaulted copy/move/destructor declarations. Preserve Item() and all three value constructors, member defaults, Qt type metadata and identity semantics; do not convert Item to an aggregate or generate UUIDs for empty placeholders.",
+        "validation": {
+          "date": "2026-11-02",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "traits_before": "default=1 copy=1 copy_assign=1 nothrow_copy=1 nothrow_copy_assign=1 nothrow_move=1 nothrow_move_assign=1 nothrow_destruct=1 relocatable=1 size=48 alignment=8",
+          "traits_after": "default=1 copy=1 copy_assign=1 nothrow_copy=1 nothrow_copy_assign=1 nothrow_move=1 nothrow_move_assign=1 nothrow_destruct=1 relocatable=1 size=48 alignment=8",
+          "traits_equal": true,
+          "traits_scope": "MSVC 2022 x64 / Qt 6.12: default/copy/assignment availability, nothrow copy/move/assignment/destruction, Qt relocatability, size/alignment; compile-time assertions also pass.",
+          "model_records": {
+            "tests": 75,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "model_run_note": "model-final.txt is the authoritative run after the full build/link completed; preliminary model-tests.txt overlapped the build and is not final verification.",
+          "changed_unit_analyzer_runs": 10,
+          "analyzer_failed": 0,
+          "analyzer_units": [
+            "main.cpp",
+            "model.cpp",
+            "undoremove.cpp",
+            "tests/test_model.cpp",
+            "tests/test_ui.cpp"
+          ],
+          "format_files": 11,
+          "source_sha256": "2c7ff1b29316e6eaaf1382744ef1878b8e4113c467f94f7253d854068649f5d9",
+          "limits": "Value-type quality cleanup; no new permanent bug regression. Existing model cases cover constructor identity, editors, insertion/load/Undo and persistence. UI/flow/keyboard/native/Android runtime suites not repeated.",
+          "artifacts": [
+            "out/dev006/item-operations/model-before.h",
+            "out/dev006/item-operations/traits.cpp",
+            "out/dev006/item-operations/traits-before.txt",
+            "out/dev006/item-operations/traits-after.txt",
+            "out/dev006/item-operations/build-probe-before.txt",
+            "out/dev006/item-operations/build-probe-after.txt",
+            "out/dev006/item-operations/build.txt",
+            "out/dev006/item-operations/model-final.txt",
+            "out/dev006/item-operations/analysis/results.json",
+            "out/dev006/item-operations/format.txt"
+          ]
+        },
+        "references": [
+          "https://google.github.io/styleguide/cppguide.html#Copyable_Movable_Types"
+        ],
+        "selected": "2026-11-02",
+        "implementation": "Removed only five defaulted copy/move/destructor declarations. Default and UUID-generating/restoring constructors, field defaults and Qt type metadata retained. clang-format applied; uncommitted."
+      },
+      {
+        "file": "model.h",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Remove unused private activeListId accessor",
+        "evidence": "Whole-source search for the exact activeListId identifier finds only its private declaration in model.h and definition in model.cpp. It is not a property reader, slot or invokable; public activeList reads m_activeListId directly and setActiveListId remains used.",
+        "expected": "Delete the unused private declaration and getter definition. No public/QML property, setter, stored UUID or list-selection changes.",
+        "validation": {
+          "date": "2026-11-02",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "model_records": {
+            "tests": 75,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "changed_unit_analyzer_runs": 10,
+          "analyzer_failed": 0,
+          "analyzer_units": [
+            "main.cpp",
+            "model.cpp",
+            "undoremove.cpp",
+            "tests/test_model.cpp",
+            "tests/test_ui.cpp"
+          ],
+          "format_files": 11,
+          "source_sha256": {
+            "model.h": "482c52d90f2fd1ad084f916983f7e49046ceae1157a6114e3ad7079b27aeced4",
+            "model.cpp": "41cdae7271ec05489dcc7b6d005fed2dd985f21d08192eb2d90d751f3d4a2f21"
+          },
+          "limits": "Unused private function deletion; no new permanent regression or UI/flow/keyboard/native/Android runtime check. Public selection/property/UUID behavior covered by existing normal model tests.",
+          "artifacts": [
+            "out/dev006/unused-list-id/build.txt",
+            "out/dev006/unused-list-id/model-tests.txt",
+            "out/dev006/unused-list-id/analysis/results.json",
+            "out/dev006/unused-list-id/format.txt"
+          ]
+        },
+        "selected": "2026-11-02",
+        "implementation": "Removed only the unused private declaration and getter definition. Public activeList property, setter and UUID state retained; clang-format applied; uncommitted."
+      },
+      {
+        "file": "model.cpp",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Save checked-state changes once after their internal move",
+        "evidence": "setChecked calls the public two-argument move, which selects Save::YES and saves after a successful move, then calls save again without further data changes. Each save deletes/reinserts the full list in a transaction. A stationary move returns before saving, so the final setChecked save is still necessary.",
+        "expected": "Call the existing private move overload with Save::NO from setChecked, then keep its explicit save. Let setChecked persist the combined state/order operation once, including toggles whose row position does not change.",
+        "validation": {
+          "date": "2026-11-02",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "audit_inserted_rows": {
+            "before": {
+              "check-moves": 6,
+              "check-stays": 3,
+              "uncheck-moves": 6,
+              "uncheck-stays": 3
+            },
+            "after": {
+              "check-moves": 3,
+              "check-stays": 3,
+              "uncheck-moves": 3,
+              "uncheck-stays": 3
+            }
+          },
+          "audit_scope": "Temporary probe compiles actual model.cpp/undoremove.cpp in an independent build with in-memory SQLite. AFTER INSERT audit counts full-list rewrites for three named rows. All cases verify visible/reloaded order, checked flags and UUIDs; unchanged-state/read-only controls cause no additional writes.",
+          "model_records": {
+            "tests": 75,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "focused_ui_records": {
+            "swipe": 22,
+            "properties": 6
+          },
+          "changed_unit_analyzer_runs": 2,
+          "analyzer_failed": 0,
+          "format_files": 11,
+          "source_sha256": "b36322d53211b5d885ee6adef32e7a68c8bd4a10c1b3bbb226e53f87dc36a8c0",
+          "limits": "Quality/performance cleanup; baseline behavior already correct. No new permanent bug test. Full UI/flow/keyboard/native/Android runtime suites not repeated; focused actual swipes and UI-020 binding regression pass.",
+          "artifacts": [
+            "out/dev006/checked-save/audit.cpp",
+            "out/dev006/checked-save/model-before.cpp",
+            "out/dev006/checked-save/before.txt",
+            "out/dev006/checked-save/after.txt",
+            "out/dev006/checked-save/build.txt",
+            "out/dev006/checked-save/model-tests.txt",
+            "out/dev006/checked-save/ui-swipe.txt",
+            "out/dev006/checked-save/ui-properties.txt",
+            "out/dev006/checked-save/analysis/results.json",
+            "out/dev006/checked-save/format.txt"
+          ]
+        },
+        "selected": "2026-11-02",
+        "implementation": "setChecked calls the existing private move overload with Save::NO, then keeps its final explicit save. One save persists flag and final order, including stationary toggles. clang-format applied; uncommitted."
+      },
+      {
+        "file": "model.cpp",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Use QList::move for stored-row relocation",
+        "evidence": "Inside the guarded beginMoveRows/endMoveRows sequence, Model::move currently removes one Item with takeAt(source) and reinserts a copy with insert(destination, 1, ...). QList already provides move(from,to) with the same final-index semantics; the existing bounds checks satisfy its preconditions.",
+        "expected": "Replace only the storage mutation with m_items.move(source, destination). Keep Qt model notifications, destination-child adjustment, editor-index bookkeeping, guards and save policy.",
+        "validation": {
+          "date": "2026-11-02",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "model_records": {
+            "tests": 75,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "focused_ui_records": 4,
+          "focused_ui_scenarios": [
+            "UserFlows::test_checked_row_does_not_reorder",
+            "UserFlows::test_reorder_drop_persists"
+          ],
+          "changed_unit_analyzer_runs": 2,
+          "analyzer_failed": 0,
+          "format_files": 11,
+          "source_sha256": "51a6314b80e08c587bfe764fe84be7e32bb3b0fbbdd6b209fb7fd1d1598fe68e",
+          "limits": "Container-operation quality refactor; existing model and actual reorder interaction coverage reused. No new permanent bug test, speed benchmark or full UI/flow/keyboard/native/Android runtime rerun.",
+          "artifacts": [
+            "out/dev006/list-move/build.txt",
+            "out/dev006/list-move/model-tests.txt",
+            "out/dev006/list-move/ui-reorder.txt",
+            "out/dev006/list-move/analysis/results.json",
+            "out/dev006/list-move/format.txt"
+          ]
+        },
+        "references": [
+          "https://doc.qt.io/qt-6/qlist.html#move"
+        ],
+        "selected": "2026-11-02",
+        "implementation": "Replace takeAt-plus-insert storage mutation with m_items.move(source, destination). Model notifications, destination-child adjustment, guards, editor tracking and save policy retained. clang-format applied; uncommitted."
+      },
+      {
+        "file": "model.cpp",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Handle insert failure directly in the save loop",
+        "evidence": "save stores QSqlError only to carry failure out of the loop, breaks, then checks the stored error to roll back and return. The insert-failure branch can already log query.lastError, roll back and return, matching the earlier delete-failure handling.",
+        "expected": "Remove the temporary error variable and post-loop error check; on failed insert, log query.lastError, call database.rollback and return immediately. Preserve the successful commit, delete/transaction error paths and pending-editor substitution.",
+        "validation": {
+          "date": "2026-11-02",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "focused_test": "ModelTest::failed_save_rolls_back_database_contents",
+          "focused_records": 3,
+          "focused_paths": [
+            "Duplicate UUID after partial insert: original saved data retained",
+            "Transaction start fails inside existing transaction",
+            "Missing target table"
+          ],
+          "model_records": {
+            "tests": 75,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "changed_unit_analyzer_runs": 2,
+          "analyzer_failed": 0,
+          "format_files": 11,
+          "source_sha256": "5bc8029583964b8800f039eb8e1d8303866d309d3e8e068c6a78f71b25e51616",
+          "limits": "Control-flow quality cleanup, not a new bug; existing rollback/persistence/editor tests reused. No new permanent regression or UI/flow/keyboard/native/Android runtime rerun.",
+          "artifacts": [
+            "out/dev006/save-error/build.txt",
+            "out/dev006/save-error/failure-paths.txt",
+            "out/dev006/save-error/model-tests.txt",
+            "out/dev006/save-error/analysis/results.json",
+            "out/dev006/save-error/format.txt"
+          ]
+        },
+        "selected": "2026-11-02",
+        "implementation": "Failed insert now logs query.lastError(), rolls back and returns immediately. Removed error variable/break/post-loop check; successful commit and other failure/pending-edit paths retained. clang-format applied; uncommitted."
+      },
+      {
+        "file": "model.cpp",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Keep only active UUIDs for table-cleanup membership",
+        "locations": [
+          "Model::dropRemovedTables, model.cpp:706-710 and 731-736"
+        ],
+        "evidence": "Cleanup constructs a QList<Item> from all catalog name/checked/id fields, but its only later access is value.uuid in std::find_if. Neither name nor checked participates in classifying orphan tables. The local begin/end iterators and predicate exist only to express UUID membership.",
+        "expected": "Use QList<QUuid> for active list IDs, append only the query ID, and test !activeLists.contains(uuid). Keep the current SELECT, complete-read guard, read-only guard, separate table inventory and deferred DROP loop unchanged. No QSet, SQL helper or schema rewrite is needed.",
+        "validation": {
+          "date": "2026-11-03",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "model_records": {
+            "tests": 93,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "focused_before_records": 8,
+          "focused_after_records": 8,
+          "focused_tests": [
+            "ModelTest::cleanup_requires_complete_catalog",
+            "ModelTest::lists_create_rename_switch_and_cleanup"
+          ],
+          "changed_unit_analyzer_runs": 2,
+          "analyzer_failed": 0,
+          "format_files": 11,
+          "source_sha256": "ddd06eb94ccffbf8af9dbfbe07b96de2875cf56119bff2d626a41a85fdd315ef",
+          "limits": "Representation/readability refactor, not a new bug. Existing read-failure, table-preservation and lifecycle regressions pass. No new permanent test, performance claim or full UI/flow/keyboard/native/Android runtime rerun. The preceding 302-record UI-022 run remains historical verification.",
+          "artifacts": [
+            "out/dev006/cleanup-ids/review-tests.txt",
+            "out/dev006/cleanup-ids/build.txt",
+            "out/dev006/cleanup-ids/model-tests.txt",
+            "out/dev006/cleanup-ids/cleanup-after.txt",
+            "out/dev006/cleanup-ids/analysis/results.json",
+            "out/dev006/cleanup-ids/format.txt"
+          ]
+        },
+        "selection": "Approved by user; implemented and verified.",
+        "baseline_validation": {
+          "date": "2026-11-03",
+          "kind": "Review baseline; no production change",
+          "focused_tests": [
+            "ModelTest::cleanup_requires_complete_catalog",
+            "ModelTest::lists_create_rename_switch_and_cleanup"
+          ],
+          "focused_records": 8,
+          "failures": 0,
+          "scope": "Five complete-catalog cleanup data cases plus healthy list creation/rename/switch/Undo and read-only selector behavior. Existing fault fixtures cover initial/partial read failures, metadata/UUID-table preservation and healthy/empty/read-only policy.",
+          "source_sha256": "64fe2bf61d0d035afeb8e0ffc66dd7157b3056cc938525ad26af7fbb17bf506c",
+          "artifacts": [
+            "out/dev006/cleanup-ids/review-tests.txt"
+          ],
+          "limits": "No new bug or performance claim. No source edit, full-suite repeat, new analyzer scan or Android/native visual run in this review step."
+        },
+        "selected": "2026-11-03",
+        "implementation": "Retain QList<QUuid> active IDs and test !activeLists.contains(uuid). Removed unused Item field construction, local iterator pair and membership predicate. Existing SELECT/error/read-only guards, inventory and DROP policy retained. clang-format applied; uncommitted."
+      },
+      {
+        "file": "model.cpp",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Remove the duplicate read-only check in Model::move",
+        "locations": [
+          "Model::move(qsizetype, qsizetype, Save), model.cpp:472-480"
+        ],
+        "evidence": "The first guard already returns when m_readOnly is true. Between it and the second m_readOnly test there are only bounds/same-row comparisons and QList size reads; no signal, mutation or event processing can change that state in the supported model thread. The repeated test adds no protection.",
+        "expected": "Remove only m_readOnly || from the second condition. Retain the entry read-only/bounds/same-row guard, beginMoveRows return check, forward destination adjustment, editor bookkeeping, endMoveRows and save policy. In particular, do not generalize this to remove rechecks after signal-emitting pending-edit restoration.",
+        "validation": {
+          "date": "2026-11-03",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "model_records": {
+            "tests": 93,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "focused_before_records": 12,
+          "focused_after_records": 12,
+          "changed_unit_analyzer_runs": 2,
+          "analyzer_failed": 0,
+          "format_files": 11,
+          "source_sha256": "6c12008b362d0c85d86871eafb97c58714579770526d3443222a807935017481",
+          "limits": "Control-flow quality cleanup, not a new bug. Existing regression coverage reused, with no artificial failing-before test. No full UI/flow/keyboard/native/Android runtime rerun or behavior/performance claim.",
+          "artifacts": [
+            "out/dev006/move-guard/review-tests.txt",
+            "out/dev006/move-guard/build.txt",
+            "out/dev006/move-guard/model-tests.txt",
+            "out/dev006/move-guard/move-after.txt",
+            "out/dev006/move-guard/analysis/results.json",
+            "out/dev006/move-guard/format.txt"
+          ]
+        },
+        "selection": "Approved by user; implemented and verified.",
+        "baseline_validation": {
+          "date": "2026-11-03",
+          "kind": "Source/control-flow review and existing-test baseline",
+          "focused_records": 12,
+          "failures": 0,
+          "focused_tests": [
+            "ModelTest::insert_move_and_reload_preserve_order_and_identity",
+            "ModelTest::move_rejects_invalid_rows",
+            "ModelTest::move_editor_through_meta_object",
+            "ModelTest::readonly_blocks_item_mutations_and_allows_reload"
+          ],
+          "source_sha256": "ddd06eb94ccffbf8af9dbfbe07b96de2875cf56119bff2d626a41a85fdd315ef",
+          "artifacts": [
+            "out/dev006/move-guard/review-tests.txt"
+          ],
+          "limits": "No bug or behavior change claimed; source proof establishes the duplicate check. Existing read-only mutation baseline includes a same-row move and does not independently establish every valid read-only reorder path. No production/test edit, full-suite repeat, analyzer or native/Android run in this step."
+        },
+        "selected": "2026-11-03",
+        "implementation": "Removed only the duplicate m_readOnly term before beginMoveRows. Entry guard, Qt move failure handling, destination adjustment, editor bookkeeping and save policy remain. clang-format applied; uncommitted."
+      },
+      {
+        "file": "model.cpp",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Let the local UndoRemove owner clean up on return",
+        "locations": [
+          "Model::removeAll(Save), model.cpp:526-542"
+        ],
+        "evidence": "The unsaved-removal branch calls remove.reset() and immediately returns. remove is a local std::unique_ptr<UndoRemove>; normal scope exit destroys the same command. Other local variables have trivial destruction, and UndoRemove has no custom destruction side effects that require a separate earlier lifetime boundary.",
+        "expected": "Delete only remove.reset() before the Save::NO return. Keep the early return, save(), and m_stack.push(remove.release()) ownership transfer for saved user removals. No raw-pointer conversion or lifetime helper is needed.",
+        "validation": {
+          "date": "2026-11-03",
+          "build": "Passed: ./tools/verify-windows.ps1 -Action Build -Jobs 2",
+          "model_records": {
+            "tests": 93,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "focused_before_records": 16,
+          "focused_after_records": 16,
+          "changed_unit_analyzer_runs": 2,
+          "analyzer_failed": 0,
+          "format_files": 11,
+          "source_sha256": "843cbe10b5b6b5d4a6152a81ffd1ffde2dc884c95ff6f631fb2990663e316d6f",
+          "limits": "Scope-exit quality cleanup, not a new bug or leak fix. Existing removal/reload/edit/Undo regressions reused; no artificial failing-before test or destructor-count claim. No full UI/flow/keyboard/native/Android runtime repeat.",
+          "artifacts": [
+            "out/dev006/remove-lifetime/review-tests.txt",
+            "out/dev006/remove-lifetime/build.txt",
+            "out/dev006/remove-lifetime/model-tests.txt",
+            "out/dev006/remove-lifetime/remove-after.txt",
+            "out/dev006/remove-lifetime/analysis/results.json",
+            "out/dev006/remove-lifetime/format.txt"
+          ]
+        },
+        "selection": "Approved by user; implemented and verified.",
+        "baseline_validation": {
+          "date": "2026-11-03",
+          "kind": "Source ownership review and existing-test baseline",
+          "focused_records": 16,
+          "failures": 0,
+          "focused_tests": [
+            "ModelTest::remove_all_preserves_editor_and_supports_undo",
+            "ModelTest::readonly_reload_still_replaces_rows",
+            "ModelTest::reload_applies_only_complete_reads",
+            "ModelTest::failed_reload_preserves_edit_and_undo",
+            "ModelTest::switching_list_discards_pending_edit_without_losing_original"
+          ],
+          "source_sha256": "6c12008b362d0c85d86871eafb97c58714579770526d3443222a807935017481",
+          "artifacts": [
+            "out/dev006/remove-lifetime/review-tests.txt"
+          ],
+          "limits": "Quality simplification, not an observed bug or leak. Existing behavior tests do not count destructors; scope-exit reasoning establishes the redundant reset. No production/test edits, full-suite, analyzer or Android/native runtime repeat in this review step."
+        },
+        "selected": "2026-11-03",
+        "implementation": "Removed only remove.reset() immediately before the Save::NO return. Scope exit owns destruction; saved removals retain save() and release-to-QUndoStack ownership transfer. clang-format applied; uncommitted."
+      },
+      {
+        "file": "model.cpp",
+        "status": "implemented",
+        "type": "code_quality",
+        "title": "Remove the unused file-local Item equality function",
+        "locations": [
+          "model.cpp:35-38"
+        ],
+        "evidence": "The static inline operator==(const Item&, const Item&) compares name/checked, but current model.cpp has no Item equality, Item-list equality or equality-based contains/indexOf/remove calls. Storage operations use explicit predicates and UUID membership. Internal linkage prevents another translation unit from calling this definition; Item has no registered meta-type comparison requiring it.",
+        "expected": "Remove the unused function without introducing a replacement or changing Item identity/checked-state semantics. Rebuild application/tests to confirm no implicit template consumer requires it; reuse the model regressions and existing analyzers/formatter.",
+        "validation": {
+          "date": "2026-11-03",
+          "build": "Application and both test executables rebuilt successfully without Item equality; no implicit template consumer requires it.",
+          "model_records": {
+            "tests": 93,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "changed_unit_analyzer_runs": 2,
+          "analyzer_failed": 0,
+          "format_files": 11,
+          "source_sha256": "62a19e3093d6995ff1e125d97c246018f74faea29204114f575ed4ce8c261382",
+          "limits": "Unused-code quality cleanup, not a bug fix or new equality policy. Existing model coverage reused; no new permanent test. Full UI/flow/keyboard/native/Android runtime not repeated for this removal.",
+          "artifacts": [
+            "out/dev006/item-equality/review-model.txt",
+            "out/dev006/item-equality/build.txt",
+            "out/dev006/item-equality/model-tests.txt",
+            "out/dev006/item-equality/analysis/results.json",
+            "out/dev006/item-equality/format.txt"
+          ]
+        },
+        "selection": "Approved by user; implemented and verified.",
+        "baseline_validation": {
+          "date": "2026-11-03",
+          "kind": "Source/use-site review and existing model baseline",
+          "model_records": {
+            "tests": 93,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "source_sha256": "843cbe10b5b6b5d4a6152a81ffd1ffde2dc884c95ff6f631fb2990663e316d6f",
+          "artifacts": [
+            "out/dev006/item-equality/review-model.txt"
+          ],
+          "limits": "Unused-code candidate, not a bug or a change to equality behavior. Runtime baseline does not by itself prove the absence of template consumers; rebuild after removal is part of the selected correction. No source/test edits, new analyzer scan, full UI or Android/native runtime run in this review step."
+        },
+        "selected": "2026-11-03",
+        "implementation": "Removed the unused static inline Item equality function with no replacement. Application/tests rebuild; construction, UUID identity, checked-state and storage behavior retained. clang-format applied; uncommitted."
+      }
+    ],
+    "active_language": "complete",
+    "cpp_progress": {
+      "inventory": [
+        "main.cpp",
+        "model.cpp",
+        "model.h",
+        "sortfilterproxymodel.cpp",
+        "sortfilterproxymodel.h",
+        "tests/test_model.cpp",
+        "tests/test_ui.cpp",
+        "undoremove.cpp",
+        "undoremove.h",
+        "weekmodel.cpp",
+        "weekmodel.h"
+      ],
+      "reviewed": [
+        "weekmodel.h",
+        "weekmodel.cpp",
+        "undoremove.h",
+        "undoremove.cpp",
+        "sortfilterproxymodel.h",
+        "sortfilterproxymodel.cpp",
+        "main.cpp",
+        "model.h",
+        "model.cpp",
+        "tests/test_model.cpp",
+        "tests/test_ui.cpp"
+      ],
+      "current_file": null,
+      "current_scope": "Review closed. All source and test targets complete; follow-ups remain separate. Source/test commits are recorded in resolution.commit_split.",
+      "test_reviews": [
+        {
+          "file": "tests/test_model.cpp",
+          "outcome": "Complete. Retain fresh in-memory per-test fixture, direct assertions/local helpers, date controls, pending-edit/identity and SQL fault tests. Strengthen valid read-only move rejection and retained Undo/storage with a confirmed isolated mutation.",
+          "verification": {
+            "date": "2026-11-03",
+            "windows_ctest_entries": 4,
+            "records": {
+              "ui": {
+                "tests": 184,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0
+              },
+              "flow": {
+                "tests": 19,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0
+              },
+              "keyboard": {
+                "tests": 6,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0
+              },
+              "model": {
+                "tests": 93,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0
+              }
+            },
+            "total_records": 302,
+            "full_run_seconds": 292.29,
+            "mutation_before": "Read-only movement guard removed in an ignored source copy: all 93 old records pass.",
+            "mutation_after": "Same isolated mutation and strengthened test: 92 pass, 1 intended read-only movement failure. Production model passes all 93 records.",
+            "native_windows_records": 10,
+            "changed_or_reviewed_cpp_analyzer_runs": 4,
+            "analyzer_failed": 0,
+            "cpp_format_files": 11,
+            "qml_format_current_files": 54,
+            "source_sha256": {
+              "model.cpp": "62a19e3093d6995ff1e125d97c246018f74faea29204114f575ed4ce8c261382",
+              "tests/test_model.cpp": "8e16595372ccf19bdc0d542334680cf4d402f3de2a7044bcc2810ac56c860b70",
+              "tests/test_ui.cpp": "95c46460c9c7688850836d70aa54366bebb2f3815f8b88ac14b8a447b28bea18",
+              "tests/qml/tst_combobox.qml": "a4b9a812d3878f40afa66c5283231410d510d87fc435993cec712cd35e1406e5",
+              "tests/qml/tst_safeborder.qml": "789e86ae636974406a7e5e49ad2b4b67b076734340cc180f824df90389b6afab"
+            },
+            "limits": "Test-only improvements; production code unchanged in this step. Full UI/flow/keyboard coverage runs offscreen. Focused safe-border and popup files also pass with native Windows rendering. Native popup stress emits Windows geometry-limit notices on the LG display; no binding-loop or assertion failures. No new Android/physical-device, dictation, transition-time/UI-015 or ArrowIcon/UI-017 certification.",
+            "artifacts": [
+              "out/dev006/test-review/mutant-before.txt",
+              "out/dev006/test-review/mutant-after.txt",
+              "out/dev006/test-review/mutation.patch",
+              "out/dev006/test-review/build.txt",
+              "out/dev006/test-review/verify-windows.txt",
+              "out/dev006/test-review/safeborder-native.txt",
+              "out/dev006/test-review/combobox-native.txt",
+              "out/dev006/test-review/analysis/results.json",
+              "out/dev006/test-review/cpp-format.txt",
+              "out/dev006/test-review/qml-format.txt"
+            ]
+          }
+        },
+        {
+          "file": "tests/test_ui.cpp",
+          "outcome": "Complete with no source change. Keep temporary settings, in-memory SQL, deterministic reset seed, static QML bridges, real touch cancellation, fresh engines and build flags. CTest and dynamic consumer paths traced.",
+          "verification": "Both test units pass clang-tidy/Clazy; all four runtime suites pass. Platform and native-dictation limits remain."
+        }
+      ]
+    },
+    "qml_phase": "All 56 QML/template review targets complete: 37 original application targets (two removed) plus 19 test targets. All 54 current files match formatting.",
+    "completed": "2026-11-03",
+    "final_verification": {
+      "date": "2026-11-03",
+      "windows_ctest_entries": 4,
+      "records": {
+        "ui": {
+          "tests": 184,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 93,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "total_records": 302,
+      "full_run_seconds": 292.29,
+      "mutation_before": "Read-only movement guard removed in an ignored source copy: all 93 old records pass.",
+      "mutation_after": "Same isolated mutation and strengthened test: 92 pass, 1 intended read-only movement failure. Production model passes all 93 records.",
+      "native_windows_records": 10,
+      "changed_or_reviewed_cpp_analyzer_runs": 4,
+      "analyzer_failed": 0,
+      "cpp_format_files": 11,
+      "qml_format_current_files": 54,
+      "source_sha256": {
+        "model.cpp": "62a19e3093d6995ff1e125d97c246018f74faea29204114f575ed4ce8c261382",
+        "tests/test_model.cpp": "8e16595372ccf19bdc0d542334680cf4d402f3de2a7044bcc2810ac56c860b70",
+        "tests/test_ui.cpp": "95c46460c9c7688850836d70aa54366bebb2f3815f8b88ac14b8a447b28bea18",
+        "tests/qml/tst_combobox.qml": "a4b9a812d3878f40afa66c5283231410d510d87fc435993cec712cd35e1406e5",
+        "tests/qml/tst_safeborder.qml": "789e86ae636974406a7e5e49ad2b4b67b076734340cc180f824df90389b6afab"
+      },
+      "limits": "Test-only improvements; production code unchanged in this step. Full UI/flow/keyboard coverage runs offscreen. Focused safe-border and popup files also pass with native Windows rendering. Native popup stress emits Windows geometry-limit notices on the LG display; no binding-loop or assertion failures. No new Android/physical-device, dictation, transition-time/UI-015 or ArrowIcon/UI-017 certification.",
+      "artifacts": [
+        "out/dev006/test-review/mutant-before.txt",
+        "out/dev006/test-review/mutant-after.txt",
+        "out/dev006/test-review/mutation.patch",
+        "out/dev006/test-review/build.txt",
+        "out/dev006/test-review/verify-windows.txt",
+        "out/dev006/test-review/safeborder-native.txt",
+        "out/dev006/test-review/combobox-native.txt",
+        "out/dev006/test-review/analysis/results.json",
+        "out/dev006/test-review/cpp-format.txt",
+        "out/dev006/test-review/qml-format.txt"
+      ]
+    }
+  },
+  "review_complete": true,
+  "resolved": "2026-11-03",
+  "resolution": {
+    "summary": "Completed all application and test reviews and the practical coding guide. User accepted closure and requested several focused commits. Selected app changes, five regression-tested bug fixes, test quality work and documentation are separated in Git history.",
+    "user_acceptance": "2026-11-03: user requested closing the completed ticket and making several commits.",
+    "reviewed_cpp": 11,
+    "reviewed_qml_targets": 56,
+    "current_qml_files": 54,
+    "verification": {
+      "date": "2026-11-03",
+      "windows_ctest_entries": 4,
+      "records": {
+        "ui": {
+          "tests": 184,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 93,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "total_records": 302,
+      "full_run_seconds": 292.29,
+      "mutation_before": "Read-only movement guard removed in an ignored source copy: all 93 old records pass.",
+      "mutation_after": "Same isolated mutation and strengthened test: 92 pass, 1 intended read-only movement failure. Production model passes all 93 records.",
+      "native_windows_records": 10,
+      "changed_or_reviewed_cpp_analyzer_runs": 4,
+      "analyzer_failed": 0,
+      "cpp_format_files": 11,
+      "qml_format_current_files": 54,
+      "source_sha256": {
+        "model.cpp": "62a19e3093d6995ff1e125d97c246018f74faea29204114f575ed4ce8c261382",
+        "tests/test_model.cpp": "8e16595372ccf19bdc0d542334680cf4d402f3de2a7044bcc2810ac56c860b70",
+        "tests/test_ui.cpp": "95c46460c9c7688850836d70aa54366bebb2f3815f8b88ac14b8a447b28bea18",
+        "tests/qml/tst_combobox.qml": "a4b9a812d3878f40afa66c5283231410d510d87fc435993cec712cd35e1406e5",
+        "tests/qml/tst_safeborder.qml": "789e86ae636974406a7e5e49ad2b4b67b076734340cc180f824df90389b6afab"
+      },
+      "limits": "Test-only improvements; production code unchanged in this step. Full UI/flow/keyboard coverage runs offscreen. Focused safe-border and popup files also pass with native Windows rendering. Native popup stress emits Windows geometry-limit notices on the LG display; no binding-loop or assertion failures. No new Android/physical-device, dictation, transition-time/UI-015 or ArrowIcon/UI-017 certification.",
+      "artifacts": [
+        "out/dev006/test-review/mutant-before.txt",
+        "out/dev006/test-review/mutant-after.txt",
+        "out/dev006/test-review/mutation.patch",
+        "out/dev006/test-review/build.txt",
+        "out/dev006/test-review/verify-windows.txt",
+        "out/dev006/test-review/safeborder-native.txt",
+        "out/dev006/test-review/combobox-native.txt",
+        "out/dev006/test-review/analysis/results.json",
+        "out/dev006/test-review/cpp-format.txt",
+        "out/dev006/test-review/qml-format.txt"
+      ]
+    },
+    "commit_split": [
+      {
+        "step": 1,
+        "hash": "2044afc5119f3b7ca3dc1fa4600e63e3bd744dda",
+        "title": "Simplify QML presentation and remove unused components",
+        "files": [
+          "ANDROID.md",
+          "Background.qml",
+          "CMakeLists.txt",
+          "CartOutIcon.qml",
+          "ColorComboBox.qml",
+          "InputDelegate.qml",
+          "ShopView.qml",
+          "Swipeable.qml",
+          "TextDelegate.qml",
+          "Theme.qml",
+          "WheelIcon.qml",
+          "tickets/DEV-009.json"
+        ]
+      },
+      {
+        "step": 2,
+        "hash": "cff0e6a4fc6e22740d415c8c710cf8780f2c5431",
+        "title": "Use a layout for IconButton display modes (DEV-010)",
+        "files": [
+          "IconButton.qml",
+          "View.qml",
+          "tests/qml/tst_iconbutton.qml",
+          "tests/qml/tst_preview.qml",
+          "tickets/DEV-010.json"
+        ]
+      },
+      {
+        "step": 3,
+        "hash": "2260f0f1c9ce508b6a82cfd106e3d76607cfea77",
+        "title": "Keep WeekModel flat for valid parent indexes (UI-018)",
+        "files": [
+          "tests/test_model.cpp",
+          "tickets/UI-018.json",
+          "weekmodel.cpp"
+        ]
+      },
+      {
+        "step": 4,
+        "hash": "ccc341eafdcc41a5542106dddbddc725226776ef",
+        "title": "Refresh WeekModel when the full date changes (UI-019)",
+        "files": [
+          "tests/test_model.cpp",
+          "tickets/UI-019.json",
+          "weekmodel.cpp",
+          "weekmodel.h"
+        ]
+      },
+      {
+        "step": 5,
+        "hash": "790790d19c08c4527007274d32d909ad96163a4c",
+        "title": "Notify Undo bindings when read-only state changes (UI-020)",
+        "files": [
+          "model.cpp",
+          "tests/qml/tst_modelproperties.qml",
+          "tickets/UI-020.json"
+        ]
+      },
+      {
+        "step": 6,
+        "hash": "e64e008ed9e5789c796610e4ff92b5bfd899bafa",
+        "title": "Preserve list tables when catalog reads fail (UI-021)",
+        "files": [
+          "model.cpp",
+          "tests/test_model.cpp",
+          "tickets/UI-021.json"
+        ]
+      },
+      {
+        "step": 7,
+        "hash": "88e31d0bb013a329b521c55d121d2ec8af4ee3db",
+        "title": "Preserve model state when list reads fail (UI-022)",
+        "files": [
+          "model.cpp",
+          "model.h",
+          "tests/test_model.cpp",
+          "tickets/UI-022.json"
+        ]
+      },
+      {
+        "step": 8,
+        "hash": "476cf70789fd5c0c12dfaa8f079cd9fa183121d8",
+        "title": "Simplify C++ value types, ownership and persistence",
+        "files": [
+          "main.cpp",
+          "model.cpp",
+          "model.h",
+          "undoremove.cpp",
+          "undoremove.h",
+          "weekmodel.cpp",
+          "weekmodel.h"
+        ]
+      },
+      {
+        "step": 9,
+        "hash": "4c2b2900d66125f3a8c7b7413b48a16902ab515c",
+        "title": "Strengthen read-only and theme regression checks",
+        "files": [
+          "tests/qml/tst_combobox.qml",
+          "tests/qml/tst_safeborder.qml",
+          "tests/test_model.cpp"
+        ]
+      },
+      {
+        "step": 10,
+        "title": "Document coding guidelines and close DEV-006",
+        "commit": "This documentation/closure commit."
+      }
+    ],
+    "intermediate_model_validation": [
+      {
+        "step": 3,
+        "records": 66,
+        "result": "Build and all records pass.",
+        "artifact": "out/dev006/commits/model-3.txt"
+      },
+      {
+        "step": 4,
+        "records": 75,
+        "result": "Build and all records pass.",
+        "artifact": "out/dev006/commits/model-4.txt"
+      },
+      {
+        "step": 5,
+        "records": 75,
+        "result": "Build and all records pass.",
+        "artifact": "out/dev006/commits/model-5.txt"
+      },
+      {
+        "step": 6,
+        "records": 80,
+        "result": "Build and all records pass.",
+        "artifact": "out/dev006/commits/model-6.txt"
+      },
+      {
+        "step": 7,
+        "records": 93,
+        "result": "Build and all records pass.",
+        "artifact": "out/dev006/commits/model-7.txt"
+      },
+      {
+        "step": 8,
+        "records": 93,
+        "result": "Build and all records pass.",
+        "artifact": "out/dev006/commits/model-8.txt"
+      },
+      {
+        "step": 9,
+        "records": 93,
+        "result": "Build and all records pass.",
+        "artifact": "out/dev006/commits/model-9.txt"
+      }
+    ],
+    "deferred": "UI-017 remains needs_reproduction; DEV-007 and other deferred work remain separate. Previous Android/native evidence and documented gaps are retained without claiming new phone validation.",
+    "guide": "CODING_GUIDELINES.md",
+    "record": "reviews/DEV-006.md"
+  }
 }

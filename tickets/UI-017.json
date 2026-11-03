@@ -1,0 +1,42 @@
+{
+  "id": "UI-017",
+  "title": "Validate ArrowIcon reset/rearm and resized idle arrow position",
+  "status": "needs_reproduction",
+  "type": "source_review_candidate",
+  "severity": "unassigned",
+  "created": "2026-11-01",
+  "reported_by": "DEV-006 source review",
+  "environment": "Qt 6.12 Windows native Qt Quick Test component probe; production IconChoser and cart/trash variants, bundled icon font, 9.27 mm reference allocation.",
+  "finding": "Component-state observations suggest reset may not fully rearm arrow feedback during an active animation, and idle y no longer follows resized endpoints after reset. No undesired rendered user-path behavior is established.",
+  "observed": [
+    "Set displacement to 1.1 icon widths, wait 150 ms, return to zero, wait 80 ms and cross the threshold again. In all three variants the old animation remains running and continues changing y; only one started signal is observed.",
+    "Finish an animation, return displacement to zero, then double the IconChoser dimensions. Animation from updates but arrow y keeps its old value. CartOut measured approximately 8.343 px y versus 16.686 px new from.",
+    "Settled cycles behave consistently: one start per excursion beyond ratio 1, another start after returning to zero and completing the prior cycle."
+  ],
+  "source_notes": [
+    "ArrowIcon.qml reset clears animated and assigns arrow.y = animation.from, without stopping or completing the running animation.",
+    "Animation.start has no effect while already running. alwaysRunToEnd is enabled; do not assume simply adding stop implements a desired immediate reset.",
+    "Imperative assignment removes the original y binding. The real TextDelegate opacity target is zero at rest, so stale hidden geometry alone does not demonstrate a visible bug.",
+    "The animated latch means already animated during this excursion, distinct from animation.running. Do not remove it without checking repeated threshold crossings."
+  ],
+  "expected": "Preserve intentional animation/pullback behavior. Establish whether feedback should finish or restart across rapid gestures and whether resized idle coordinates cause an unwanted visible result before selecting a correction.",
+  "reproduction_to_collect": [
+    "Capture the real rendered TextDelegate during a rejected/pulled-back swipe followed by an immediate second swipe, comparing a settled control on Windows and Android.",
+    "Compare visible arrow trajectories after window/preview size changes with a newly created icon at that same size, at equal gesture positions.",
+    "Record whether any difference is perceptible or intended; otherwise retain the current behavior and dismiss the candidate with evidence."
+  ],
+  "tests": {
+    "probe": "out/dev006/arrowicon-review/tst_arrowicon_review.qml",
+    "report": "out/dev006/arrowicon-review/native.txt",
+    "result": "11 observational records pass without warnings. This characterizes current component state, not bug-fix acceptance.",
+    "regression_gap": "No permanent rendered real-gesture failing-before test exists. Add that first if a bug fix is selected."
+  },
+  "related_tickets": [
+    "DEV-006"
+  ],
+  "implementation_scope": "Deferred validation candidate only. No application fix or UI-015 work is authorized or performed by the review.",
+  "references": [
+    "https://doc.qt.io/qt-6/qml-qtquick-animation.html",
+    "https://doc.qt.io/qt-6/qtqml-syntax-propertybinding.html"
+  ]
+}

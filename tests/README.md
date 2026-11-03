@@ -14,6 +14,53 @@ editor positions, adjusted editor row tagging, invalid calls, identity, checked
 state, and list switching.
 Each test gets fresh in-memory SQLite storage.
 
+DEV-006 strengthened `readonly_blocks_item_mutations_and_allows_reload` with
+otherwise-valid forward/backward moves, unchanged row identities/storage and a
+usable Undo command after writes are re-enabled. An isolated build with only the
+move read-only guard removed passed all 93 earlier records; the stronger test
+rejects that mutation, while the normal production model passes all 93 records.
+The mutation lives only under ignored `out/dev006/test-review`; production code
+was not changed for this test-quality improvement.
+
+The safe-border live-theme test also checks that Light/Dark produce different
+surface colors, System matches its resolved palette, and returning to Light
+restores the original color. Popup stress waits for the drawer's actual opened
+state. Native Windows verifies those two focused files; Android behavior retains
+its separate platform coverage requirements.
+
+UI-018's `week_model_has_no_child_rows` exercises the production WeekModel in
+the same normal QTest suite. It checks seven root rows and zero child rows for
+every valid day index, including rejected child-index creation. It failed on the
+original ignored-parent implementation and passes with the parent validity guard.
+
+UI-019's data-driven `week_model_date_refresh` exercises the production date-update
+path called by WeekModel's timer. It supplies fixed dates without changing the
+system clock and checks seven name/number roles and reset notifications. Same-day
+numbers in a different month/year (including backward changes) failed with the
+original comparison; full-date comparison passes. Unchanged dates, next-day,
+month/year boundaries, leap day, multi-day resume and repeated refresh are controls.
+These model checks do not simulate Android suspension or certify timer delivery.
+
+UI-021's `cleanup_requires_complete_catalog` exercises production cleanup with
+initial and mid-iteration SQLite catalog-read errors. Fault views establish the
+error stage before Model creation; assertions check table presence, row names,
+checked flags and UUIDs afterward. Healthy, empty-catalog and read-only controls
+preserve the intended orphan-cleanup policy. All five data rows run in normal
+model CTest coverage with isolated in-memory storage.
+
+UI-022's `reload_applies_only_complete_reads` injects initial and mid-iteration
+SQLite read failures into an already loaded list, restores the readable table,
+then inserts normally. It checks persisted names, order, UUIDs and checked flags
+so an empty/partial replacement cannot overwrite the original data. Healthy,
+read-only and empty-list controls verify successful refresh behavior.
+`failed_reload_preserves_edit_and_undo` verifies the editor position, pending
+identity, notifications and the usable Undo command after recovery.
+`failed_list_switch_preserves_source_and_target` verifies that a failed switch
+retains the source list ID, leaves the target's data intact after a later edit,
+and succeeds when retried. All 13 data cases run in normal model CTest coverage
+with fresh in-memory storage. The ten fault cases failed before the correction;
+all 15 focused records (including setup/cleanup) pass afterward.
+
 Toggle regressions cover empty models, negative and out-of-range indexes,
 extreme indexes, read-only calls, reordering, identity, and persistence.
 
@@ -37,7 +84,7 @@ read-only model contents from the database.
 
 An unfinished edit retains the original saved row. Submitting at the editor
 position preserves its UUID and checked state. Removing the editor restores the
-original; reload or list switching cancels the edit. A second edit is rejected
+original; successful reload or list switching cancels the edit. A second edit is rejected
 until the current one is submitted or cancelled.
 
 Use CMake 3.25+, the MSVC Qt kit, and an x64 Native Tools Command Prompt (or
@@ -95,6 +142,13 @@ The UI harness uses the production QShopper module,
 in-memory SQLite and temporary settings. Its report is written to
 `out/windows-agent/tests/ui-tests.xml`.
 
+UI-020's `tests/qml/tst_modelproperties.qml` binds a real QML property to the
+production Model's `canUndo`, then toggles `readOnly` in both directions.
+Pending-Undo cases failed on the stale binding before the fix; empty-stack
+controls passed. All four data rows now pass, including no-op setters, effective
+notification counts, round trips and later use of the preserved command. The
+file runs in the normal UI CTest entry.
+
 Seven scenarios cover empty-list edit mode, keyboard item submission, empty
 submission, leaving/re-entering edit mode, a pointer swipe to check an item and
 resetting it, bulk removal/undo through view actions, and a pointer click on the
@@ -119,6 +173,24 @@ Earlier full-app finding, resolved as UI-001 on 2026-10-31:
 
 The former null-dimensions startup error (UI-002) is resolved by the Theme migration:
 components use Theme.pixels() directly and no longer wait for a Dimensions assignment.
+
+## IconButton layout and display modes
+
+`qml/tst_iconbutton.qml` checks the production IconButton's six drawer labels at
+preview scales 1/2, glyph/caption/circle geometry and resizing. It also checks all
+four inherited AbstractButton display modes, live changes, mouse click delivery
+and disabled-click rejection. Captions have a shared two-line limit, grow with
+their text, and shrink again when it becomes shorter; callers need no line-count
+override. Binding-loop warnings fail the tests. Text font and
+line assertions run where real text fonts are available; offscreen fallback fonts
+alone do not certify captions. Run the same file natively with the Qt kit on PATH:
+
+```powershell
+./out/windows-agent/qshopper_ui_tests.exe -input tests/qml/tst_iconbutton.qml -import out/windows-agent -platform windows
+```
+
+It is automatically part of the normal QML CTest suite. DEV-010 records its
+failing-before/passing-after display-mode results and Android drawer checks.
 
 ## Theme sizing verification
 

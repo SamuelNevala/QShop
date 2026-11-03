@@ -13,7 +13,7 @@ intentional gestures, text fitting, animation, and list ordering intact.
 - Capture reports first. Do not implement fixes during backlog gathering.
 - Feature and code-quality requests are also backlog intake during this phase,
   unless the user explicitly asks to implement them now.
-- Keep stable IDs. Add new UI reports from UI-017 onward; UI-002 is already resolved.
+- Keep stable IDs. Add new UI reports from UI-023 onward; UI-002 is already resolved.
 - Distinguish user reports, previously observed bugs, source-review candidates,
   missing features, code-quality work, and validation tasks. Missing test coverage
   is not evidence of a bug.
@@ -83,6 +83,12 @@ regressions remain easy to trace.
 | ID | Finding | Evidence/status | Severity |
 | --- | --- | --- | --- |
 | [UI-015](tickets/UI-015.json) | Validate fast Undo during the Clear-list animation | Input-readiness investigation: settled mouse/touch Undo passes after correcting the test driver; transition-time hit-target reproduction remains open | Unassigned |
+| [UI-017](tickets/UI-017.json) | Validate ArrowIcon reset/rearm and resized idle position | DEV-006 component probe observes a continuing animation after reset and a stale idle y after resize. No rendered user-path failure established; follow-up deferred, no app change | Unassigned |
+| [UI-018](tickets/UI-018.json) | WeekModel incorrectly reports child rows in a flat list | Resolved 2026-11-02: permanent QTest fails before/passes after; 269 Windows records, final model rerun, format and changed-unit analyzers pass. Committed 2260f0f1; no visible shopping-screen failure claimed | Unassigned |
+| [UI-019](tickets/UI-019.json) | WeekModel skips refresh for different full dates sharing a day number | Resolved 2026-11-02: controlled-date model regression fails in three cases before/passes after; all 278 Windows records, format and changed-unit analyzers pass. Committed ccc341ea; Android suspension not simulated | Unassigned |
+| [UI-020](tickets/UI-020.json) | canUndo bindings stay stale when readOnly changes | Resolved 2026-11-02: permanent QML binding regression fails before/passes after; all 284 Windows records, analyzers and formatting pass. Committed 790790d1; no normal phone-flow failure claimed | Unassigned |
+| [UI-021](tickets/UI-021.json) | Cleanup drops active list tables after catalog-read failure | Resolved 2026-11-02: permanent initial/partial-read regressions fail before/pass after; all 289 Windows records, analyzers and format pass. Committed e64e008e; no phone incident established | Major |
+| [UI-022](tickets/UI-022.json) | Failed reload exposes incomplete rows that a later edit saves over original data | Resolved 2026-11-03: permanent initial/partial read, editor/Undo and failed-switch regressions fail before/pass after; all 302 Windows records, analyzers and format pass. Committed 88e31d0b; no phone incident established | Major |
 
 ### [UI-008 — Long-list background continuity](tickets/UI-008.json)
 
@@ -286,9 +292,11 @@ an option to evaluate, not an agreed migration; priority remains unassigned.
 | [DEV-003](tickets/DEV-003.json) | Choose a clang-format configuration and apply it to all project-owned C++ sources and headers, including tests | Resolved 2026-11-01 with user acceptance: Qt-aligned clang-format 22.1.8 settings/helper applied to all 11 sources; repeat pass and include/token audits pass, all four Windows suites and nine native Windows cancellation records pass |
 | [DEV-004](tickets/DEV-004.json) | Simplify root/test CMake using KISS and adopt the user-selected C++20 baseline | Resolved 2026-11-01; user accepted. Windows suites, selected build configurations and 13 Android emulator checks pass |
 | [DEV-005](tickets/DEV-005.json) | Set up clang-tidy and Clazy with suitable checks, analyze the project, triage findings, and fix actionable issues | Resolved 2026-11-01; user accepted. All 505/100 checks retained: zero findings in 14 Windows and 10 Android analyzer runs, with narrow exceptions documented. Four Windows suites (247 records) and 47 native Android theme checks pass |
-| [DEV-006](tickets/DEV-006.json) | Analyze QML and C++ for simplicity and write practical KISS-based coding guidelines grounded in the current code | Requested; review and full guide deferred; KISS recorded as a standing principle |
+| [DEV-006](tickets/DEV-006.json) | Analyze QML and C++ for simplicity and write practical KISS-based coding guidelines grounded in the current code | Resolved 2026-11-03; user accepted closure. All 11 C++ and 56 QML/template targets reviewed, guide complete. Changes split into ten focused commits, including five independent bug fixes with regressions. Combined 302 Windows records, ten native Windows records, analyzers and formatting pass; intermediate model states also build/pass. UI-017 and other deferred tickets remain separate |
 | [DEV-007](tickets/DEV-007.json) | Replace the project C++ proxy wrapper with QtQml.Models SortFilterProxyModel | Requested; migration deferred. Preserve drawer catalog filtering, name sorting, UUID selection and restart behavior; remove the redundant wrapper/build registration |
 | [DEV-008](tickets/DEV-008.json) | Review Virtual Keyboard native libraries packaged in Android despite the native-IME configuration | Packaging candidate; same payload appears in old and new APKs. Investigate deployment requirements separately; no runtime keyboard defect established |
+| [DEV-009](tickets/DEV-009.json) | Remove unused WheelIcon, its module registration and disabled cart-wheel snippets | Resolved 2026-11-01 at user request. File, CMake entry and inactive snippets removed; 247 Windows records, Android native build/module checks and formatting of 53 remaining QML/templates pass. Committed 2044afc5 |
+| [DEV-010](tickets/DEV-010.json) | Use a layout for IconButton content and honor inherited display modes | Resolved 2026-11-03 with DEV-006 acceptance; committed cff0e6a4. Four modes, caption limits, caller sizing and clicks verified; final combined suites pass |
 
 DEV-002 should establish a checked-in `.qmlformat.ini`, Qt-style attribute order,
 and a repeatable formatter invocation usable with Qt Creator. Preserve behavior
@@ -315,6 +323,12 @@ DEV-006 should produce `CODING_GUIDELINES.md` from a review of both languages.
 KISS means clear, direct implementations and justified abstractions, rather than
 the shortest possible code or removal of necessary correctness safeguards.
 Coordinate with DEV-002 through DEV-005 and record proposed refactors separately.
+The user selected Google's C++ Style Guide as a starting point, subject to Qt and
+KISS judgment rather than wholesale adoption. Review each QML file together with
+its instantiation points, especially implicit sizing versus caller geometry,
+anchors and Layout ownership. No-change outcomes are valid. Track progress in
+[reviews/DEV-006.md](reviews/DEV-006.md); the guide is a working draft until the
+source review is complete.
 
 DEV-007 replaces the catalog proxy in View.qml with Qt's QML-exposed type.
 The existing wrapper filters out checked catalog entries and sorts column 0.
@@ -357,6 +371,7 @@ QA-001/QA-002; UI-015 remains a separate transition-time input candidate.
 
 | Reference | Finding | Resolution/evidence |
 | --- | --- | --- |
+| [DEV-009](tickets/DEV-009.json) | Dormant cart-wheel component and commented usages | Removed file, QML registration and both disabled snippets at user request. All 247 Windows records pass; Android native build and generated resource/module audit pass; no runtime bug claimed |
 | [DEV-005](tickets/DEV-005.json) | Repeatable C++ static analysis and actionable warning cleanup | Samuel baseline retained (505 clang-tidy / 100 Clazy checks); Windows/Android scans clean with documented exceptions. Property-contract regression fails before and passes after; cancellation characterization, 247 Windows records and 47 native Android checks pass. User accepted closure and commit on 2026-11-01 |
 | [DEV-003](tickets/DEV-003.json) | Consistent C++ formatting | Root clang-format configuration and helper cover all 11 C++/header/test sources. Repeat pass, include/token audits, four Windows suites and nine native cancellation records pass. User accepted closure and commit on 2026-11-01 |
 | [DEV-002](tickets/DEV-002.json) | Consistent QML formatting | Qt 6.12 qmlformat, root configuration and repeatable helper cover all 54 QML/test/template sources. Sorted imports preserve existing control selection; repeat pass and Windows checks pass. User accepted closure and commit on 2026-11-01 |

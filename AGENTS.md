@@ -23,6 +23,23 @@ it makes the actual code easier to understand and maintain. Fewer lines alone do
 not make a design simpler; preserve necessary safety, error handling, and product
 behavior. The full code review and coding-guide task is tracked as DEV-006.
 
+Use [CODING_GUIDELINES.md](CODING_GUIDELINES.md) for the project coding guide
+and [reviews/DEV-006.md](reviews/DEV-006.md) for review coverage and decisions.
+Google's C++ Style Guide is the starting point, assessed against Qt, the existing
+project conventions and KISS; do not adopt its rules wholesale or replace the
+accepted formatter configuration. Review QML one file at a time. Trace each
+component's definition, base/content dependencies, derived components and actual
+instantiation points, including dynamic loading and tests. In particular, identify
+who owns implicit size, actual width/height, positioning, anchors and Layout hints.
+Reading a caller does not mean that caller's own review is complete. Record
+"no changes needed" when justified; a review does not require a code change.
+Implement bounded test-asset improvements directly during review; do not stop
+for approval of each test-only finding. Keep application behavior changes separate.
+For new or revised arrangements, prefer RowLayout, ColumnLayout, GridLayout or
+FlexboxLayout over Row/Column positioners and plain Item wrappers used only for
+manual positioning. Choose the simplest suitable Layout. Custom button content
+must honor the inherited display mode; declare any intentional default explicitly.
+
 Use braces for every `if` body in QML/JavaScript and C++, including single-line
 bodies. Apply this to new or edited code; keep broad formatting in DEV-002/DEV-003.
 Do not use `continue` in new or edited C++ code; prefer structured conditionals.
@@ -127,6 +144,10 @@ two preview scales, including shrink/wrap, content retention, checked styling an
 reuse/resizing. Its Android companion counts actual screenshot text bands in both
 themes. Offscreen's dummy font does not certify typography; run the focused test
 with native Windows rendering and the Android script documented in tests/README.md.
+A button-layout regression preserves the six drawer captions at two preview scales
+and checks all four inherited display modes, live mode changes and enabled/disabled
+click delivery. It uses the production IconButton; native Windows runs establish
+actual text-font/line behavior that offscreen's fallback font cannot certify.
 The Qt Quick Test suite runs offscreen; it does not certify the full app's menu or visual appearance.
 Coverage is optional and separate from the normal verification command.
 
