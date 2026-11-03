@@ -1,4 +1,4 @@
-﻿#include <QtTest/QTest>
+#include <QtTest/QTest>
 #include <QtTest/QSignalSpy>
 #include <QtTest/qtestcase.h>
 #include <QtCore/QObject>
@@ -19,6 +19,7 @@
 #include <QtSql/QSqlError>
 #include <limits>
 #include "model.h"
+#include "weekmodel.h"
 
 namespace {
 
@@ -80,6 +81,19 @@ private Q_SLOTS:
             database.close();
         }
         QSqlDatabase::removeDatabase(static_cast<const char *>(QSqlDatabase::defaultConnection));
+    }
+
+    static void week_model_has_no_child_rows()
+    {
+        const WeekModel model;
+        QCOMPARE(model.rowCount(), 7);
+        for (int row = 0; row < model.rowCount(); ++row) {
+            const auto parentIndex = model.index(row, 0);
+            QVERIFY(parentIndex.isValid());
+            QCOMPARE(model.rowCount(parentIndex), 0);
+            QVERIFY(!model.index(0, 0, parentIndex).isValid());
+        }
+        QCOMPARE(model.rowCount(), 7);
     }
 
     void roles_and_invalid_indexes()

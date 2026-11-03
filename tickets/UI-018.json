@@ -1,0 +1,93 @@
+{
+  "id": "UI-018",
+  "title": "WeekModel reports child rows despite being a flat list",
+  "status": "resolved",
+  "type": "bug",
+  "severity": "unassigned",
+  "created": "2026-11-02",
+  "reported_by": "DEV-006 source review",
+  "environment": "Production QML-registered WeekModel, Qt 6.12.0 MSVC 2022 x64; Qt Quick Test offscreen with isolated test setup.",
+  "reproduction_status": "Confirmed through the actual model's invokable rowCount/index methods. Top-level rowCount is seven; rowCount(index(0, 0)) is incorrectly seven as well.",
+  "reproduction": [
+    "Create WeekModel and verify rowCount() is seven.",
+    "Obtain its valid first-row index with index(0, 0).",
+    "Call rowCount with that index as parent; observe seven instead of zero."
+  ],
+  "expected": "Root has seven day rows; valid row indexes have zero child rows, consistent with the non-hierarchical QAbstractListModel contract.",
+  "source": "weekmodel.cpp: WeekModel::rowCount ignores its parent argument.",
+  "impact": "Confirmed Qt model-contract inconsistency. Current Weekdays Repeater consumes top-level rows; no visible shopping-screen failure, data loss or Android-specific impact was established.",
+  "regression": {
+    "probe": "out/dev006/weekmodel-review/tst_weekmodel_contract.qml::WeekModelContractReview::test_valid_parent_has_no_children",
+    "before": "Two fixture records pass; the observable child-row assertion fails with actual seven versus expected zero.",
+    "log": "out/dev006/weekmodel-review/contract-before.txt",
+    "permanent_test_required": "Completed; permanent case and before/after results are recorded in resolution."
+  },
+  "implementation_scope": "Only WeekModel::rowCount valid-parent handling and permanent QTest regression/documentation. Reset/refresh/timer changes remain separate.",
+  "related_tickets": [
+    "DEV-006"
+  ],
+  "references": [
+    "https://doc.qt.io/qt-6/qabstractlistmodel.html",
+    "https://doc.qt.io/qt-6/qabstractitemmodel.html#rowCount"
+  ],
+  "selected": "2026-11-02",
+  "resolved": "2026-11-02",
+  "resolution": {
+    "change": "Return zero for valid parents; preserve seven root rows.",
+    "permanent_test": "tests/test_model.cpp::ModelTest::week_model_has_no_child_rows",
+    "before": "Permanent test added first: two fixtures pass, assertion fails with seven children instead of zero.",
+    "after": "Focused case passes; final normal model suite contains the passing regression among 66 records.",
+    "verification": {
+      "date": "2026-11-02",
+      "windows_ctest_entries": 4,
+      "records": {
+        "ui": {
+          "tests": 178,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 66,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "total_records": 269,
+      "full_run_seconds": 279.13,
+      "final_test_adjustment": "After const-correctness cleanup in the new fixture, rebuilt and reran the final 66-record model suite; production sources unchanged from full UI/flow/keyboard run.",
+      "changed_unit_analyzer_runs": 4,
+      "analyzer_failed": 0,
+      "format_files": 11,
+      "source_sha256": {
+        "weekmodel.cpp": "b4b009a600695499af83561019dc83cdcc29db783fd3d593f785c0f56df4df82",
+        "tests/test_model.cpp": "0e96479b48f66d8b7195228dc799df890bfccf166ceb10f90ef956a132ce14c7"
+      },
+      "limits": "Pure model-contract fix; no new Android/visual certification. Reset/date-refresh candidates remain separate.",
+      "artifacts": [
+        "out/dev006/ui018/regression-before.txt",
+        "out/dev006/ui018/regression-after.txt",
+        "out/dev006/ui018/verify-windows.txt",
+        "out/dev006/ui018/build-final.txt",
+        "out/dev006/ui018/model-final.txt",
+        "out/dev006/ui018/format.txt",
+        "out/dev006/ui018/analysis/results.json",
+        "out/dev006/ui018/analysis/results-final.json"
+      ]
+    },
+    "commit": "Committed with this ticket's source changes and permanent regression tests; see Git history and DEV-006 closure."
+  }
+}

@@ -25,7 +25,9 @@ WeekModel::WeekModel(QObject *parent) Q_DECL_NOTHROW : QAbstractListModel(parent
 
 int WeekModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    if (parent.isValid()) {
+        return 0;
+    }
     return static_cast<int>(m_week.count());
 }
 
