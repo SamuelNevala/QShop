@@ -1,0 +1,125 @@
+{
+  "id": "UI-022",
+  "title": "Failed reload replaces loaded rows with incomplete data that a later edit saves",
+  "status": "resolved",
+  "type": "bug",
+  "severity": "major",
+  "severity_basis": "Source review: deterministic read-failure fixtures lead to loss of previously saved items after read recovery and an ordinary insert. No phone incident or frequency is established.",
+  "created": "2026-11-03",
+  "reported_by": "DEV-006 source review",
+  "environment": "Actual production Model/UndoRemove sources in a temporary Qt 6.12 MSVC x64 probe, with fresh in-memory SQLite per case. UI-021's cleanup guard is present; this probe exercises the separate reload/load path.",
+  "source": "Model::load calls removeAll(Save::NO) before executing its SELECT, appends rows as they arrive and never checks the read error. Model::reload exposes this incomplete state for later normal saves.",
+  "evidence": [
+    "Start with saved Milk and checked Eggs, including their original UUIDs. Initial SELECT failure makes reload return with zero rows; a mid-iteration failure leaves only Milk.",
+    "Remove the injected read fault and verify the original physical table still contains both saved rows before any edit.",
+    "Insert New item through the normal Model API. The subsequent full save replaces storage with the incomplete model: only New item remains after initial failure, or Milk/New item after partial failure. Original identity/checked-state preservation checks fail.",
+    "A read-only model also loses loaded rows on a fault; making it writable after recovery and inserting reproduces the storage loss.",
+    "Healthy writable/read-only reloads preserve both originals and accept the new row. An error-free empty-table control correctly clears the old rows and saves only the new item.",
+    "Permanent failed-list-switch tests reproduce target-list overwrite after recovery and a normal insert in both initial and partial read-failure cases. The corrected model keeps its source ID/rows until a complete target read succeeds, and the switch remains retryable."
+  ],
+  "expected": "A failed or incomplete reload retains the current usable model state and does not expose partial replacement data for later persistence. Report the read error. Successful reads, including an empty list and a read-only refresh, still apply normally.",
+  "reproduction": [
+    "Load and save a two-item list through the real Model in memory.",
+    "Temporarily replace its SQL read surface with a view that fails initially or fetching the second required ID; independently verify the failure stage.",
+    "Call reload and observe zero/one rows instead of the original two.",
+    "Restore the healthy physical table, confirm both original rows still exist, then insert a new item through Model.",
+    "Read persisted names, flags and UUIDs: originals missing from the failed reload have been overwritten."
+  ],
+  "scope_limits": "Production Model/SQLite fault injection verifies failed reload/switch data safety. No observed phone incident, corrupt-file repair or new error-dialog UX is claimed. UI/flows/keyboard run offscreen; no new Android/native visual certification.",
+  "regression": {
+    "probe": "out/dev006/load-read/probe.cpp",
+    "runner": "out/dev006/load-read/check.py",
+    "results": "out/dev006/load-read/results.json",
+    "before": "Initial, partial and read-only fault cases fail preservation checks (exit 1); healthy writable/read-only and healthy-empty controls pass (exit 0).",
+    "permanent_test_required": "Completed: three normal QTest functions contain 13 cases; ten fault cases fail before and all 15 focused records pass after. Before failures include later persisted data loss, editor/Undo loss and target overwrite.",
+    "source_sha256": {
+      "model.cpp": "a4139f20587837ae4eeb93dcab30c14d47c45b3577053146649b8c3120000584",
+      "model.h": "482c52d90f2fd1ad084f916983f7e49046ceae1157a6114e3ad7079b27aeced4",
+      "undoremove.cpp": "f379d787b87c0ae5fb6ca6832e95e68f31ccdbe8c5f46dfe49bd472e99118ecf",
+      "undoremove.h": "b30bbddd7b50d64b9a69b95b5e3096ded83e5ef2b3b90f827e94c4446ca2dced"
+    }
+  },
+  "implementation_notes": [
+    "Read and validate a complete result before applying replacement mutations; a post-loop error check after clearing/appending is insufficient.",
+    "Trace setActiveListId, which changes the stored ID before calling load. Any retained old rows must not subsequently be saved under a different list's ID; validate that call path before finalizing the correction.",
+    "Preserve the existing successful-load editor, notification, ordering and read-only behavior. Keep this separate from schema changes, a general SQL framework or a new save algorithm."
+  ],
+  "implementation_scope": "Selected, implemented and verified. Complete read validation precedes any row/editor/Undo mutation or active-ID change. No schema, general SQL framework, new save algorithm or QML UI change.",
+  "related_tickets": [
+    "DEV-006",
+    "UI-021"
+  ],
+  "references": [
+    "https://doc.qt.io/qt-6/qsqlquery.html#next",
+    "https://doc.qt.io/qt-6/qsqlquery.html#lastError"
+  ],
+  "selected": "2026-11-03",
+  "resolved": "2026-11-03",
+  "resolution": {
+    "change": "load(identifier) stages rows and checks query.lastError after iteration. On failure it logs and returns false without changing current state. On success it applies the existing replacement policy and requested ID; setActiveListId emits its notification only after a successful load. reload/componentComplete use the current ID.",
+    "permanent_tests": [
+      "tests/test_model.cpp::ModelTest::reload_applies_only_complete_reads",
+      "tests/test_model.cpp::ModelTest::failed_reload_preserves_edit_and_undo",
+      "tests/test_model.cpp::ModelTest::failed_list_switch_preserves_source_and_target"
+    ],
+    "before": "5 focused records pass, 10 fail: four later-save losses, four editor/pending/Undo state losses, and two failed-switch target overwrites. Three healthy/empty/read-only controls pass.",
+    "after": "All 15 focused records pass. Names/order/UUIDs/checked flags, editor position/pending identity, absence of mutation notifications on failure, usable Undo after recovery, source/target ownership and switch retry are verified.",
+    "verification": {
+      "date": "2026-11-03",
+      "windows_ctest_entries": 4,
+      "records": {
+        "ui": {
+          "tests": 184,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 93,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "total_records": 302,
+      "full_run_seconds": 273.89,
+      "focused_records": 15,
+      "fault_cases": 10,
+      "healthy_controls": 3,
+      "changed_unit_analyzer_runs": 4,
+      "analyzer_failed": 0,
+      "format_files": 11,
+      "final_model_rerun": "After test-only static-analysis cleanup and a header comment clarification, rebuild, rerun all model tests through CTest and repeat the focused regressions. UI/flow/keyboard behavior is unchanged by those final edits.",
+      "source_sha256": {
+        "model.cpp": "64fe2bf61d0d035afeb8e0ffc66dd7157b3056cc938525ad26af7fbb17bf506c",
+        "model.h": "a3cdc89e31d89011bac54f83fc6daf044f100c321598f24848827a025019950d",
+        "tests/test_model.cpp": "a329d0ce242488b287d46d3bdc4dccaec4d3c9a666d5bf50311ad8cf600f268f"
+      },
+      "limits": "Production Model/SQLite fault injection verifies failed reload/switch data safety. No observed phone incident, corrupt-file repair or new error-dialog UX is claimed. UI/flows/keyboard run offscreen; no new Android/native visual certification.",
+      "artifacts": [
+        "out/dev006/ui022/regression-before.txt",
+        "out/dev006/ui022/regression-after.txt",
+        "out/dev006/ui022/build-before.txt",
+        "out/dev006/ui022/build-after.txt",
+        "out/dev006/ui022/build-final.txt",
+        "out/dev006/ui022/verify-windows.txt",
+        "out/dev006/ui022/model-final.txt",
+        "out/dev006/ui022/analysis/results-final.json",
+        "out/dev006/ui022/format.txt"
+      ]
+    },
+    "commit": "Committed with this ticket's source changes and permanent regression tests; see Git history and DEV-006 closure."
+  }
+}

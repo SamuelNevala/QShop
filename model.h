@@ -133,7 +133,7 @@ public:
     void insert(qsizetype index, Item &&item);
     Q_INVOKABLE void insert(qsizetype index, const QString &name);
     Q_INVOKABLE void remove(qsizetype index);
-    // Requires an editor; removing it or reloading cancels an unfinished edit.
+    // Requires an editor; removing it or successfully reloading cancels an unfinished edit.
     Q_INVOKABLE QString editItem(qsizetype index);
     Q_INVOKABLE void removeAll();
     Q_INVOKABLE void removeChecked();
@@ -168,7 +168,7 @@ private:
     void removeAll(Save changes);
     void restorePendingEdit();
     void save();
-    void load();
+    bool load(QUuid identifier);
     static QUuid resolve(const QString &name);
     static QString resolve(QUuid identifier);
     void createList(const Item &row);

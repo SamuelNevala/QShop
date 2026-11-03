@@ -104,7 +104,7 @@ void Model::componentComplete()
 {
     dropRemovedTables();
     if (m_activeListId.isNull()) {
-        load();
+        load(m_activeListId);
     }
 }
 
@@ -395,7 +395,7 @@ void Model::clearUndoStack()
 
 void Model::reload()
 {
-    load();
+    load(m_activeListId);
 }
 
 int Model::editorIndex() const
@@ -619,23 +619,36 @@ void Model::save()
     }
 }
 
-void Model::load()
+bool Model::load(QUuid identifier)
 {
-    removeAll(Save::NO);
-    const auto table = activeList();
+    const auto table =
+            identifier.isNull() ? SQL::tableLists() : identifier.toString(QUuid::WithoutBraces);
+    QList<Item> items;
     QSqlQuery query(SQL::selectFrom().arg(table), QSqlDatabase::database());
-    qDebug() << "Load from " << resolve(m_activeListId) << "(" << m_activeListId << ")";
+    qDebug() << "Load from " << resolve(identifier) << "(" << identifier << ")";
     while (query.next()) {
         qDebug() << " id:" << query.value(kId) << " name:" << query.value(kName)
                  << " checked:" << query.value(kChecked);
-        append(Item(query.value(kName).toString(), query.value(kChecked).toBool(),
-                    query.value(kId).toUuid()));
+        items.append(Item(query.value(kName).toString(), query.value(kChecked).toBool(),
+                          query.value(kId).toUuid()));
+    }
+    if (query.lastError().isValid()) {
+        qWarning() << "Failed to load list" << table << ". Error:" << query.lastError();
+        return false;
+    }
+
+    // Keep rows, editor, Undo and their list identity intact until the full read succeeds.
+    removeAll(Save::NO);
+    m_activeListId = identifier;
+    for (auto &item : items) {
+        append(std::move(item));
     }
     if (m_readOnly && table == SQL::tableLists()) {
         Item lists;
         lists.name = SQL::tableLists();
         append(std::move(lists));
     }
+    return true;
 }
 
 QUuid Model::resolve(const QString &name)
@@ -690,13 +703,9 @@ void Model::setActiveListId(QUuid identifier)
         return;
     }
 
-    qDebug() << "Active list changed from "
-             << (m_activeListId.isNull() ? SQL::tableLists() : resolve(m_activeListId)) << " to "
-             << (identifier.isNull() ? SQL::tableLists() : resolve(identifier));
-
-    m_activeListId = identifier;
-    load();
-    Q_EMIT activeListChanged();
+    if (load(identifier)) {
+        Q_EMIT activeListChanged();
+    }
 }
 
 void Model::dropRemovedTables() const

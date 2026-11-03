@@ -1237,6 +1237,231 @@ private Q_SLOTS:
                                                             : QStringLiteral("catalog_entries")));
     }
 
+    static void reload_applies_only_complete_reads_data()
+    {
+        QTest::addColumn<QString>("fault");
+        QTest::addColumn<bool>("readOnly");
+        QTest::addColumn<bool>("empty");
+        QTest::newRow("initial-failure") << u"initial"_s << false << false;
+        QTest::newRow("iteration-failure") << u"iteration"_s << false << false;
+        QTest::newRow("readonly-initial-failure") << u"initial"_s << true << false;
+        QTest::newRow("readonly-iteration-failure") << u"iteration"_s << true << false;
+        QTest::newRow("healthy") << u"none"_s << false << false;
+        QTest::newRow("readonly-healthy") << u"none"_s << true << false;
+        QTest::newRow("healthy-empty") << u"none"_s << false << true;
+    }
+
+    void reload_applies_only_complete_reads()
+    {
+        QFETCH(const QString, fault);
+        QFETCH(const bool, readOnly);
+        QFETCH(const bool, empty);
+        Model model;
+        loadItems(model);
+        model.insert(0, QStringLiteral("Milk"));
+        model.insert(1, QStringLiteral("Eggs"));
+        model.setChecked(1, true);
+        const QString milkId = id(model, 0);
+        const QString eggsId = id(model, 1);
+        QSqlQuery query;
+        if (fault != u"none"_s) {
+            QVERIFY(query.exec(
+                    QStringLiteral("ALTER TABLE \"%1\" RENAME TO saved_items").arg(defaultId)));
+            const auto columns = fault == u"initial"_s
+                    ? u"name, checked"_s
+                    : u"name, checked, CASE WHEN name='Eggs' THEN abs(-9223372036854775808) "
+                      "ELSE id END AS id"_s;
+            QVERIFY(query.exec(QStringLiteral("CREATE VIEW \"%1\" AS SELECT %2 FROM saved_items")
+                                       .arg(defaultId, columns)));
+            // Prove this fixture fails before the first row or after one complete row.
+            QSqlQuery read;
+            const bool executed = read.exec(SQL::selectFrom().arg(defaultId));
+            int rows = 0;
+            while (read.next()) {
+                ++rows;
+            }
+            QCOMPARE(executed, fault == u"iteration"_s);
+            QCOMPARE(rows, fault == u"iteration"_s ? 1 : 0);
+            QVERIFY(read.lastError().isValid());
+        } else if (empty) {
+            QVERIFY(query.exec(SQL::deleteFrom().arg(defaultId)));
+        } else {
+            QVERIFY(query.exec(QStringLiteral("UPDATE \"%1\" SET name='Updated milk' "
+                                              "WHERE name='Milk'")
+                                       .arg(defaultId)));
+        }
+        model.setReadOnly(readOnly);
+        QSignalSpy removed(&model, &Model::rowsRemoved);
+        QSignalSpy inserted(&model, &Model::rowsInserted);
+        QSignalSpy count(&model, &Model::countChanged);
+        model.reload();
+        const auto reloadedNames = names(model);
+        if (fault != u"none"_s) {
+            QVERIFY(query.exec(QStringLiteral("DROP VIEW \"%1\"").arg(defaultId)));
+            QVERIFY(query.exec(
+                    QStringLiteral("ALTER TABLE saved_items RENAME TO \"%1\"").arg(defaultId)));
+        }
+
+        QStringList expected;
+        if (!empty) {
+            expected = { fault == u"none"_s ? u"Updated milk"_s : u"Milk"_s, u"Eggs"_s };
+        }
+        // Exercise the destructive follow-up, not just the failed read's immediate row count.
+        model.setReadOnly(false);
+        const auto removedAfterReload = removed.count();
+        const auto insertedAfterReload = inserted.count();
+        const auto countAfterReload = count.count();
+        model.insert(model.rowCount(), QStringLiteral("New item"));
+        Model persisted;
+        loadItems(persisted);
+        QCOMPARE(names(persisted), expected + QStringList{ "New item" });
+        QCOMPARE(reloadedNames, expected);
+        if (!empty) {
+            QCOMPARE(id(persisted, 0), milkId);
+            QCOMPARE(id(persisted, 1), eggsId);
+            QVERIFY(!persisted.data(persisted.index(0), Qt::CheckStateRole).toBool());
+            QVERIFY(persisted.data(persisted.index(1), Qt::CheckStateRole).toBool());
+        }
+        if (fault != u"none"_s) {
+            QCOMPARE(removedAfterReload, 0);
+            QCOMPARE(insertedAfterReload, 0);
+            QCOMPARE(countAfterReload, 0);
+        }
+    }
+
+    static void failed_reload_preserves_edit_and_undo_data()
+    {
+        QTest::addColumn<bool>("partial");
+        QTest::addColumn<bool>("readOnly");
+        QTest::newRow("initial") << false << false;
+        QTest::newRow("partial") << true << false;
+        QTest::newRow("readonly-initial") << false << true;
+        QTest::newRow("readonly-partial") << true << true;
+    }
+
+    void failed_reload_preserves_edit_and_undo()
+    {
+        QFETCH(const bool, partial);
+        QFETCH(const bool, readOnly);
+        Model model;
+        loadItems(model);
+        model.insert(0, QStringLiteral("Milk"));
+        model.insert(1, QStringLiteral("Eggs"));
+        model.insert(2, QStringLiteral("Bread"));
+        model.setChecked(1, true);
+        // Checking moved Eggs to the end; remove Bread to populate Undo.
+        const QString milkId = id(model, 0);
+        const QString breadId = id(model, 1);
+        const QString eggsId = id(model, 2);
+        model.remove(1);
+        model.addEditor();
+        QCOMPARE(model.editItem(1), "Milk");
+        model.moveEditor(1, Model::Force::YES);
+        QCOMPARE(names(model), QStringList({ "Eggs", "" }));
+        model.setReadOnly(readOnly);
+        QSqlQuery query;
+        QVERIFY(query.exec(
+                QStringLiteral("ALTER TABLE \"%1\" RENAME TO saved_items").arg(defaultId)));
+        const auto columns = partial
+                ? u"name, checked, CASE WHEN name='Eggs' THEN abs(-9223372036854775808) "
+                  "ELSE id END AS id"_s
+                : u"name, checked"_s;
+        QVERIFY(query.exec(QStringLiteral("CREATE VIEW \"%1\" AS SELECT %2 FROM saved_items")
+                                   .arg(defaultId, columns)));
+        QSignalSpy removed(&model, &Model::rowsRemoved);
+        QSignalSpy inserted(&model, &Model::rowsInserted);
+        QSignalSpy editorChanged(&model, &Model::editorIndexChanged);
+        QSignalSpy undoChanged(&model, &Model::canUndoChanged);
+        model.reload();
+        QVERIFY(query.exec(QStringLiteral("DROP VIEW \"%1\"").arg(defaultId)));
+        QVERIFY(query.exec(
+                QStringLiteral("ALTER TABLE saved_items RENAME TO \"%1\"").arg(defaultId)));
+        QCOMPARE(names(model), QStringList({ "Eggs", "" }));
+        QCOMPARE(model.editorIndex(), 1);
+        QCOMPARE(id(model, 0), eggsId);
+        QCOMPARE(id(model, 1), milkId);
+        QVERIFY(model.data(model.index(0), Qt::CheckStateRole).toBool());
+        QCOMPARE(model.canUndo(), !readOnly);
+        QCOMPARE(removed.count(), 0);
+        QCOMPARE(inserted.count(), 0);
+        QCOMPARE(editorChanged.count(), 0);
+        QCOMPARE(undoChanged.count(), 0);
+        model.setReadOnly(false);
+        QVERIFY(model.canUndo());
+        model.insert(model.editorIndex(), QStringLiteral("Renamed"));
+        model.removeEditor();
+        model.undo();
+        // The pending edit retained its identity, and the old removal command still works.
+        QCOMPARE(names(model), QStringList({ "Eggs", "Bread", "Renamed" }));
+        QCOMPARE(id(model, 0), eggsId);
+        QCOMPARE(id(model, 1), breadId);
+        QCOMPARE(id(model, 2), milkId);
+        model.reload();
+        QCOMPARE(names(model), QStringList({ "Eggs", "Bread", "Renamed" }));
+    }
+
+    static void failed_list_switch_preserves_source_and_target_data()
+    {
+        QTest::addColumn<bool>("partial");
+        QTest::newRow("initial") << false;
+        QTest::newRow("partial") << true;
+    }
+
+    void failed_list_switch_preserves_source_and_target()
+    {
+        QFETCH(const bool, partial);
+        Model catalog;
+        catalog.componentComplete();
+        catalog.insert(1, QStringLiteral("Weekly"));
+        const QString weeklyId = id(catalog, 1);
+        Model weekly;
+        weekly.setActiveList(weeklyId);
+        weekly.insert(0, QStringLiteral("Milk"));
+        weekly.insert(1, QStringLiteral("Eggs"));
+        weekly.setChecked(1, true);
+        const QString milkId = id(weekly, 0);
+        const QString eggsId = id(weekly, 1);
+        Model model;
+        loadItems(model);
+        model.insert(0, QStringLiteral("Source"));
+        const QString sourceId = id(model, 0);
+        QSqlQuery query;
+        QVERIFY(query.exec(
+                QStringLiteral("ALTER TABLE \"%1\" RENAME TO saved_items").arg(weeklyId)));
+        const auto columns = partial
+                ? u"name, checked, CASE WHEN name='Eggs' THEN abs(-9223372036854775808) "
+                  "ELSE id END AS id"_s
+                : u"name, checked"_s;
+        QVERIFY(query.exec(QStringLiteral("CREATE VIEW \"%1\" AS SELECT %2 FROM saved_items")
+                                   .arg(weeklyId, columns)));
+        QSignalSpy activeChanged(&model, &Model::activeListChanged);
+        model.setActiveList(weeklyId);
+        const auto listAfterFailure = model.activeList();
+        const auto namesAfterFailure = names(model);
+        const auto changesAfterFailure = activeChanged.count();
+        QVERIFY(query.exec(QStringLiteral("DROP VIEW \"%1\"").arg(weeklyId)));
+        QVERIFY(query.exec(
+                QStringLiteral("ALTER TABLE saved_items RENAME TO \"%1\"").arg(weeklyId)));
+        model.insert(model.rowCount(), QStringLiteral("New item"));
+        weekly.reload();
+        QCOMPARE(names(weekly), QStringList({ "Milk", "Eggs" }));
+        QCOMPARE(id(weekly, 0), milkId);
+        QCOMPARE(id(weekly, 1), eggsId);
+        QVERIFY(weekly.data(weekly.index(1), Qt::CheckStateRole).toBool());
+        QCOMPARE(listAfterFailure, defaultId);
+        QCOMPARE(namesAfterFailure, QStringList({ "Source" }));
+        QCOMPARE(changesAfterFailure, 0);
+        Model source;
+        loadItems(source);
+        QCOMPARE(names(source), QStringList({ "Source", "New item" }));
+        QCOMPARE(id(source, 0), sourceId);
+        // A failed switch must remain retryable after the target becomes readable.
+        model.setActiveList(weeklyId);
+        QCOMPARE(model.activeList(), weeklyId);
+        QCOMPARE(names(model), QStringList({ "Milk", "Eggs" }));
+        QCOMPARE(activeChanged.count(), 1);
+    }
+
     void failed_save_rolls_back_database_contents()
     {
         Model model;
