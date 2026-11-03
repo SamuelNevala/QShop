@@ -4,7 +4,7 @@
 #include <utility>
 
 #include <QtCore/QAbstractListModel>
-#include <QtCore/QDateTime>
+#include <QtCore/QDate>
 #include <QtCore/QHash>
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -48,13 +48,14 @@ public:
 protected:
     // from QObject
     void timerEvent(QTimerEvent *event) Q_DECL_OVERRIDE;
+    void updateDate(QDate today);
 
 private:
-    void populateModel();
+    void populateModel(QDate today);
 
     int m_timerId = 0;
     QList<Day> m_week;
-    QDateTime m_today{ QDateTime::currentDateTime() };
+    QDate m_today;
 };
 
 #endif // WEEKMODEL_H

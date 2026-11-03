@@ -1,0 +1,105 @@
+{
+  "id": "UI-019",
+  "title": "WeekModel refresh skips a changed date with the same day of month",
+  "status": "resolved",
+  "type": "bug",
+  "severity": "unassigned",
+  "created": "2026-11-02",
+  "reported_by": "DEV-006 source review",
+  "finding": "timerEvent compares only currentDateTime().date().day() with m_today.date().day(). Different full dates with the same day number therefore skip the refresh path.",
+  "source": "weekmodel.cpp: WeekModel::timerEvent",
+  "candidate_trigger": "Retain the model across a clock change or long suspension from November 2 to December 2. On the next timer event, both day numbers are 2 and populateModel is skipped even though the displayed week belongs to the old date.",
+  "expected": "Refresh the seven displayed days whenever the full local calendar date changes, including month/year changes that retain the same day number.",
+  "evidence": "Permanent QTest exercises the production update path extracted from timerEvent while preserving the original day-number predicate. Same-day-number next-month, next-year and backward-month rows fail (no model reset); six control scenarios pass. No system clock changed or Android suspension simulated.",
+  "impact": "Potential stale weekday/date header until a later date change or model recreation. No shopping-list data loss or frequency is established.",
+  "reproduction_to_collect": [
+    "Use a minimal deterministic date-control seam to initialize the actual WeekModel on one date and deliver its refresh trigger on another date with the same day number.",
+    "Verify observable model roles against the new seven-day sequence, with unchanged-date and ordinary next-day controls.",
+    "Do not change the computer clock or introduce a general clock framework solely for this test."
+  ],
+  "regression_gap": "Closed: permanent production-model regression fails before and passes after; included in normal CTest verification.",
+  "possible_correction": "Implemented full QDate equality and date-only state. timerEvent supplies QDate::currentDate to protected updateDate, also exposed by a test-only subclass; no clock provider or QML API added.",
+  "implementation_scope": "Selected UI-019 fix and its permanent QTest/documentation only. Reset notifications and unused timer ID are unchanged.",
+  "related_tickets": [
+    "DEV-006"
+  ],
+  "references": [
+    "https://doc.qt.io/qt-6/qdate.html#day"
+  ],
+  "selected": "2026-11-02",
+  "regression": {
+    "permanent_test": "tests/test_model.cpp::ModelTest::week_model_date_refresh",
+    "data_rows": 9,
+    "before": "8 passed, 3 failed: same-day-next-month, same-day-next-year, same-day-backward-month.",
+    "after": "Final focused run: 11 passed, 0 failed. Full normal model suite: 75 records pass, including all nine date scenarios.",
+    "artifacts": [
+      "out/dev006/ui019/regression-before.txt",
+      "out/dev006/ui019/regression-after.txt",
+      "out/dev006/ui019/regression-final.txt"
+    ],
+    "scope": "Production timer update method with controlled dates, seven name/number roles, reset notifications and repeated-date no-op. Real timer delivery and Android lifecycle are not simulated."
+  },
+  "resolved": "2026-11-02",
+  "resolution": {
+    "change": "Store QDate and compare full dates. timerEvent reads current local date once and passes it to protected updateDate, which tests expose through a test-only subclass. Populate all seven dates from that same value; existing remove/reset notifications retained.",
+    "permanent_test": "tests/test_model.cpp::ModelTest::week_model_date_refresh",
+    "before": "Preserved original day-number predicate after extracting the timer update path: three same-day-number month/year/backward cases fail, six controls pass (8 pass/3 fail including fixture records).",
+    "after": "All nine scenarios and repeated-date no-op assertions pass (11 records including fixtures); seven day-name/number roles and reset counts checked.",
+    "verification": {
+      "date": "2026-11-02",
+      "windows_ctest_entries": 4,
+      "records": {
+        "ui": {
+          "tests": 178,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 75,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "total_records": 278,
+      "full_run_seconds": 284.54,
+      "changed_unit_analyzer_runs": 4,
+      "analyzer_failed": 0,
+      "format_files": 11,
+      "analyzer_notes": "Initial test-only diagnostics addressed with ISO date fixture strings and normal QObject test-adapter metadata/parent constructor. Both test-unit analyzers repeated after rebuilding generated metadata; unchanged WeekModel clean results retained. No suppression or profile change.",
+      "source_sha256": {
+        "weekmodel.h": "752c003a0b04261c65a2f74d901c9b7f8f65c51bbcc07c26afa3241353c672d3",
+        "weekmodel.cpp": "21e6be8ed8d420e509b7f62f5fc46acf6eebef0156fe71c3ec37e380f77147eb",
+        "tests/test_model.cpp": "ab4928a77a80ef2c769bf2915d4e7ed971d3956cda1781ef3f3033dabe26d387"
+      },
+      "limits": "Controlled-date production update path, not actual OS clock changes, timer delivery or Android suspension. Pure model fix; no new rendering/Android certification.",
+      "artifacts": [
+        "out/dev006/ui019/build-before.txt",
+        "out/dev006/ui019/regression-before.txt",
+        "out/dev006/ui019/build-after.txt",
+        "out/dev006/ui019/regression-after.txt",
+        "out/dev006/ui019/build-final.txt",
+        "out/dev006/ui019/regression-final.txt",
+        "out/dev006/ui019/verify-windows.txt",
+        "out/dev006/ui019/format.txt",
+        "out/dev006/ui019/analysis/results.json",
+        "out/dev006/ui019/analysis/results-final.json",
+        "out/dev006/ui019/analysis/results-final2.json"
+      ]
+    },
+    "commit": "Committed with this ticket's source changes and permanent regression tests; see Git history and DEV-006 closure."
+  }
+}

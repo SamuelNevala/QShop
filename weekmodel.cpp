@@ -3,7 +3,7 @@
 #include <chrono>
 
 #include <QtCore/QAbstractListModel>
-#include <QtCore/QDateTime>
+#include <QtCore/QDate>
 #include <QtCore/QHash>
 #include <QtCore/QObject>
 #include <QtCore/QtCompilerDetection>
@@ -18,7 +18,7 @@ constexpr qint32 kDays{ 6U };
 
 WeekModel::WeekModel(QObject *parent) Q_DECL_NOTHROW : QAbstractListModel(parent)
 {
-    populateModel();
+    populateModel(QDate::currentDate());
     // NOLINTNEXTLINE(misc-include-cleaner): the chrono literal is provided by the direct <chrono> include.
     m_timerId = startTimer(1min);
 }
@@ -58,13 +58,18 @@ QHash<int, QByteArray> WeekModel::roleNames() const
 void WeekModel::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event);
-    if (QDateTime::currentDateTime().date().day() == m_today.date().day()) {
-        return;
-    }
-    populateModel();
+    updateDate(QDate::currentDate());
 }
 
-void WeekModel::populateModel()
+void WeekModel::updateDate(QDate today)
+{
+    if (today == m_today) {
+        return;
+    }
+    populateModel(today);
+}
+
+void WeekModel::populateModel(QDate today)
 {
     if (!m_week.isEmpty()) {
         beginRemoveRows(QModelIndex(), 0, static_cast<int>(m_week.count() - 1));
@@ -73,7 +78,7 @@ void WeekModel::populateModel()
     }
 
     beginResetModel();
-    m_today = QDateTime::currentDateTime();
+    m_today = today;
     for (qint32 days = 0; days <= kDays; ++days) {
         m_week.append(Day(m_today.addDays(days).toString(QStringLiteral("ddd")),
                           m_today.addDays(days).toString(QStringLiteral("d"))));

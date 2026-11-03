@@ -14,6 +14,7 @@
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaType>
 #include <QtCore/QVariant>
+#include <QtCore/QDate>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
@@ -24,6 +25,15 @@
 namespace {
 
 using Qt::Literals::StringLiterals::operator""_s;
+
+class TestWeekModel : public WeekModel
+{
+    Q_OBJECT
+
+public:
+    explicit TestWeekModel(QObject *parent = nullptr) : WeekModel(parent) { }
+    using WeekModel::updateDate;
+};
 
 class ModelTest : public QObject
 {
@@ -94,6 +104,58 @@ private Q_SLOTS:
             QVERIFY(!model.index(0, 0, parentIndex).isValid());
         }
         QCOMPARE(model.rowCount(), 7);
+    }
+
+    static void week_model_date_refresh_data()
+    {
+        QTest::addColumn<QString>("initialDateIso");
+        QTest::addColumn<QString>("nextDateIso");
+        QTest::newRow("unchanged") << u"2026-11-02"_s << u"2026-11-02"_s;
+        QTest::newRow("next-day") << u"2026-11-02"_s << u"2026-11-03"_s;
+        QTest::newRow("same-day-next-month") << u"2026-11-02"_s << u"2026-12-02"_s;
+        QTest::newRow("same-day-next-year") << u"2026-11-02"_s << u"2027-11-02"_s;
+        QTest::newRow("same-day-backward-month") << u"2026-11-02"_s << u"2026-10-02"_s;
+        QTest::newRow("month-end") << u"2026-11-30"_s << u"2026-12-01"_s;
+        QTest::newRow("year-end") << u"2026-12-31"_s << u"2027-01-01"_s;
+        QTest::newRow("leap-day") << u"2028-02-28"_s << u"2028-02-29"_s;
+        QTest::newRow("multi-day-resume") << u"2026-11-02"_s << u"2026-11-09"_s;
+    }
+
+    static void week_model_date_refresh()
+    {
+        QFETCH(const QString, initialDateIso);
+        QFETCH(const QString, nextDateIso);
+        const auto initialDate = QDate::fromString(initialDateIso, Qt::ISODate);
+        const auto nextDate = QDate::fromString(nextDateIso, Qt::ISODate);
+        QVERIFY(initialDate.isValid());
+        QVERIFY(nextDate.isValid());
+        TestWeekModel model;
+        // Two different day numbers seed the fixture independently of the real date.
+        model.updateDate(initialDate.addDays(-1));
+        model.updateDate(initialDate);
+        QCOMPARE(model.rowCount(), 7);
+        QCOMPARE(model.data(model.index(0, 0), Qt::UserRole).toString(),
+                 initialDate.toString(QStringLiteral("ddd")));
+        QCOMPARE(model.data(model.index(0, 0), Qt::UserRole + 1).toString(),
+                 initialDate.toString(QStringLiteral("d")));
+        const QSignalSpy resets(&model, &QAbstractItemModel::modelReset);
+        QVERIFY(resets.isValid());
+
+        // Exercise the production update path called by timerEvent.
+        model.updateDate(nextDate);
+
+        QCOMPARE(resets.count(), initialDate == nextDate ? 0 : 1);
+        QCOMPARE(model.rowCount(), 7);
+        for (int row = 0; row < model.rowCount(); ++row) {
+            const auto date = nextDate.addDays(row);
+            const auto index = model.index(row, 0);
+            QCOMPARE(model.data(index, Qt::UserRole).toString(),
+                     date.toString(QStringLiteral("ddd")));
+            QCOMPARE(model.data(index, Qt::UserRole + 1).toString(),
+                     date.toString(QStringLiteral("d")));
+        }
+        model.updateDate(nextDate);
+        QCOMPARE(resets.count(), initialDate == nextDate ? 0 : 1);
     }
 
     void roles_and_invalid_indexes()
