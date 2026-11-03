@@ -55,42 +55,12 @@ Delegate {
             }
         }
 
-        Rectangle {
-            color: tapHandler.longPressActive ? Material.accentColor : "transparent"
-            height: Theme.pixels(0.4)
-            opacity: tapHandler.longPressActive ? 1.0 : 0.0
-
-            Behavior on color {
-                ColorAnimation {}
-            }
-            Behavior on opacity {
-                DefaultAnimation {}
-            }
-
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-            }
+        DragBorder {
+            anchors.top: parent.top
         }
 
-        Rectangle {
-            color: tapHandler.longPressActive ? Material.accentColor : "transparent"
-            height: Theme.pixels(0.4)
-            opacity: tapHandler.longPressActive ? 1.0 : 0.0
-
-            Behavior on color {
-                ColorAnimation {}
-            }
-            Behavior on opacity {
-                DefaultAnimation {}
-            }
-
-            anchors {
-                bottom: parent.bottom
-                left: parent.left
-                right: parent.right
-            }
+        DragBorder {
+            anchors.bottom: parent.bottom
         }
 
         Rectangle {
@@ -336,6 +306,24 @@ Delegate {
                 tapHandler.longPressActive = true;
             }
             onSingleTapped: root.singleTapped()
+        }
+    }
+
+    component DragBorder: Rectangle {
+        color: tapHandler.longPressActive ? Material.accentColor : "transparent"
+        height: Theme.pixels(0.4)
+        opacity: tapHandler.longPressActive ? 1.0 : 0.0
+
+        Behavior on color {
+            ColorAnimation {}
+        }
+        Behavior on opacity {
+            DefaultAnimation {}
+        }
+
+        anchors {
+            left: parent.left
+            right: parent.right
         }
     }
 }

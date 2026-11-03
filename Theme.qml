@@ -64,11 +64,6 @@ Item {
                                                                          Material.ShadeA200);
     }
 
-    function primaryColorLighter() {
-        return Material.color(primary, Material.theme === Material.Dark ? Material.Shade50 :
-                                                                          Material.Shade300);
-    }
-
     function color(value) {
         return Material.color(value, Material.theme === Material.Dark ? Material.Shade200 :
                                                                         Material.Shade500);

@@ -87,7 +87,6 @@ ListView {
         }
         inputDelegate: InputDelegate {
             canUndo: itemModel.canUndo
-            editor: chooser.editor
             index: chooser.index
 
             onAddItem: function (text) {

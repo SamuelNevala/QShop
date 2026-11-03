@@ -80,7 +80,6 @@ qt_add_qml_module(QShopper
         TrashIcon.qml
         UndoIcon.qml
         Weekdays.qml
-        WheelIcon.qml
         YAnimation.qml
     SOURCES
         model.h model.cpp

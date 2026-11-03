@@ -63,29 +63,25 @@ StackView {
         }
     ]
     pushEnter: Transition {
-        ParallelAnimation {
-            OpacityAnimation {
-                from: 0.2
-                to: 1
-            }
+        OpacityAnimation {
+            from: 0.2
+            to: 1
+        }
 
-            YAnimation {
-                from: -stack.height
-                to: 0
-            }
+        YAnimation {
+            from: -stack.height
+            to: 0
         }
     }
     pushExit: Transition {
-        ParallelAnimation {
-            OpacityAnimation {
-                from: 1
-                to: 0.2
-            }
+        OpacityAnimation {
+            from: 1
+            to: 0.2
+        }
 
-            YAnimation {
-                from: 0
-                to: stack.height
-            }
+        YAnimation {
+            from: 0
+            to: stack.height
         }
     }
     popEnter: Transition {
@@ -100,16 +96,14 @@ StackView {
         }
     }
     popExit: Transition {
-        ParallelAnimation {
-            OpacityAnimation {
-                from: 1
-                to: 0.2
-            }
+        OpacityAnimation {
+            from: 1
+            to: 0.2
+        }
 
-            YAnimation {
-                from: 0
-                to: -stack.height
-            }
+        YAnimation {
+            from: 0
+            to: -stack.height
         }
     }
 

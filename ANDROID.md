@@ -39,9 +39,6 @@ Install on an attached device with USB debugging enabled:
 & "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" install -r .\dist\QShopper-arm64-debug.apk
 ```
 
-The build may report unresolved `Components` and `Shop.timer` imports in the
-unused `Swipeable.qml` file, which is outside the app's QML module.
-
 Qt command-line build reference:
 <https://doc.qt.io/qt-6/android-building-projects-from-commandline.html>
 

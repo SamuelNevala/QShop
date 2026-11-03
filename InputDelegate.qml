@@ -6,7 +6,6 @@ import QtQuick.Controls.Material
 Delegate {
     id: root
 
-    property bool editor
     property bool canUndo
 
     signal addItem(string text)
@@ -61,16 +60,6 @@ Delegate {
         font {
             pixelSize: Theme.pixels(3.5)
         }
-
-        // Voice {
-        //     onAdd: {
-        //         root.text = text
-        //         Qt.inputMethod.commit()
-        //         addItem()
-        //     }
-        //     onClear: root.clear()
-        //     onRemove: mainView.deleteIndex = index - 1
-        // }
 
         Flipable {
             id: switcher

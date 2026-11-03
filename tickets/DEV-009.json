@@ -1,0 +1,117 @@
+{
+  "id": "DEV-009",
+  "title": "Remove unused WheelIcon and disabled cart-wheel snippets",
+  "status": "resolved",
+  "type": "code_quality",
+  "priority": "unassigned",
+  "created": "2026-11-01",
+  "reported_by": "DEV-006 source review",
+  "scope": "User selected removal of WheelIcon and its commented usages. Removed the file, module registration and disabled snippets together, with existing Windows verification and Android native/module checks passing.",
+  "proposal": "Remove WheelIcon.qml, its CMake QML_FILES registration and both commented WheelIcon objects in CartOutIcon.qml.",
+  "evidence": [
+    "Tracked code/build/test search finds no active WheelIcon instantiation, subclass, Loader/string/URL creation path or C++ consumer.",
+    "CMakeLists.txt still registers WheelIcon.qml in the QShopper QML module backed by the application static library.",
+    "CartOutIcon.qml contains the only former instantiation sites, both commented out.",
+    "Commit 3d3d8783a19d0b1f93afa9316cd3b4d69adce1ec dated 2024-12-17 commented out both cart-wheel objects. Their intended use was small rotating decorations under the cart.",
+    "WheelIcon contains an infinite animation, but without an instance this does not establish runtime animation/CPU consumption. No application bug is claimed."
+  ],
+  "expected": "Remove dormant source/build clutter while retaining the currently rendered cart icons and existing shopping behavior.",
+  "acceptance_criteria": [
+    "Reconfirm no active in-repository consumer before removal; investigate any newly found use rather than silently breaking it.",
+    "Remove the component, its QML_FILES entry and the two inactive source snippets together. Keep historical ticket/review evidence.",
+    "Reconfigure/build and run tools/verify-windows.ps1, plus applicable formatting checks, to catch QML registration/import regressions.",
+    "Check Android QML deployment/build references for the removed type; do not claim a runtime bug fix or introduce a replacement icon abstraction."
+  ],
+  "verification_scope": "Unused-definition/comment cleanup, with no runtime bug claim. Existing model/QML/flow/keyboard suites verify current behavior; no artificial failing-before test added.",
+  "related_tickets": [
+    "DEV-006"
+  ],
+  "references": [
+    "reviews/DEV-006.md",
+    "WheelIcon.qml",
+    "CartOutIcon.qml",
+    "CMakeLists.txt"
+  ],
+  "selected": "2026-11-01",
+  "implementation": {
+    "changes": [
+      "Delete WheelIcon.qml",
+      "Remove WheelIcon.qml from CMake QML_FILES",
+      "Remove the two commented WheelIcon blocks from CartOutIcon.qml"
+    ],
+    "verification": {
+      "windows": {
+        "command": "./tools/verify-windows.ps1 -Jobs 2",
+        "ctest_entries": 4,
+        "records": {
+          "ui": {
+            "tests": 157,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "flow": {
+            "tests": 19,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "keyboard": {
+            "tests": 6,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "model": {
+            "tests": 65,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "total_records": 247,
+        "seconds": 288.83,
+        "passed": true
+      },
+      "android": {
+        "command": "cmake --build out/dev004/android-x86 --target application --parallel 2",
+        "native_build_passed": true,
+        "module_registration_resources_cache_and_inputs_checked": true,
+        "apk_built": false,
+        "installed": false
+      },
+      "formatting": {
+        "checked_files": 53,
+        "passed": true,
+        "method": "Qt 6.12 qmlformat with repository settings; same comparison as format-qml.ps1, excluding the deleted unstaged WheelIcon source. CartOutIcon repeat pass also stable."
+      },
+      "references": {
+        "live_source_build_references": 0,
+        "generated_artifacts_checked": 12,
+        "passed": true
+      },
+      "source_sha256": {
+        "CMakeLists.txt": "db671af8b81c8299e3d1eb56f2b00e3677736dbc9c3b5d3ab2e4d0cb8295c38e",
+        "CartOutIcon.qml": "cb5c0adb8c10cab7539f6fd6d6ff0fb04b6e49ee832b34ec3e0ee5d94d227f19"
+      },
+      "deleted_source": "WheelIcon.qml",
+      "regression_scope": "Unused-definition/comment cleanup, with no runtime bug claim. Existing model/QML/flow/keyboard suites verify current behavior; no artificial failing-before test added.",
+      "limits": "Desktop UI suite runs offscreen. Android x86_64 native library and generated module/deployment resource references checked; no new APK packaging, runtime or phone test."
+    }
+  },
+  "resolved": "2026-11-01",
+  "evidence_scope": "The evidence list above records the pre-removal review state.",
+  "resolution": {
+    "summary": "Deleted unused WheelIcon.qml, removed its CMake QML_FILES entry and removed both inactive CartOutIcon wheel blocks.",
+    "user_authorization": "2026-11-01: user requested Remove Wheelicon and commented out usage.",
+    "verification": "All 247 Windows records pass; Android x86_64 native target builds; 12 generated module/build artifacts and live sources have no WheelIcon references; 53 remaining QML/templates pass formatting.",
+    "artifacts": [
+      "out/dev009/verification-summary.json",
+      "out/dev009/verify-windows.txt",
+      "out/dev009/android-native-build.txt",
+      "out/dev009/reference-check.json",
+      "out/dev009/format-check.json"
+    ],
+    "remaining": "None for the selected removal. Included in the QML cleanup commit; UI-017 remains separate."
+  }
+}
