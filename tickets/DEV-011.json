@@ -1,0 +1,51 @@
+{
+  "id": "DEV-011",
+  "title": "Migrate Undo countdown drawing from Canvas to Qt Canvas2D",
+  "status": "requested",
+  "type": "code_quality",
+  "priority": "unassigned",
+  "created": "2026-11-03",
+  "reported_by": "user",
+  "request": "Qt has also new Canvas migrate to that.",
+  "scope": "Backlog intake only. Migrate project Canvas drawing to QtCanvas2D.Canvas2D when selected; the current live Canvas use is UndoIcon.qml's countdown arc. No application change is implemented by this ticket intake.",
+  "evidence": [
+    "Current project-owned QML search finds one Canvas instance in UndoIcon.qml. Its delay property animates from 1 to 0 over 15000 ms, requests painting on delay changes, and emits timeout when the animation finishes.",
+    "The arc is drawn through getContext(\"2d\"), clearRect, beginPath, arc and stroke, using Theme-derived line width and the owning icon color. InputDelegate.qml instantiates UndoIcon and forwards timeout.",
+    "Official Qt documentation identifies Canvas2D in import QtCanvas2D, introduced in Qt 6.12 and currently technology preview. It is backed by Qt Canvas Painter.",
+    "QtCanvas2D module metadata is present in the installed Qt 6.12 Windows MSVC x64, Android x86_64 and Android ARM64 kits. Availability of metadata alone is not deployment or rendered-behavior validation.",
+    "QShopper currently declares Qt 6.10 as its minimum. The normal QML CTest entries use an offscreen platform and software scene-graph backend."
+  ],
+  "expected": "UndoIcon uses the new Canvas2D API with the same countdown appearance, physical sizing, theme response, enable/restart/stop behavior and timeout contract. Keep the implementation direct and consistent with DESIGN.md and CODING_GUIDELINES.md.",
+  "implementation_notes": [
+    "Resolve and document the Qt 6.12 minimum required by Canvas2D when selecting this work; update build/support documentation deliberately rather than silently changing the claimed supported range.",
+    "Verify QtCanvas2D/Qt Canvas Painter build, QML-module and deployment dependencies in the selected Windows and Android kits, including applicable licensing/notices under UI-012 and REL-001.",
+    "Characterize the existing 15-second countdown, enable/re-enable and stop behavior, initial-enabled caller path, arc geometry, stroke, colors and timeout delivery before replacing the drawing item.",
+    "Map the existing painting operations to Canvas2DContext and verify paint scheduling, clearing, resize/preview-scale changes and theme repainting. Avoid adding another drawing abstraction or parallel renderer without a concrete need.",
+    "Keep the surrounding button, Flipable, Undo command ownership and shopping interactions intact. This is a renderer migration, not an asserted existing bug or a promised performance improvement.",
+    "Check compatibility with the current offscreen/software test runner. Add rendered Windows/Android coverage for the new painter; do not treat behavior-only or unrendered passes as proof of arc appearance."
+  ],
+  "acceptance_criteria": [
+    "Replace live project Canvas usage with QtCanvas2D.Canvas2D and declare the required supported Qt version and module dependencies.",
+    "Preserve countdown start/progression/expiry, repeated enable cycles, stopping when disabled and the actual InputDelegate Undo/timeout behavior, with automated characterization before and after.",
+    "Verify rendered arc bounds, stroke, color and countdown progression at the same physical sizes, preview scales and themes on Windows and Android using isolated data.",
+    "Run the normal repeatable verification workflow and document any necessary renderer-specific test command and remaining platform limits.",
+    "Keep KISS, apply qmlformat, and record evidence before closing the ticket."
+  ],
+  "relevant_files": [
+    "UndoIcon.qml",
+    "InputDelegate.qml",
+    "CMakeLists.txt",
+    "AGENTS.md",
+    "tests/flows/tst_userflows.qml",
+    "tests/keyboard/tst_keyboard.qml",
+    "tests/CMakeLists.txt",
+    "tests/README.md",
+    "ANDROID.md"
+  ],
+  "related_tickets": ["DEV-006", "UI-012", "REL-001"],
+  "sources": [
+    "https://doc.qt.io/qt-6/qtcanvas2d-qmlmodule.html",
+    "https://doc.qt.io/qt-6/qml-qtcanvas2d-canvas2d.html",
+    "https://www.qt.io/blog/canvas2d-new-qml-canvas-element-using-qt-canvas-painter"
+  ]
+}

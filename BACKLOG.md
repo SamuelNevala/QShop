@@ -297,6 +297,7 @@ an option to evaluate, not an agreed migration; priority remains unassigned.
 | [DEV-008](tickets/DEV-008.json) | Review Virtual Keyboard native libraries packaged in Android despite the native-IME configuration | Packaging candidate; same payload appears in old and new APKs. Investigate deployment requirements separately; no runtime keyboard defect established |
 | [DEV-009](tickets/DEV-009.json) | Remove unused WheelIcon, its module registration and disabled cart-wheel snippets | Resolved 2026-11-01 at user request. File, CMake entry and inactive snippets removed; 247 Windows records, Android native build/module checks and formatting of 53 remaining QML/templates pass. Committed 2044afc5 |
 | [DEV-010](tickets/DEV-010.json) | Use a layout for IconButton content and honor inherited display modes | Resolved 2026-11-03 with DEV-006 acceptance; committed cff0e6a4. Four modes, caption limits, caller sizing and clicks verified; final combined suites pass |
+| [DEV-011](tickets/DEV-011.json) | Migrate Canvas drawing to QtCanvas2D.Canvas2D, starting with UndoIcon's countdown arc | Requested; implementation deferred. Preserve the 15-second Undo countdown and rendered appearance. Resolve Qt 6.12 minimum/module requirements and verify renderer-compatible Windows/Android tests before migration |
 
 DEV-002 should establish a checked-in `.qmlformat.ini`, Qt-style attribute order,
 and a repeatable formatter invocation usable with Qt Creator. Preserve behavior
