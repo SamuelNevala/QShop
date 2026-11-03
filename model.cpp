@@ -441,8 +441,12 @@ void Model::setReadOnly(bool value)
     if (m_readOnly == value) {
         return;
     }
+    const bool previousCanUndo = canUndo();
     m_readOnly = value;
     Q_EMIT readOnlyChanged();
+    if (previousCanUndo != canUndo()) {
+        Q_EMIT canUndoChanged();
+    }
 }
 
 void Model::append(Item &&item)

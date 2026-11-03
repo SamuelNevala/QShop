@@ -1,0 +1,100 @@
+{
+  "id": "UI-020",
+  "title": "canUndo QML bindings stay stale when readOnly changes",
+  "status": "resolved",
+  "type": "bug",
+  "severity": "unassigned",
+  "created": "2026-11-02",
+  "reported_by": "DEV-006 source review",
+  "environment": "Qt 6.12 MSVC x64, production QML-registered Model in the existing offscreen Qt Quick Test harness with isolated in-memory SQLite.",
+  "evidence": "Actual Model/QML-binding probe fails in both directions: the canUndo getter changes correctly after readOnly toggles, but a QtObject property bound to canUndo retains its old value.",
+  "source": "Model::canUndo depends on m_readOnly and m_stack.canUndo(); Model::setReadOnly emits readOnlyChanged only. canUndoChanged is forwarded from the stack, whose state is unchanged by a readOnly toggle.",
+  "reproduction": [
+    "Create the production Model on an isolated default list, insert and remove Milk to leave an available Undo command.",
+    "Bind another QML object's bool property to model.canUndo.",
+    "Toggle readOnly from false to true: direct canUndo becomes false but the binding remains true.",
+    "Control in the reverse direction: create the binding while readOnly is true, then set it false. Direct canUndo becomes true but the binding remains false."
+  ],
+  "expected": "QML bindings follow the effective canUndo value when readOnly changes. Retain the Undo command and existing read-only guards; notify only when the effective property changes.",
+  "impact": "Confirmed model-property notification defect. ShopView uses canUndo bindings, but no normal phone-flow failure or user-visible severity is established: the current catalog Model sets readOnly as a fixed initialization value.",
+  "regression": {
+    "probe": "out/dev006/undo-notify/tst_undo_notify.qml::UndoNotifyReview::test_readonly_dependency",
+    "before": "Two fixture records pass; become-readonly and become-writable both fail on the bound value after the direct getter check passes.",
+    "log": "out/dev006/undo-notify/before.txt",
+    "permanent_test_required": "Completed: permanent actual binding regression fails before/passes after and runs in the normal UI CTest suite.",
+    "permanent_test": "tests/qml/tst_modelproperties.qml::ModelProperties::test_readonly_updates_undo_binding",
+    "permanent_before": "4 records pass and 2 actual binding assertions fail: both pending-Undo directions; empty-Undo controls pass.",
+    "permanent_after": "All 6 focused records pass: both initial readOnly states, pending/empty Undo, no-op assignments, round trip, binding/signal behavior and preserved usable command.",
+    "permanent_logs": [
+      "out/dev006/ui020/regression-before.txt",
+      "out/dev006/ui020/regression-after.txt"
+    ]
+  },
+  "implementation_scope": "Selected property-notification fix plus permanent Qt Quick regression and documentation. setReadOnly compares effective canUndo before/after the existing setter notification and emits canUndoChanged only on change; command data and read-only guards retained.",
+  "related_tickets": [
+    "DEV-006"
+  ],
+  "references": [
+    "https://doc.qt.io/qt-6/properties.html"
+  ],
+  "selected": "2026-11-02",
+  "resolved": "2026-11-02",
+  "resolution": {
+    "change": "setReadOnly compares effective canUndo before/after its existing state update and readOnlyChanged signal, then emits canUndoChanged if the effective value changed. No new cached state or command mutation.",
+    "permanent_test": "tests/qml/tst_modelproperties.qml::ModelProperties::test_readonly_updates_undo_binding",
+    "before": "4 records pass, 2 binding assertions fail on the original setter; pending Undo fails in both directions while empty controls pass.",
+    "after": "All 6 focused records pass, including no-op setters, empty Undo, signal counts, round trip, live binding updates and later use of preserved command.",
+    "verification": {
+      "date": "2026-11-02",
+      "windows_ctest_entries": 4,
+      "records": {
+        "ui": {
+          "tests": 184,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "flow": {
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "keyboard": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "model": {
+          "tests": 75,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "total_records": 284,
+      "full_run_seconds": 280.15,
+      "focused_records": 6,
+      "changed_unit_analyzer_runs": 2,
+      "analyzer_failed": 0,
+      "cpp_format_files": 11,
+      "qml_format_files": 1,
+      "source_sha256": {
+        "model.cpp": "9252682f17c3562d8ebc4502dfd9b53183256389f13e596137999f319d61ed53",
+        "tests/qml/tst_modelproperties.qml": "5b2ab01d1ff378c7800b758b5d09489ab73d6e394a9ab679bd48f6c1c87ba623"
+      },
+      "limits": "Platform-neutral Model/QML binding notification fix. Offscreen tests establish the actual binding trigger; no newly observed phone-flow failure, Android lifecycle or rendered UI certification.",
+      "artifacts": [
+        "out/dev006/ui020/regression-before.txt",
+        "out/dev006/ui020/regression-after.txt",
+        "out/dev006/ui020/build.txt",
+        "out/dev006/ui020/verify-windows.txt",
+        "out/dev006/ui020/analysis/results.json",
+        "out/dev006/ui020/format-cpp.txt",
+        "out/dev006/ui020/format-qml.txt"
+      ]
+    },
+    "commit": "Committed with this ticket's source changes and permanent regression tests; see Git history and DEV-006 closure."
+  }
+}
