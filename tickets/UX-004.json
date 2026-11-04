@@ -1,14 +1,19 @@
 {
   "id": "UX-004",
-  "title": "Consider replacing Font Awesome with Tabler Icons",
-  "status": "requested",
+  "title": "Decide between Font Awesome and bundled SVG icons, including Tabler Icons",
+  "status": "resolved",
   "type": "design_review",
   "priority": "unassigned",
   "created": "2026-10-30",
   "reported_by": "user",
-  "scope": "Backlog intake only. Compare the icon sets and recommend whether to switch; review and migration remain deferred until selected.",
+  "scope": "Resolved on 2026-11-04 with user acceptance: keep the existing Font Awesome font and icons. Experimental Tabler migration stopped; production files restored. User requested ticket closure and commit.",
   "request": "Consider swapping Font Awesome for Tabler Icons: https://tabler.io/icons .",
   "expected": "A practical recommendation based on icon coverage, shopping usability, visual consistency, Qt/QML integration, licensing and maintenance, with migration work scoped separately if recommended.",
+  "sequencing": {
+    "date": "2026-11-04",
+    "before": "UI-012",
+    "reason": "User wants the Font Awesome versus SVG icon ticket settled before implementing About/licenses. Complete any selected migration before finalizing the shipped icon/font notices."
+  },
   "review_topics": [
     "Inventory the actual Font Awesome glyphs, font loading and icon consumers, then map each used action to a suitable Tabler equivalent and identify gaps.",
     "Compare clarity at the current physical sizes, outline/filled styles, stroke weight, checked/disabled states and readability over themed translucent backgrounds.",
@@ -22,12 +27,13 @@
     "If migration is selected, cover actual icon loading and affected controls with automated tests and inspect real Windows/Android rendering; any discovered behavior bug needs a failing-before/passing-after regression."
   ],
   "relevant_files": [
-    "Icon.qml",
-    "IconButton.qml",
-    "UndoIcon.qml",
-    "View.qml",
-    "CMakeLists.txt",
-    "fa-solid-900.ttf",
+    "app/Icon.qml",
+    "app/IconButton.qml",
+    "app/TextIcon.qml",
+    "app/UndoBar.qml",
+    "app/View.qml",
+    "app/CMakeLists.txt",
+    "app/fa-solid-900.ttf",
     "DESIGN.md"
   ],
   "related_tickets": [
@@ -49,5 +55,27 @@
     "https://tabler.io/icons"
   ],
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "resolved": "2026-11-04",
+  "resolution": {
+    "decision": "Keep Font Awesome; do not pursue the Tabler/SVG migration.",
+    "acceptance": "After preferring Font Awesome's rendering and appearance in the comparison, the user requested ticket closure and commit on 2026-11-04.",
+    "application_changes": "None retained. All experimental production and CMake changes were restored to the accepted implementation.",
+    "verification": "Review includes the 12-glyph inventory, native Windows comparison and four passing isolated probe records, licensing sources and an explicitly estimated Android dependency cost. Production files match the accepted baseline; no app regression-suite rerun is claimed.",
+    "remaining": "None for this design review. UI-012's icon-choice prerequisite is satisfied; its About/license feature remains unimplemented."
+  },
+  "review": {
+    "date": "2026-11-04",
+    "report": "reviews/UX-004.md",
+    "recommendation": "Keep the current Font Awesome 5.7.2 Free Solid font and icon implementation. Its silhouettes and consistent arrow weight read better in the reviewed small icon boxes, without introducing a renderer/tint layer or additional Qt payload.",
+    "user_feedback": "To my eye Font awesome render better, look better. I'm inclined not to pursue Tabler further. What is your opinion?",
+    "superseded_preference": "User initially preferred VectorImage for SVGs and selected Tabler filled where available, with outline Refresh and Undo. The later feedback favors keeping Font Awesome.",
+    "inventory": "12 glyphs; font 186228 bytes. Name metadata identifies Font Awesome 5.7.2; glyph/mapping/name tables match the tagged upstream font, with timestamp/checksum differences in head/FFTM.",
+    "tabler_evaluation": "Pinned Tabler 3.50.0 at 6904efd245391ad396df17654738f52f6da8c40e. Eight same-name filled matches plus two filled big-arrow alternatives; Refresh and Undo remain outline. Evaluated subset totals 6207 SVG bytes.",
+    "rendering_probe": "Four isolated native Windows/D3D11 WARP probe records pass: all candidate assets load/render in Light/Dark palettes; cart tint/alpha/resize checks pass. Qt VectorImage with CurveRenderer and a MultiEffect layer requires brightness normalization plus colorization for the tested sources. Evidence: out/ux004/native-probe-final.txt and comparison.png.",
+    "payload_estimate": "Installed Android Qt 6.12 module scan and ELF closure add eight native binaries (1559416 bytes). After font removal and candidate SVG bytes, estimated extra payload is about 1.38 MB before packaging/alignment. This is not a rebuilt APK measurement; see out/ux004/vector-cost.json.",
+    "notices": "Retain the Font Awesome font's SIL OFL 1.1 inventory for UI-012. Tabler's MIT assets were evaluated but are not shipped. Font Awesome SVGs would instead require the applicable CC BY 4.0 notices if selected in future.",
+    "application_state": "All experimental production/CMake changes restored to HEAD. No app dependency, resource, icon, gesture or color behavior changed. The experimental patch/component/assets remain archived under ignored out/ux004.",
+    "limits": "No Android rendering, full-list performance or completed migration integration was verified. The isolated review fixture is not the production regression suite. Production files are restored unchanged, so no app rebuild/full-suite rerun is claimed for this review."
+  }
 }

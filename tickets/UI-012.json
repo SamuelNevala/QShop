@@ -8,6 +8,8 @@
   "created": "2026-10-30",
   "reported_by": "user",
   "scope": "Backlog intake only; implementation is deferred until selected.",
+  "depends_on": ["UX-004"],
+  "sequencing": "Prerequisite satisfied on 2026-11-04: user accepted UX-004's decision to retain Font Awesome and requested closure. About uses the existing Font Awesome font inventory; no icon migration is required. UI-012 itself remains unimplemented.",
   "request": "Add an About component to the drawer where users can view the open-source licenses used by QShopper.",
   "expected": "Users can open About from the drawer, identify the included open-source components and read their license texts and attribution notices.",
   "implementation_notes": [
@@ -19,7 +21,7 @@
     "DEV-011 adds Qt Canvas Painter / QtCanvas2D. The installed module and official documentation identify commercial or GPL-3.0-only licensing; include its actual bundled license and notices in the shipped dependency inventory. See https://doc.qt.io/qt-6/qtcanvaspainter-index.html."
   ],
   "relevant_files": ["View.qml", "Menu.qml", "CMakeLists.txt", "ANDROID.md", "DESIGN.md"],
-  "related_tickets": ["REL-001", "QA-003", "DEV-011"],
+  "related_tickets": ["REL-001", "QA-003", "DEV-011", "UX-004"],
   "acceptance_criteria": [
     "The drawer provides an accessible About component or entry that exposes the open-source license information.",
     "The displayed inventory matches the dependencies and third-party assets actually shipped in the app, with identifiable components, license texts and attribution notices.",

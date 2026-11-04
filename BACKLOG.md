@@ -237,6 +237,12 @@ drawer where users can identify shipped open-source components and read their
 license texts and attribution notices offline. Inventory the actual libraries,
 fonts, icons and other third-party assets when implementing.
 
+User sequencing decision, 2026-11-04: settle UX-004's Font Awesome versus bundled
+SVG icon choice first. Complete any selected icon migration before finalizing
+the About inventory and notices. UI-012 depends on UX-004.
+UX-004 was resolved with user acceptance on 2026-11-04: keep Font Awesome.
+The icon-choice prerequisite is satisfied; no icon migration is required.
+
 Keep long license texts readable and scrollable within the safe area. Cover
 opening, scrolling, closing and Android Back with UI tests, preserving shopping
 data and unfinished edits. Coordinate the inventory with REL-001's licensing
@@ -289,7 +295,7 @@ authorization; none is requested as part of backlog intake.
 | [UX-001](tickets/UX-001.json) | Analyze primary and accent color selection, derivation, and use against Android/Material color guidance | Requested; review deferred; explicitly limited to coloring, not an overall app redesign |
 | [UX-002](tickets/UX-002.json) | Evaluate red delete and green selection feedback, comparing alternatives for clarity, accessibility, and theme compatibility | Requested; review and color changes deferred |
 | [UX-003](tickets/UX-003.json) | Review whether primary/accent usage in custom and non-Material components is sensible, readable, and consistent | Requested; review and implementation deferred |
-| [UX-004](tickets/UX-004.json) | Consider replacing Font Awesome with [Tabler Icons](https://tabler.io/icons): icon coverage, readability, Qt/QML integration, licensing and maintenance | Requested; comparison and migration deferred |
+| [UX-004](tickets/UX-004.json) | Decide between Font Awesome and bundled SVG icons, including [Tabler Icons](https://tabler.io/icons): coverage, readability, Qt/QML integration, licensing and maintenance | Resolved 2026-11-04; user accepted keeping Font Awesome and requested commit. Production experiment restored; UI-012 prerequisite satisfied. Native comparison and dependency-cost evidence in reviews/UX-004.md |
 
 UX-001 covers primary/accent roles, palette choices, readability, state feedback,
 and behavior across Light, Dark, and System themes. Compare the actual Qt Material
