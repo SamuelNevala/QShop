@@ -40,6 +40,7 @@ Controls.Popup {
             Layout.fillWidth: true
             Layout.leftMargin: Theme.pixels(2)
             text: root.message
+            color: Theme.Material.primaryTextColor
             elide: Text.ElideRight
             font.family: Application.font.family
             font.pixelSize: Theme.pixels(3.5)
@@ -52,7 +53,7 @@ Controls.Popup {
             text: "\uf0e2"
             font.family: root.font.family
             font.pixelSize: Theme.pixels(5)
-            color: Material.foreground
+            color: Theme.Material.primaryTextColor
         }
 
         TapHandler {

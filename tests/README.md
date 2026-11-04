@@ -176,13 +176,20 @@ message fragments.
 
 General QML entries run offscreen/software. The separate Windows
 `qshopper_undo_rendering_tests` runs `rendering/tst_undopopup.qml` in a native
-window using D3D11 WARP. Its eight records compare actual fill pixels directly
+window using D3D11 WARP. Its ten records compare actual fill pixels directly
 with the theme accent, compare uncovered pixels against the user-selected
 20% surface over a known underlay without disabling any production effect,
 verify solid message and
 Undo glyph pixels, and check fixed
 action geometry, Light/Dark, two sizes/scales, restart, drawer pause/resume and
 Undo without losing draft focus. It requires a Windows desktop session.
+
+UI-024 adds Light-first/Dark-first foreground regressions against a production
+TextItem. Both cases fail with the original inverted palette. They check live
+theme changes, current System resolution and rendered message/icon pixels over
+full and empty progress fill. Larger preview glyphs provide fully covered pixels
+for color comparisons despite font antialiasing. This Windows check does not
+certify Android appearance or independently force both OS color schemes.
 
 ```powershell
 ./tools/verify-windows.ps1 -Jobs 2

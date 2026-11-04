@@ -1,16 +1,16 @@
 {
   "id": "UI-024",
   "title": "UndoBar text and icon use reversed theme colors instead of TextItem colors",
-  "status": "open",
+  "status": "resolved",
   "type": "bug",
   "severity": "unassigned",
   "priority": "unassigned",
   "created": "2026-11-04",
   "reported_by": "user",
-  "scope": "Backlog intake only; implementation not requested.",
+  "scope": "Selected, implemented and resolved on 2026-11-04. User confirmed the change works and requested closure and commit.",
   "report": "UndoBar text and icon should follow TextItem's color. They are currently black on Dark theme and white on Light theme; they should be the opposite.",
-  "environment": "Device and build not specified in this report.",
-  "reproduction_status": "User reported; not independently reproduced.",
+  "environment": "Original report did not specify a device/build. Independently reproduced with the production View/UndoBar in native Windows rendering, Qt 6.12.0 MSVC 2022 x64.",
+  "reproduction_status": "Reproduced in both Light and Dark themes before the fix. The automated foreground comparison fails with the reported reversed colors.",
   "reproduction": [
     "Select Dark theme and delete an item to display UndoBar.",
     "Compare the message and Undo icon foregrounds with normal TextItem text.",
@@ -19,7 +19,7 @@
   "actual": "User reports black text and icon in Dark theme and white text and icon in Light theme.",
   "expected": "UndoBar message and icon follow normal TextItem foreground colors: light in Dark theme and dark in Light theme, including the effective palette when System is selected.",
   "source_notes": [
-    "app/UndoBar.qml explicitly sets Material.theme to Theme.inverseTheme; the message is a Material Label and the TextIcon explicitly uses Material.foreground. This is a candidate theme-propagation path to investigate, not a rendered reproduction or confirmed root cause.",
+    "Confirmed cause: app/UndoBar.qml applies Theme.inverseTheme to the popup. The message's inherited Material Label foreground and the TextIcon's Material.foreground therefore select the opposite palette from normal list text.",
     "app/TextItem.qml uses Material.primaryTextColor for normal unchecked text and Material.backgroundColor for checked text. The requested reference is normal TextItem text."
   ],
   "relevant_files": [
@@ -36,5 +36,25 @@
     "Both message and icon match normal TextItem theme colors, including live theme changes and System resolved to Light or Dark.",
     "Preserve full-opacity text/icon readability over the progress fill and uncovered background, countdown, whole-bar Undo and deletion batching.",
     "Add an automated regression exercising the production component and rendered theme colors; demonstrate failure before the fix and success afterward. Record native rendering coverage and any Android-specific verification gap."
-  ]
+  ],
+  "implementation": {
+    "date": "2026-11-04",
+    "change": "Bind both message and icon color directly to Theme.Material.primaryTextColor, matching normal TextItem text independently of the popup's inverse surface palette. Background, transparency, accent fill, timing and interaction behavior are unchanged.",
+    "regression": "tests/rendering/tst_undopopup.qml::UndoPopupRendering::test_foregrounds_follow_textitem_during_theme_changes (light-first and dark-first)",
+    "before": "Both rows fail on the original component: Light message actual #ffffff versus TextItem #dd000000; Dark message actual #dd000000 versus TextItem #ffffff. See out/ui024/before-windows.txt.",
+    "after": "All ten native rendering records pass, including foreground equality with a production TextItem and actual message/icon glyph pixels over full and empty progress backgrounds. Live Light/Dark/System changes are tested while the popup stays open. See out/ui024/after-windows.txt.",
+    "windows_verification": "Windows configure/build passes. Main UI (200), desktop keyboard (6), model (98) and native rendering (10) records pass. The initial flow run passed 18/19, failing test_mode_pull_threshold; its focused recheck and full 19-record flow-suite rerun pass without code changes. Logs: out/ui024/windows-build.log, windows-tests.log, mode-pull-recheck.txt and flow-recheck.log. Total current passing records: 333; the first full run was not a clean pass.",
+    "package_verification": "Signed ARM64 Debug APK passes tests/test_android_package.py: 45 native libraries, no QML tooling, complete native dependency closure and app-only scan roots. Signing certificate matches the shared debug key. Evidence: out/ui024/arm64-package.json and signature.txt.",
+    "format": "All 57 tracked QML/templates pass tools/format-qml.ps1 -Check; git diff --check passes.",
+    "test_note": "The new pixel cases use preview scale 2 so font antialiasing leaves fully covered glyph pixels; the existing fill cases retain scale 1 and 2 coverage. The test scene inherits Theme.theme like the application window.",
+    "validation_gap": "System uses the current Windows system palette; both OS schemes have not been forced separately. Automated native Android rendering was not run for UI-024. User confirmed the change works; device and theme matrix were not specified.",
+    "apk": "dist/QShopper-arm64-UI-024-debug.apk"
+  },
+  "resolved": "2026-11-04",
+  "resolution": {
+    "acceptance": "User: Seems to work, Close ticket and commit.",
+    "change": "UndoBar message and icon follow normal TextItem foreground colors while retaining the accepted inverse surface and progress treatment.",
+    "regression": "The Light-first and Dark-first native rendering cases fail before the fix and pass afterward; test location and verification details are recorded above.",
+    "remaining": "No remaining work in the accepted color-fix scope. Automated Android rendering and independently forced OS color schemes retain the documented coverage limits."
+  }
 }

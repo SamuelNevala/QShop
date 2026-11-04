@@ -9,6 +9,13 @@ Item {
 
     width: 1000
     height: 900
+    Material.theme: Theme.theme
+
+    Component {
+        id: textItemComponent
+
+        TextItem {}
+    }
 
     Binding {
         target: Theme
@@ -81,14 +88,14 @@ Item {
             fuzzyCompare(actual.b, expected.b, 0.025);
         }
 
-        function verifySolidForeground(image, icon) {
+        function verifySolidForeground(image, icon, foreground, background) {
             verify(icon !== undefined);
+            foreground = foreground || icon.color;
+            background = background || Theme.accentColor();
             const origin = icon.mapToItem(scene, 0, 0);
-            const foreground = icon.color;
-            const accent = Theme.accentColor();
-            const expected = Qt.rgba(foreground.r * foreground.a + accent.r * (1 - foreground.a),
-                                     foreground.g * foreground.a + accent.g * (1 - foreground.a),
-                                     foreground.b * foreground.a + accent.b * (1 - foreground.a),
+            const expected = Qt.rgba(foreground.r * foreground.a + background.r * (1 - foreground.a),
+                                     foreground.g * foreground.a + background.g * (1 - foreground.a),
+                                     foreground.b * foreground.a + background.b * (1 - foreground.a),
                                      1);
             let solidPixels = 0;
             for (let y = 0; y < Math.floor(icon.height); ++y) {
@@ -100,7 +107,8 @@ Item {
                     }
                 }
             }
-            verify(solidPixels > 0, "Text and icon must retain their full foreground color");
+            verify(solidPixels > 0, "Full foreground pixels missing: " + icon.text + ", theme "
+                   + Theme.theme + ", foreground " + foreground + ", background " + background);
         }
 
         function test_fill_data() {
@@ -191,6 +199,46 @@ Item {
             shop.model.remove(1);
             verify(progress.value > before);
             compare(shop.model.undoMessage, "2 items removed");
+        }
+
+        function test_foregrounds_follow_textitem_during_theme_changes_data() {
+            return [
+                        {
+                            tag: "light-first",
+                            theme: Material.Light
+                        },
+                        {
+                            tag: "dark-first",
+                            theme: Material.Dark
+                        }
+                    ];
+        }
+
+        function test_foregrounds_follow_textitem_during_theme_changes(data) {
+            // Larger glyphs have fully covered pixels despite font antialiasing.
+            Theme.scale = 2;
+            open();
+            expiry.pause();
+            const reference = createTemporaryObject(textItemComponent, scene);
+            verify(reference !== null);
+            const message = popup.contentItem.children.find(item => item.text === popup.message);
+            const icon = popup.contentItem.children.find(item => item.text === "\uf0e2");
+            verify(message !== undefined && icon !== undefined);
+            for (const theme of [data.theme, Material.Light, Material.Dark, Material.System,
+                                 Material.Light, Material.Dark]) {
+                Theme.theme = theme;
+                wait(100);
+                compare(message.color, reference.color, "Undo message must match normal item text");
+                compare(icon.color, reference.color, "Undo icon must match normal item text");
+                for (const value of [1, 0]) {
+                    progress.value = value;
+                    wait(70);
+                    const image = grabImage(scene);
+                    const background = sample(image, 0.5);
+                    verifySolidForeground(image, message, reference.color, background);
+                    verifySolidForeground(image, icon, reference.color, background);
+                }
+            }
         }
 
         function test_undo_preserves_text_focus_and_draft() {

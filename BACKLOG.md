@@ -258,15 +258,17 @@ text readability, themes, transparency and portrait cropping. Priority is unassi
 
 ### [UI-024 — UndoBar text and icon use reversed theme colors](tickets/UI-024.json)
 
-Reported on 2026-11-04; implementation deferred. UndoBar text and its Undo icon
-are black in Dark theme and white in Light theme. They should follow TextItem's
-normal text color: light in Dark theme and dark in Light theme. Keep both
-foregrounds consistent and readable as the progress fill recedes.
+Resolved on 2026-11-04; user confirmed the change works and requested commit. The popup's
+inverse palette made its message and icon white in Light and black in Dark.
+Both now use normal TextItem foreground colors, preserving the accepted surface,
+transparency and Undo behavior. Two native Windows regression cases fail before
+the fix; all ten rendering records pass afterward, including live theme changes,
+current System resolution and glyph pixels over full/empty progress backgrounds.
 
-This is a new user-reported color bug following UI-023, not a reopening of its
-accepted Undo behavior. Independent reproduction, severity and priority remain
-pending. When selected, add a rendered theme regression that fails before the
-fix and passes afterward, including live theme changes and resolved System mode.
+The signed ARM64 review APK is `dist/QShopper-arm64-UI-024-debug.apk`. Automated
+Android rendering and separate OS-Light/OS-Dark System checks were not run;
+the user did not specify a device/theme matrix for their confirmation.
+This is separate from resolved UI-023; severity and priority remain unassigned.
 
 ## Release preparation
 
