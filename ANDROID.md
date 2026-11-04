@@ -1,9 +1,11 @@
 # Android APK
 
-The project requires Qt 6.12+ including Qt Canvas Painter and its QtCanvas2D QML
-plugin. UndoIcon uses the Qt 6.12 Canvas2D technology preview. Windows, Android
-x86_64 and ARM64 kits must contain that module; runtime verification is recorded
-separately from kit availability.
+The project requires Qt 6.12+. UI-023 replaces the editor's Undo icon with a
+floating Popup/ProgressBar and retires the CanvasPainter/QtCanvas2D source
+dependency introduced by DEV-011. Runtime verification is recorded separately
+from kit availability. Current APKs still include Canvas2D/CanvasPainter libraries;
+DEV-008 tracks the unresolved deployment path. Inspect the actual packaged
+libraries when reviewing notices.
 
 Build an installable ARM64 debug APK from PowerShell:
 

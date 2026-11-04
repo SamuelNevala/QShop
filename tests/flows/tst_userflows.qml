@@ -211,20 +211,18 @@ Item {
         }
 
         function undo(touchInput = false) {
-            const icon = findControl(editor(), function (item) {
-                return item.text === "\uf829" && typeof item.clicked === "function";
+            const icon = findControl(app.contentItem, function (item) {
+                return item.objectName === "undoAction";
             });
             verify(icon !== null);
             tryCompare(icon, "enabled", true);
-            tryCompare(icon.parent.transform[0], "angle", -180);
             waitForRendering(icon);
-            const field = editor();
             if (touchInput) {
-                const touch = touchEvent(field);
-                touch.press(0, field, field.height / 2, field.height / 2).commit();
-                touch.release(0, field, field.height / 2, field.height / 2).commit();
+                const touch = touchEvent(icon);
+                touch.press(0, icon, icon.width / 2, icon.height / 2).commit();
+                touch.release(0, icon, icon.width / 2, icon.height / 2).commit();
             } else {
-                mouseClick(field, field.height / 2, field.height / 2);
+                mouseClick(icon, icon.width / 2, icon.height / 2);
             }
             tryCompare(shop.model, "canUndo", false);
         }
@@ -423,14 +421,16 @@ Item {
             verifyNames(["milk", "cheese"]);
         }
 
-        function test_other_interaction_dismisses_undo() {
+        function test_other_interaction_preserves_undo() {
             swipe("bread", true);
             verifyNames(["milk", "cheese"]);
             tryCompare(shop.model, "canUndo", true);
             const row = rowNamed("cheese");
             mouseClick(row, row.width / 2, row.height / 2);
-            tryCompare(shop.model, "canUndo", false);
+            compare(shop.model.canUndo, true);
             verifyNames(["milk", "cheese"]);
+            undo();
+            verifyNames(["milk", "bread", "cheese"]);
         }
 
         function test_shopping_taps_are_not_checks() {

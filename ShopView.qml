@@ -66,7 +66,6 @@ ListView {
                                     itemModel.editorIndex) as DelegateChoser).item as InputDelegate);
                 input.insert(itemModel.editItem(index));
             }
-            onPressed: itemModel.clearUndoStack()
             onSingleTapped: {
                 if (checked) {
                     return;
@@ -86,7 +85,6 @@ ListView {
             }
         }
         inputDelegate: InputDelegate {
-            canUndo: itemModel.canUndo
             index: chooser.index
 
             onAddItem: function (text) {
@@ -94,8 +92,6 @@ ListView {
                 shopView.positionViewAtIndex(index, ListView.Contain);
             }
             onBarsTapped: shopView.openMenu()
-            onTimeout: itemModel.clearUndoStack()
-            onUndo: itemModel.undo()
 
             font {
                 family: shopView.fontFamily
@@ -216,13 +212,6 @@ ListView {
         }
     }
 
-    onMovementStarted: {
-        if (!itemModel.canUndo) {
-            return;
-        }
-        itemModel.clearUndoStack();
-    }
-
     Pulley {
         bottomPadding: Theme.pixels(1)
         editMode: shopView.editMode
@@ -261,11 +250,5 @@ ListView {
         // Delegate bounds cover only the instantiated rows, not the whole list.
         y: Math.max(0, shopView.originY + shopView.contentHeight - shopView.contentY)
         z: -1
-    }
-
-    TapHandler {
-        enabled: itemModel.canUndo
-
-        onGrabChanged: itemModel.clearUndoStack()
     }
 }

@@ -6,12 +6,8 @@ import QtQuick.Controls.Material
 Delegate {
     id: root
 
-    property bool canUndo
-
     signal addItem(string text)
     signal barsTapped
-    signal timeout
-    signal undo
 
     function insert(text) {
         if (text === "") {
@@ -34,7 +30,6 @@ Delegate {
             }
             root.addItem(input.text);
             clear();
-            root.timeout();
         }
 
         color: Material.primaryTextColor
@@ -61,70 +56,14 @@ Delegate {
             pixelSize: Theme.pixels(3.5)
         }
 
-        Flipable {
-            id: switcher
-
+        Icon {
             height: parent.height
             width: height
+            text: "\uf0c9"
+            Material.theme: Theme.theme
+            font.family: root.font.family
 
-            back: UndoIcon {
-                enabled: root.canUndo
-                opacity: 1.0
-                z: 3
-                Material.theme: Theme.theme
-
-                onClicked: root.undo()
-                onTimeout: root.timeout()
-
-                anchors {
-                    fill: parent
-                }
-
-                font {
-                    family: root.font.family
-                }
-            }
-            front: Icon {
-                text: "\uf0c9"
-                enabled: !root.canUndo
-                opacity: 1.0
-                Material.theme: Theme.theme
-
-                onClicked: root.barsTapped()
-
-                anchors {
-                    fill: parent
-                }
-
-                font {
-                    family: root.font.family
-                }
-            }
-            states: State {
-                name: "back"
-                when: root.canUndo
-
-                PropertyChanges {
-                    rotation.angle: -180
-                }
-            }
-            transform: Rotation {
-                id: rotation
-
-                origin.x: Math.round(switcher.width / 2)
-                origin.y: Math.round(switcher.height / 2)
-                axis.x: 0
-                axis.y: 1
-                axis.z: 0
-                angle: 0
-            }
-            transitions: Transition {
-                DefaultAnimation {
-                    target: rotation
-                    property: "angle"
-                    duration: 500
-                }
-            }
+            onClicked: root.barsTapped()
 
             anchors {
                 verticalCenter: parent.verticalCenter

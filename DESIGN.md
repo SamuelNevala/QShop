@@ -49,13 +49,27 @@ text and restoring the original item when cancelling an unfinished edit.
 Accidental actions will still happen. The correction should require little
 movement and no search through the list.
 
-Accepted Undo visual design, 2026-11-03 (UI-023, implementation pending): use a
+Accepted Undo visual design, 2026-11-03 (UI-023): use a
 floating bar above the keyboard or bottom safe area, independent of the movable
-editor. A tinted fill recedes across the whole background to show time remaining.
+editor. An opaque accent-color fill recedes across the whole background to show
+time remaining; do not blend the fill with a translucent tint. The user's
+accepted refinement (2026-11-04) keeps a separate theme-colored Rectangle at
+20% opacity behind the progress fill. The remaining accent fill, text and Undo
+icon retain their full opacity. Use the ProgressBar itself as Popup.background;
+its own background supplies only that faint surface, without the default popup
+surface/elevation shadow. This preserves visibility of the list beneath the
+uncovered area while retaining a light surface behind the message and icon.
 Keep the message, Font Awesome Undo arrow, outer shape and full touch area fixed.
-The Undo action is icon-only; a short message identifies the removed item/count.
+The whole bar is tappable to Undo; the Font Awesome arrow is its visual cue.
+A short message identifies the removed item/count.
 Use a brief slide/settle animation and keep recovery reachable while scrolling.
-Successive-deletion batching and deadline rules remain proposals in UI-023.
+Consecutive deletions within the recovery window form one batch; each deletion
+restarts 15 seconds. Undo restores the whole batch. Scrolling, typing, submission,
+checking and editor movement preserve recovery. The clock pauses while the drawer
+blocks the action or the app is inactive. Recovery belongs to the current loaded
+list and app process; successful reload/list switching ends the batch, while a
+failed load preserves it. Preserve newer edits and the surviving rows' order when
+restoring removed items by identity and their neighboring items.
 
 Checked items follow first-in, last-out order: the most recently checked item
 stays nearest the unchecked items. This puts the most likely mistake within easy

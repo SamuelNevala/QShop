@@ -1,27 +1,22 @@
 {
   "id": "UI-023",
   "title": "Undo is hidden with the movable editor and discarded by routine interactions",
-  "status": "reported",
+  "status": "resolved",
   "type": "bug_with_design_proposal",
   "severity": "major",
   "created": "2026-11-03",
   "reported_by": "user",
   "report": "Undo is tied to input, can be offscreen during deletion, and moving accepts deletion, risking unintended permanent data loss. User proposes an animated Gmail-style Undo notification.",
-  "scope": "Visual design accepted 2026-11-03; application fix remains pending selection and implementation. Keep separate from DEV-011's renderer migration.",
+  "scope": "Resolved 2026-11-04. User accepted the finished Undo bar and requested the final APK, ticket closure and commit. Original renderer migration remains DEV-011 history.",
   "design_acceptance": {
     "date": "2026-11-03",
     "user_feedback": "this looks good.",
     "accepted": "Floating Undo bar with a full-height tinted background fill receding from right to left. Message, Font Awesome icon-only Undo action, outer shape and touch target stay fixed; use the preceding floating-bar slide/settle treatment and keyboard/safe-area placement.",
-    "pending": "Successive-deletion batching, timer restart and other recovery lifecycle policies remain proposals requiring a decision during implementation. Visual approval does not close the bug or establish a working application fix."
+    "batch_policy": "User selected: Restore the whole deletion batch; each deletion restarts 15 seconds.",
+    "component_choice": "User requested a separate file using Popup and ProgressBar; implemented as UndoBar.qml.",
+    "whole_bar": "User requested the whole bar to Undo through TapHandler, reusing TextIcon and the existing Font Awesome loader. No active, iconFontFamily or remaining properties.",
+    "color": "User final implementation accepted 2026-11-04: own ProgressBar background Rectangle uses Material.backgroundColor at opacity 0.2; accent fill, text and icon retain their full opacity."
   },
-  "evidence": [
-    "InputDelegate.qml owns the UndoIcon and its 15000 ms countdown through a Flipable, so recovery UI and timer lifetime are coupled to a movable/instantiated editor delegate.",
-    "ShopView.qml clears the Undo stack on TextDelegate.onPressed, ListView.onMovementStarted and the view-level TapHandler.onGrabChanged. InputDelegate submission also emits timeout, clearing Undo.",
-    "Model::remove saves the deletion immediately. clearUndoStack discards its recovery command; ordinary movement does not defer a database commit.",
-    "Model::remove clears an existing command before pushing the next deletion. Merely keeping the bar visible would not preserve a sequence of deleted items.",
-    "UndoRemove currently records numeric insertion positions. Safe recovery across subsequent editor movement, insertions, checks and reordering needs characterization; deleting the QML invalidation handlers alone is not a complete safe redesign.",
-    "tests/flows/tst_userflows.qml currently characterizes dismissal through test_other_interaction_dismisses_undo. Replace the obsolete policy assertion with a real failing-before regression when this ticket is selected."
-  ],
   "reproduction": [
     "Use isolated data with a list longer than the viewport, enter edit mode and position/scroll the editor outside the visible rows.",
     "Swipe a visible row right to delete it. Observe whether any reachable Undo action appears.",
@@ -33,7 +28,7 @@
     "Floating snackbar-like bar anchored to the visible view, above bottom safe area or native keyboard, keeping the editor and its draft intact.",
     "Font Awesome curved Undo arrow as an icon-only action, at least the existing 9.27 mm touch target. A short notification can identify the removed entry/count; no text label inside the action.",
     "Accepted visual treatment: brief upward slide/settle on entry; use the whole bar as the timer, with a theme-tinted background fill receding across its full height. Keep the message, Undo icon, outer bounds and touch target stationary. Scrolling must not dismiss the bar or restart its deadline.",
-    "Proposed policy for review: further deletions join the current recovery batch and restart the 15-second window; Undo restores that batch in its intended order. This policy is not yet accepted or implemented.",
+    "Accepted policy: further deletions join the recovery batch and restart 15 seconds; Undo restores the whole batch.",
     "Keep ownership and recovery logic KISS. The floating bar does not itself provide persistence across app termination; specify that separately if requested."
   ],
   "acceptance_criteria": [
@@ -43,7 +38,105 @@
     "Validate actual Android keyboard/safe-area placement and one-handed reachability using isolated data; scrolling must remain possible and the bar must not obscure the last reachable row.",
     "Record policy decisions, failing-before/passing-after regression results and rendering/platform evidence before closure."
   ],
-  "related_tickets": ["DEV-011", "QA-003", "UI-006"],
-  "relevant_files": ["ShopView.qml", "InputDelegate.qml", "UndoIcon.qml", "View.qml", "model.cpp", "undoremove.cpp", "tests/flows/tst_userflows.qml", "DESIGN.md"],
-  "sources": ["https://developer.android.com/develop/ui/views/notifications/snackbar/action", "https://m3.material.io/components/snackbar/overview"]
+  "related_tickets": [
+    "DEV-011",
+    "QA-003",
+    "UI-006"
+  ],
+  "relevant_files": [
+    "UndoBar.qml",
+    "View.qml",
+    "ShopView.qml",
+    "InputDelegate.qml",
+    "model.cpp",
+    "model.h",
+    "undoremove.cpp",
+    "undoremove.h",
+    "tests/qml/tst_undorecovery.qml",
+    "tests/android/test_undorecovery.py",
+    "tests/rendering/tst_undopopup.qml",
+    "DESIGN.md"
+  ],
+  "sources": [
+    "https://developer.android.com/develop/ui/views/notifications/snackbar/action",
+    "https://m3.material.io/components/snackbar/overview"
+  ],
+  "original_evidence": [
+    "InputDelegate.qml owns the UndoIcon and its 15000 ms countdown through a Flipable, so recovery UI and timer lifetime are coupled to a movable/instantiated editor delegate.",
+    "ShopView.qml clears the Undo stack on TextDelegate.onPressed, ListView.onMovementStarted and the view-level TapHandler.onGrabChanged. InputDelegate submission also emits timeout, clearing Undo.",
+    "Model::remove saves the deletion immediately. clearUndoStack discards its recovery command; ordinary movement does not defer a database commit.",
+    "Model::remove clears an existing command before pushing the next deletion. Merely keeping the bar visible would not preserve a sequence of deleted items.",
+    "UndoRemove currently records numeric insertion positions. Safe recovery across subsequent editor movement, insertions, checks and reordering needs characterization; deleting the QML invalidation handlers alone is not a complete safe redesign.",
+    "tests/flows/tst_userflows.qml currently characterizes dismissal through test_other_interaction_dismisses_undo. Replace the obsolete policy assertion with a real failing-before regression when this ticket is selected."
+  ],
+  "implementation": [
+    "Separate UndoBar.qml based on Controls.Popup with Controls.ProgressBar as its background, painting only the remaining opaque accent fill. Whole-surface TapHandler performs Undo; RowLayout/TextIcon reuse the existing Font Awesome loader through Popup.font.family. View owns visibility, placement, scroll margin and model hookups. Accessible Undo press action retained; native Popup transitions retained.",
+    "Removed editor Flipable/UndoIcon, delegate-owned deadline and routine-interaction invalidations. Undo keeps draft text/focus and native keyboard.",
+    "Existing QUndoStack merges UndoRemove commands into a batch. Each removed item retains UUID, surviving neighbor UUIDs and a fallback logical position; restoring does not submit a pending edit. Preserve surviving rows and newer changes.",
+    "Clock pauses with the drawer open or application inactive. Successful reload/list changes end recovery; failed loads preserve it. Process death ends this in-memory recovery.",
+    "Retired Canvas2D source/link dependency and old arc tests; Qt 6.12 minimum retained. APK deployment payload investigation remains separate under DEV-008."
+  ],
+  "verification": {
+    "date": "2026-11-03",
+    "before": {
+      "qml": "out/ui023/before-ui.txt: three new interaction cases fail (two lifecycle records pass).",
+      "model": "out/ui023/before-model.txt: five new model cases fail (two lifecycle records pass).",
+      "android": "out/ui023/android-before/results.json: original APK passes editor-offscreen setup and fails reachable Undo after deletion. Final native driver uses rendered pixels because live progress prevents accessibility idle.",
+      "whole_bar": "out/ui023/before-whole-bar.txt: message and middle taps fail on the icon-only implementation; icon tap passes. All three positions pass with the whole-bar TapHandler."
+    },
+    "after": {
+      "windows": "out/ui023/final-verify-windows.log: all five CTest suites pass; 331 records (200 UI, 19 flows, 6 keyboard, 98 model, 8 native rendering), no failures/errors/skips. Includes final styling, idle-pause regressions, real timeout and mouse/touch Undo.",
+      "analysis": "out/ui023/analysis/results-verified.json: model.cpp, undoremove.cpp and tests/test_model.cpp pass both repository clang-tidy and Clazy profiles.",
+      "format": "Official format-qml.ps1 -Check passes all 57 tracked QML/templates; format-cpp.ps1 -Check passes all nine C++ files. Final resource-aware UndoBar qmllint has no diagnostics.",
+      "android": "out/ui023/final-android/results.json: 22 final-build isolated-emulator checks pass in both themes, covering editor-offscreen recovery, scrolling, whole-bar activation, batches, new entry preservation, UUID/order/flags, native Gboard placement/retention, expiry and background/resume. out/ui023/final-android-logcat.txt has no setPaused/is-not-running warning.",
+      "arm64": "out/ui023/final-arm64-build.log and final-apk-signature.txt: current final ARM64 build and signature verification pass. dist/QShopper-arm64-debug.apk uses the shared debug certificate. APK hash/payload recorded in final-apk.json. Not installed on a physical device by this agent.",
+      "workflow": "Updated native entry driver: out/ui023/android-entry/results.json passes 28 checks; bulk Clear/Undo and Remove-checked/Undo each pass three checks in out/ui023/android-clear/results.json and android-remove/results.json. These were run before the final hit-handler refinement; the final full-surface path is covered by the focused UI and native recovery suite.",
+      "opaque_accent": "Opaque fill pixel regression fails in all four theme/scale cases against the earlier translucent fill (out/ui023/before-opaque-accent.txt). The current layered-color verification supersedes the intermediate opaque-surface run; see visual_iteration."
+    },
+    "regression_locations": [
+      "tests/qml/tst_undorecovery.qml",
+      "tests/test_model.cpp",
+      "tests/flows/tst_userflows.qml",
+      "tests/rendering/tst_undopopup.qml",
+      "tests/android/test_undorecovery.py"
+    ],
+    "limits": [
+      "Native Android uses the isolated emulator-5580 and configured Gboard; it does not certify other keyboards/devices.",
+      "Pre-existing PopupList contentWidth override warning remains DEV-001.",
+      "Canvas2D/CanvasPainter deployment payload remains DEV-008; no packaging fix included.",
+      "Transition-time Clear/Undo investigation remains UI-015."
+    ]
+  },
+  "clear_surface_trial": {
+    "date": "2026-11-04",
+    "request": "User selected Completely transparent for the area uncovered as the progress fill shrinks; fill, text and icon stay solid.",
+    "implementation": "Use Controls.ProgressBar as Popup.background, with no ProgressBar background. Only the remaining fill Rectangle paints pixels. Remove the color Binding and default Material surface/elevation shadow; keep the default Popup transitions and full-bar TapHandler.",
+    "before": "out/ui023/before-clear-surface.txt: four theme/scale cases fail against the previous surface-plus-shadow implementation. The revised test keeps production effects intact.",
+    "after": "out/ui023/clear-surface-rendering.txt: 8 native Windows records pass; uncovered pixels equal the known underlay exactly within raster tolerance, while filled pixels equal the opaque theme accent and message/glyph pixels retain their full color, at two widths/scales in Light/Dark. out/ui023/clear-surface-interactions.txt: 8 records pass. out/ui023/clear-surface-bulk-flows.txt: 5 records pass, including actual mouse and touch Undo after drawer bulk removal.",
+    "earlier_trial": "The 80%-surface trial was rejected by the user. Its color test disabled the Material shadow, missing the complete production appearance; that exception has been removed.",
+    "limits": "Historical completely-clear trial, superseded by the user-accepted separate 20%-opacity background Rectangle."
+  },
+  "visual_iteration": {
+    "date": "2026-11-04",
+    "user_confirmation": "I fixed it. It good now.",
+    "implementation": "Preserve the user-added background Rectangle inside the ProgressBar: Material.backgroundColor, opacity 0.2, existing rounded scale. Solid accent fill and text/icon are separate layers. No default popup shadow or Binding override.",
+    "verification": "out/ui023/paused-warning-rendering.txt: eight native Windows records pass with the accepted background, real composite pixels and solid fill/message/glyphs."
+  },
+  "warning_followup": {
+    "date": "2026-11-04",
+    "reported": "NumberAnimation setPaused() cannot be used when animation is not running; two UndoBar language-server warnings.",
+    "changes": "Guard paused with running. Replace Qt.application.font/state with the typed Qt Quick Application.font/state singleton. User visual code preserved apart from qmlformat.",
+    "regression_before": "out/ui023/paused-warning-before.txt: both new warning cases fail (two lifecycle records pass).",
+    "regression_after": "out/ui023/paused-warning-after.txt: all ten records pass, including disabled creation and idle/live/stop-paused drawer lifecycle. out/ui023/paused-warning-rendering.txt: eight native records pass. Expiry and mouse/touch flow results in out/ui023/paused-warning-flows.txt.",
+    "language_server": "Resource-aware qmllint reproduces exactly two missing-property warnings (font and state) before; out/ui023/undobar-qmllint-resources-before.txt. No diagnostics after: out/ui023/undobar-qmllint-after.txt.",
+    "translation": "Existing QCoreApplication::translate calls already mark full removal phrases. Qt lupdate extracts %1 removed and %n items removed in UndoBar context, with numerus=yes for the count. Verified in out/ui023/undo-message-extraction.ts. No translated catalog or new language has been added.",
+    "platform_scope": "Final full Windows run and native emulator recovery suite both pass, including background/resume and final accepted styling. The Android log has no recurrence of setPaused() while stopped. Current ARM64 APK rebuilt and signature verified."
+  },
+  "resolution": {
+    "date": "2026-11-04",
+    "user_confirmation": "Ok I think it's done. Create APK, close ticket and commit changes.",
+    "summary": "View-owned reachable Undo with a full-bar TapHandler, accepted 20%-opacity background behind solid fill/text/icon, merged 15-second deletion batches and UUID/neighbor-based recovery preserving newer edits and drafts. Pause safely behind drawer/inactive app; warning-free idle animation and typed Application properties.",
+    "verification": "Final Windows run: all five suites pass, 331 records; final isolated emulator run: 22 checks pass in both themes with no reported pause warning; lint, formatters, translation extraction and unchanged analyzed C++ baseline pass. ARM64 APK built and verified with the shared debug signing certificate.",
+    "apk": "dist/QShopper-arm64-debug.apk"
+  }
 }

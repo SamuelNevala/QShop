@@ -590,6 +590,88 @@ private Q_SLOTS:
         QVERIFY(!model.data(model.index(0), Qt::CheckStateRole).toBool());
     }
 
+    static void deletion_batch_survives_mutations_data()
+    {
+        QTest::addColumn<QString>("mutation");
+        for (const auto &mutation : { "prepend", "reorder", "pending-edit", "check" }) {
+            QTest::newRow(mutation) << QString::fromLatin1(mutation);
+        }
+    }
+
+    static void deletion_batch_survives_mutations()
+    {
+        QFETCH(const QString, mutation);
+        Model model;
+        loadItems(model);
+        for (const auto &name : { "A", "B", "C", "D", "E" }) {
+            model.insert(model.rowCount(), QString::fromLatin1(name));
+        }
+        const auto bId = id(model, 1);
+        const auto cId = id(model, 2);
+        const auto dId = id(model, 3);
+        model.addEditor();
+        model.moveEditor(model.rowCount() - 1, Model::Force::YES);
+        model.remove(1);
+        model.remove(2);
+        QCOMPARE(names(model), QStringList({ "A", "C", "E", "" }));
+        QStringList expected;
+        if (mutation == u"prepend"_s) {
+            model.insert(0, QStringLiteral("New"));
+            expected = { u"New"_s, u"A"_s, u"B"_s, u"C"_s, u"D"_s, u"E"_s };
+        } else if (mutation == u"reorder"_s) {
+            model.move(0, 2);
+            expected = { u"C"_s, u"B"_s, u"D"_s, u"E"_s, u"A"_s };
+        } else if (mutation == u"pending-edit"_s) {
+            QCOMPARE(model.editItem(1), "C");
+            expected = { u"A"_s, u"B"_s, u"Renamed C"_s, u"D"_s, u"E"_s };
+        } else {
+            model.setChecked(1, true);
+            expected = { u"A"_s, u"E"_s, u"D"_s, u"B"_s, u"C"_s };
+        }
+        model.undo();
+        QVERIFY(!model.canUndo());
+        if (mutation == u"pending-edit"_s) {
+            QCOMPARE(id(model, model.editorIndex()), cId);
+            model.insert(model.editorIndex(), QStringLiteral("Renamed C"));
+        }
+        model.removeEditor();
+        QCOMPARE(names(model), expected);
+        QCOMPARE(id(model, static_cast<int>(expected.indexOf(u"B"_s))), bId);
+        QCOMPARE(id(model, static_cast<int>(expected.indexOf(u"D"_s))), dId);
+        const auto cRow = static_cast<int>(
+                expected.indexOf(mutation == u"pending-edit"_s ? u"Renamed C"_s : u"C"_s));
+        QCOMPARE(id(model, cRow), cId);
+        QCOMPARE(model.data(model.index(cRow), Qt::CheckStateRole).toBool(),
+                 mutation == u"check"_s);
+        model.reload();
+        QCOMPARE(names(model), expected);
+        QCOMPARE(id(model, static_cast<int>(expected.indexOf(u"B"_s))), bId);
+        QCOMPARE(id(model, static_cast<int>(expected.indexOf(u"D"_s))), dId);
+    }
+
+    static void undo_preserves_pending_edit_and_removed_identity()
+    {
+        Model model;
+        loadItems(model);
+        for (const auto &name : { "A", "B", "C", "D" }) {
+            model.insert(model.rowCount(), QString::fromLatin1(name));
+        }
+        const auto bId = id(model, 1);
+        const auto cId = id(model, 2);
+        model.addEditor();
+        model.remove(2);
+        QCOMPARE(model.editItem(2), "C");
+        model.undo();
+        QCOMPARE(id(model, model.editorIndex()), cId);
+        model.insert(model.editorIndex(), QStringLiteral("Renamed C"));
+        model.removeEditor();
+        QCOMPARE(names(model), QStringList({ "A", "B", "Renamed C", "D" }));
+        QCOMPARE(id(model, 1), bId);
+        QCOMPARE(id(model, 2), cId);
+        model.reload();
+        QCOMPARE(names(model), QStringList({ "A", "B", "Renamed C", "D" }));
+    }
+
     static void remove_and_undo_restore_exact_row_and_uuid()
     {
         Model model;

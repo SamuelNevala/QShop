@@ -143,7 +143,7 @@ The native popup script's --restart option verifies actual cold-restart selectio
 A safe-border regression compares actual pixels across all four safe areas,
 normal/inverse rows, themes and viewport changes. Its native companion covers
 Android System-mode changes, system-bar icon contrast, resume and IME with
-isolated data; see tests/README.md. The UI suite timeout is 210 seconds.
+isolated data; see tests/README.md. The UI suite timeout is 225 seconds.
 The native theme harness's --drawer mode covers Android-only UI-014 by comparing
 System drawer pixels with matching explicit Light/Dark references, including live
 OS changes and reopening. Desktop passing results do not establish its reproduction.
@@ -156,14 +156,17 @@ A button-layout regression preserves the six drawer captions at two preview scal
 and checks all four inherited display modes, live mode changes and enabled/disabled
 click delivery. It uses the production IconButton; native Windows runs establish
 actual text-font/line behavior that offscreen's fallback font cannot certify.
-The general Qt Quick Tests run offscreen/software; they do not render Canvas2D
-and may log its unsupported-renderer warning. The separate Windows
-qshopper_canvas_tests entry uses a native window and D3D11 WARP for real QRhi
-rendering. It checks the Undo arc in both themes, at two preview scales/sizes,
-plus countdown start/stop/restart and initial-enabled caller behavior.
+The general Qt Quick Tests run offscreen/software. UI-023's UndoBar.qml uses
+Qt Quick Controls Popup and ProgressBar; recovery and its clock belong to the
+view, independently of the editor. The separate Windows
+qshopper_undo_rendering_tests entry uses a native window and D3D11 WARP. It checks
+the full-background fill in both themes at two preview scales/widths, fixed touch
+geometry, drawer pause/restart, and preserved draft/text focus after Undo.
 Harness rendering does not certify the full app's menu or Android appearance.
-tests/android/test_undocanvas.py checks native Android arc progression, expiry and
-actual Undo restoration in both themes with disposable data.
+tests/android/test_undorecovery.py checks native offscreen-editor recovery,
+scrolling, batches, IME placement/retention, expiry and background/resume with
+disposable data. It uses rendered frames while the countdown is active;
+UiAutomator's idle-only dump cannot reliably snapshot a continuously animated bar.
 Coverage is optional and separate from the normal verification command.
 
 The current interaction inventory and platform gaps are in tests/INTERACTIONS.md.

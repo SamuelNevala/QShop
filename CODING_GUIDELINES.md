@@ -60,7 +60,10 @@ file-local Item equality function was removed; do not invent replacement equalit
 semantics or compare only selected fields for hypothetical future use.
 
 Keep values that form one logical unit in one record. UndoRemove stores each
-removed Item with its restore index in a private named struct, held in one QList.
+removed Item with its neighboring UUIDs and fallback position in a private named
+struct, held in one QList. Neighbors let recovery survive newer edits and row
+moves; the fallback is used when neither survives. Qt's Undo command merging
+combines successive deletions into the selected batch policy.
 This avoids maintaining matching positions in two containers. A small record
 with meaningful field names is enough; no generic wrapper is needed.
 

@@ -28,5 +28,6 @@
   "acceptance_criteria": [
     "Document the dependency path and decide whether the libraries are required or unnecessary payload.",
     "If an exclusion is justified, implement it separately with package-content and native-IME verification; otherwise document why the payload remains."
-  ]
+  ],
+  "ui023_payload_observation": {"date": "2026-11-03", "finding": "Fresh UI-023 Android packages still contain Canvas2D and CanvasPainter libraries despite removal of explicit QML/module/link usage. Inventory the actual APK; the deployment dependency/scan path has not been established. No packaging change is included in UI-023."}
 }

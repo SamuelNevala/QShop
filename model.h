@@ -100,6 +100,7 @@ class Model : public QAbstractListModel, public QQmlParserStatus
     Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
     Q_PROPERTY(int editorIndex READ editorIndex NOTIFY editorIndexChanged)
     Q_PROPERTY(bool canUndo READ canUndo NOTIFY canUndoChanged)
+    Q_PROPERTY(QString undoMessage READ undoMessage NOTIFY undoMessageChanged)
     Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly NOTIFY readOnlyChanged)
     Q_PROPERTY(QString activeList READ activeList WRITE setActiveList NOTIFY activeListChanged)
     Q_INTERFACES(QQmlParserStatus)
@@ -144,6 +145,7 @@ public:
     Q_INVOKABLE void reload();
     [[nodiscard]] int editorIndex() const;
     [[nodiscard]] bool canUndo() const;
+    [[nodiscard]] QString undoMessage() const;
     [[nodiscard]] QString activeList() const;
     void setActiveList(const QString &identifier);
     [[nodiscard]] bool readOnly() const;
@@ -151,12 +153,16 @@ public:
 
 Q_SIGNALS:
     void canUndoChanged();
+    void undoMessageChanged();
+    void deletionRecorded();
     void countChanged();
     void editorIndexChanged();
     void activeListChanged();
     void readOnlyChanged();
 
 private:
+    friend class UndoRemove;
+    void insert(qsizetype index, Item &&item, bool submitEdit);
     void append(Item &&item);
     [[nodiscard]] qsizetype checkedIndex(qsizetype index) const;
     void move(qsizetype source, qsizetype destination, Save changes);

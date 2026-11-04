@@ -12,6 +12,8 @@ import time
 import uuid
 import xml.etree.ElementTree as ET
 
+from undo_bar import undo_bar_frame
+
 
 PACKAGE = "shopper.nevala.com"
 TABLE = "11111111-1111-1111-1111-111111111111"
@@ -61,7 +63,8 @@ def main():
     results = []
 
     def check(name, passed, ui):
-        (case_dir / (name + ".xml")).write_bytes(ET.tostring(ui))
+        if ui is not None:
+            (case_dir / (name + ".xml")).write_bytes(ET.tostring(ui))
         (case_dir / (name + ".png")).write_bytes(adb("exec-out", "screencap", "-p"))
         results.append(dict(case=case + "_" + name, passed=bool(passed), saved=saved()))
         (args.output / "results.json").write_text(json.dumps(results, indent=2))
@@ -102,6 +105,9 @@ def main():
         assert len(buttons) == 1, "Drawer action button was not found: " + label
         left, top, right, bottom = bounds(buttons[0])
         shell("input", "tap", (left + right) // 2, (top + bottom) // 2)
+        if case in ("clear", "remove"):
+            time.sleep(1)
+            return None
         ui = tree()
         assert not any(n.get("content-desc") == "Dark" for n in ui.iter("node")), "Drawer did not close"
         return ui
@@ -160,8 +166,10 @@ def main():
                 if case in ("clear", "remove"):
                     remaining = [] if case == "clear" else ["A", "B"]
                     check("drawer_removes_expected_items", [r[0] for r in saved()] == remaining, ui)
-                    left, top, right, bottom = bounds(editor(ui))
-                    shell("input", "tap", left + (bottom - top) // 2, (top + bottom) // 2)
+                    raw = adb("exec-out", "screencap", "-p")
+                    frame = undo_bar_frame(raw, 0) or undo_bar_frame(raw, 1)
+                    assert frame is not None, "Floating Undo action was not found"
+                    shell("input", "tap", frame["action_x"], frame["action_y"])
                     ui = tree()
                     check("undo_icon_restores_order_checks_and_ids", saved() == records, ui)
                 else:

@@ -110,8 +110,8 @@ Item {
             add("bread");
             shop.removeAll();
             tryCompare(shop, "count", 1);
-            verify(editor().canUndo);
-            editor().undo();
+            verify(shop.model.canUndo);
+            shop.model.undo();
             tryCompare(shop, "count", 3);
             compare(row(1).name, "milk");
             compare(row(2).name, "bread");

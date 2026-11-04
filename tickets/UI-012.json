@@ -29,5 +29,6 @@
   ],
   "evidence": "User backlog request on 2026-10-30 to add a drawer About component for viewing the open-source licenses used.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "ui023_payload_observation": {"date": "2026-11-03", "finding": "Fresh UI-023 Android packages still contain Canvas2D and CanvasPainter libraries despite removal of explicit QML/module/link usage. Inventory the actual APK; the deployment dependency/scan path has not been established. No packaging change is included in UI-023."}
 }

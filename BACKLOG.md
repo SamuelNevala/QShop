@@ -92,16 +92,16 @@ regressions remain easy to trace.
 
 ### [UI-023 — Reachable Undo that survives routine interaction](tickets/UI-023.json)
 
-Major user report, 2026-11-03: Undo lives in the movable editor, which may be
-offscreen, and routine movement loses recovery. Source confirms scroll, row press
-and general pointer-grab handlers clear the stack; the deletion is already saved.
-Record separately from DEV-011. Visual design accepted 2026-11-03: an animated
-floating Undo bar above the keyboard/safe area, with a full-background countdown
-fill and stationary message, Font Awesome action and touch target. Implementation
-is pending; review batching/deadline policy when selecting the fix.
-Regression coverage must assert visible recovery and actual restored data after
-scrolling, editor movement and subsequent mutations; the current dismissal test
-encodes the old policy and must be replaced when the fix is selected.
+Resolved 2026-11-04; user accepted the finished implementation and requested
+closure, APK and commit. View-owned `UndoBar.qml` uses Popup/ProgressBar and a
+whole-bar TapHandler. Consecutive deletions form one recoverable batch and each
+restarts 15 seconds; routine interaction preserves recovery, drafts and newer
+edits. The user's separate 20%-opacity background leaves fill/text/icon solid.
+The clock pauses behind the drawer or while inactive, with idle-pausing and
+language-server warnings fixed. Regression-first cases reproduce the original
+failures. Final verification passes all five Windows suites (331 records),
+22 isolated Android checks, formatters, QML lint, translation extraction and
+the unchanged analyzed C++ baseline. Signed ARM64 APK is ready in `dist/`.
 
 ### [UI-008 — Long-list background continuity](tickets/UI-008.json)
 

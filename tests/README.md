@@ -126,44 +126,78 @@ Verified with MSVC 19.44 / Qt 6.12: **94.56% (452/478 lines)**.
 
 ## UI behavior verification
 
-DEV-011 migrates UndoIcon to `QtCanvas2D.Canvas2D` (Qt 6.12 technology preview)
-with `Qt6::CanvasPainter` linked and `QtCanvas2D` declared as a module dependency.
-Its fill is explicitly transparent with alpha blending; Canvas2D clears each
-frame, so the previous Canvas `clearRect()` is unnecessary. The 15-second
-animation, enable/stop/restart and caller-owned timeout/Undo remain unchanged.
+UI-023 replaces the editor-owned countdown icon with `UndoBar.qml`, a separate
+Qt Quick Controls `Popup` using `ProgressBar` for the receding whole-background
+fill, using the opaque theme accent without an alpha tint. The ProgressBar
+itself is the Popup background; its separate background Rectangle uses the
+user-selected 20% opacity. Progress fill, message and icon remain solid, with no
+default popup surface or elevation shadow behind them.
+A whole-surface TapHandler performs Undo without taking editor focus. TextIcon
+reuses the existing Font Awesome font through Popup.font.family. The view
+positions it above the safe area/keyboard and reserves bottom
+scrolling space. Consecutive deletions merge into one recoverable batch; each
+restarts 15 seconds. Scrolling, checking, typing, submission and editor movement
+preserve the batch. Opening the drawer or backgrounding pauses its clock.
+Successful reload/list switching and process termination end recovery; failed
+loads preserve it. Recovery is in memory, not a persistent deletion archive.
 
-General QML CTest entries retain offscreen/software behavior coverage. They cannot
-render Canvas2D and can log `No QRhi found ... QQuickRhiItem will not be functional`.
-The additional Windows rendering entry uses a native window and D3D11 WARP:
-the offscreen platform cannot create its swapchain. WARP renders through the
-graphics pipeline with a software adapter. This entry briefly shows a window and
-requires a Windows desktop session. It fails on warnings or an absent/opaque arc;
-offscreen passes alone do not establish correct Canvas2D rendering.
+`qml/tst_undorecovery.qml` reproduces offscreen-editor deletion and activates the
+actual floating action after scrolling and editor movement/submission. Model
+regressions verify names, UUIDs, flags and order across batching, new insertions,
+pending edits, reorder/check operations and reloads. The existing flow expiry
+case checks real 15-second delivery. Before the fix, all three new interaction
+cases and five new model cases failed; the original APK also failed reachable
+Undo after deleting with an offscreen editor. A further three-position whole-bar
+click regression fails on the original icon-only hit area (message/middle) and
+passes with the TapHandler.
 
-The additional `qshopper_canvas_tests` entry runs `rendering/tst_undocanvas.qml`.
-It samples the actual arc, verifies the underlying background remains visible,
-and checks bounds, stroke/color, full/half/empty sweeps, two themes, two preview
-scales and two sizes. It also checks stopping/restarting and the initial-enabled
-InputDelegate path. The existing `UserFlows::test_undo_expires` verifies real
-15-second timeout delivery and retained deletion. Run everything normally:
+`test_disabled_undo_bar_creation_is_warning_free` and
+`test_idle_drawer_does_not_pause_animation` fail on the original unguarded
+pause binding. They cover disabled creation, idle drawer opening, live pause,
+stopping while paused and a later idle drawer opening. The suite fails on any
+`setPaused() ... isn't running` warning. The production pause binding now guards
+with `running`; `Application.font` and `Application.state` use Qt Quick's typed
+singleton so qmllint/qmlls can resolve both properties.
+
+Removal messages are full Qt translation units in `undoremove.cpp`:
+`%1 removed` and plural-aware `%n items removed`, both in the `UndoBar` context.
+`lupdate undoremove.cpp UndoBar.qml -ts out/undo-messages.ts` extracts them,
+including the plural/numerus marker. Item names remain user data, not translated
+message fragments.
+
+General QML entries run offscreen/software. The separate Windows
+`qshopper_undo_rendering_tests` runs `rendering/tst_undopopup.qml` in a native
+window using D3D11 WARP. Its eight records compare actual fill pixels directly
+with the theme accent, compare uncovered pixels against the user-selected
+20% surface over a known underlay without disabling any production effect,
+verify solid message and
+Undo glyph pixels, and check fixed
+action geometry, Light/Dark, two sizes/scales, restart, drawer pause/resume and
+Undo without losing draft focus. It requires a Windows desktop session.
 
 ```powershell
 ./tools/verify-windows.ps1 -Jobs 2
 ```
 
-The native Android companion uses the production APK, disposable data and
-screenshots at the beginning, midpoint and expiry of the countdown, then taps
-the actual Undo control to verify restoration in Light and Dark. It requires
-Pillow and targets only an emulator:
+The Android companion uses the production APK, isolated disposable data and
+actual right swipes, scrolling, Gboard entry and screenshot-located Undo taps.
+Its 22 checks cover both themes, original row identities/order/flags, consecutive
+deletions, native IME placement, submission, expiry and background/resume. It
+requires Pillow and accepts only an emulator. `undo_bar.py` locates the rendered
+bar: UiAutomator's idle wait can outlast a live animated ProgressBar. Accessibility
+snapshots are used only while the countdown is absent. The older entry and bulk
+removal scripts use the same pixel locator while Undo is active.
 
 ```powershell
-python tests/android/test_undocanvas.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-undocanvas
+python tests/android/test_undorecovery.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-undorecovery
 ```
 
-Qt Canvas Painter is distributed under commercial or GPLv3 terms, as listed in
-[Qt's module documentation](https://doc.qt.io/qt-6/qtcanvaspainter-index.html).
-Include this dependency in UI-012's About/licenses inventory and REL-001's
-publication review. Module availability and an x86_64 test do not certify ARM64.
+DEV-011's Canvas2D arc is historical; UI-023 removes its source, renderer tests
+and explicit module/link dependencies. Qt 6.12 remains the supported baseline.
+Current APKs still contain Canvas2D/CanvasPainter libraries: source removal does
+not establish payload removal. DEV-008 tracks deployment investigation; UI-012
+and REL-001 must inventory the actual shipped libraries and their license terms.
+ARM64 build/signature verification does not establish phone runtime behavior.
 
 DEV-007's `qml/tst_catalogproxy.qml` exercises the actual drawer proxy and selector.
 The same six characterization records run against the original C++ wrapper and
@@ -205,7 +239,7 @@ Seven scenarios cover empty-list edit mode, keyboard item submission, empty
 submission, leaving/re-entering edit mode, a pointer swipe to check an item and
 resetting it, bulk removal/undo through view actions, and a pointer click on the
 editor menu button. Tests wait for delegate animations before pointer input.
-Bulk removal/undo calls the view action and editor signal; it does not click
+Bulk removal/undo calls the view action and model Undo; it does not click
 full-app drawer buttons.
 
 Before a full-app test, set `QSHOPPER_DATA_DIR` to a unique disposable directory.

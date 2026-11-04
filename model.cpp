@@ -35,6 +35,7 @@ constexpr QByteArrayView kName{ "name" };
 Model::Model(QObject *parent) Q_DECL_NOTHROW : QAbstractListModel(parent)
 {
     connect(&m_stack, &QUndoStack::canUndoChanged, this, &Model::canUndoChanged);
+    connect(&m_stack, &QUndoStack::undoTextChanged, this, &Model::undoMessageChanged);
 }
 
 QVariant Model::data(const QModelIndex &index, int role) const
@@ -105,13 +106,18 @@ void Model::componentComplete()
 
 void Model::insert(qsizetype index, Item &&item)
 {
+    insert(index, std::move(item), true);
+}
+
+void Model::insert(qsizetype index, Item &&item, bool submitEdit)
+{
     if (m_readOnly) {
         return;
     }
     const auto clamped = std::clamp(index, static_cast<qsizetype>(0), m_items.size());
 
     const auto editor = editorIndex();
-    if (m_pendingEdit && clamped == editor && !item.name.isEmpty()) {
+    if (submitEdit && m_pendingEdit && clamped == editor && !item.name.isEmpty()) {
         // Preserve item identity, including the table identifier when renaming a list.
         item.uuid = m_pendingEdit->uuid;
         item.checked = m_pendingEdit->checked;
@@ -158,19 +164,18 @@ void Model::remove(qsizetype index)
         }
     }
 
+    std::unique_ptr<UndoRemove> removed;
+    if (!m_items.at(index).name.isEmpty()) {
+        removed = std::make_unique<UndoRemove>(*this);
+        removed->append(index);
+    }
     const auto previousEditor = m_editorIndex;
     beginRemoveRows(QModelIndex(), static_cast<int>(index), static_cast<int>(index));
-    Item &&item = m_items.takeAt(index);
+    m_items.removeAt(index);
     if (m_editorIndex == index) {
         m_editorIndex = -1;
     } else if (m_editorIndex > index) {
         --m_editorIndex;
-    }
-    if (!item.name.isEmpty()) {
-        m_stack.clear();
-        auto *remove{ new UndoRemove(*this) };
-        remove->append(std::move(item), index);
-        m_stack.push(remove);
     }
     endRemoveRows();
     Q_EMIT countChanged();
@@ -178,6 +183,10 @@ void Model::remove(qsizetype index)
         Q_EMIT editorIndexChanged();
     }
     save();
+    if (removed) {
+        m_stack.push(removed.release());
+        Q_EMIT deletionRecorded();
+    }
 }
 
 QString Model::editItem(qsizetype index)
@@ -225,11 +234,10 @@ void Model::removeChecked()
         return;
     }
 
-    m_stack.clear();
     auto remove = std::make_unique<UndoRemove>(*this);
     for (qsizetype row = 0; row < m_items.size(); ++row) {
         if (m_items.at(row).checked) {
-            remove->append(m_items.at(row), row);
+            remove->append(row);
         }
     }
 
@@ -266,6 +274,7 @@ void Model::removeChecked()
         Q_EMIT editorIndexChanged();
     }
     save();
+    Q_EMIT deletionRecorded();
 }
 
 void Model::setChecked(qsizetype index, bool checked)
@@ -403,6 +412,11 @@ bool Model::canUndo() const
     return m_readOnly ? false : m_stack.canUndo();
 }
 
+QString Model::undoMessage() const
+{
+    return m_stack.undoText();
+}
+
 QString Model::activeList() const
 {
     return m_activeListId.isNull() ? SQL::tableLists()
@@ -516,16 +530,14 @@ void Model::removeAll(Save changes)
         moveEditor(0, Force::YES);
     }
     auto position = editor ? 1 : 0;
-    beginRemoveRows(QModelIndex(), position, static_cast<int>(m_items.size() - 1));
-    m_stack.clear();
     auto remove = std::make_unique<UndoRemove>(*this);
-    m_items.removeIf([&remove, &position](const Item &value) {
-        if (!value.name.isEmpty()) {
-            remove->append(value, position++);
-            return true;
+    for (qsizetype row = position; row < m_items.size(); ++row) {
+        if (!m_items.at(row).name.isEmpty()) {
+            remove->append(row);
         }
-        return false;
-    });
+    }
+    beginRemoveRows(QModelIndex(), position, static_cast<int>(m_items.size() - 1));
+    m_items.removeIf([](const Item &value) { return !value.name.isEmpty(); });
 
     endRemoveRows();
     Q_EMIT countChanged();
@@ -534,6 +546,7 @@ void Model::removeAll(Save changes)
     }
     save();
     m_stack.push(remove.release());
+    Q_EMIT deletionRecorded();
 }
 
 void Model::restorePendingEdit()
@@ -625,6 +638,7 @@ bool Model::load(QUuid identifier)
     }
 
     // Keep rows, editor, Undo and their list identity intact until the full read succeeds.
+    m_stack.clear();
     removeAll(Save::NO);
     m_activeListId = identifier;
     for (auto &item : items) {

@@ -96,6 +96,7 @@ Style.Control {
 
         enabled: !menu.visible
         fontFamily: awsome.name
+        bottomMargin: shopView.model.canUndo ? undoBar.height + Theme.pixels(4) : 0
 
         onOpenMenu: menu.open()
 
@@ -391,6 +392,30 @@ Style.Control {
             id: listsModel
 
             readOnly: true
+        }
+    }
+
+    UndoBar {
+        id: undoBar
+
+        parent: shopView
+        x: Theme.pixels(2)
+        y: shopView.height - height - Theme.pixels(2)
+        width: shopView.width - Theme.pixels(4)
+        visible: shopView.model.canUndo
+        message: shopView.model.undoMessage
+        font.family: awsome.name
+        enabled: !menu.visible
+
+        onUndoRequested: shopView.model.undo()
+        onExpired: shopView.model.clearUndoStack()
+
+        Quick.Connections {
+            function onDeletionRecorded() {
+                undoBar.restart();
+            }
+
+            target: shopView.model
         }
     }
 

@@ -7,7 +7,7 @@ target_compile_definitions(qshopper_ui_tests PRIVATE
     QSHOPPER_EXPECT_PREVIEW=$<AND:$<NOT:$<BOOL:${ANDROID}>>,$<CONFIG:Debug>>)
 add_test(NAME qshopper_ui_tests COMMAND qshopper_ui_tests
     -import ${CMAKE_BINARY_DIR} -platform offscreen -o -,txt -o ui-tests.xml,junitxml)
-set_tests_properties(qshopper_ui_tests PROPERTIES TIMEOUT 210)
+set_tests_properties(qshopper_ui_tests PROPERTIES TIMEOUT 225)
 add_test(NAME qshopper_flow_tests COMMAND qshopper_ui_tests
     -input ${CMAKE_CURRENT_SOURCE_DIR}/flows -import ${CMAKE_BINARY_DIR}
     -platform offscreen -o -,txt -o flow-tests.xml,junitxml)
@@ -34,14 +34,13 @@ target_link_libraries(qshopper_tests PRIVATE QShopper Qt6::Test)
 add_test(NAME qshopper_tests COMMAND qshopper_tests -o -,txt -o model-tests.xml,junitxml)
 set_tests_properties(qshopper_tests PROPERTIES ENVIRONMENT "QT_FORCE_STDERR_LOGGING=1" TIMEOUT 30)
 if(WIN32)
-    # Canvas2D needs QRhi. The offscreen/software suites still check behavior,
-    # but arc rendering needs a native surface and D3D11's WARP adapter.
-    add_test(NAME qshopper_canvas_tests COMMAND qshopper_ui_tests
+    # Verify the floating Undo surface and actual font with native rendering.
+    add_test(NAME qshopper_undo_rendering_tests COMMAND qshopper_ui_tests
         -input ${CMAKE_CURRENT_SOURCE_DIR}/rendering -import ${CMAKE_BINARY_DIR}
-        -platform windows -o -,txt -o canvas-tests.xml,junitxml)
-    set_tests_properties(qshopper_canvas_tests PROPERTIES TIMEOUT 45
+        -platform windows -o -,txt -o undo-rendering-tests.xml,junitxml)
+    set_tests_properties(qshopper_undo_rendering_tests PROPERTIES TIMEOUT 45
         ENVIRONMENT "QT_QUICK_BACKEND=rhi;QSG_RHI_BACKEND=d3d11;QSG_RHI_PREFER_SOFTWARE_RENDERER=1;QT_FORCE_STDERR_LOGGING=1")
-    list(APPEND qshopper_qml_tests qshopper_canvas_tests)
+    list(APPEND qshopper_qml_tests qshopper_undo_rendering_tests)
     set_tests_properties(${qshopper_qml_tests} qshopper_tests PROPERTIES ENVIRONMENT_MODIFICATION
         "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>")
 endif()

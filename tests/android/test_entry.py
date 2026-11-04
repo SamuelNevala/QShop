@@ -21,6 +21,8 @@ import xml.etree.ElementTree as ET
 
 from PIL import Image
 
+from undo_bar import undo_bar_frame
+
 PACKAGE = "shopper.nevala.com"
 TABLE = "11111111-1111-1111-1111-111111111111"
 
@@ -74,7 +76,8 @@ def main():
     results = []
 
     def check(name, passed, ui):
-        (args.output / (name + ".xml")).write_bytes(ET.tostring(ui))
+        if ui is not None:
+            (args.output / (name + ".xml")).write_bytes(ET.tostring(ui))
         (args.output / (name + ".png")).write_bytes(adb("exec-out", "screencap", "-p"))
         results.append(dict(case=name, passed=bool(passed), saved=saved()))
         (args.output / "results.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
@@ -139,6 +142,9 @@ def main():
         start, end = (.15, .85) if rightward else (.85, .15)
         shell("input", "swipe", int(left + (right - left) * start), (top + bottom) // 2,
               int(left + (right - left) * end), (top + bottom) // 2, 250)
+        if rightward:
+            time.sleep(.8)
+            return None
         return tree()
 
     def enter_text(ui, text, replace=False):
@@ -283,7 +289,9 @@ def main():
             ui = tree()
             ui = item_swipe(ui, "oats", rightward=True)
             check("single_delete_through_swipe", [r[0].lower() for r in saved()] == ["milk", "bread"], ui)
-            tap(editor(ui), "left")
+            frame = undo_bar_frame(adb("exec-out", "screencap", "-p"), 0)
+            assert frame is not None, "Floating Undo action was not found"
+            shell("input", "tap", frame["action_x"], frame["action_y"])
             ui = tree()
             check("single_delete_undo_icon", saved() == replacement_original, ui)
             ui = item_swipe(ui, "milk")
@@ -318,7 +326,9 @@ def main():
                   and saved(weekly_id) == eggs, ui)
             ui = item_swipe(ui, "weekend", "lists", rightward=True)
             check("catalog_delete_through_swipe", all(r[0].lower() != "weekend" for r in saved("lists")), ui)
-            tap(editor(ui), "left")
+            frame = undo_bar_frame(adb("exec-out", "screencap", "-p"), 0)
+            assert frame is not None, "Catalog floating Undo action was not found"
+            shell("input", "tap", frame["action_x"], frame["action_y"])
             ui = tree()
             check("catalog_delete_undo_restores_identity_and_order", saved("lists") == catalog, ui)
             ui = select_list(ui, renamed[0])
