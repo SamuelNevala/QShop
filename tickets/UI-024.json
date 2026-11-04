@@ -1,0 +1,40 @@
+{
+  "id": "UI-024",
+  "title": "UndoBar text and icon use reversed theme colors instead of TextItem colors",
+  "status": "open",
+  "type": "bug",
+  "severity": "unassigned",
+  "priority": "unassigned",
+  "created": "2026-11-04",
+  "reported_by": "user",
+  "scope": "Backlog intake only; implementation not requested.",
+  "report": "UndoBar text and icon should follow TextItem's color. They are currently black on Dark theme and white on Light theme; they should be the opposite.",
+  "environment": "Device and build not specified in this report.",
+  "reproduction_status": "User reported; not independently reproduced.",
+  "reproduction": [
+    "Select Dark theme and delete an item to display UndoBar.",
+    "Compare the message and Undo icon foregrounds with normal TextItem text.",
+    "Repeat with Light theme."
+  ],
+  "actual": "User reports black text and icon in Dark theme and white text and icon in Light theme.",
+  "expected": "UndoBar message and icon follow normal TextItem foreground colors: light in Dark theme and dark in Light theme, including the effective palette when System is selected.",
+  "source_notes": [
+    "app/UndoBar.qml explicitly sets Material.theme to Theme.inverseTheme; the message is a Material Label and the TextIcon explicitly uses Material.foreground. This is a candidate theme-propagation path to investigate, not a rendered reproduction or confirmed root cause.",
+    "app/TextItem.qml uses Material.primaryTextColor for normal unchecked text and Material.backgroundColor for checked text. The requested reference is normal TextItem text."
+  ],
+  "relevant_files": [
+    "app/UndoBar.qml",
+    "app/TextItem.qml",
+    "app/TextIcon.qml",
+    "app/Theme.qml",
+    "tests/qml",
+    "tests/android"
+  ],
+  "related_tickets": ["UI-023", "UX-003"],
+  "acceptance_criteria": [
+    "Independently reproduce and record the foreground mismatch in Light and Dark themes.",
+    "Both message and icon match normal TextItem theme colors, including live theme changes and System resolved to Light or Dark.",
+    "Preserve full-opacity text/icon readability over the progress fill and uncovered background, countdown, whole-bar Undo and deletion batching.",
+    "Add an automated regression exercising the production component and rendered theme colors; demonstrate failure before the fix and success afterward. Record native rendering coverage and any Android-specific verification gap."
+  ]
+}

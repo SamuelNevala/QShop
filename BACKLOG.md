@@ -13,7 +13,7 @@ intentional gestures, text fitting, animation, and list ordering intact.
 - Capture reports first. Do not implement fixes during backlog gathering.
 - Feature and code-quality requests are also backlog intake during this phase,
   unless the user explicitly asks to implement them now.
-- Keep stable IDs. Add new UI reports from UI-024 onward; UI-002 is already resolved.
+- Keep stable IDs. Add new UI reports from UI-025 onward; UI-002 is already resolved.
 - Distinguish user reports, previously observed bugs, source-review candidates,
   missing features, code-quality work, and validation tasks. Missing test coverage
   is not evidence of a bug.
@@ -255,6 +255,18 @@ other background variants are present and packaged. Verify the original and any
 derivatives, then replace affected assets and remove obsolete packaged references.
 Record the new artwork's provenance and coordinate with REL-001/UI-012. Preserve
 text readability, themes, transparency and portrait cropping. Priority is unassigned.
+
+### [UI-024 — UndoBar text and icon use reversed theme colors](tickets/UI-024.json)
+
+Reported on 2026-11-04; implementation deferred. UndoBar text and its Undo icon
+are black in Dark theme and white in Light theme. They should follow TextItem's
+normal text color: light in Dark theme and dark in Light theme. Keep both
+foregrounds consistent and readable as the progress fill recedes.
+
+This is a new user-reported color bug following UI-023, not a reopening of its
+accepted Undo behavior. Independent reproduction, severity and priority remain
+pending. When selected, add a rendered theme regression that fails before the
+fix and passes afterward, including live theme changes and resolved System mode.
 
 ## Release preparation
 
