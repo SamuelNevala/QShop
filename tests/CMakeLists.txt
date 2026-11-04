@@ -63,7 +63,7 @@ if(QSHOPPER_MODEL_COVERAGE)
         COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/coverage.py
             --build ${CMAKE_BINARY_DIR} --config $<CONFIG>
             --reports ${CMAKE_CURRENT_BINARY_DIR}/coverage
-            --source ${PROJECT_SOURCE_DIR}
+            --source ${PROJECT_SOURCE_DIR}/app
             --executable $<TARGET_FILE:qshopper_tests>
             --collector ${MODEL_COVERAGE_TOOL} --ctest ${CMAKE_CTEST_COMMAND}
         DEPENDS qshopper_tests

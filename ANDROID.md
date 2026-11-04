@@ -1,11 +1,19 @@
 # Android APK
 
-The project requires Qt 6.12+. UI-023 replaces the editor's Undo icon with a
-floating Popup/ProgressBar and retires the CanvasPainter/QtCanvas2D source
-dependency introduced by DEV-011. Runtime verification is recorded separately
-from kit availability. Current APKs still include Canvas2D/CanvasPainter libraries;
-DEV-008 tracks the unresolved deployment path. Inspect the actual packaged
-libraries when reviewing notices.
+The project requires Qt 6.12+. Production sources and the app target now live
+under `app/`; Android's import scan sees only production QML and this build's
+generated keyboard gate, not tests or old build trees. Qt's standard deployment
+tools still assemble the package. Plugin selection uses `qt_import_plugins`.
+
+DEV-008 removes unused Canvas, Qt Virtual Keyboard, Qt Test/QuickTest/Widgets,
+Imagine/Universal/Fluent styles, extra image/vector plugins, optional network/TLS
+plugins and the 3D profiler adapter. Material/Basic and the intentionally used
+Fusion text field remain; core Qt dependencies stay present. QML tooling defaults off, can be explicitly
+enabled for development builds, and is always excluded from Release/MinSizeRel.
+Qt Network/OpenGL are native dependencies of Qt Quick and are not removed merely
+because the shopping UI does not call them directly. The app uses local assets
+and SQLite; its current user flows do not require Qt TLS/network-information
+providers. JPEG is the only image plugin; PNG decoding is built into Qt Gui.
 
 Build an installable ARM64 debug APK from PowerShell:
 
@@ -18,7 +26,7 @@ Output: `dist/QShopper-arm64-debug.apk`.
 The script defaults to Qt 6.12.0 in `C:\Qt`, the Android SDK in
 `%LOCALAPPDATA%\Android\Sdk`, NDK 27.2.12479018, and the installed Adoptium
 JDK 21. Override `-QtRoot`, `-QtVersion`, `-SdkRoot`, `-NdkVersion`, or
-`-JavaHome` for other installations. This build uses compile SDK 36 and build tools 36.0.0. Gradle downloads build dependencies on the first run.
+`-JavaHome` for other installations. This build uses compile SDK 36; Qt selects an installed SDK build-tools revision. Gradle downloads build dependencies on the first run.
 
 The APK uses package `shopper.nevala.com`, version 0.1 (code 1), and supports
 ARM64 Android devices running Android 9 (API 28) or later. By default it is signed
@@ -49,6 +57,53 @@ Install on an attached device with USB debugging enabled:
 Qt command-line build reference:
 <https://doc.qt.io/qt-6/android-building-projects-from-commandline.html>
 
+## QML tooling in APKs
+
+A Debug build does not need `qmltooling` libraries for ordinary operation or
+C++ debugging. They are omitted by default. For Qt Creator QML debugging,
+profiling or live preview, build explicitly with `-QmlDebug`:
+
+```powershell
+./build-android.ps1 -Architecture x86_64 -QmlDebug -VerifyPackage
+```
+
+That switch uses Qt's `QT_ENABLE_QML_DEBUG` setting; direct CMake/Qt Creator
+builds can set it to ON for Debug/RelWithDebInfo. Release and MinSizeRel always
+exclude both the tooling plugins and the target's QML-debug setting, even if
+ON was requested. A manual `-DQT_QML_DEBUG` compiler flag is outside this helper's
+configuration contract. The package checker expects no tooling unless passed
+`--qml-debug`, which the build helper adds for the opt-in development build.
+
+Qt's deployment tool can leave old `.so` files behind when dependencies change.
+Android reconfiguration therefore regenerates its task-owned `app/android-build`
+staging tree before packaging, with resolved-path checks; it never prunes
+individual libraries from a completed APK. Keep customizations in `android/`,
+not in generated staging. The regression covers switching tooling off in an
+existing build as well as fresh Release/default/opt-in builds.
+
+## Package regression (DEV-008)
+
+The optional verification switch uses Python 3's standard library plus the
+NDK's `llvm-readelf`; it does not add a Python dependency to ordinary builds:
+
+```powershell
+./build-android.ps1 -Architecture arm64 -DebugKeystore ../debug.keystore -VerifyPackage
+./build-android.ps1 -Architecture x86_64 -VerifyPackage
+```
+
+Use `-Python` for a specific interpreter. The checker verifies required runtime
+libraries and ABI, absence of the excluded payload, every bundled Qt/C++ native
+ELF dependency, and the generated QML scan roots. It does not certify runtime
+features by itself: run the native entry/Undo workflows below using disposable
+emulator data. The original APK fails this contract; keep that baseline evidence
+rather than deleting old source/build copies to make the scan look clean.
+
+Standalone inspection of an APK built with a custom build directory:
+
+```powershell
+python tests/test_android_package.py dist/QShopper-arm64-debug.apk --abi arm64-v8a --readelf C:/android/sdk/ndk/27.2.12479018/toolchains/llvm/prebuilt/windows-x86_64/bin/llvm-readelf.exe --deployment-settings build-android-arm64/app/android-application-deployment-settings.json --report out/package-arm64.json
+```
+
 ## Android emulator
 
 A local virtual phone named `QShopper_API_36` is registered with the Android SDK.
@@ -75,6 +130,8 @@ Build the emulator APK using the installed Qt Android x86_64 kit:
 
 The emulator build uses `out/android-emulator-build`. The default `arm64`
 architecture continues to produce `dist/QShopper-arm64-debug.apk` for phones.
+Generated Android settings and Gradle output now live under `app/` inside each
+build directory; the public `dist/` filenames are unchanged.
 The CMake target explicitly selects compile SDK 36 because automatic SDK selection
 picked the older android-33-ext5, which fails the current AndroidX requirements.
 

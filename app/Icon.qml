@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls as Controls
+import QtQuick.Controls.Material as Controls
 import QtQuick.Controls.Material
 
 Controls.AbstractButton {

@@ -40,6 +40,7 @@ Thumbs.db
 /CMakeLists.txt.user*
 /.qtcreator/
 /.qmlls.ini
+/app/.qmlls.ini
 
 # xemacs temporary files
 *.flc

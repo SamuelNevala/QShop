@@ -1,12 +1,12 @@
 {
   "id": "DEV-008",
-  "title": "Review Virtual Keyboard native libraries packaged in the Android APK",
-  "status": "requested",
+  "title": "Overhaul Android dependency packaging and isolate production sources",
+  "status": "resolved",
   "type": "code_quality",
   "priority": "unassigned",
   "created": "2026-11-01",
   "reported_by": "build_configuration_review",
-  "scope": "Packaging review candidate discovered during DEV-004; investigation and any deployment change are deferred. No runtime keyboard defect is established.",
+  "scope": "Major packaging overhaul implemented and verified, including the user-requested QML-tooling policy. User accepted closure and requested commit on 2026-11-04.",
   "finding": "Android APKs contain the Qt Virtual Keyboard native library and platform input-context plugin even though the app's desktop keyboard loader is disabled and its QML module has no Virtual Keyboard dependency.",
   "evidence": [
     "The existing dist/QShopper-x86_64-debug.apk and fresh out/dev004/android-x86 APK both contain libQt6VirtualKeyboard_x86_64.so (466304 bytes) and libplugins_platforminputcontexts_qtvirtualkeyboardplugin_x86_64.so (14496 bytes). Their contents are byte-identical between those APKs.",
@@ -22,12 +22,106 @@
     "Verify real Gboard entry, retained keyboard on Return, hide/reopen and native Back with isolated emulator data; keep desktop keyboard builds/tests working.",
     "Coordinate the actual shipped-dependency inventory with release preparation and About notices."
   ],
-  "relevant_files": ["CMakeLists.txt", "build-android.ps1", "keyboard", "tests/android", "ANDROID.md"],
-  "related_tickets": ["DEV-004", "REL-001", "UI-012"],
-  "artifacts": ["out/dev004/android-package-check.json", "out/dev004/android-build.txt"],
+  "relevant_files": [
+    "CMakeLists.txt",
+    "app/CMakeLists.txt",
+    "app",
+    "build-android.ps1",
+    "tests/test_android_package.py",
+    "tests/CMakeLists.txt",
+    "ANDROID.md",
+    "tests/README.md",
+    ".gitignore"
+  ],
+  "related_tickets": [
+    "DEV-004",
+    "REL-001",
+    "UI-012"
+  ],
+  "artifacts": [
+    "out/dev004/android-package-check.json",
+    "out/dev004/android-build.txt"
+  ],
   "acceptance_criteria": [
     "Document the dependency path and decide whether the libraries are required or unnecessary payload.",
     "If an exclusion is justified, implement it separately with package-content and native-IME verification; otherwise document why the payload remains."
   ],
-  "ui023_payload_observation": {"date": "2026-11-03", "finding": "Fresh UI-023 Android packages still contain Canvas2D and CanvasPainter libraries despite removal of explicit QML/module/link usage. Inventory the actual APK; the deployment dependency/scan path has not been established. No packaging change is included in UI-023."}
+  "ui023_payload_observation": {
+    "date": "2026-11-03",
+    "finding": "Fresh UI-023 Android packages still contain Canvas2D and CanvasPainter libraries despite removal of explicit QML/module/link usage. Inventory the actual APK; the deployment dependency/scan path has not been established. No packaging change is included in UI-023."
+  },
+  "user_scope_expansion": "I'm pretty sure that APK contains other unused libraries too. Combine the scope and do a major overhaul.",
+  "confirmed_causes": [
+    "Qt Gui default plugin deployment selected QVirtualKeyboardPlugin even without an app VirtualKeyboard link. Its native dependency pulls in Qt6VirtualKeyboard.",
+    "Qt 6.12 Android QML deployment recursively scans source directories collected from the app target and linked QML modules. The root layout included tests and old in-tree builds. A resource-only scan has no Canvas imports; the actual broad scan finds QtCanvas2D/QtCanvasPainter in historical UndoIcon copies.",
+    "Generic QtQuick.Controls imports bring optional Imagine, Universal and FluentWinUI3 styles through the Qt qmldir; the app already selects Material, while the editor intentionally uses Fusion.TextField.",
+    "Default Qt plugins add unused image/vector formats, an offscreen platform, optional TLS/network-information providers and a 3D profiler adapter. The current app has JPEG/local PNG assets, SQLite data and a native Android IME."
+  ],
+  "implementation": [
+    "Move the 48 production C++/QML/asset/template files into app/ and declare the app/module there. Root CMake handles project setup and tests. Keep QShopper URI, resource aliases and Windows executable/QML output locations stable. Build outputs stay outside app/.",
+    "Use explicit Material imports for production controls, preserving the Fusion text field and Qt Basic fallback. Retain QQuickStyle::setStyle(Material) for third-party desktop keyboard compatibility.",
+    "Use qt_import_plugins on Android to select the native platform, JPEG and SQLite and exclude unused providers/formats/3D profiling. Keep Qt Quick native dependency closure, required styles with QML tooling only on explicit development opt-in; Release/MinSizeRel exclude it. Desktop Virtual Keyboard remains enabled under its existing gate.",
+    "Update build-android.ps1 for app/ build products and optional -VerifyPackage/-Python checking. Add -Jobs to bound build concurrency. Update model coverage source roots and live documentation/review links."
+  ],
+  "regression": {
+    "test": "tests/test_android_package.py",
+    "before": "Original UI-023 ARM64 APK fails with 41 unexpected libraries and repository-wide QML roots (out/dev008/final-before-arm64.json/log). Both original ABIs were inventoried before changes.",
+    "after": "Final default APKs for both ABIs pass, Release forced-debug remains tooling-free, and explicit Debug tooling opt-in passes its matching contract. ELF dependencies and QML scan roots verified. See final verification artifacts.",
+    "integration": "build-android.ps1 -VerifyPackage runs the checker after packaging/signing; optional Python 3 is required only for that switch.",
+    "baseline_evidence": [
+      "out/dev008/baseline-payload.json",
+      "out/dev008/baseline-scan.json",
+      "out/dev008/production-scan.json",
+      "out/dev008/source-moves.json"
+    ]
+  },
+  "verification": {
+    "date": "2026-11-04",
+    "windows": "out/dev008/windows-verify.log: all five suites pass; 331 records including desktop Virtual Keyboard and native rendering. Final CMake safety/tooling changes also pass Windows configure/build.",
+    "analysis": "out/dev008/analysis.log: clang-tidy and Clazy pass all six tracked translation units (12 runs) after relocation. C++/asset byte hashes remain unchanged.",
+    "android": "out/dev008/android-entry/results.json: 28 native Gboard/editor/drawer/Back/catalog/restart checks pass. out/dev008/android-undo/results.json: 22 native Undo checks pass in both themes. After disabling QML tooling, out/dev008/no-tooling-android/results.json adds 12 passes on the actual no-tooling APK, including launch, Gboard entry, batch restoration, expiry and resume. All use unique emulator-only data.",
+    "packages": "Final signed default ARM64 and x86_64 APKs pass tests/test_android_package.py, including ELF closure, no unwanted payload/tooling and app-only scan roots: final-arm64-package.json and final-x86-package.json.",
+    "qml_tooling_matrix": "Release ARM64 built with QT_ENABLE_QML_DEBUG=ON still excludes all tooling and the application compiler define; explicit Debug opt-in contains the tooling and compiler define. Public helper -QmlDebug then default build both pass packaging checks, proving incremental opt-out removes stale files.",
+    "format": "All 57 QML/templates and nine C++ files pass repository formatter checks; git diff --check passes.",
+    "resource_compatibility": "QML resource URI/alias sets match the pre-overhaul build. Production C++/assets retain their original byte hashes.",
+    "artifacts": [
+      "out/dev008/final-arm64-package.json",
+      "out/dev008/final-x86-package.json",
+      "out/dev008/release-package.json",
+      "out/dev008/qml-debug-package.json",
+      "out/dev008/qml-debug-compile-policy.json",
+      "out/dev008/public-qml-debug-on-final.log",
+      "out/dev008/public-qml-debug-off-final.log"
+    ]
+  },
+  "sources": [
+    "https://doc.qt.io/qt-6/qt-import-plugins.html",
+    "https://doc.qt.io/qt-6/qtquickcontrols-styles.html",
+    "https://raw.githubusercontent.com/qt/qtbase/6.12/src/tools/androiddeployqt/main.cpp",
+    "https://raw.githubusercontent.com/qt/qtdeclarative/6.12/tools/qmlimportscanner/main.cpp",
+    "https://doc.qt.io/qt-6/qqmldebuggingenabler.html"
+  ],
+  "qml_tooling_request": {
+    "date": "2026-11-04",
+    "request": "User questioned QML tooling libraries in Debug APKs and explicitly wants them absent from Release.",
+    "policy": "Default Debug omits QML tooling; explicit Qt QT_ENABLE_QML_DEBUG opt-in (build helper -QmlDebug) retains it only for development configurations. Release/MinSizeRel exclude plugins and turn off the target setting even if requested ON.",
+    "incremental_finding": "Qt androiddeployqt leaves obsolete native libraries in existing staging directories. Disabling the plugins alone failed the actual APK regression. Reconfigure now safely regenerates only the generated Android staging directory; no post-package file deletion.",
+    "validation": "Default Debug APKs for both ABIs pass no-tooling checks; explicit Debug opt-in contains 12 tooling plugins. Release ARM64 requested QT_ENABLE_QML_DEBUG=ON but APK contains none and the application compiler flag is absent. Incremental opt-out initially failed on stale native files; staging regeneration makes it pass."
+  },
+  "resolved": "2026-11-04",
+  "resolution": {
+    "acceptance": "User requested ticket closure and commit on 2026-11-04. No physical-phone verification is claimed.",
+    "summary": "Production-only QML scanning and explicit Android plugin/style selection reduce the ARM64 APK from 95.6 MB to 63.1 MB and native libraries from 103 to 45. QML tooling is an explicit Debug opt-in and always excluded from Release/MinSizeRel. Safe staging regeneration prevents obsolete libraries surviving incremental builds.",
+    "regression": "tests/test_android_package.py rejects the original payload and passes both final ABIs, Release and explicit Debug opt-in. Windows, analyzers and isolated native Android checks pass as recorded above.",
+    "remaining": "None in the accepted packaging scope. About notices and publication preparation remain separate under UI-012 and REL-001."
+  },
+  "result": {
+    "arm64_before_bytes": 95589678,
+    "arm64_after_bytes": 63069341,
+    "reduction_percent": 34.0,
+    "native_libraries_before": 103,
+    "native_libraries_after": 45,
+    "phone_apk": "dist/QShopper-arm64-DEV-008-debug.apk",
+    "artifact_note": "The existing dist/QShopper-arm64-debug.apk is locked by another process. A separately named final APK was signed and verified with the shared key; the canonical file was left intact. The normal helper output name remains unchanged."
+  }
 }

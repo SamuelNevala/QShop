@@ -4,6 +4,22 @@ QShopper uses C++20, Qt 6.12 or newer, and CMake 3.25 or newer.
 The validated Windows development kit is Qt 6.12.0 MSVC 2022 x64.
 Qt Creator and its MCP server are optional; all verification runs from PowerShell.
 
+## Source layout and Android packaging
+
+Production C++, QML, images, font and keyboard templates live under `app/`.
+The root CMake file sets up the project and tests; `app/CMakeLists.txt` owns the
+application and QML module. Keep build output outside `app/` so Android's QML
+scan cannot discover tests or historical build copies. The QShopper module URI
+and resource URLs remain unchanged; QML output stays in the build's `QShopper/`.
+Production controls explicitly import Material, with Fusion retained for the
+editor's plain text field and Basic as Qt's Material/Fusion fallback.
+Android plugin deployment is selected through `qt_import_plugins`, not file
+removal. JPEG plus built-in PNG, SQLite and the native Android platform/IME are
+retained. QML tooling is opt-in for development builds and is excluded from
+Release/MinSizeRel. Desktop keyboard support remains conditional.
+`build-android.ps1 -VerifyPackage -Python python` checks the actual APK for
+unwanted payload, native dependency closure and isolated QML scan roots.
+
 ## Product design
 
 Read [DESIGN.md](DESIGN.md) before changing UI, gestures, list ordering, sizing,

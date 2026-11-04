@@ -4,6 +4,13 @@ DEV-006 review completed 2026-11-03, covering application QML/templates, C++
 sources/headers and their QML/C++ tests. Coverage, evidence, retained decisions
 and separate follow-ups are in [the review record](reviews/DEV-006.md).
 
+Production source files are under `app/`, with tests/tooling outside that tree.
+Keep new build products and test fixtures outside the production QML scan root.
+Controls use explicit Material imports; the editor intentionally uses Fusion's
+plain text field. Do not replace that editor with a floating-label field as a
+packaging shortcut. See ANDROID.md for the deployment contract and retained Qt
+dependencies.
+
 ## Basis and precedence
 
 Use the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
@@ -171,11 +178,11 @@ At an instance, choose sizing appropriate to its immediate parent:
 
 These distinctions follow Qt's [Item implicit sizing](https://doc.qt.io/qt-6/qml-qtquick-item.html#implicitWidth-prop)
 and [layout geometry ownership](https://doc.qt.io/qt-6/qtquicklayouts-overview.html).
-The first example is [Icon.qml](Icon.qml): its natural height belongs in the
+The first example is [Icon.qml](app/Icon.qml): its natural height belongs in the
 definition, while the editor instances own their square allocation through
 anchors or height/width bindings. No geometry rewrite is justified for those uses.
 
-[TextIcon.qml](TextIcon.qml) illustrates a different contract: it is a glyph
+[TextIcon.qml](app/TextIcon.qml) illustrates a different contract: it is a glyph
 renderer whose active callers allocate the display rectangle. Its inherited Text
 metrics are not a reason to add a fixed millimeter implicit size to this helper.
 Where font size depends on actual height, verify that a parent allocation or an

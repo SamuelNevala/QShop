@@ -1,4 +1,13 @@
-# Model QTest suite (MSVC)
+# QShopper verification
+
+Production sources are under `app/`; the QShopper URI and resource URLs are
+unchanged. Build outputs remain under `out/` or the Android build directory.
+Android package regression commands are in [ANDROID.md](../ANDROID.md#package-regression-dev-008).
+`tests/test_android_package.py` checks real APK contents, ABI, native dependency
+closure and scan isolation; use `build-android.ps1 -VerifyPackage` to include it
+in a repeatable Android build. It accepts a Python interpreter via `-Python`.
+
+## Model QTest suite (MSVC)
 
 For optional clang-tidy and Clazy checks, commands, scope and finding dispositions,
 see [STATIC_ANALYSIS.md](STATIC_ANALYSIS.md). Runtime verification remains separate.
