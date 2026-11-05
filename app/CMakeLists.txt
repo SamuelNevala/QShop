@@ -89,11 +89,16 @@ qt_add_qml_module(QShopper
         logos/qt.svg
         logos/font-awesome.svg
         ${qshopper_keyboard_resource}
-        background_one.jpg
-        background_two.jpg
-        background_three.jpg
-        background_four.jpg
-        background_five.jpg
+        backgrounds/01-phone-and-pantry.jpg
+        backgrounds/02-produce.jpg
+        backgrounds/03-bakery.jpg
+        backgrounds/04-dairy.jpg
+        backgrounds/05-bulk-goods.jpg
+        backgrounds/06-market-hall.jpg
+        backgrounds/07-checkout.jpg
+        backgrounds/08-qshopper.jpg
+        backgrounds/09-stocktaking.jpg
+        backgrounds/10-evening-produce.jpg
         fa-solid-900.ttf
     DEPENDENCIES QtCore QtQml.Models QtQuick.VectorImage ${qshopper_keyboard_dependencies}
 )

@@ -1,0 +1,102 @@
+[
+  {
+    "number": 1,
+    "file": "app/backgrounds/01-phone-and-pantry.jpg",
+    "width": 1080,
+    "height": 1920,
+    "quality": 90,
+    "source_sha256": "12c4378525154f932bdc52e54ac4c98fa10f9aa3de64f8bcb7623691bd56974b",
+    "sha256": "fd29b0fe8fd604db90b0e01b1a6da82d612c3cfc3d68207c4097e430f7bd4743",
+    "bytes": 505725
+  },
+  {
+    "number": 2,
+    "file": "app/backgrounds/02-produce.jpg",
+    "width": 1080,
+    "height": 1920,
+    "quality": 90,
+    "source_sha256": "e343ee67bb78bf0aab50f345c255441fd9ee6b1607973aa8fef054472a60dad6",
+    "sha256": "6270229ac43906b7e5c433df26159b079c0fdacd61c8378db8067b850a77ae77",
+    "bytes": 670086
+  },
+  {
+    "number": 3,
+    "file": "app/backgrounds/03-bakery.jpg",
+    "width": 1080,
+    "height": 1920,
+    "quality": 90,
+    "source_sha256": "b4b723e9f334e6d535a973f2f3f0023bd79eed670641b7ea6068a5fd4aaf61ee",
+    "sha256": "396c075c312e5ab05f91a89e5e0ac8006a5703772ecd4c402393af468ee52e97",
+    "bytes": 605241
+  },
+  {
+    "number": 4,
+    "file": "app/backgrounds/04-dairy.jpg",
+    "width": 1080,
+    "height": 1920,
+    "quality": 90,
+    "source_sha256": "c4ff15ee62445eec0dceac5df3a557c40f05d7afaed7a0e94b5e371de91f0bfd",
+    "sha256": "81272695eb5eaaf1c31d7648036c8be5d6ce3eb63223efaf26f21bbae585f4b5",
+    "bytes": 647544
+  },
+  {
+    "number": 5,
+    "file": "app/backgrounds/05-bulk-goods.jpg",
+    "width": 1080,
+    "height": 1920,
+    "quality": 90,
+    "source_sha256": "4bee4394a8ee06e379ab0463f9e463c4984c42c245e4b0b20719bb18b5b7b804",
+    "sha256": "e02ca8b7725efb478f4d20c3daf2b51e0490a5a47da3e4b803e8690f99e93f56",
+    "bytes": 596701
+  },
+  {
+    "number": 6,
+    "file": "app/backgrounds/06-market-hall.jpg",
+    "width": 1080,
+    "height": 1920,
+    "quality": 90,
+    "source_sha256": "4227ebf883b028a0a975c3fe153ed616409bcc69b982534c29804982a7bd90da",
+    "sha256": "cb8f8c8b718214663f6c10852fe6d4324004bebabd41d3842413bd5ab429066b",
+    "bytes": 660687
+  },
+  {
+    "number": 7,
+    "file": "app/backgrounds/07-checkout.jpg",
+    "width": 1080,
+    "height": 1920,
+    "quality": 90,
+    "source_sha256": "8250a11f46f2453f50121f790399b7128547e750ae5aec152733f3d9ecfae188",
+    "sha256": "ddf9da92b3dbf219c3ad1f1517df34878d2d2ee69200d655d167ace3a082c4c5",
+    "bytes": 572792
+  },
+  {
+    "number": 8,
+    "file": "app/backgrounds/08-qshopper.jpg",
+    "width": 1080,
+    "height": 1920,
+    "quality": 90,
+    "source_sha256": "0270e01d2600e36e9a872da6e26e3cfffc12fe84b6cbdbc50527d46e9450b506",
+    "sha256": "2ecfdae37ac2243fce3ae4b3e56e5eee713907fa603801b9ca7e571f2db2cb85",
+    "bytes": 497456
+  },
+  {
+    "number": 9,
+    "file": "app/backgrounds/09-stocktaking.jpg",
+    "width": 1080,
+    "height": 1920,
+    "quality": 90,
+    "source_sha256": "68b2595ae21f3f1237f94f49865fbbabcb7b1eb4447534889114d85405e47c15",
+    "sha256": "a819d907b63c62dc7d95e097a14b5d29cf669fa56b156e1fef5411b1e74c6e4b",
+    "bytes": 594829
+  },
+  {
+    "number": 10,
+    "file": "app/backgrounds/10-evening-produce.jpg",
+    "width": 1080,
+    "height": 1920,
+    "quality": 90,
+    "source_sha256": "311759988537fb5f3f8bb4ee65a4cc9ddc2d1828181dda7092665bd8e2e74a82",
+    "sha256": "c1fc9dffc033a7a7898185d2c7f557e788e705fde3d7ec9fe8b8d9d1ecb84e9b",
+    "bytes": 669559
+  }
+]

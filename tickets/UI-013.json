@@ -1,37 +1,49 @@
 {
   "id": "UI-013",
   "title": "Replace existing backgrounds with original shopping-themed images",
-  "status": "requested",
+  "status": "resolved",
   "type": "visual_asset",
   "severity": "unassigned",
   "priority": "unassigned",
   "created": "2026-10-30",
   "reported_by": "user",
-  "scope": "Backlog intake only; image generation, asset removal and implementation are deferred until selected.",
+  "scope": "All ten selected images are integrated and validated. User confirmed their appearance on the phone and requested closure and commit on 2026-11-05.",
   "request": "Regenerate shopping-related background images at a 1920-pixel target. The user identifies _one.png as the original and believes it probably should not be used because of copyright.",
   "expected": "QShopper uses new, original shopping-related background artwork with documented provenance, replacing affected existing images and derivatives.",
   "evidence": [
     "User backlog request on 2026-10-30; the copyright concern is user-reported, not a verified ownership or infringement finding.",
     "No _one.png was found in the current checkout. Present assets include background_one.jpg, background_two.jpg, background_two.webp, background_three.jpg, background_four.jpg and background_five.jpg.",
-    "CMakeLists.txt packages the five JPG background variants. The relationship between those assets and the reported original has not yet been established."
+    "CMakeLists.txt packages the five JPG background variants. The relationship between those assets and the reported original has not yet been established.",
+    "On 2026-11-05 the user requested ten options with subtle modern details in period shopping scenes. The period was interpreted as the 1920s and that assumption was stated before generation.",
+    "Ten separate built-in image_gen calls produced new candidates without image inputs. Each was visually inspected and copied byte-for-byte into artwork/UI-013/candidates; prompts, native dimensions and SHA-256 hashes are recorded alongside the gallery.",
+    "Initial generation did not return the requested 1080 x 1920 canvases: candidates 01 and revised 08 are 916 x 1717 and the other eight are 941 x 1672. The approved PNGs were subsequently exported to 1080 x 1920 production JPEGs as documented below.",
+    "The user liked the set and requested replacing number 08 with a scene showing QShopper on the shopper's phone. Two additional built-in image_gen calls produced an over-the-shoulder scene with legible Milk, Bread, Apples and checked Coffee entries, using generated artwork and a screenshot scoped to UI layout. A refinement replaced the phone wallpaper with a plain painted shop texture. Gallery, prompts and hash inventory were updated; all other candidate hashes are unchanged.",
+    "The user selected all ten on 2026-11-05. Approved PNGs are retained unchanged outside app/; reproducible quality-90 JPEGs at 1080 x 1920 replace all five old JPGs. The unused background_two.webp is removed too."
   ],
   "implementation_notes": [
     "Identify the original referred to as _one.png and inspect the current backgrounds and their usage before replacement.",
     "Use the existing background only for broad visual direction; create distinct original shopping-themed compositions rather than copying the artwork.",
-    "The user specified 1920 without a second dimension. Confirm the intended dimensions/aspect ratio and number of new images when selected, accounting for portrait use and cropping.",
+    "The user requested ten choices. Generation targeted 1080 x 1920 portrait; prepare the chosen candidates at agreed production dimensions and verify PreserveAspectCrop framing before integration.",
     "Document how each replacement was created and any third-party inputs or notices; coordinate with the release asset inventory and About licenses.",
     "Replace affected background variants, update resource and QML references, and remove obsolete affected assets from the shipped package.",
     "Preserve DESIGN.md visual character, text readability over translucent rows, theme behavior and one-handed shopping usability."
   ],
   "relevant_files": [
-    "BackgroundImage.qml",
-    "CMakeLists.txt",
-    "background_one.jpg",
-    "background_two.jpg",
-    "background_two.webp",
-    "background_three.jpg",
-    "background_four.jpg",
-    "background_five.jpg",
+    "app/Background.qml",
+    "app/BackgroundImage.qml",
+    "app/CMakeLists.txt",
+    "app/backgrounds/",
+    "artwork/UI-013/README.md",
+    "artwork/UI-013/gallery.html",
+    "artwork/UI-013/prompts.json",
+    "artwork/UI-013/inventory.json",
+    "artwork/UI-013/export.ps1",
+    "artwork/UI-013/exports.json",
+    "tests/backgrounds/tst_backgrounds.qml",
+    "tests/android/test_backgrounds.py",
+    "tests/CMakeLists.txt",
+    "tests/README.md",
+    "tests/INTERACTIONS.md",
     "DESIGN.md"
   ],
   "related_tickets": [
@@ -46,5 +58,30 @@
     "Add automated coverage appropriate to background selection and resource loading, and record visual checks separately. Any behavior bug discovered must have its own failing-before/passing-after regression."
   ],
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "implementation": {
+    "date": "2026-11-05",
+    "selection": "All ten approved, including revised candidate 08 with QShopper visible on the phone.",
+    "change": "The production ObjectModel and QML resource list contain ten new backgrounds in gallery order. Existing seven-second timer, forward/reverse stack traversal, opacity/Y transitions and PreserveAspectCrop are retained. Five old JPGs and the unused root WebP are removed; Git history is retained.",
+    "exports": "artwork/UI-013/export.ps1 verifies PNG source hashes and emits repeatable 1080 x 1920 centered-crop JPEGs with high-quality bicubic resampling at quality 90. The approved generator outputs are modestly upscaled, not regenerated. Export hashes and source/output metadata are in exports.json. Total shipped artwork: 6,020,620 bytes.",
+    "provenance": "Exact prompts, output paths, revision references and original/output hashes are recorded in artwork/UI-013/. Native PNGs and generation records stay outside app/ and are not packaged.",
+    "regression": "tests/backgrounds/tst_backgrounds.qml::BackgroundArtwork::test_slideshow_sources and 20 test_portrait data rows; normal offscreen and native Windows CTest entries. tests/android/test_backgrounds.py observes all ten real slideshow frames in both themes.",
+    "before": "The slideshow contract fails on the original production component: actual catalog count 5 versus expected 10. Evidence: out/ui013-before.txt.",
+    "after": "Focused offscreen run passes all 23 records (including setup/cleanup); both normal offscreen and native Windows background suites pass 23 each. Includes all packaged URLs, 1080 x 1920 decoding, full forward/reverse/restart, resizing, both themes and short/long/checked delegates at two widths.",
+    "windows_verification": "Build passes. Initial full CTest run passes eight of nine suites; the general UI suite hits 225 seconds during concurrent Android builds. Its isolated rerun passes all 200 records in 216.08 seconds at the existing timeout, after those builds and the emulator stop. Current results total 403 passing records across nine suites, zero failures/skips. The first full run was not a clean pass. Evidence: out/ui013-build.log, out/ui013-tests.log, out/ui013-ui-recheck.log and the nine JUnit reports under out/windows-agent/tests/.",
+    "android_verification": "test_backgrounds.py passes all 20 native frame identifications, all ten in order in each theme, with exact list data retained in both fresh fixtures. Correlations range from 0.9725 to 0.9974. Evidence: out/ui013/android/results.json, twenty frames and out/ui013-android-test.log. Only emulator-5580 was used; it was stopped afterward.",
+    "visual_review": "Inspected native Windows preview frames for revised 08 Light and 04 Dark, and actual Android app frames for revised 08 Light and 10 Dark: key subjects/phone survive portrait cropping, short/long and inverse checked text are legible. Automated native Android frame matching covers all twenty theme/image combinations.",
+    "packages": "ARM64 and x86_64 signed Debug APKs build and pass the Android runtime/package contract. Both libapplication payloads contain all ten new UTF-16 resource names and none of the six removed asset names. Emulator update used the identical Gradle-built x86_64 APK with its existing local debug key after the shared-key package was rejected; no uninstall/data deletion. Phone APK uses ../debug.keystore.",
+    "apk": "dist/QShopper-arm64-debug.apk",
+    "format": "All 60 tracked QML/templates pass tools/format-qml.ps1 -Check. Both staged and unstaged git diff --check pass. Repeating the JPEG export preserves all ten hashes.",
+    "remaining": "No remaining work in the accepted scope. User confirmed the appearance on the phone on 2026-11-05. The signed ARM64 APK certificate matches the shared debug key (SHA-256 7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b)."
+  },
+  "resolved": "2026-11-05",
+  "resolution": {
+    "acceptance": "User: Look pretty cool on phone. Close the ticket and commit changes.",
+    "change": "Replace five old backgrounds with ten approved original shopping scenes, including revised 08 showing QShopper on the shopper's phone. Preserve slideshow behavior and remove the unused old WebP.",
+    "verification": "403 passing Windows records across nine suites after the documented isolated UI rerun; twenty native Android frame matches in both themes, preserved fixture data, both APK package contracts, repeatable exports, and user phone confirmation.",
+    "provenance": "Source PNGs, generation/revision prompts and references, source/output hashes, numbered gallery and repeatable 1080 x 1920 JPEG export are retained in artwork/UI-013/.",
+    "remaining": "None in the accepted scope; release/publication arrangements remain REL-001."
+  }
 }

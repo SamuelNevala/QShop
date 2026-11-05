@@ -818,6 +818,32 @@ retry are combined with source paths in `out/android-emulator/ui009-simple-verif
 Both APKs were rebuilt and the shared-key ARM64 signature verified.
 The user confirmed the supplied test APK works and requested closure on 2026-10-30.
 
+## Original slideshow artwork (UI-013)
+
+`backgrounds/tst_backgrounds.qml` loads all ten production resources, verifies
+1080 × 1920 decoding, traverses the slideshow forward and backward, and checks
+resizing plus portrait cropping with short/long/checked delegates in both themes.
+The `qshopper_background_tests` and native Windows
+`qshopper_background_rendering_tests` CTest entries run it normally. Each writes
+twenty `ui013-*.png` frames under the build's `tests/` directory; native rendering
+is the typography/visual check, while offscreen establishes resource behavior.
+
+With the x86_64 APK installed only on the isolated emulator:
+
+```powershell
+python tests/android/test_backgrounds.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/ui013/android
+```
+
+Requires Pillow. The harness uses fresh data directories and explicit Light/Dark
+settings. It matches native screenshot patterns against the JPEGs after portrait
+cropping, independently of the uniform translucent row tint. It verifies all ten
+images in order in both themes and exact saved list data, saving twenty frames
+and correlations. Runtime is about 150 seconds for the real seven-second timer.
+No physical phone or existing list data is used.
+
+Source artwork, generation prompts, references and repeatable JPEG export hashes
+are recorded in `artwork/UI-013/README.md`. The PNG originals are not packaged.
+
 ## Long-list background regression (UI-008)
 
 `qml/tst_listbackground.qml` uses the production ShopView over a solid test

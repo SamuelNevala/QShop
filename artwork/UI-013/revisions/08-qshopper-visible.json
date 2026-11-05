@@ -1,0 +1,37 @@
+{
+  "created": "2026-11-05",
+  "ticket": "UI-013",
+  "candidate": 8,
+  "mode": "built-in image_gen",
+  "request": "Replace candidate 08 with a shopping scene where QShopper is visible on the shopper's phone.",
+  "initial_prompt": "Use case: illustration-story.\nAsset type: Replacement portrait background candidate 08 for QShopper; target 1080 x 1920 tall canvas.\nCreate a new scene in the same cohesive warm hand-painted gouache and vintage lithographic texture as input 1. Keep the 1920s shopping setting with a subtle modern smartphone.\nInput 1 is a style, clothing and rainy grocery shop setting reference: the existing original candidate 08. Change the viewpoint and composition to an intimate over-the-shoulder, three-quarter view of the shopper just inside the grocery doorway. We see her cloche hat and partial profile, a grocery basket, warm shop shelves, produce, and the rainy street beyond. She holds a modern smartphone naturally in ONE hand, at a plausible angle that lets both her and the viewer see its FRONT screen. The phone must be clearly visible and large enough to recognize the app, roughly one quarter of the picture height, within the central crop-safe region. Keep it part of the painted scene, not a separate inset or oversized advertising mockup.\nInput 2 is a real QShopper screenshot, supplied ONLY as the app UI layout and typography reference. Show this app on the phone: very large bold centered grocery names in full-width translucent light rows, over a softly visible painted grocery background. Use a short realistic list: \"Milk\", \"Bread\", \"Apples\", \"Coffee\". The first three rows have dark text; the final checked Coffee row uses an inverse dark surface with light struck-through text. Keep the interface simple and faithful: no checkboxes, no invented title bar, no giant app name, no unrelated dashboard, no extra buttons. Do NOT reproduce the old background artwork, its faces, signs or packaging from screenshot input 2.\nInput 3 is original candidate 01 and is supplied ONLY as the replacement background artwork inside the phone screen. Use a faint crop of its grocery scene underneath the translucent QShopper rows, no need to reproduce tiny details.\nPreserve the series' friendly everyday shopping mood, period-dominant clothes/interior, amber indoor light and teal rainy exterior. Believable hands and phone geometry. Full-bleed original single portrait scene, no collage, border, caption, watermark, identifiable packaging brands or shop signage. The only legible words should be the four grocery entries on the phone screen. No app UI outside the actual phone display.",
+  "initial_references": [
+    {
+      "path": "C:/Users/samue/OneDrive/code/Qt6/QShopper/artwork/UI-013/candidates/08-rainy-shopfront.png",
+      "role": "Candidate 08 style/clothing/setting reference"
+    },
+    {
+      "path": "C:/Users/samue/OneDrive/code/Qt6/QShopper/out/android-emulator/ui003-nativeqt/light/shopping.png",
+      "role": "QShopper screenshot: UI layout and typography only; not its old background"
+    },
+    {
+      "path": "C:/Users/samue/OneDrive/code/Qt6/QShopper/artwork/UI-013/candidates/01-phone-and-pantry.png",
+      "role": "Candidate 01: new phone wallpaper reference"
+    }
+  ],
+  "intermediate_source": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-dd63c68a-7dea-497c-87de-4810a18a29b2.png",
+  "refinement_prompt": "Use case: precise-object-edit.\nEdit target: input 1, the new gouache painting of a 1920s shopper holding a phone in the rainy grocery doorway.\nSupporting input 2: original candidate 01, reference ONLY for a softly blurred warm wooden shop interior.\nChange ONLY the decorative background visible INSIDE the phone screen. Replace its existing printed-grocery-advertisement look completely with a fresh softly blurred gouache texture of warm wooden shelves, plain glass jars and pale paper packets inspired by the interior in input 2. NO packaging words, NO vintage advertising, NO figures or faces in the phone wallpaper, NO copied old screenshot imagery. The upper and lower uncovered screen regions should show this same quiet warm shop texture.\nPreserve the phone's exact bezel, size, perspective, position and lighting. Preserve its four large bold centered entries EXACTLY: \"Milk\", \"Bread\", \"Apples\", and struck-through \"Coffee\". Preserve the three translucent light row surfaces and the inverse dark Coffee row with light text. Keep the whole surrounding painting unchanged: shopper face and hat, one-handed grip, basket, groceries, shop, rainy street, colors, composition, gouache texture and portrait dimensions. No other changes.",
+  "refinement_references": [
+    {
+      "path": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-dd63c68a-7dea-497c-87de-4810a18a29b2.png",
+      "role": "Edit target"
+    },
+    {
+      "path": "C:/Users/samue/OneDrive/code/Qt6/QShopper/artwork/UI-013/candidates/01-phone-and-pantry.png",
+      "role": "Plain wooden shop texture reference for phone screen only"
+    }
+  ],
+  "final_source": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-298090a7-3028-4869-a58a-8e71fd403586.png",
+  "final_file": "candidates/08-rainy-shopfront.png",
+  "visual_review": "Phone faces the viewer, held with one hand. Milk, Bread and Apples are legible; Coffee is struck through in an inverse row. The phone background is a softly painted plain shop texture. Rainy shop setting and vintage gouache style preserved. The phone is an artistic depiction of the app, not a pixel-exact screenshot."
+}

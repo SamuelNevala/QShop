@@ -1,0 +1,82 @@
+[
+  {
+    "number": 1,
+    "file": "candidates/01-phone-and-pantry.png",
+    "width": 916,
+    "height": 1717,
+    "bytes": 2934182,
+    "sha256": "12c4378525154f932bdc52e54ac4c98fa10f9aa3de64f8bcb7623691bd56974b"
+  },
+  {
+    "number": 2,
+    "file": "candidates/02-produce.png",
+    "width": 941,
+    "height": 1672,
+    "bytes": 3422623,
+    "sha256": "e343ee67bb78bf0aab50f345c255441fd9ee6b1607973aa8fef054472a60dad6"
+  },
+  {
+    "number": 3,
+    "file": "candidates/03-bakery.png",
+    "width": 941,
+    "height": 1672,
+    "bytes": 3308385,
+    "sha256": "b4b723e9f334e6d535a973f2f3f0023bd79eed670641b7ea6068a5fd4aaf61ee"
+  },
+  {
+    "number": 4,
+    "file": "candidates/04-dairy.png",
+    "width": 941,
+    "height": 1672,
+    "bytes": 3416069,
+    "sha256": "c4ff15ee62445eec0dceac5df3a557c40f05d7afaed7a0e94b5e371de91f0bfd"
+  },
+  {
+    "number": 5,
+    "file": "candidates/05-bulk-goods.png",
+    "width": 941,
+    "height": 1672,
+    "bytes": 3251389,
+    "sha256": "4bee4394a8ee06e379ab0463f9e463c4984c42c245e4b0b20719bb18b5b7b804"
+  },
+  {
+    "number": 6,
+    "file": "candidates/06-market-hall.png",
+    "width": 941,
+    "height": 1672,
+    "bytes": 3407707,
+    "sha256": "4227ebf883b028a0a975c3fe153ed616409bcc69b982534c29804982a7bd90da"
+  },
+  {
+    "number": 7,
+    "file": "candidates/07-checkout.png",
+    "width": 941,
+    "height": 1672,
+    "bytes": 3122239,
+    "sha256": "8250a11f46f2453f50121f790399b7128547e750ae5aec152733f3d9ecfae188"
+  },
+  {
+    "number": 8,
+    "file": "candidates/08-rainy-shopfront.png",
+    "width": 916,
+    "height": 1717,
+    "bytes": 2654437,
+    "sha256": "0270e01d2600e36e9a872da6e26e3cfffc12fe84b6cbdbc50527d46e9450b506"
+  },
+  {
+    "number": 9,
+    "file": "candidates/09-stocktaking.png",
+    "width": 941,
+    "height": 1672,
+    "bytes": 3233083,
+    "sha256": "68b2595ae21f3f1237f94f49865fbbabcb7b1eb4447534889114d85405e47c15"
+  },
+  {
+    "number": 10,
+    "file": "candidates/10-evening-produce.png",
+    "width": 941,
+    "height": 1672,
+    "bytes": 3371962,
+    "sha256": "311759988537fb5f3f8bb4ee65a4cc9ddc2d1828181dda7092665bd8e2e74a82"
+  }
+]

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QShopper — UI-013 background candidates</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px; background: #202322; color: #f5f1e8; font: 16px/1.4 system-ui, sans-serif; }
+main { max-width: 1600px; margin: auto; }
+h1 { margin: 0 0 8px; font-size: 26px; }
+p { margin: 0 0 20px; color: #d3d4ce; }
+.grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; }
+figure { margin: 0; background: #303532; border-radius: 8px; overflow: hidden; }
+figure a { display: block; }
+img { display: block; width: 100%; height: auto; }
+figcaption { padding: 10px 12px 14px; }
+strong { display: block; font-size: 16px; }
+small { display: block; margin-top: 4px; color: #d3d4ce; }
+a:focus-visible { outline: 4px solid #f3b45f; outline-offset: -4px; }
+@media (max-width: 1000px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 600px) { body { padding: 12px; } .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
+</style>
+</head>
+<body><main>
+<h1>QShopper background choices</h1>
+<p>All ten selected for QShopper: original 1920s-inspired shopping scenes with subtle modern details. Click an image to view the original PNG; the app uses optimized 1080 × 1920 JPEG exports.</p>
+<div class="grid">
+<figure><a href="candidates/01-phone-and-pantry.png"><img src="candidates/01-phone-and-pantry.png" alt="Phone and pantry: smartphone and digital shelf label" loading="eager"></a><figcaption><strong>01 · Phone and pantry</strong><small>Smartphone and digital shelf label</small></figcaption></figure>
+<figure><a href="candidates/02-produce.png"><img src="candidates/02-produce.png" alt="Fresh produce: smartphone among apple and pear crates" loading="eager"></a><figcaption><strong>02 · Fresh produce</strong><small>Smartphone among apple and pear crates</small></figcaption></figure>
+<figure><a href="candidates/03-bakery.png"><img src="candidates/03-bakery.png" alt="Bakery counter: discreet contactless payment terminal" loading="eager"></a><figcaption><strong>03 · Bakery counter</strong><small>Discreet contactless payment terminal</small></figcaption></figure>
+<figure><a href="candidates/04-dairy.png"><img src="candidates/04-dairy.png" alt="Dairy cabinet: modern refrigerated cabinet" loading="eager"></a><figcaption><strong>04 · Dairy cabinet</strong><small>Modern refrigerated cabinet</small></figcaption></figure>
+<figure><a href="candidates/05-bulk-goods.png"><img src="candidates/05-bulk-goods.png" alt="Bulk goods: electronic weighing scale" loading="eager"></a><figcaption><strong>05 · Bulk goods</strong><small>Electronic weighing scale</small></figcaption></figure>
+<figure><a href="candidates/06-market-hall.png"><img src="candidates/06-market-hall.png" alt="Market hall: compact wire shopping trolley" loading="lazy"></a><figcaption><strong>06 · Market hall</strong><small>Compact wire shopping trolley</small></figcaption></figure>
+<figure><a href="candidates/07-checkout.png"><img src="candidates/07-checkout.png" alt="Contactless checkout: phone tapping a payment reader" loading="lazy"></a><figcaption><strong>07 · Contactless checkout</strong><small>Phone tapping a payment reader</small></figcaption></figure>
+<figure><a href="candidates/08-rainy-shopfront.png"><img src="candidates/08-rainy-shopfront.png" alt="QShopper in hand: the app visible on the shopper's phone in a rainy grocery doorway" loading="lazy"></a><figcaption><strong>08 · QShopper in hand</strong><small>QShopper visible on the shopper's phone</small></figcaption></figure>
+<figure><a href="candidates/09-stocktaking.png"><img src="candidates/09-stocktaking.png" alt="Grocer stocktaking: handheld barcode scanner" loading="lazy"></a><figcaption><strong>09 · Grocer stocktaking</strong><small>Handheld barcode scanner</small></figcaption></figure>
+<figure><a href="candidates/10-evening-produce.png"><img src="candidates/10-evening-produce.png" alt="Evening produce: phone and refrigerated produce case" loading="lazy"></a><figcaption><strong>10 · Evening produce</strong><small>Phone and refrigerated produce case</small></figcaption></figure>
+</div>
+<p style="margin-top: 24px">All ten are included in the app's slideshow. Native PNG dimensions and hashes are in inventory.json; deployment JPEG hashes are in exports.json; exact prompts are in prompts.json.</p>
+</main></body>
+</html>

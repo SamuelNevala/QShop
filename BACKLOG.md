@@ -260,17 +260,25 @@ UI-013. Priority and severity remain unassigned.
 
 ### [UI-013 — Original shopping-themed background images](tickets/UI-013.json)
 
-Requested on 2026-10-30; image generation and replacement deferred. Create new,
-original shopping-related backgrounds with the user's requested 1920-pixel target.
-Confirm the exact dimensions/aspect ratio and number of variants when selected.
-The existing image may inform the broad visual direction; do not copy its artwork.
+Resolved on 2026-11-05: the user confirmed the appearance on the phone and
+requested closure and commit. The user chose all ten original shopping-themed images in
+[the numbered gallery](artwork/UI-013/gallery.html); all ten now replace the old
+packaged backgrounds in the slideshow.
+The scenes interpret the requested period as the 1920s, with subtle modern phones
+and shop utilities. Candidate 08 was replaced at the user's request with a scene
+showing QShopper on the shopper's phone. [Prompts and provenance](artwork/UI-013/README.md) are recorded.
+The approved native PNGs are retained as source artwork; reproducible JPEG exports
+are 1080 × 1920. The five old JPGs and unused WebP are removed. Resource/slideshow
+and portrait-rendering coverage passes on Windows; Android identifies all ten
+images in both themes with saved list data unchanged. All nine Windows suites
+have passing results (403 records, including an isolated general UI rerun after
+an initial timeout under concurrent build load). User phone verification completes
+the accepted scope.
 
-The user identifies `_one.png` as the original and raises a copyright concern.
-That filename was not found in the current checkout; `background_one.jpg` and
-other background variants are present and packaged. Verify the original and any
-derivatives, then replace affected assets and remove obsolete packaged references.
-Record the new artwork's provenance and coordinate with REL-001/UI-012. Preserve
-text readability, themes, transparency and portrait cropping. Priority is unassigned.
+The original request raised an unverified copyright concern about `_one.png`,
+which was not found in the checkout. All existing background variants have been
+replaced or removed; new artwork provenance is recorded. Release/publication
+arrangements remain REL-001. Priority and severity were unassigned.
 
 ### [UI-024 — UndoBar text and icon use reversed theme colors](tickets/UI-024.json)
 

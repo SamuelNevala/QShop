@@ -23,6 +23,7 @@ rerun during QA-003. See the run record below for what actually ran.
 | Shopping single/double tap is not a check or mode change | `UserFlows::test_shopping_taps_are_not_checks` | Native dedicated tap-only control not yet added |
 | Pull down to enter/leave edit mode; insufficient pull rejected | `UserFlows::test_mode_pull_threshold`: actual touch movement crosses the resisted pulley's geometry, then observes mode/data | Existing native swipe/Back/reset scripts enter edit mode through a real pull; both directions of mode change are not a dedicated Android matrix |
 | Long list, both scroll directions, empty/short list, editor/removal/resize | `tst_listbackground.qml`, `tst_safeborder.qml`: real flicks plus geometry/pixel assertions | `test_listbackground.py`, with `--keyboard` for actual Gboard/insets |
+| Ten background images, slideshow forward/reverse, portrait crop and themes | `backgrounds/tst_backgrounds.qml`: packaged resources, decoded dimensions, cycle, resize and production row previews; native Windows CTest renders actual fonts | `test_backgrounds.py`: all ten actual slideshow frames in both themes, matched against exports; exact list data retained |
 | Large short names and bounded long/unbroken names | `tst_textfitting.qml`, including native Windows actual-font run; Qt `Text.Fit` with three-line cap | `test_textfitting.py`: actual foreground bands, font-size controls and unchanged saved names |
 
 ## About and licenses (UI-012)

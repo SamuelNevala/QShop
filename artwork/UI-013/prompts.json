@@ -1,0 +1,118 @@
+{
+  "ticket": "UI-013",
+  "created": "2026-11-05",
+  "status": "accepted_and_integrated",
+  "generation": {
+    "mode": "built-in image_gen",
+    "intent": "Ten original candidates, with a new composition and refinement replacing candidate 08",
+    "calls": 12,
+    "input_images": [],
+    "reference_policy": "The initial ten calls had no image inputs. Candidate 08 was revised using generated candidates and a real QShopper screenshot scoped to UI layout/typography; its old background was excluded, and the final phone wallpaper was refined to a plain shop texture. See revisions/08-qshopper-visible.json.",
+    "requested_size": "1080 x 1920 portrait; actual output dimensions recorded separately"
+  },
+  "assets": [
+    {
+      "number": 1,
+      "title": "Phone and pantry",
+      "file": "candidates/01-phone-and-pantry.png",
+      "source_file": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-cc9c04d8-149e-4451-a968-464b18bcf42a.png",
+      "prompt": "Use case: illustration-story.\nAsset type: Original portrait background candidate 01 of 10 for QShopper, a grocery shopping-list phone app. Requested canvas 1080 x 1920 pixels, tall 9:16.\nCreate a fresh original composition: a warmly lit small grocery store imagined in the 1920s. A shopper in a modest dropped-waist day dress and cloche hat stands to one side of wooden shelves with plain tins, paper packets, glass jars and a basket of groceries. She casually checks a slim modern smartphone in one hand. The smartphone is a subtle present-day anachronism, not the main subject. A small digital shelf-price display is tucked beside a few jars.\nStyle: colorful hand-painted gouache illustration with restrained vintage lithographic print texture, inviting human expressions, believable hands and objects. Keep the period interior and clothing dominant, with only one or two unobtrusive modern details. Broad gentle tonal areas through the middle make this usable behind translucent shopping-list rows; do not paint app UI into the image. Compose for a portrait phone, keeping key faces and the phone inside the central 75 percent so narrow crops work. Full-bleed artwork, no frames, no collage, no title, no watermark, no logos, no identifiable brands, no readable packaging copy. This is entirely new artwork: do not reproduce any existing picture, particular person's face, advertisement or composition.",
+      "selected": true
+    },
+    {
+      "number": 2,
+      "title": "Fresh produce",
+      "file": "candidates/02-produce.png",
+      "source_file": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-f3f4307f-32f1-4b7f-bf34-00308117d132.png",
+      "prompt": "Use case: illustration-story.\nAsset type: Original portrait shopping background candidate for QShopper. Tall portrait 9:16 canvas, target 1080 x 1920 pixels.\nStyle and period: colorful hand-painted gouache illustration with gentle vintage lithographic print texture. A small grocery shop in the 1920s, period clothing and architecture dominant, with one or two subtle modern shop details. Warm, inviting and believable, natural hands and faces.\nComposition: Full-bleed single scene, portrait phone background, gentle tonal areas through the middle for legibility behind translucent list rows. Keep key faces and modern details within the central 75 percent for cropping.\nConstraints: entirely new original composition; no reference image, no copied advertisement or specific person's likeness. No frame, collage, title, watermark, logos, identifiable brands, readable packaging text, or painted app overlay.\nCandidate 2 of 10, produce.\nScene: An airy produce counter with wooden apple and pear crates, a shopper in a 1920s green coat and cloche selecting apples with one hand while consulting a slim smartphone in the other. A grocer arranges vegetables in the background. Morning window light, fresh greens and warm reds, a subtle electronic shelf-price tag among otherwise old-fashioned fixtures.",
+      "selected": true
+    },
+    {
+      "number": 3,
+      "title": "Bakery counter",
+      "file": "candidates/03-bakery.png",
+      "source_file": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-bd997996-9581-40e5-bc52-889363aaa436.png",
+      "prompt": "Use case: illustration-story.\nAsset type: Original portrait shopping background candidate for QShopper. Tall portrait 9:16 canvas, target 1080 x 1920 pixels.\nStyle and period: colorful hand-painted gouache illustration with gentle vintage lithographic print texture. A small grocery shop in the 1920s, period clothing and architecture dominant, with one or two subtle modern shop details. Warm, inviting and believable, natural hands and faces.\nComposition: Full-bleed single scene, portrait phone background, gentle tonal areas through the middle for legibility behind translucent list rows. Keep key faces and modern details within the central 75 percent for cropping.\nConstraints: entirely new original composition; no reference image, no copied advertisement or specific person's likeness. No frame, collage, title, watermark, logos, identifiable brands, readable packaging text, or painted app overlay.\nCandidate 3 of 10, bakery.\nScene: A friendly apron-clad baker handing a paper-wrapped loaf across a timber bakery counter to a shopper in a 1920s ochre coat and hat. A discreet modern contactless payment terminal sits by the bread basket. Shelves of unbranded bread, cream plaster walls, warm golden light, balanced composition with people in the middle distance.",
+      "selected": true
+    },
+    {
+      "number": 4,
+      "title": "Dairy cabinet",
+      "file": "candidates/04-dairy.png",
+      "source_file": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-986d8139-2ea8-4b50-86aa-784e8c5697a4.png",
+      "prompt": "Use case: illustration-story.\nAsset type: Original portrait shopping background candidate for QShopper. Tall portrait 9:16 canvas, target 1080 x 1920 pixels.\nStyle and period: colorful hand-painted gouache illustration with gentle vintage lithographic print texture. A small grocery shop in the 1920s, period clothing and architecture dominant, with one or two subtle modern shop details. Warm, inviting and believable, natural hands and faces.\nComposition: Full-bleed single scene, portrait phone background, gentle tonal areas through the middle for legibility behind translucent list rows. Keep key faces and modern details within the central 75 percent for cropping.\nConstraints: entirely new original composition; no reference image, no copied advertisement or specific person's likeness. No frame, collage, title, watermark, logos, identifiable brands, readable packaging text, or painted app overlay.\nCandidate 4 of 10, dairy.\nScene: A cool pale-blue and cream 1920s grocery dairy corner with milk bottles, butter parcels and eggs. A shopper in a period waistcoat and flat cap carries a basket and opens a modern glass-door refrigerated cabinet subtly fitted into the wooden cabinetry. Its quiet LED strip is the only conspicuously modern utility. Daylight, a calm generous view into the shop, not a close-up of a machine.",
+      "selected": true
+    },
+    {
+      "number": 5,
+      "title": "Bulk goods",
+      "file": "candidates/05-bulk-goods.png",
+      "source_file": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-2a9a2c89-ca87-4df5-a917-0a974aad2106.png",
+      "prompt": "Use case: illustration-story.\nAsset type: Original portrait shopping background candidate for QShopper. Tall portrait 9:16 canvas, target 1080 x 1920 pixels.\nStyle and period: colorful hand-painted gouache illustration with gentle vintage lithographic print texture. A small grocery shop in the 1920s, period clothing and architecture dominant, with one or two subtle modern shop details. Warm, inviting and believable, natural hands and faces.\nComposition: Full-bleed single scene, portrait phone background, gentle tonal areas through the middle for legibility behind translucent list rows. Keep key faces and modern details within the central 75 percent for cropping.\nConstraints: entirely new original composition; no reference image, no copied advertisement or specific person's likeness. No frame, collage, title, watermark, logos, identifiable brands, readable packaging text, or painted app overlay.\nCandidate 5 of 10, bulk-goods.\nScene: A 1920s dry-goods shop, tall wooden bulk bins and rows of plain tins and paper packets. A shopper in a plum-colored period dress weighs a bag of oats on a small modern electronic scale on the wooden counter. An apron-clad grocer stands nearby. Muted plum and honey palette, soft side light; the digital scale is unobtrusive but recognizable. Basket of groceries at the shopper's feet.",
+      "selected": true
+    },
+    {
+      "number": 6,
+      "title": "Market hall",
+      "file": "candidates/06-market-hall.png",
+      "source_file": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-5f69a5ff-84f7-4243-a96d-a38bea038b1e.png",
+      "prompt": "Use case: illustration-story.\nAsset type: Original portrait shopping background candidate for QShopper. Tall portrait 9:16 canvas, target 1080 x 1920 pixels.\nStyle and period: colorful hand-painted gouache illustration with gentle vintage lithographic print texture. A small grocery shop in the 1920s, period clothing and architecture dominant, with one or two subtle modern shop details. Warm, inviting and believable, natural hands and faces.\nComposition: Full-bleed single scene, portrait phone background, gentle tonal areas through the middle for legibility behind translucent list rows. Keep key faces and modern details within the central 75 percent for cropping.\nConstraints: entirely new original composition; no reference image, no copied advertisement or specific person's likeness. No frame, collage, title, watermark, logos, identifiable brands, readable packaging text, or painted app overlay.\nCandidate 6 of 10, market-hall.\nScene: A spacious 1920s covered food market beneath an iron-and-glass skylight. Two shoppers in period coats walk between stalls with a modern compact wire shopping trolley holding vegetables and a paper bag. Stalls of fruit, jars and bread frame the view. Soft daylight, green and terracotta accents; an inviting everyday market, subtle modern trolley in a predominantly period setting.",
+      "selected": true
+    },
+    {
+      "number": 7,
+      "title": "Contactless checkout",
+      "file": "candidates/07-checkout.png",
+      "source_file": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-6f5636b8-8470-4a9d-b49f-c03a02c7976a.png",
+      "prompt": "Use case: illustration-story.\nAsset type: Original portrait shopping background candidate for QShopper. Tall portrait 9:16 canvas, target 1080 x 1920 pixels.\nStyle and period: colorful hand-painted gouache illustration with gentle vintage lithographic print texture. A small grocery shop in the 1920s, period clothing and architecture dominant, with one or two subtle modern shop details. Warm, inviting and believable, natural hands and faces.\nComposition: Full-bleed single scene, portrait phone background, gentle tonal areas through the middle for legibility behind translucent list rows. Keep key faces and modern details within the central 75 percent for cropping.\nConstraints: entirely new original composition; no reference image, no copied advertisement or specific person's likeness. No frame, collage, title, watermark, logos, identifiable brands, readable packaging text, or painted app overlay.\nCandidate 7 of 10, checkout.\nScene: A 1920s grocery checkout with an apron-clad clerk behind a timber counter and a shopper in a navy coat and cloche hat. The shopper casually taps a slim modern smartphone against a small contactless payment reader, with a paper grocery bag and vegetables alongside. The exchange is a natural small part of the scene, not a close-up tech advertisement. Amber, navy and soft cream, warm ceiling lamps and shelves of plain packets.",
+      "selected": true
+    },
+    {
+      "number": 8,
+      "title": "QShopper in hand",
+      "file": "candidates/08-rainy-shopfront.png",
+      "source_file": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-298090a7-3028-4869-a58a-8e71fd403586.png",
+      "prompt": "Use case: illustration-story.\nAsset type: Replacement portrait background candidate 08 for QShopper; target 1080 x 1920 tall canvas.\nCreate a new scene in the same cohesive warm hand-painted gouache and vintage lithographic texture as input 1. Keep the 1920s shopping setting with a subtle modern smartphone.\nInput 1 is a style, clothing and rainy grocery shop setting reference: the existing original candidate 08. Change the viewpoint and composition to an intimate over-the-shoulder, three-quarter view of the shopper just inside the grocery doorway. We see her cloche hat and partial profile, a grocery basket, warm shop shelves, produce, and the rainy street beyond. She holds a modern smartphone naturally in ONE hand, at a plausible angle that lets both her and the viewer see its FRONT screen. The phone must be clearly visible and large enough to recognize the app, roughly one quarter of the picture height, within the central crop-safe region. Keep it part of the painted scene, not a separate inset or oversized advertising mockup.\nInput 2 is a real QShopper screenshot, supplied ONLY as the app UI layout and typography reference. Show this app on the phone: very large bold centered grocery names in full-width translucent light rows, over a softly visible painted grocery background. Use a short realistic list: \"Milk\", \"Bread\", \"Apples\", \"Coffee\". The first three rows have dark text; the final checked Coffee row uses an inverse dark surface with light struck-through text. Keep the interface simple and faithful: no checkboxes, no invented title bar, no giant app name, no unrelated dashboard, no extra buttons. Do NOT reproduce the old background artwork, its faces, signs or packaging from screenshot input 2.\nInput 3 is original candidate 01 and is supplied ONLY as the replacement background artwork inside the phone screen. Use a faint crop of its grocery scene underneath the translucent QShopper rows, no need to reproduce tiny details.\nPreserve the series' friendly everyday shopping mood, period-dominant clothes/interior, amber indoor light and teal rainy exterior. Believable hands and phone geometry. Full-bleed original single portrait scene, no collage, border, caption, watermark, identifiable packaging brands or shop signage. The only legible words should be the four grocery entries on the phone screen. No app UI outside the actual phone display.",
+      "selected": true,
+      "supersedes": {
+        "title": "Rainy shopfront",
+        "source_file": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-f01f664d-a36f-4b11-8cf8-50d28e9129ca.png",
+        "prompt": "Use case: illustration-story.\nAsset type: Original portrait shopping background candidate for QShopper. Tall portrait 9:16 canvas, target 1080 x 1920 pixels.\nStyle and period: colorful hand-painted gouache illustration with gentle vintage lithographic print texture. A small grocery shop in the 1920s, period clothing and architecture dominant, with one or two subtle modern shop details. Warm, inviting and believable, natural hands and faces.\nComposition: Full-bleed single scene, portrait phone background, gentle tonal areas through the middle for legibility behind translucent list rows. Keep key faces and modern details within the central 75 percent for cropping.\nConstraints: entirely new original composition; no reference image, no copied advertisement or specific person's likeness. No frame, collage, title, watermark, logos, identifiable brands, readable packaging text, or painted app overlay.\nCandidate 8 of 10, rainy-shopfront.\nScene: A charming 1920s grocery shopfront on a gently rainy street, warm light through the window and crates of vegetables beneath the striped awning. A shopper in a long period coat and cloche stands just inside the open doorway checking a modern smartphone while holding a paper grocery bag. Rainy teal street outside contrasts with warm interior ochre light. Whole scene stays shopping-related and tightly framed around the shop entrance."
+      },
+      "refinement_prompt": "Use case: precise-object-edit.\nEdit target: input 1, the new gouache painting of a 1920s shopper holding a phone in the rainy grocery doorway.\nSupporting input 2: original candidate 01, reference ONLY for a softly blurred warm wooden shop interior.\nChange ONLY the decorative background visible INSIDE the phone screen. Replace its existing printed-grocery-advertisement look completely with a fresh softly blurred gouache texture of warm wooden shelves, plain glass jars and pale paper packets inspired by the interior in input 2. NO packaging words, NO vintage advertising, NO figures or faces in the phone wallpaper, NO copied old screenshot imagery. The upper and lower uncovered screen regions should show this same quiet warm shop texture.\nPreserve the phone's exact bezel, size, perspective, position and lighting. Preserve its four large bold centered entries EXACTLY: \"Milk\", \"Bread\", \"Apples\", and struck-through \"Coffee\". Preserve the three translucent light row surfaces and the inverse dark Coffee row with light text. Keep the whole surrounding painting unchanged: shopper face and hat, one-handed grip, basket, groceries, shop, rainy street, colors, composition, gouache texture and portrait dimensions. No other changes.",
+      "revision_record": "revisions/08-qshopper-visible.json",
+      "input_images": [
+        {
+          "path": "C:/Users/samue/OneDrive/code/Qt6/QShopper/artwork/UI-013/candidates/08-rainy-shopfront.png",
+          "role": "Candidate 08 style/clothing/setting reference"
+        },
+        {
+          "path": "C:/Users/samue/OneDrive/code/Qt6/QShopper/out/android-emulator/ui003-nativeqt/light/shopping.png",
+          "role": "QShopper screenshot: UI layout and typography only; not its old background"
+        },
+        {
+          "path": "C:/Users/samue/OneDrive/code/Qt6/QShopper/artwork/UI-013/candidates/01-phone-and-pantry.png",
+          "role": "Candidate 01: new phone wallpaper reference"
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "title": "Grocer stocktaking",
+      "file": "candidates/09-stocktaking.png",
+      "source_file": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-b7e842e8-bbe3-486e-a34c-6d26d0ba4c51.png",
+      "prompt": "Use case: illustration-story.\nAsset type: Original portrait shopping background candidate for QShopper. Tall portrait 9:16 canvas, target 1080 x 1920 pixels.\nStyle and period: colorful hand-painted gouache illustration with gentle vintage lithographic print texture. A small grocery shop in the 1920s, period clothing and architecture dominant, with one or two subtle modern shop details. Warm, inviting and believable, natural hands and faces.\nComposition: Full-bleed single scene, portrait phone background, gentle tonal areas through the middle for legibility behind translucent list rows. Keep key faces and modern details within the central 75 percent for cropping.\nConstraints: entirely new original composition; no reference image, no copied advertisement or specific person's likeness. No frame, collage, title, watermark, logos, identifiable brands, readable packaging text, or painted app overlay.\nCandidate 9 of 10, stocktaking.\nScene: A friendly 1920s grocer in a linen apron and rolled sleeves checking a plain tin with a small modern handheld barcode scanner, amongst wooden shelves and glass jars. A shopper in period clothing waits with a basket in the middle distance. Everyday shop moment, rich warm wood, sage green cabinets and cream highlights. The scanner is a small believable anachronism; no visible brand or readable barcode text.",
+      "selected": true
+    },
+    {
+      "number": 10,
+      "title": "Evening produce",
+      "file": "candidates/10-evening-produce.png",
+      "source_file": "C:\\Users\\samue\\.codex\\generated_images\\01a17f37-dfcc-7421-aac8-9b67caed0be7\\exec-d23fd514-a4a1-42fc-80ed-cec82ab4ad36.png",
+      "prompt": "Use case: illustration-story.\nAsset type: Original portrait shopping background candidate for QShopper. Tall portrait 9:16 canvas, target 1080 x 1920 pixels.\nStyle and period: colorful hand-painted gouache illustration with gentle vintage lithographic print texture. A small grocery shop in the 1920s, period clothing and architecture dominant, with one or two subtle modern shop details. Warm, inviting and believable, natural hands and faces.\nComposition: Full-bleed single scene, portrait phone background, gentle tonal areas through the middle for legibility behind translucent list rows. Keep key faces and modern details within the central 75 percent for cropping.\nConstraints: entirely new original composition; no reference image, no copied advertisement or specific person's likeness. No frame, collage, title, watermark, logos, identifiable brands, readable packaging text, or painted app overlay.\nCandidate 10 of 10, evening-produce.\nScene: An intimate evening produce shop in the 1920s. A shopper in a rust-colored coat and period hat carries a woven basket and consults a smartphone beside a bright display of oranges and leafy vegetables. A discreet modern refrigerated produce case is built into a wood counter. Warm glowing pendant lamps, indigo dusk through the window, lively but gentle gouache colors, a distinct wide interior composition within a tall portrait canvas.",
+      "selected": true
+    }
+  ],
+  "selected": "All ten approved by the user on 2026-11-05",
+  "production_exports": "exports.json"
+}

@@ -9,31 +9,61 @@ StackView {
             id: model
 
             BackgroundImage {
-                source: Qt.resolvedUrl("background_one.jpg")
+                source: Qt.resolvedUrl("backgrounds/01-phone-and-pantry.jpg")
                 height: stack.height
                 width: stack.width
             }
 
             BackgroundImage {
-                source: Qt.resolvedUrl("background_two.jpg")
+                source: Qt.resolvedUrl("backgrounds/02-produce.jpg")
                 height: stack.height
                 width: stack.width
             }
 
             BackgroundImage {
-                source: Qt.resolvedUrl("background_three.jpg")
+                source: Qt.resolvedUrl("backgrounds/03-bakery.jpg")
                 height: stack.height
                 width: stack.width
             }
 
             BackgroundImage {
-                source: Qt.resolvedUrl("background_four.jpg")
+                source: Qt.resolvedUrl("backgrounds/04-dairy.jpg")
                 height: stack.height
                 width: stack.width
             }
 
             BackgroundImage {
-                source: Qt.resolvedUrl("background_five.jpg")
+                source: Qt.resolvedUrl("backgrounds/05-bulk-goods.jpg")
+                height: stack.height
+                width: stack.width
+            }
+
+            BackgroundImage {
+                source: Qt.resolvedUrl("backgrounds/06-market-hall.jpg")
+                height: stack.height
+                width: stack.width
+            }
+
+            BackgroundImage {
+                source: Qt.resolvedUrl("backgrounds/07-checkout.jpg")
+                height: stack.height
+                width: stack.width
+            }
+
+            BackgroundImage {
+                source: Qt.resolvedUrl("backgrounds/08-qshopper.jpg")
+                height: stack.height
+                width: stack.width
+            }
+
+            BackgroundImage {
+                source: Qt.resolvedUrl("backgrounds/09-stocktaking.jpg")
+                height: stack.height
+                width: stack.width
+            }
+
+            BackgroundImage {
+                source: Qt.resolvedUrl("backgrounds/10-evening-produce.jpg")
                 height: stack.height
                 width: stack.width
             }
