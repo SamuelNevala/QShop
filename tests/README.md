@@ -7,6 +7,60 @@ Android package regression commands are in [ANDROID.md](../ANDROID.md#package-re
 closure and scan isolation; use `build-android.ps1 -VerifyPackage` to include it
 in a repeatable Android build. It accepts a Python interpreter via `-Python`.
 
+## About and offline notices (UI-012)
+
+The normal verification workflow includes `qshopper_about_tests`, using
+`about/tst_about.qml` and the real application window. It opens the actual drawer
+entry, reads the complete Qt/Font Awesome texts, scrolls both to the end, changes
+safe margins/viewport size, and closes with Back or Close. Both themes preserve
+the drawer, unfinished draft and exact item IDs/order/checks. The original app
+fails at the missing drawer entry. The current suite has eleven records, including
+opening under one second and tab-to-render under 500 ms. Native Windows measured
+273–289 ms opening and 29–40 ms switching; the original reader took 3,338 ms.
+Dragging text also failed on the previous selectable TextArea and passes with
+the paragraph reader. QTest's `license_notices_preserve_resources` compares both
+complete reconstructed strings with their actual bundled resource files.
+The entry is a GroupBox titled "About" in the existing drawer model, containing
+an information IconButton captioned "Licenses". The test rejects the earlier
+ungrouped button and plain "About and licenses" footer.
+The reader is a standalone ListView with an attached scrollbar; touch and mouse
+drags scroll its body. Its sole header is Open-source licenses; the close icon
+is centred in the footer. The normal qshopper_about_rendering_tests entry uses
+native D3D11 WARP and compares actual CurveRenderer logo edge pixels with the
+same SVGs through the un-antialiased geometry renderer. Body swipes, footer
+geometry and all four inherited tab-button display modes are also covered.
+
+Focused native Windows rendering (use disposable settings/data):
+
+```powershell
+$env:QSG_RHI_BACKEND = 'd3d11'
+$env:QSG_RHI_PREFER_SOFTWARE_RENDERER = '1'
+./out/windows-agent/qshopper_ui_tests.exe -input tests/about -import out/windows-agent -o out/about-native.txt,txt
+```
+
+The QML harness supplies isolated storage. Native Windows confirms actual text
+layout/scrollbar geometry; offscreen alone does not establish Android safe areas
+or edge Back. The emulator companion requires Pillow and the installed x86_64 APK:
+
+```powershell
+python tests/android/test_about.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-about
+```
+
+It uses unique disposable app data, disables Wi-Fi/mobile data during reading and
+restores their original state in `finally`. Twenty-six checks cover both themes,
+offline header and accessible final paragraphs, rendered scrollbar endpoints,
+safe bounds, IME state, both native Back edges, Close and unchanged saved data.
+It force-stops its app launch afterward. Do not run other emulator workflows in
+parallel. Complete document integrity is tested by QTest; the native tree exposes
+only instantiated paragraphs. Request a fresh frame with window.update() before
+waitForRendering() when testing an already-settled virtualized list. Reports are
+under `out/ui012/`. User confirmed the final feature works on the phone on
+2026-11-05; UI-012 is resolved.
+
+Notice inventory, upstream hashes and regeneration are in
+[app/licenses/README.md](../app/licenses/README.md). Ordinary builds and readers
+use bundled resources and require no Python/network.
+
 ## Model QTest suite (MSVC)
 
 For optional clang-tidy and Clazy checks, commands, scope and finding dispositions,

@@ -39,8 +39,8 @@ fallback unchanged. The reference is not proof of the same feel on every device.
 
 ## Keep mistakes close enough to correct
 
-Android Back closes one layer per gesture: an open drawer selector popup first
-(leaving the drawer open), then the drawer, then the keyboard
+Android Back closes one layer per gesture: an open About/licenses view or
+drawer selector popup first (leaving the drawer open), then the drawer, then the keyboard
 while editing, then edit mode. From shopping mode it backgrounds the app and
 keeps the list and process available for returning. Hiding the keyboard preserves
 the draft; leaving edit mode follows the existing policy of discarding unsubmitted

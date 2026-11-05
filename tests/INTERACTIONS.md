@@ -25,6 +25,22 @@ rerun during QA-003. See the run record below for what actually ran.
 | Long list, both scroll directions, empty/short list, editor/removal/resize | `tst_listbackground.qml`, `tst_safeborder.qml`: real flicks plus geometry/pixel assertions | `test_listbackground.py`, with `--keyboard` for actual Gboard/insets |
 | Large short names and bounded long/unbroken names | `tst_textfitting.qml`, including native Windows actual-font run; Qt `Text.Fit` with three-line cap | `test_textfitting.py`: actual foreground bands, font-size controls and unchanged saved names |
 
+## About and licenses (UI-012)
+
+`about/tst_about.qml` runs in the normal `qshopper_about_tests` CTest entry.
+Actual drawer activation, both complete documents, scroll endpoints, both themes,
+safe-margin/viewport resizing and Back/Close retain the drawer, draft and exact
+item IDs/order/checks. Eleven records also cover open/switch latency, logo readiness, body touch/mouse
+swipes, header/footer geometry, display modes, non-selection and keyboard activation. Native Windows checks
+actual caption fitting; offscreen's dummy font cannot certify it. QTest compares
+complete reconstructed notices with their bundled resources. Android checks cover
+offline headers and accessible final paragraphs, native scrollbar endpoints, safe
+bounds, theme pixels, IME state and both Back edges (26 checks). The normal
+qshopper_about_rendering_tests entry compares actual antialiased logo pixels with
+the default geometry renderer. It uses disposable emulator data
+and restores network state; commands are in README.md and ANDROID.md.
+User confirmed the final feature works on the phone on 2026-11-05.
+
 ## Editing, deletion and list management
 
 | Interaction / state | Automated path and observable result | Android coverage |

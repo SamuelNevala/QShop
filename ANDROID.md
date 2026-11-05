@@ -57,6 +57,33 @@ Install on an attached device with USB debugging enabled:
 Qt command-line build reference:
 <https://doc.qt.io/qt-6/android-building-projects-from-commandline.html>
 
+## About and offline notices (UI-012)
+
+Drawer → About → Licenses provides complete local Qt and Font Awesome notices.
+The Qt resource follows the retained Android runtime inventory; desktop keyboard
+notices are excluded. Source selection and updates are documented in
+[app/licenses/README.md](app/licenses/README.md).
+
+After installing the x86_64 test APK on the isolated gesture-navigation emulator:
+
+```powershell
+python tests/android/test_about.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-about
+```
+
+Requires Pillow. This emulator-only script uses disposable data and temporarily
+disables Wi-Fi/mobile data, restoring both in `finally`. It checks complete
+offline documents, both themes, native scrollbar endpoints, safe-area bounds,
+both Back edges and Close, retaining the drawer/draft and exact saved list.
+It force-stops its app launch afterward. Run serially with other native tests.
+The reader uses a standalone ListView with attached scrollbar and accessible List/ListItem
+roles. Its sole header is Open-source licenses, with a centred footer close icon.
+Both upward/downward body swipes work; logos use CurveRenderer antialiasing.
+Native checks compare the visible header and final paragraph; QTest checks
+the complete resource strings. Reports and XML/PNG frames are under `out/ui012/`.
+The two tab logos intentionally add Qt Svg/VectorImage/Helpers/Effects; both signed
+APK contracts contain 53 native libraries, with no QML tooling. The ARM64 review build is
+`dist/QShopper-arm64-debug.apk`, signed with the shared debug key.
+
 ## QML tooling in APKs
 
 A Debug build does not need `qmltooling` libraries for ordinary operation or

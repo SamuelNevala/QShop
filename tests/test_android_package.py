@@ -27,7 +27,8 @@ def main():
         actual_abis = {name.split("/")[1] for name in names}
         assert actual_abis == {args.abi}, f"Unexpected native ABIs: {actual_abis}"
         required = {f"lib/{args.abi}/libQt6{module}_{args.abi}.so"
-                    for module in ("Core", "Gui", "Qml", "Quick", "Sql")}
+                    for module in ("Core", "Gui", "Qml", "Quick", "Sql", "Svg", "QuickVectorImage")}
+        required.add(f"lib/{args.abi}/libqml_QtQuick_VectorImage_qquickvectorimageplugin_{args.abi}.so")
         required.add(f"lib/{args.abi}/libapplication_{args.abi}.so")
         required.add(f"lib/{args.abi}/libplugins_platforms_qtforandroid_{args.abi}.so")
         required.add(f"lib/{args.abi}/libplugins_imageformats_qjpeg_{args.abi}.so")
@@ -37,7 +38,7 @@ def main():
                      "libqml_qttest_", "quickcontrols2imagine", "quickcontrols2universal",
                      "quickcontrols2fluentwinui3", "controls_imagine_", "controls_universal_",
                      "controls_fluentwinui3_", "libqt6widgets_", "qlottie", "libqt6lottie",
-                     "libqt6svg_", "qtquick_controls_qtquickcontrols2plugin", "qoffscreen",
+                     "libqt6svgwidgets_", "qtquick_controls_qtquickcontrols2plugin", "qoffscreen",
                      "qsvgicon", "quick3dprofiler", "libqt6quick3dutils_",
                      "libplugins_tls_", "libplugins_networkinformation_")
         unwanted = sorted(name for name in names if any(token in name.lower() for token in forbidden)

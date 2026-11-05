@@ -1,30 +1,54 @@
 {
   "id": "UI-012",
   "title": "Add a drawer About component showing open-source licenses",
-  "status": "requested",
+  "status": "resolved",
   "type": "feature",
   "severity": "unassigned",
   "priority": "unassigned",
   "created": "2026-10-30",
   "reported_by": "user",
-  "scope": "Backlog intake only; implementation is deferred until selected.",
-  "depends_on": ["UX-004"],
-  "sequencing": "Prerequisite satisfied on 2026-11-04: user accepted UX-004's decision to retain Font Awesome and requested closure. About uses the existing Font Awesome font inventory; no icon migration is required. UI-012 itself remains unimplemented.",
+  "scope": "Selected, implemented and resolved with user phone confirmation on 2026-11-05. Qt and Font Awesome offline notices and the accepted drawer/reader refinements are complete. Publication/source arrangements remain REL-001 and background provenance remains UI-013.",
+  "depends_on": [
+    "UX-004"
+  ],
+  "sequencing": "UX-004 prerequisite satisfied on 2026-11-04: retain the existing Font Awesome font. User accepted starting UI-012, then clarified that its purpose is satisfying Qt and Font Awesome open-source notice requirements.",
   "request": "Add an About component to the drawer where users can view the open-source licenses used by QShopper.",
   "expected": "Users can open About from the drawer, identify the included open-source components and read their license texts and attribution notices.",
   "implementation_notes": [
-    "Inventory the actual shipped libraries, fonts, icons and other third-party assets; obtain license texts and attribution details from the corresponding bundled or upstream sources rather than guessing.",
-    "Bundle the license information so it is available offline. Identify each component and its applicable license; include relevant copyright and attribution notices.",
-    "Keep the presentation KISS, readable, scrollable and consistent with the app theme, safe areas and touch sizing. Choose the concrete About presentation when implementing.",
-    "Keep opening and closing About from disrupting the shopping list, checked state, editor position or unfinished text.",
-    "Coordinate the component inventory with REL-001's release licensing review; this feature alone does not establish release readiness.",
-    "DEV-011 adds Qt Canvas Painter / QtCanvas2D. The installed module and official documentation identify commercial or GPL-3.0-only licensing; include its actual bundled license and notices in the shipped dependency inventory. See https://doc.qt.io/qt-6/qtcanvaspainter-index.html."
+    "app/AboutDialog.qml uses Material Dialog, TabBar and a standalone ListView with attached scrollbar. View owns safe-area geometry; 9.27 mm tabs and close target support touch. Non-selectable Text paragraphs replace the full TextArea document layout. The existing About GroupBox/Licenses IconButton remains in the drawer model.",
+    "LicenseNotices is a small C++ QML singleton that reads the two UTF-8 resource files once per engine and returns cached paragraph lists. Joining with double newlines reproduces the exact original resources; QTest checks both complete files. Only visible paragraphs are laid out. Accessible List/ListItem roles expose newly visible paragraphs on Android.",
+    "The sole header is Open-source licenses. The centred footer uses Font Awesome times (f00d) in IconButton (IconOnly), with inherited pointer/accessibility actions and keyboard activation. VectorImage.CurveRenderer antialiases official Qt and Font Awesome brand SVGs. Caption Text.Fit retains their names in the available tab width. Qt logo is unchanged; Font Awesome logo fill is blue. Sources, hashes and changes are in app/logos/sources.json.",
+    "Qt 6.12.0 notices follow actual retained APK binaries and the matching ABI installed Qt SBOMs, including qtsvg; platform build helpers are excluded. CMake selects one Android/Windows/Windows-keyboard variant under licenses/Qt.txt. Font Awesome notices include the original 5.7.2 solid font/OFL 1.1 and brand SVG/full CC BY 4.0. Android excludes desktop keyboard notices.",
+    "Logo rendering intentionally adds the Qt SVG/VectorImage/Helpers/Effects runtime closure: final APK contracts require Svg and QuickVectorImage and retain all existing exclusions for Canvas, VirtualKeyboard, tests, Widgets, unused styles/plugins and QML tooling. Both ABIs currently contain 53 native libraries.",
+    "Back closes only About, retaining the drawer and draft. The modal Back shortcut uses ApplicationShortcut while visible, including repeated opens. Opening/closing does not change item IDs, names, checks or order. Publication/source arrangements remain REL-001; background provenance remains UI-013."
   ],
-  "relevant_files": ["View.qml", "Menu.qml", "CMakeLists.txt", "ANDROID.md", "DESIGN.md"],
-  "related_tickets": ["REL-001", "QA-003", "DEV-011", "UX-004"],
+  "relevant_files": [
+    "app/AboutDialog.qml",
+    "app/View.qml",
+    "app/CMakeLists.txt",
+    "app/licenses/README.md",
+    "app/licenses/manifest.json",
+    "tools/update-license-notices.py",
+    "tests/about/tst_about.qml",
+    "tests/android/test_about.py",
+    "tests/CMakeLists.txt",
+    "ANDROID.md",
+    "DESIGN.md",
+    "app/licensenotices.h",
+    "app/licensenotices.cpp",
+    "app/logos/sources.json",
+    "tests/test_model.cpp",
+    "tests/test_android_package.py"
+  ],
+  "related_tickets": [
+    "REL-001",
+    "QA-003",
+    "DEV-011",
+    "UX-004"
+  ],
   "acceptance_criteria": [
     "The drawer provides an accessible About component or entry that exposes the open-source license information.",
-    "The displayed inventory matches the dependencies and third-party assets actually shipped in the app, with identifiable components, license texts and attribution notices.",
+    "Within the clarified Qt/Font Awesome scope, the displayed inventory matches retained runtime components with full license texts and attribution notices; Android excludes desktop keyboard notices.",
     "License information remains available without a network connection, and long texts can be scrolled to the end within the safe area.",
     "Closing About, including through Android Back, preserves the list and unfinished editing state.",
     "Add automated UI coverage for opening About from the drawer, reading/scrolling the license content and returning without changing app data. Verify Android presentation and Back behavior."
@@ -32,6 +56,120 @@
   "evidence": "User backlog request on 2026-10-30 to add a drawer About component for viewing the open-source licenses used.",
   "github_repository": "SamuelNevala/QShop",
   "github_issue_url": null,
-  "ui023_payload_observation": {"date": "2026-11-03", "finding": "Fresh UI-023 Android packages still contain Canvas2D and CanvasPainter libraries despite removal of explicit QML/module/link usage. Inventory the actual APK; the deployment dependency/scan path has not been established. No packaging change is included in UI-023."},
-  "dev008_inventory_update": {"date": "2026-11-04", "finding": "DEV-008 removes Canvas/VirtualKeyboard/test/Widgets/unused-style and plugin payload from fresh packages through source isolation, explicit imports and Qt plugin deployment. Inventory the final retained APK libraries/assets; keep historical UI-023 observations as history, not current shipped dependencies.", "reports": "out/dev008/final-arm64-package.json and final-x86-package.json contain final runtime libraries/ELF dependencies. Default and Release packages exclude QML tooling; developer opt-in packages have a separate inventory."}
+  "ui023_payload_observation": {
+    "date": "2026-11-03",
+    "finding": "Fresh UI-023 Android packages still contain Canvas2D and CanvasPainter libraries despite removal of explicit QML/module/link usage. Inventory the actual APK; the deployment dependency/scan path has not been established. No packaging change is included in UI-023."
+  },
+  "dev008_inventory_update": {
+    "date": "2026-11-04",
+    "finding": "DEV-008 removes Canvas/VirtualKeyboard/test/Widgets/unused-style and plugin payload from fresh packages through source isolation, explicit imports and Qt plugin deployment. Inventory the final retained APK libraries/assets; keep historical UI-023 observations as history, not current shipped dependencies.",
+    "reports": "out/dev008/final-arm64-package.json and final-x86-package.json contain final runtime libraries/ELF dependencies. Default and Release packages exclude QML tooling; developer opt-in packages have a separate inventory."
+  },
+  "selected": "2026-11-04",
+  "scope_clarification": "User: This is to satisfy the Qt and Fontawesome opensource licenses. Implementation covers these components, including the bundled third-party attributions declared by retained Qt runtime dependencies.",
+  "verification": {
+    "before": {
+      "test": "AboutLicenses::test_notices_and_back(light)",
+      "result": "Fails on accepted pre-feature app: Drawer must offer About and licenses.",
+      "log": "out/ui012/before-windows.txt"
+    },
+    "windows": {
+      "result": "335 records in the other five suites pass in the full run. Final About offscreen/native entries pass 22 records; combined latest XML: 357 records, no failures.",
+      "logs": [
+        "out/ui012/reader-final-windows.log",
+        "out/ui012/reader-corrected-tests.log",
+        "out/ui012/icon-and-clip-tests.log"
+      ]
+    },
+    "focused_native_windows": {
+      "result": "All eleven native About records pass, including drawer clipping pixels, standard IconButton closing, body swipes, smooth SVG pixels, header/footer geometry and display modes.",
+      "log": "out/ui012/icon-and-clip-tests.log"
+    },
+    "android": {
+      "result": "All 26 checks pass on the final IconButton/clipped-drawer build, with disposable data and restored networking.",
+      "report": "out/ui012/android-icon-clip/results.json"
+    },
+    "package": {
+      "result": "Final shared-key ARM64/x86_64 APK/ELF/scan-root contracts pass: 53 native libraries, no unexpected payload or QML tooling. Fresh staging avoids incremental ZIP gaps.",
+      "reports": [
+        "out/ui012/arm64-package.json",
+        "out/ui012/x86-package.json"
+      ],
+      "signer_sha256": "7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b"
+    },
+    "formatting": "All 59 tracked QML/templates and 11 C++ files pass their formatter checks. Notice hashes/font hash match manifest; ARM64 inventory regeneration produces identical text.",
+    "acceptance": "User confirmed the final change works on the phone on 2026-11-05 and requested closure and commit. Device/theme matrix was not specified."
+  },
+  "artifacts": [
+    "dist/QShopper-arm64-debug.apk",
+    "dist/QShopper-x86_64-debug.apk"
+  ],
+  "drawer_refinement": {
+    "date": "2026-11-05",
+    "request": "Integrate About with the existing drawer model/style. User accepted a GroupBox titled About containing the information IconButton captioned Licenses.",
+    "implementation": "The about ListElement/DelegateChoice uses the existing GroupBox and IconButton, with no extra layout wrapper. GroupBox owns content size/padding; View supplies drawer width and the button fills the content width.",
+    "regression": "tests/about/tst_about.qml asserts the About GroupBox, Licenses caption, IconButton type and actual final model entry. The new group assertion fails on the previous ungrouped button; all five focused native Windows records pass afterward.",
+    "native_windows_log": "out/ui012/group-native-windows.txt",
+    "baseline_log": "out/ui012/group-before.txt",
+    "android_scope": "Final native emulator checks pass, and the user confirmed the complete feature works on the phone on 2026-11-05.",
+    "windows": "All six normal CTest suites pass after GroupBox refinement (338 records); log out/ui012/group-windows-tests.log. All five focused native Windows records, QML formatting and both APK/ELF/scan-root contracts pass."
+  },
+  "reader_refinement": {
+    "date": "2026-11-05",
+    "request": "Speed up opening and returning to Qt; make text non-selectable; use Font Awesome icon-only close IconButton; add Qt and Font Awesome tab logos.",
+    "before": {
+      "open_ms": 3338,
+      "performance_log": "out/ui012/reader-before.txt",
+      "selection_log": "out/ui012/selection-before.txt",
+      "selection_result": "Original indexed TextArea selects copyright text after the same real drag; assertion expecting no selection fails."
+    },
+    "after": {
+      "opening_ms": "approximately 280–300 including dialog animation on native Windows",
+      "tab_render_ms": "21–40 on native Windows",
+      "native_windows_log": "out/ui012/reader-final-native-windows.txt",
+      "performance_limits": "Opening <1000 ms; tab-to-render <500 ms. Native font run establishes fitted captions; offscreen dummy fonts cannot establish glyph fit."
+    },
+    "regression_tests": [
+      "tests/about/tst_about.qml::test_notices_and_back",
+      "tests/about/tst_about.qml::test_tab_switch_is_responsive",
+      "tests/about/tst_about.qml::test_text_not_selectable",
+      "tests/about/tst_about.qml::test_scroll_and_resize_with_safe_areas",
+      "tests/test_model.cpp::license_notices_preserve_resources",
+      "tests/android/test_about.py",
+      "tests/about/tst_about.qml::test_body_swipes_scroll",
+      "tests/about/tst_about.qml::test_header_and_footer",
+      "tests/about/tst_about.qml::test_logo_edges"
+    ],
+    "analyzers": "Samuel clang-tidy checks pass for licensenotices.cpp and test_model.cpp; Clazy passes for licensenotices.cpp and its header. One named local include-cleaner suppression matches the existing QStringList public-header false positive.",
+    "package_inventory": "Both ABI contracts pass with 53 native libraries; complete ARM64 inventory regenerates identical notice text hashes.",
+    "acceptance": "Accepted by user phone confirmation on 2026-11-05; no agent installation on the physical device was performed.",
+    "presentation": {
+      "header": "Open-source licenses, once",
+      "close": "Font Awesome IconButton in IconOnly mode at bottom centre",
+      "scrolling": "Standalone ListView; actual touch and mouse body swipes work",
+      "logos": "CurveRenderer: native comparison finds 114/87 smoothed Qt/Font Awesome edge pixels, versus zero for geometry rendering.",
+      "before": "Body drag/header fail in presentation-before.txt; restored GeometryRenderer fails the corrected comparison in logo-geometry-before.txt.",
+      "after": "Final two About CTest entries pass, 20 records, in presentation-verified.log. Final Android: 26 passes in android-delivery/results.json."
+    }
+  },
+  "drawer_clipping": {
+    "request": "User reports drawer list painting outside its bounds on phone.",
+    "implementation": "clip: true on the drawer ListView; floating selector popups retain their separate overlay.",
+    "regression": "test_drawer_clips_scrolled_controls reduces the viewport, scrolls real action controls through its edge and compares outside pixels with content hidden. Before: 889 leaked pixels; after: zero. About remains reachable by scrolling.",
+    "before_log": "out/ui012/drawer-pixels-before.txt",
+    "after_log": "out/ui012/icon-and-clip-tests.log"
+  },
+  "close_button_refinement": {
+    "implementation": "Existing IconButton in IconOnly mode, Font Awesome times icon, hidden translatable Close text for accessibility. Keep its standard 8 mm circle centred within a 9.27 mm target using matching vertical insets.",
+    "regression": "Existing close activation/geometry/keyboard tests now verify IconButton type, hidden caption mode and circular background. Old TextIcon fails in out/ui012/icon-close-before.txt; final two Windows About suites pass 22 records."
+  },
+  "dist_naming": "Original build-helper names restored at user request; no ticket suffixes in dist.",
+  "resolved": "2026-11-05",
+  "resolution": {
+    "acceptance": "User: Works fine on phone. Close ticket and commit changes.",
+    "change": "Drawer About/Licenses entry opens a fast offline Qt/Font Awesome notice reader, with a single header, smooth vector logos, swipeable non-selectable paragraphs and a centred icon-only Close IconButton. The drawer clips scrolled controls and Back preserves its state and the unfinished draft.",
+    "regression": "Before/after evidence covers missing entry, slow full-document layout, selectable text, jagged SVG edges and drawer overflow. Exact resource round trips, rendered pixels and real controls/gestures are covered in the linked QTest/QML/native Android tests.",
+    "verification": "357 latest passing Windows records across seven suites, including 22 final About records; 26 final native Android checks; both ABI package contracts; changed-unit analyzers and format checks pass. Full-run/focused-rerun details are retained in verification.",
+    "remaining": "No remaining work in the accepted UI-012 scope. Release/source distribution arrangements remain REL-001; background replacement remains UI-013."
+  }
 }

@@ -8,7 +8,8 @@ import QtQuick.Layouts
 Style.Control {
     id: root
 
-    readonly property bool backNavigationActive: !menu.visible && shopView.editMode
+    readonly property bool backNavigationActive: !menu.visible && !aboutDialog.visible
+                                                 && shopView.editMode
 
     function navigateBack() {
         if (menu.visible) {
@@ -110,6 +111,7 @@ Style.Control {
             width: root.availableWidth * 0.85
 
             contentItem: Quick.ListView {
+                clip: true
                 spacing: Theme.pixels(1)
 
                 delegate: DelegateChooser {
@@ -295,6 +297,25 @@ Style.Control {
                     }
 
                     DelegateChoice {
+                        roleValue: "about"
+
+                        GroupBox {
+                            title: qsTr("About")
+                            width: menu.contentItem.width
+
+                            IconButton {
+                                objectName: "aboutButton"
+                                width: parent.width
+                                text: qsTr("Licenses")
+                                font.family: awsome.name
+                                icon.name: "\uf05a"
+
+                                onClicked: aboutDialog.open()
+                            }
+                        }
+                    }
+
+                    DelegateChoice {
                         roleValue: "controls"
 
                         GroupBox {
@@ -343,12 +364,18 @@ Style.Control {
                     Quick.ListElement {
                         type: "controls"
                     }
+
+                    Quick.ListElement {
+                        type: "about"
+                    }
                 }
 
                 Quick.Shortcut {
                     objectName: "drawerBackShortcut"
                     sequences: ["Back"]
-                    enabled: Quick.Qt.platform.os === "android" && menu.visible
+                    enabled: Quick.Qt.platform.os === "android" && menu.visible &&
+                             !aboutDialog.visible
+
                     autoRepeat: false
 
                     onActivated: menu.close()
@@ -366,6 +393,22 @@ Style.Control {
             source: Quick.Qt.resolvedUrl("fa-solid-900.ttf")
         }
     ]
+
+    AboutDialog {
+        id: aboutDialog
+
+        parent: root
+        x: root.leftPadding + Theme.pixels(2)
+        y: root.topPadding + Theme.pixels(2)
+        width: root.availableWidth - Theme.pixels(4)
+        height: root.availableHeight - Theme.pixels(4)
+
+        onClosed: {
+            if (menu.visible) {
+                menu.forceActiveFocus();
+            }
+        }
+    }
 
     Quick.Shortcut {
         objectName: "androidBackShortcut"

@@ -13,6 +13,11 @@ add_test(NAME qshopper_flow_tests COMMAND qshopper_ui_tests
     -platform offscreen -o -,txt -o flow-tests.xml,junitxml)
 set_tests_properties(qshopper_flow_tests PROPERTIES TIMEOUT 120)
 set(qshopper_qml_tests qshopper_ui_tests qshopper_flow_tests)
+add_test(NAME qshopper_about_tests COMMAND qshopper_ui_tests
+    -input ${CMAKE_CURRENT_SOURCE_DIR}/about -import ${CMAKE_BINARY_DIR}
+    -platform offscreen -o -,txt -o about-tests.xml,junitxml)
+set_tests_properties(qshopper_about_tests PROPERTIES TIMEOUT 90)
+list(APPEND qshopper_qml_tests qshopper_about_tests)
 if(qshopper_keyboard_enabled)
     add_test(NAME qshopper_keyboard_tests COMMAND qshopper_ui_tests
         -input ${CMAKE_CURRENT_SOURCE_DIR}/keyboard -import ${CMAKE_BINARY_DIR}
@@ -34,13 +39,18 @@ target_link_libraries(qshopper_tests PRIVATE QShopper Qt6::Test)
 add_test(NAME qshopper_tests COMMAND qshopper_tests -o -,txt -o model-tests.xml,junitxml)
 set_tests_properties(qshopper_tests PROPERTIES ENVIRONMENT "QT_FORCE_STDERR_LOGGING=1" TIMEOUT 30)
 if(WIN32)
+    add_test(NAME qshopper_about_rendering_tests COMMAND qshopper_ui_tests
+        -input ${CMAKE_CURRENT_SOURCE_DIR}/about -import ${CMAKE_BINARY_DIR}
+        -platform windows -o -,txt -o about-rendering-tests.xml,junitxml)
+    set_tests_properties(qshopper_about_rendering_tests PROPERTIES TIMEOUT 90
+        ENVIRONMENT "QT_QUICK_BACKEND=rhi;QSG_RHI_BACKEND=d3d11;QSG_RHI_PREFER_SOFTWARE_RENDERER=1;QT_FORCE_STDERR_LOGGING=1")
     # Verify the floating Undo surface and actual font with native rendering.
     add_test(NAME qshopper_undo_rendering_tests COMMAND qshopper_ui_tests
         -input ${CMAKE_CURRENT_SOURCE_DIR}/rendering -import ${CMAKE_BINARY_DIR}
         -platform windows -o -,txt -o undo-rendering-tests.xml,junitxml)
     set_tests_properties(qshopper_undo_rendering_tests PROPERTIES TIMEOUT 45
         ENVIRONMENT "QT_QUICK_BACKEND=rhi;QSG_RHI_BACKEND=d3d11;QSG_RHI_PREFER_SOFTWARE_RENDERER=1;QT_FORCE_STDERR_LOGGING=1")
-    list(APPEND qshopper_qml_tests qshopper_undo_rendering_tests)
+    list(APPEND qshopper_qml_tests qshopper_undo_rendering_tests qshopper_about_rendering_tests)
     set_tests_properties(${qshopper_qml_tests} qshopper_tests PROPERTIES ENVIRONMENT_MODIFICATION
         "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>")
 endif()

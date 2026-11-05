@@ -242,6 +242,39 @@ The separate qshopper_keyboard_tests CTest entry runs with the real keyboard plu
 and isolated data. It checks virtual-key submission, composed text, hide/reopen,
 preview resizing, and drawer dismissal. Ordinary UI tests also verify the build gate.
 
+## About and offline notices
+
+AboutDialog opens from the drawer and closes before it on Android Back. Keep
+the drawer and unfinished editor state intact. Parent View owns the dialog's
+actual geometry within its safe padding. The reader uses Material Dialog/TabBar
+and a standalone ListView with an attached scrollbar and non-selectable Text
+paragraphs. Body dragging must work with touch and mouse. LicenseNotices caches
+the two local UTF-8 notices as paragraph lists on first use; joining with two
+newlines must reproduce every original character. Do not lay out the entire
+document in TextArea again. The sole header is Open-source licenses. The footer
+centres an accessible Font Awesome icon-only close IconButton with standard click handling and keyboard
+support; tab logos use VectorImage.CurveRenderer for antialiasing.
+The drawer's About entry belongs to its ListModel/DelegateChooser. Use the existing
+GroupBox titled "About" with an information IconButton captioned "Licenses".
+
+Qt/Font Awesome notice sources, versions, hashes and regeneration are documented
+in app/licenses/README.md. CMake packages the Android or Windows notice variant
+under one Qt.txt resource alias; Android excludes desktop keyboard notices.
+Update the inventory with the kit/font/deployment set. The developer generation
+tool is optional; ordinary builds and offline viewing need no Python/network.
+
+The separate qshopper_about_tests CTest entry covers actual drawer activation,
+document markers, Back, both themes, scroll-to-end, safe-area/viewport changes,
+open/switch latency, no selection, logo readiness and preserved draft/items.
+QTest compares both reconstructed notices with their exact bundled resources.
+qshopper_about_rendering_tests runs the same tests with native D3D11 WARP,
+including actual edge-pixel comparisons with the default geometry renderer.
+The suite covers body swipes, header/footer geometry and inherited display modes.
+tests/android/test_about.py covers offline headers and accessible final paragraphs,
+both palettes, native scrollbar endpoints, both Back edges, Close, IME state and
+unchanged isolated data; it restores networking. Paragraphs use accessible ListItem
+roles inside an accessible List so newly visible text remains exposed on Android.
+
 ## Parallel development
 
 Give each coding worker a separate Git worktree and a bounded task.

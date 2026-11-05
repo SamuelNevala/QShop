@@ -1,0 +1,12 @@
+{
+  "qt.svg": {
+    "source": "https://raw.githubusercontent.com/qt/qtbase/v6.12.0/src/plugins/platforms/wasm/resources/qtlogo.svg",
+    "sha256": "058d71a166ecad2990e7dc2cc67ff211c3fe26ec091e61b70d80d114ca464252",
+    "changes": "None."
+  },
+  "font-awesome.svg": {
+    "source": "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.7.2/svgs/brands/font-awesome.svg",
+    "sha256": "d14747861f7f18f0ad6fcc1a28a6dda4778756a94929a2262206e9bff2a1dde1",
+    "changes": "Fill set to blue #528dd7 for visibility in both themes."
+  }
+}

@@ -19,6 +19,8 @@
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
 #include <limits>
+#include <QtCore/QFile>
+#include "licensenotices.h"
 #include "model.h"
 #include "weekmodel.h"
 
@@ -68,6 +70,25 @@ private:
 
     // NOLINTNEXTLINE(readability-redundant-access-specifiers): Q_SLOTS registers Qt test methods.
 private Q_SLOTS:
+    static void license_notices_preserve_resources_data()
+    {
+        QTest::addColumn<bool>("qtNotice");
+        QTest::newRow("qt") << true;
+        QTest::newRow("font-awesome") << false;
+    }
+
+    static void license_notices_preserve_resources()
+    {
+        QFETCH(const bool, qtNotice);
+        const LicenseNotices notices;
+        QFile file(qtNotice ? QStringLiteral(":/qt/qml/QShopper/licenses/Qt.txt")
+                            : QStringLiteral(":/qt/qml/QShopper/licenses/FontAwesome.txt"));
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        const auto &paragraphs = qtNotice ? notices.qt() : notices.fontAwesome();
+        QVERIFY(!paragraphs.isEmpty());
+        QCOMPARE(paragraphs.join(QStringLiteral("\n\n")), QString::fromUtf8(file.readAll()));
+    }
+
     void init()
     {
         // Fresh default connection per test; never opens the user's database.

@@ -28,12 +28,22 @@ set_source_files_properties("${qshopper_keyboard_qml}" PROPERTIES
 
 set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
+if(ANDROID)
+    set(qshopper_qt_notices licenses/Qt-Android.txt)
+elseif(qshopper_keyboard_enabled)
+    set(qshopper_qt_notices licenses/Qt-Windows-Keyboard.txt)
+else()
+    set(qshopper_qt_notices licenses/Qt-Windows.txt)
+endif()
+set_source_files_properties(${qshopper_qt_notices} PROPERTIES QT_RESOURCE_ALIAS licenses/Qt.txt)
+
 qt_add_library(QShopper STATIC)
 qt_add_qml_module(QShopper
     URI QShopper
     VERSION 1.0
     OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/QShopper
     QML_FILES
+        AboutDialog.qml
         ArrowIcon.qml
         Background.qml
         BackgroundImage.qml
@@ -69,10 +79,15 @@ qt_add_qml_module(QShopper
         Weekdays.qml
         YAnimation.qml
     SOURCES
+        licensenotices.h licensenotices.cpp
         model.h model.cpp
         undoremove.h undoremove.cpp
         weekmodel.h weekmodel.cpp
     RESOURCES
+        ${qshopper_qt_notices}
+        licenses/FontAwesome.txt
+        logos/qt.svg
+        logos/font-awesome.svg
         ${qshopper_keyboard_resource}
         background_one.jpg
         background_two.jpg
@@ -80,7 +95,7 @@ qt_add_qml_module(QShopper
         background_four.jpg
         background_five.jpg
         fa-solid-900.ttf
-    DEPENDENCIES QtCore QtQml.Models ${qshopper_keyboard_dependencies}
+    DEPENDENCIES QtCore QtQml.Models QtQuick.VectorImage ${qshopper_keyboard_dependencies}
 )
 
 target_link_libraries(QShopper PUBLIC Qt6::Quick Qt6::Sql Qt6::Core Qt6::Qml Qt6::QuickControls2)

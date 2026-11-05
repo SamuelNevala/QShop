@@ -232,21 +232,31 @@ Android can override orientation restrictions on larger displays; see ANDROID.md
 
 ### [UI-012 — Drawer About and open-source licenses](tickets/UI-012.json)
 
-Requested on 2026-10-30; implementation deferred. Add an About component in the
-drawer where users can identify shipped open-source components and read their
-license texts and attribution notices offline. Inventory the actual libraries,
-fonts, icons and other third-party assets when implementing.
+Resolved 2026-11-05 with user phone confirmation and a request to commit.
+Selected after UX-004 retained Font Awesome.
+The user clarified that this feature supplies the Qt and Font Awesome license
+notices. Drawer → About → Licenses opens a themed reader with both documents
+bundled offline. Qt notices follow the retained runtime inventory and installed
+SBOM; Android excludes desktop keyboard notices. Source URLs, hashes and the
+optional regeneration tool are documented in app/licenses/README.md.
+Following user review, the existing ListModel/DelegateChooser supplies a GroupBox
+titled "About", containing an information IconButton captioned "Licenses".
 
-User sequencing decision, 2026-11-04: settle UX-004's Font Awesome versus bundled
-SVG icon choice first. Complete any selected icon migration before finalizing
-the About inventory and notices. UI-012 depends on UX-004.
-UX-004 was resolved with user acceptance on 2026-11-04: keep Font Awesome.
-The icon-choice prerequisite is satisfied; no icon migration is required.
-
-Keep long license texts readable and scrollable within the safe area. Cover
-opening, scrolling, closing and Android Back with UI tests, preserving shopping
-data and unfinished edits. Coordinate the inventory with REL-001's licensing
-review. Priority and severity remain unassigned.
+The reader refinement replaces full-document layout with cached, virtualized
+non-selectable paragraphs. Native Windows opening drops from 3,338 ms to about
+300 ms, with tab rendering in 21–40 ms. The sole header is Open-source licenses; an accessible Font Awesome close
+IconButton is centred in the footer. Standalone ListView body swipes work with touch
+and mouse. VectorImage.CurveRenderer antialiases the Qt/Font Awesome logos. Full notice/OFL/CC BY
+texts and source hashes are bundled. QTest checks exact resource round trips;
+UI tests cover latency, no selection, logos, scrolling, safe areas and Back.
+Native Android checks cover document headers/final paragraphs, both themes,
+system Back and retained draft/data. Logo rendering intentionally adds the Qt
+SVG/VectorImage runtime closure; both ABI contracts contain 53 native libraries.
+Shared-key test APK:
+`dist/QShopper-arm64-debug.apk`. User confirmed the final feature works on the
+phone and requested closure on 2026-11-05.
+Publication/source arrangements remain REL-001; background provenance remains
+UI-013. Priority and severity remain unassigned.
 
 ### [UI-013 — Original shopping-themed background images](tickets/UI-013.json)
 
@@ -407,6 +417,7 @@ QA-001/QA-002; UI-015 remains a separate transition-time input candidate.
 
 | Reference | Finding | Resolution/evidence |
 | --- | --- | --- |
+| [UI-012](tickets/UI-012.json) | Drawer About and offline Qt/Font Awesome licenses | Resolved 2026-11-05 with user phone confirmation. Cached paragraph reader, swipe scrolling, smooth logos, consistent Close IconButton and clipped drawer; before/after regressions, 357 latest Windows records, 26 Android checks, both ABI contracts and formatting pass. Release arrangements remain REL-001 |
 | [DEV-009](tickets/DEV-009.json) | Dormant cart-wheel component and commented usages | Removed file, QML registration and both disabled snippets at user request. All 247 Windows records pass; Android native build and generated resource/module audit pass; no runtime bug claimed |
 | [DEV-005](tickets/DEV-005.json) | Repeatable C++ static analysis and actionable warning cleanup | Samuel baseline retained (505 clang-tidy / 100 Clazy checks); Windows/Android scans clean with documented exceptions. Property-contract regression fails before and passes after; cancellation characterization, 247 Windows records and 47 native Android checks pass. User accepted closure and commit on 2026-11-01 |
 | [DEV-003](tickets/DEV-003.json) | Consistent C++ formatting | Root clang-format configuration and helper cover all 11 C++/header/test sources. Repeat pass, include/token audits, four Windows suites and nine native cancellation records pass. User accepted closure and commit on 2026-11-01 |
