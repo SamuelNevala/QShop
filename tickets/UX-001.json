@@ -1,12 +1,12 @@
 {
   "id": "UX-001",
   "title": "Review primary and accent color design against Android color guidance",
-  "status": "requested",
+  "status": "resolved",
   "type": "design_review",
   "priority": "unassigned",
   "created": "2026-10-28",
   "reported_by": "user",
-  "scope": "Backlog item only. Review the primary/accent color design, not the app's overall interaction or layout design. Analysis and recommendations are deferred until explicitly requested; this task does not authorize implementation changes.",
+  "scope": "Resolved design review with user acceptance on 2026-11-06. Retain the vivid Theme shade shift, all 19 independently selected primary/accent families, automatic neutral foreground/background roles and System/Light/Dark. Implementation follows separately in UI-025/UI-026; the later Undo surface refinement is UI-027.",
   "request": "Analyze QShopper's selected primary and accent coloring design and compare it with Android design principles. The user clarified that the requested comparison concerns accent and primary colors specifically.",
   "expected": "An evidence-based assessment of the roles, selection, derivation, and application of primary and accent colors, identifying useful alignment with Android guidance and specific improvements where warranted.",
   "review_topics": [
@@ -25,8 +25,33 @@
     "Avoid expanding this into an unsolicited full-app redesign or automatic Material-version migration.",
     "Record proposed changes as separate actionable backlog items, linking existing issues instead of duplicating them."
   ],
-  "relevant_files": ["Theme.qml", "main.qml", "View.qml", "ColorComboBox.qml", "ColorModel.qml", "TextDelegate.qml", "IconButton.qml", "UndoIcon.qml"],
-  "related_tickets": ["UI-005"],
+  "relevant_files": [
+    "app/Theme.qml",
+    "app/main.qml",
+    "app/main.cpp",
+    "app/View.qml",
+    "app/ColorComboBox.qml",
+    "app/ColorModel.qml",
+    "app/ComboBox.qml",
+    "app/Weekdays.qml",
+    "app/IconButton.qml",
+    "app/UndoBar.qml",
+    "app/AboutDialog.qml",
+    "app/Slider.qml",
+    "app/GroupBox.qml",
+    "app/TextDelegate.qml",
+    "app/InputDelegate.qml",
+    "reviews/UX-001.md",
+    "reviews/UX-001/"
+  ],
+  "related_tickets": [
+    "UI-005",
+    "UI-024",
+    "UX-002",
+    "UX-003",
+    "UI-025",
+    "UI-026"
+  ],
   "acceptance_criteria": [
     "Map the actual primary/accent usages and color derivation rules in the current app.",
     "Compare those usages with directly cited official Android/Material color guidance.",
@@ -36,5 +61,28 @@
   ],
   "evidence": "User backlog request and clarification on 2026-10-28: the comparison is specifically about accent and primary coloring.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "user_clarification": "Qt's standard Material colors look bleak to the user; Theme.qml deliberately shifts palette shades for a more vivid appearance. The user explicitly asked to assess whether that shift makes sense.",
+  "review": {
+    "date": "2026-11-05",
+    "completed": "2026-11-06",
+    "baseline": "cf0fb87",
+    "report": "reviews/UX-001.md",
+    "conclusion": "Retain the deliberate shade shift and both configurable color families. It uses existing Material A ramps and supplies the intended stronger accents; default Dark current-day name contrast improves from 2.40:1 with unshifted Indigo to 7.14:1 with the lighter primary. Correct foreground/container and accent-ink pairings separately instead of muting the whole scheme.",
+    "mapping": "Primary: current-day name/circle. Accent: interaction emphasis, selected theme buttons, popup selections/focus, slider, About tabs, Undo fill and gesture/press feedback. Ordinary shopping text/surfaces remain neutral; fixed red/green semantics remain UX-002. primaryTextColor is not the selected primary hue.",
+    "shades": "Qt reference primary Shade500 in both modes; QShopper Shade500 Light/Shade200 Dark. Qt chromatic accent Shade500 Light/Shade200 Dark; QShopper A400 Light/A200 Dark. Brown/Grey/BlueGrey retain 500/200 fallback. accentColorLighter (A200/A100) is unused.",
+    "sources_checked": "Official Android color/M3 documentation, Qt 6.12 Material/QStyleHints documentation, Android accessibility contrast and WCAG 2.2 understanding pages; direct dated links in the report.",
+    "evidence": "92 native palette records (19 families plus four mixed pairs, four modes), twenty native underlay records covering all ten artworks with full/half/empty Undo, and separate corrected whole-scene selected-popup measurements. Explicit System modes use application-local QStyleHints overrides, not real Android OS events.",
+    "findings": "Default Dark Indigo/Green: day number 2.31:1, selected icon and full-fill Undo 1.43:1. Default Light: selected icon 1.67:1 and selected popup label 1.28:1. Vivid fill/foreground roles need pairing; stock Qt colors do not solve all cases either.",
+    "followups": "At review completion, UI-025 and UI-026 captured the foreground/fill and selected-popup defects without app changes. The user subsequently selected and accepted their separate fixes. Other accent-ink/focus/slider/About candidates remain UX-003; semantic red/green remains UX-002.",
+    "verification": "Earlier valid native collection has 26 passing probe records; the separate corrected popup collection has six. Final native repeat encountered Windows WinDisc with negative density, so invalid runs are excluded. A full offscreen attempt passes 25 rows and fails SystemDark because that plugin does not implement the system-scheme override. The final explicitly supported offscreen run passes 24 records (Light/Dark plus twenty underlays and setup/cleanup), collecting 46 palette records with resolved colors matching native data. The probe guards invalid density and sampling, and all 61 tracked QML sources/templates pass formatting. No production changes or full-suite/APK rerun claimed.",
+    "remaining": "No remaining work for this accepted review. Original probe/platform limits above describe the review baseline, while the separate fix tickets record later native Android/Windows coverage. UX-002/UX-003 retain their distinct scopes."
+  },
+  "resolved": "2026-11-06",
+  "resolution": {
+    "acceptance": "2026-11-06: user tested the updated app and requested: Tested, close ticket and commit changes.",
+    "decision": "Keep the intentional A400/A200 accents and lighter Dark primary, all 19 families and System/Light/Dark. Derive foreground/background automatically; do not add four independent color pickers or a Custom mode. Coordinated pair presets are a future convenience, not implemented here.",
+    "report": "reviews/UX-001.md preserves the original source/rendered review, official guidance and measurements. Separate UI-025/UI-026 tickets contain actionable contrast defects; UX-002/UX-003 remain deferred.",
+    "remaining": "None within the accepted design-review scope."
+  }
 }

@@ -1,0 +1,55 @@
+{
+  "id": "UI-025",
+  "title": "Colored fills can make day numbers, selected icons and Undo text hard to read",
+  "status": "observed",
+  "type": "bug",
+  "severity": "unassigned",
+  "priority": "unassigned",
+  "created": "2026-11-05",
+  "reported_by": "UX-001 native Windows component review",
+  "scope": "Backlog only. Rendered contrast observations; no corrective app changes authorized by UX-001. Preserve the user's deliberate vivid Theme shade shift.",
+  "environment": "Qt 6.12.0 MSVC 2022 x64, native Windows D3D11 WARP, production Weekdays/IconButton/UndoBar in an isolated review harness. Not reproduced as a physical-phone shopping incident.",
+  "evidence": [
+    "With default Indigo/Green in Dark, the current-day number on its primary circle is 2.31:1; the selected theme icon and full-fill Undo text on accent are 1.43:1. Default Light selected-icon contrast is 1.67:1.",
+    "Across the 19 color families, current-day numbers are below 4.5:1 for 15 Light/19 Dark cases; selected icons below 3:1 for 10 Light/13 Dark cases; full-fill Undo text below 4.5:1 for 4 Light/18 Dark cases.",
+    "Default Green Undo was sampled over all ten backgrounds at full/half/empty progress in both themes. Dark full-fill text is 1.43:1, while empty-area samples are 5.77-9.08:1. The two surfaces need coordinated treatment.",
+    "Native screenshots and retained palette/underlay measurements are linked in reviews/UX-001.md."
+  ],
+  "reproduction": [
+    "Run the explicit review probe documented in reviews/UX-001.md against the current Windows test executable.",
+    "Use Dark theme with Indigo primary and Green accent; inspect the Weekdays current-day circle, highlighted IconButton and full Undo progress fill.",
+    "Compare the foreground colors to actual filled backgrounds; repeat with Light theme and Green accent, and with Yellow/Lime or neutral choices.",
+    "Before implementing, add permanent regression assertions on these production components, prove they fail, and confirm the real Android UI paths (theme selection, Undo, and the pulled day header)."
+  ],
+  "expected": "Text and essential icons remain distinguishable on primary/accent fills across supported palette choices and themes. Keep vivid colors where practical; pair foreground and fill deliberately rather than assuming white or the normal theme foreground always works.",
+  "implementation_notes": [
+    "Do not simply revert the Theme shade shift: the lighter Dark primary improves current-day name readability, and stock Qt highlighted Green also has low white-on-fill contrast.",
+    "The current-day name and number-circle need separate foreground/container roles even when they share a primary family.",
+    "An appropriate dark/light icon foreground can retain a bright selected-button fill.",
+    "UI-024 intentionally makes Undo text/icon follow normal TextItem colors. Any exception needs explicit design acceptance; a compatible same-family fill tone can preserve that policy. Account for the moving fill and uncovered translucent area together.",
+    "Prefer a small local rule or helper over a broad theme/framework rewrite. UX-001 is analysis, not authorization to apply its suggestions."
+  ],
+  "relevant_files": [
+    "app/Theme.qml",
+    "app/Weekdays.qml",
+    "app/IconButton.qml",
+    "app/UndoBar.qml",
+    "reviews/UX-001.md",
+    "reviews/UX-001/tst_colorroles.qml"
+  ],
+  "related_tickets": [
+    "UX-001",
+    "UX-003",
+    "UI-024",
+    "UI-023"
+  ],
+  "acceptance_criteria": [
+    "Record a failing-before/passing-after automated rendered regression for the actual foreground/fill pairings; a measurement-only probe passing is not regression proof.",
+    "Use appropriate targets: 4.5:1 for small text, 3:1 for qualifying large text and meaningful icons; document any typography-based classification.",
+    "Cover representative bright, dark and neutral palettes, Light/Dark/System, and Undo full/partial/empty fills over actual backgrounds.",
+    "Preserve the intended shade shift, one-handed actions, opacity, inverse checked state and accepted Undo timing/interaction; document any intentional departure from UI-024 foreground policy.",
+    "Verify the relevant native Android paths with isolated data and record exact platform coverage before closure."
+  ],
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

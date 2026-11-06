@@ -1,0 +1,55 @@
+{
+  "id": "UI-026",
+  "title": "Selected popup text has low contrast with bright accent colors",
+  "status": "observed",
+  "type": "bug",
+  "severity": "unassigned",
+  "priority": "unassigned",
+  "created": "2026-11-05",
+  "reported_by": "UX-001 native Windows component review",
+  "scope": "Backlog only. Corrective color/binding changes remain deferred. Separate readable accent ink from the accepted vivid fill/swatch where needed.",
+  "environment": "Qt 6.12.0 MSVC 2022 x64, production ColorComboBox in native Windows D3D11 WARP review frames. Physical Android popup contrast not independently measured.",
+  "evidence": [
+    "The selected Accent-popup Green label is #00e676 on rendered #e1e1e1 in Light: 1.28:1. DeepOrange/Purple gives 3.09:1; Brown/Grey gives 2.05:1. The label is normal small text.",
+    "Dark default Green on the selected row is 7.95:1, but Purple is 3.41:1. A fix must consider both modes and the actual selected-row overlay.",
+    "Source shows selected ColorComboBox and Lists ComboBox delegate foregrounds use root.Material.accent directly. About selected-tab text and focus/slider cues use the same vivid accent family, but their complete rendered-state assessment remains a UX-003 follow-up.",
+    "Whole-scene native popup screenshots were used for final measurement to include the highlighted-row surface. Early subtree-only samples were discarded."
+  ],
+  "reproduction": [
+    "Use Light theme with Green accent, open the Accent selector and inspect the selected Green caption on its highlighted row.",
+    "Run the popup cases in reviews/UX-001/tst_colorroles.qml; final data and representative frames are linked from reviews/UX-001.md.",
+    "Repeat with Purple and Grey accents, then Dark/System, using real production popup delegates."
+  ],
+  "expected": "Selected-entry captions remain readable against their actual popup/highlight surfaces without sacrificing the selected vivid swatch/fill. Other controls preserve meaningful focus/state cues.",
+  "implementation_notes": [
+    "Keep user-selected A400/A200 accent fills and picker swatches where practical. Consider a suitable same-family ink tone for text, or another contrasting selection cue, rather than dulling the entire palette.",
+    "Measure the actual selected-row background including overlays, not just the popup's base color.",
+    "Check Lists selected labels, About selected-tab ink and meaningful slider/focus indicators under UX-003; those additional rendered failures are candidates until measured.",
+    "Do not require decorative control borders to meet non-text targets when they are not the identifying cue. Meaningful focus/state cues still need sufficient contrast.",
+    "Retain current popup safe-area behavior and Android Back handling; UI-010/UI-016 are not reopened."
+  ],
+  "relevant_files": [
+    "app/Theme.qml",
+    "app/ComboBox.qml",
+    "app/ColorComboBox.qml",
+    "app/AboutDialog.qml",
+    "app/Slider.qml",
+    "app/GroupBox.qml",
+    "reviews/UX-001.md",
+    "reviews/UX-001/tst_colorroles.qml"
+  ],
+  "related_tickets": [
+    "UX-001",
+    "UX-003",
+    "UI-010",
+    "UI-016"
+  ],
+  "acceptance_criteria": [
+    "Add a permanent automated regression on actual selected popup text and rendered row surfaces; confirm failure before and success after the correction.",
+    "Reach 4.5:1 for these small captions across representative palettes and Light/Dark/System, including live palette changes and highlighted/current states.",
+    "Preserve the chosen vivid swatches/fills and existing popup geometry/Back behavior.",
+    "Validate relevant Android popup rendering with isolated data; record any untested candidate controls separately rather than claiming whole-app contrast coverage."
+  ],
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}

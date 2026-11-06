@@ -163,6 +163,18 @@ Preserve that character while keeping item names legible, touch targets usable,
 and actions responsive. Visual changes should support the shopping interaction
 without making entry or correction slower.
 
+The vivid primary/accent treatment is intentional. On 2026-11-05 the user
+explained that Qt's standard Material colors look bleak and that the shade shift
+in Theme.qml was introduced to give the app stronger colors. Evaluate that shift
+and its foreground/background pairings while preserving the intended vivid look;
+matching muted defaults is not itself a design goal. The analysis and separate
+contrast follow-ups are recorded in [UX-001](reviews/UX-001.md).
+
+Keep System, Light and Dark independent of the selected primary/accent families.
+Foreground/background colors are derived automatically; do not add independent
+foreground/background pickers or a separate Custom theme mode. Keep all 19 color
+families. Coordinated primary/accent presets are only a possible future convenience.
+
 ## Applying these principles
 
 When evaluating a change, consider whether it:
