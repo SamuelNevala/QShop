@@ -1,0 +1,694 @@
+[
+  {
+    "tag": "Light-03-bakery",
+    "records": [
+      {
+        "mode": "shop",
+        "checked": false,
+        "direction": "right",
+        "action": "check",
+        "glyphCodePoint": "f07a",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1373,
+        "minContrast": 2.451747852478641,
+        "medianContrast": 2.934655602574168,
+        "maxContrast": 3.6415823883792102,
+        "iconBox": [
+          30,
+          95,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "shop",
+        "checked": false,
+        "direction": "left",
+        "action": "check",
+        "glyphCodePoint": "f07a",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1371,
+        "minContrast": 2.6936883137513954,
+        "medianContrast": 3.211993035629323,
+        "maxContrast": 3.8368264317685137,
+        "iconBox": [
+          1023.2558779296875,
+          195,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "shop",
+        "checked": true,
+        "direction": "right",
+        "action": "uncheck",
+        "glyphCodePoint": "f07a",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1373,
+        "minContrast": 2.505540414768821,
+        "medianContrast": 2.7111660178353336,
+        "maxContrast": 3.4937686125507588,
+        "iconBox": [
+          30,
+          295,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": false
+      },
+      {
+        "mode": "shop",
+        "checked": true,
+        "direction": "left",
+        "action": "uncheck",
+        "glyphCodePoint": "f07a",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1371,
+        "minContrast": 2.7913925910845534,
+        "medianContrast": 2.99957147392784,
+        "maxContrast": 3.770974841681183,
+        "iconBox": [
+          1023.2558779296875,
+          395,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": false
+      },
+      {
+        "mode": "edit",
+        "checked": false,
+        "direction": "right",
+        "action": "delete",
+        "glyphCodePoint": "f1f8",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1496,
+        "minContrast": 3.465049299264464,
+        "medianContrast": 4.49683655184508,
+        "maxContrast": 4.781924221251488,
+        "iconBox": [
+          30,
+          495,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "edit",
+        "checked": false,
+        "direction": "left",
+        "action": "check",
+        "glyphCodePoint": "f07a",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1371,
+        "minContrast": 2.7226228249160638,
+        "medianContrast": 3.1074495351254,
+        "maxContrast": 3.4566211878379787,
+        "iconBox": [
+          1023.2558779296875,
+          595,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "edit",
+        "checked": true,
+        "direction": "right",
+        "action": "delete",
+        "glyphCodePoint": "f1f8",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1505,
+        "minContrast": 3.0176189683876675,
+        "medianContrast": 3.52146964060877,
+        "maxContrast": 3.93341999456353,
+        "iconBox": [
+          30,
+          695,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "edit",
+        "checked": true,
+        "direction": "left",
+        "action": "uncheck",
+        "glyphCodePoint": "f07a",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1371,
+        "minContrast": 2.9655824829052424,
+        "medianContrast": 3.2459659205614124,
+        "maxContrast": 3.567792116684984,
+        "iconBox": [
+          1023.2558779296875,
+          795,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": false
+      }
+    ]
+  },
+  {
+    "tag": "Light-10-evening-produce",
+    "records": [
+      {
+        "mode": "shop",
+        "checked": false,
+        "direction": "right",
+        "action": "check",
+        "glyphCodePoint": "f07a",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1373,
+        "minContrast": 2.3889941948915117,
+        "medianContrast": 3.152123547018057,
+        "maxContrast": 3.7538815311576093,
+        "iconBox": [
+          30,
+          95,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "shop",
+        "checked": false,
+        "direction": "left",
+        "action": "check",
+        "glyphCodePoint": "f07a",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1371,
+        "minContrast": 2.274232263323645,
+        "medianContrast": 2.806276698509244,
+        "maxContrast": 3.733375463425538,
+        "iconBox": [
+          1023.2558779296875,
+          195,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "shop",
+        "checked": true,
+        "direction": "right",
+        "action": "uncheck",
+        "glyphCodePoint": "f07a",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1373,
+        "minContrast": 2.3641867800369285,
+        "medianContrast": 2.9175303428828783,
+        "maxContrast": 3.6969233889531585,
+        "iconBox": [
+          30,
+          295,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": false
+      },
+      {
+        "mode": "shop",
+        "checked": true,
+        "direction": "left",
+        "action": "uncheck",
+        "glyphCodePoint": "f07a",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1371,
+        "minContrast": 2.2690694266278326,
+        "medianContrast": 2.697053349123151,
+        "maxContrast": 3.738742602171016,
+        "iconBox": [
+          1023.2558779296875,
+          395,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": false
+      },
+      {
+        "mode": "edit",
+        "checked": false,
+        "direction": "right",
+        "action": "delete",
+        "glyphCodePoint": "f1f8",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1498,
+        "minContrast": 2.9931403039523956,
+        "medianContrast": 3.636660892301833,
+        "maxContrast": 4.557369814020339,
+        "iconBox": [
+          30,
+          495,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "edit",
+        "checked": false,
+        "direction": "left",
+        "action": "check",
+        "glyphCodePoint": "f07a",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1371,
+        "minContrast": 2.8490143734683637,
+        "medianContrast": 3.405459949638738,
+        "maxContrast": 3.7262674591298404,
+        "iconBox": [
+          1023.2558779296875,
+          595,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "edit",
+        "checked": true,
+        "direction": "right",
+        "action": "delete",
+        "glyphCodePoint": "f1f8",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1497,
+        "minContrast": 3.4443123242160274,
+        "medianContrast": 3.9040199830161266,
+        "maxContrast": 4.235629813586266,
+        "iconBox": [
+          30,
+          695,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "edit",
+        "checked": true,
+        "direction": "left",
+        "action": "uncheck",
+        "glyphCodePoint": "f07a",
+        "foreground": "#fffbfe",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1371,
+        "minContrast": 2.5123212712968392,
+        "medianContrast": 3.2633579053351887,
+        "maxContrast": 3.6914041779717963,
+        "iconBox": [
+          1023.2558779296875,
+          795,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": false
+      }
+    ]
+  },
+  {
+    "tag": "Dark-03-bakery",
+    "records": [
+      {
+        "mode": "shop",
+        "checked": false,
+        "direction": "right",
+        "action": "check",
+        "glyphCodePoint": "f07a",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1380,
+        "minContrast": 4.5879168491756435,
+        "medianContrast": 5.6930963833205075,
+        "maxContrast": 6.814435334537245,
+        "iconBox": [
+          30,
+          95,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "shop",
+        "checked": false,
+        "direction": "left",
+        "action": "check",
+        "glyphCodePoint": "f07a",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1380,
+        "minContrast": 4.354452174060257,
+        "medianContrast": 5.20374638569082,
+        "maxContrast": 6.202379507686501,
+        "iconBox": [
+          1023.2558779296875,
+          195,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "shop",
+        "checked": true,
+        "direction": "right",
+        "action": "uncheck",
+        "glyphCodePoint": "f07a",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1378,
+        "minContrast": 4.782021664883089,
+        "medianContrast": 6.162395473902329,
+        "maxContrast": 6.668133189481118,
+        "iconBox": [
+          30,
+          295,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": false
+      },
+      {
+        "mode": "shop",
+        "checked": true,
+        "direction": "left",
+        "action": "uncheck",
+        "glyphCodePoint": "f07a",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1380,
+        "minContrast": 4.430492882805283,
+        "medianContrast": 5.567912783640178,
+        "maxContrast": 5.985283922679934,
+        "iconBox": [
+          1023.2558779296875,
+          395,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": false
+      },
+      {
+        "mode": "edit",
+        "checked": false,
+        "direction": "right",
+        "action": "delete",
+        "glyphCodePoint": "f1f8",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1494,
+        "minContrast": 3.4938398067993144,
+        "medianContrast": 3.715340107358619,
+        "maxContrast": 4.821656419391425,
+        "iconBox": [
+          30,
+          495,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "edit",
+        "checked": false,
+        "direction": "left",
+        "action": "check",
+        "glyphCodePoint": "f07a",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1380,
+        "minContrast": 4.833412829872805,
+        "medianContrast": 5.3710802471927614,
+        "maxContrast": 6.1364640905856405,
+        "iconBox": [
+          1023.2558779296875,
+          595,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "edit",
+        "checked": true,
+        "direction": "right",
+        "action": "delete",
+        "glyphCodePoint": "f1f8",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1493,
+        "minContrast": 4.247519263236007,
+        "medianContrast": 4.744404723710186,
+        "maxContrast": 5.53657614573952,
+        "iconBox": [
+          30,
+          695,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "edit",
+        "checked": true,
+        "direction": "left",
+        "action": "uncheck",
+        "glyphCodePoint": "f07a",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1380,
+        "minContrast": 4.682805682308037,
+        "medianContrast": 5.14708952779659,
+        "maxContrast": 5.6337253452276,
+        "iconBox": [
+          1023.2558779296875,
+          795,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": false
+      }
+    ]
+  },
+  {
+    "tag": "Dark-10-evening-produce",
+    "records": [
+      {
+        "mode": "shop",
+        "checked": false,
+        "direction": "right",
+        "action": "check",
+        "glyphCodePoint": "f07a",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1381,
+        "minContrast": 4.450667145096113,
+        "medianContrast": 5.3003243521693575,
+        "maxContrast": 6.993435661347418,
+        "iconBox": [
+          30,
+          95,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "shop",
+        "checked": false,
+        "direction": "left",
+        "action": "check",
+        "glyphCodePoint": "f07a",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1374,
+        "minContrast": 4.475113034030762,
+        "medianContrast": 5.953538796149907,
+        "maxContrast": 7.346337252682206,
+        "iconBox": [
+          1023.2558779296875,
+          195,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "shop",
+        "checked": true,
+        "direction": "right",
+        "action": "uncheck",
+        "glyphCodePoint": "f07a",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1379,
+        "minContrast": 4.519238144677158,
+        "medianContrast": 5.725999713067854,
+        "maxContrast": 7.066817790532309,
+        "iconBox": [
+          30,
+          295,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": false
+      },
+      {
+        "mode": "shop",
+        "checked": true,
+        "direction": "left",
+        "action": "uncheck",
+        "glyphCodePoint": "f07a",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1374,
+        "minContrast": 4.468688801311079,
+        "medianContrast": 6.194640978361821,
+        "maxContrast": 7.36305244839322,
+        "iconBox": [
+          1023.2558779296875,
+          395,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": false
+      },
+      {
+        "mode": "edit",
+        "checked": false,
+        "direction": "right",
+        "action": "delete",
+        "glyphCodePoint": "f1f8",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1494,
+        "minContrast": 3.6659911043224596,
+        "medianContrast": 4.593606072867435,
+        "maxContrast": 5.581855676877078,
+        "iconBox": [
+          30,
+          495,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "edit",
+        "checked": false,
+        "direction": "left",
+        "action": "check",
+        "glyphCodePoint": "f07a",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1379,
+        "minContrast": 4.483649491227812,
+        "medianContrast": 4.906026629113234,
+        "maxContrast": 5.864230574929314,
+        "iconBox": [
+          1023.2558779296875,
+          595,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "edit",
+        "checked": true,
+        "direction": "right",
+        "action": "delete",
+        "glyphCodePoint": "f1f8",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1494,
+        "minContrast": 3.9444611386282533,
+        "medianContrast": 4.279506065539842,
+        "maxContrast": 4.850685891590585,
+        "iconBox": [
+          30,
+          695,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": true
+      },
+      {
+        "mode": "edit",
+        "checked": true,
+        "direction": "left",
+        "action": "uncheck",
+        "glyphCodePoint": "f07a",
+        "foreground": "#1c1b1f",
+        "rawRatio": 8.734867553637782,
+        "itemOpacity": 1,
+        "corePixels": 1377,
+        "minContrast": 4.52599509341345,
+        "medianContrast": 5.118732368059721,
+        "maxContrast": 6.650135628825092,
+        "iconBox": [
+          1023.2558779296875,
+          795,
+          66.74399999999999,
+          66.74399999999999
+        ],
+        "arrowOnscreenAtRest": false
+      }
+    ]
+  }
+]

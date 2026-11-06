@@ -1,0 +1,22 @@
+{
+  "Original": {
+    "Red500": "#f44336",
+    "Green500": "#4caf50"
+  },
+  "Grayscale": {
+    "Red500": "#858585",
+    "Green500": "#9b9b9b"
+  },
+  "Protanopia": {
+    "Red500": "#786c33",
+    "Green500": "#b2a047"
+  },
+  "Deuteranopia": {
+    "Red500": "#a4932e",
+    "Green500": "#a59857"
+  },
+  "Tritanopia": {
+    "Red500": "#ff0042",
+    "Green500": "#3bab9a"
+  }
+}

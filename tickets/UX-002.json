@@ -1,12 +1,12 @@
 {
   "id": "UX-002",
   "title": "Evaluate red delete and green selection feedback and compare alternatives",
-  "status": "requested",
+  "status": "resolved",
   "type": "design_review",
   "priority": "unassigned",
   "created": "2026-10-28",
   "reported_by": "user",
-  "scope": "Backlog item only. Evaluate action colors and alternatives later; no color or interaction changes are authorized by this intake item.",
+  "scope": "Review selected 2026-11-06, including color blindness and Android guidance. User accepted retaining red/green with non-color cues and selected UI-028 for implementation. Original review artifacts are preserved separately from the application fix.",
   "request": "Analyze whether red warning feedback for deletion and green feedback for selection are good choices, or whether better alternatives exist.",
   "expected": "A justified recommendation to retain or change the current action-color treatment, with alternatives compared for clarity, accessibility, theme compatibility, and one-handed shopping use.",
   "current_implementation": "TextDelegate.qml uses Material.Red for the edit-mode right-swipe delete background and Material.Green for shopping-mode selection and the opposite swipe background. The feedback is translucent and accompanied by action icons.",
@@ -19,8 +19,26 @@
     "Whether configurable primary/accent colors conflict with the meaning of the fixed action colors; coordinate with UX-001.",
     "Relevant official Android/Material guidance and the app's deliberate gesture, opacity, and animation design."
   ],
-  "relevant_files": ["TextDelegate.qml", "IconChoser.qml", "CartInIcon.qml", "CartOutIcon.qml", "TrashIcon.qml", "Theme.qml", "DESIGN.md"],
-  "related_tickets": ["UX-001"],
+  "relevant_files": [
+    "app/TextDelegate.qml",
+    "app/IconChoser.qml",
+    "app/ArrowIcon.qml",
+    "app/TextIcon.qml",
+    "app/CartInIcon.qml",
+    "app/CartOutIcon.qml",
+    "app/TrashIcon.qml",
+    "app/ShopView.qml",
+    "app/Theme.qml",
+    "DESIGN.md",
+    "reviews/UX-002.md",
+    "reviews/UX-002/"
+  ],
+  "related_tickets": [
+    "UX-001",
+    "UX-003",
+    "UI-028",
+    "UI-017"
+  ],
   "acceptance_criteria": [
     "Describe the current action-color meanings and their actual rendered appearance.",
     "Compare the current scheme with plausible alternatives, documenting benefits and tradeoffs rather than choosing colors by preference alone.",
@@ -30,5 +48,37 @@
   ],
   "evidence": "Explicit user backlog request on 2026-10-28 to evaluate red for delete and green for selection and consider better alternatives.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "additional_user_request": "2026-11-06: Include color blindness and check how Android handles it.",
+  "review": {
+    "date": "2026-11-06",
+    "baseline": "d944dc9",
+    "report": "reviews/UX-002.md",
+    "recommendation": "Retain red for deletion and green for check/uncheck, independent of primary/accent. Preserve bin/cart silhouettes, incoming/outgoing arrow animation, strikeout and checked-group context. Do not add a color-blind theme or more pickers; a universal alternative hue pair does not replace non-color cues and readable contrast.",
+    "android": "Official Android principles recommend shapes/text/other cues alongside color. User color correction/grayscale and developer Simulate color space are different features. Android documents that screenshots under its color-space simulator remain normal; future display validation must observe the live display or a validated capture of final displayed output, with original settings restored.",
+    "rendered": "Native Windows window using Qt Quick software rendering: six collection records pass, covering 32 settled combinations (eight action/mode/check/direction states, two themes, two real backgrounds), with idle/moving/settled captures. Opaque body cores are measured against same-location composed backgrounds with the icon hidden. This is measurement collection, not six accessibility passes or Android coverage.",
+    "findings": "Light cart body minima: check 2.274:1, uncheck 2.269:1; some per-state medians are below 3:1. Light bin minimum 2.993:1 is a narrow edge case, with higher medians. Dark sampled bodies stay above 3.49:1. UI-028 records the local contrast candidate; body and arrow must be assessed together before implementation.",
+    "color_vision": "Offline grayscale and severity-100 protanopia/deuteranopia/tritanopia models use linear-sRGB Machado 2009 matrices checked against colorspacious's published implementation. Nominal Red500/Green500 become #a4932e/#a59857 in the deuteranopia preview. Shapes persist, but this is neither Android correction output nor a recognition test with affected users; intermediate severities were not evaluated.",
+    "alternatives": "Compare keeping semantic red/green with blue/orange, theme-driven action colors, extra check/uncheck colors and a separate color-blind theme. Prefer retaining established semantics; alternatives do not inherently solve shape/contrast and could add confusion or combinations.",
+    "rhi_gap": "The new review fixture aborts under D3D11 WARP with an opacity-range assertion, exit -1073740791; an existing native Undo control passes three records. Effective Item opacity is already clamped to 1 even when raw ratio is about 8.735. Probe-side and temporary source-cap trials do not isolate the assertion. Cause remains unresolved; no application crash or opacity-binding defect is claimed. Early offscreen mirrored-bounds failures were probe-only and are excluded from retained measurements.",
+    "verification": "Final native-window/software probe: six passed, zero failures/skips, 17.452 seconds. All 64 tracked QML/templates pass formatter Check; JSON and git diff --check pass. Application files match the committed baseline; no full app suite, APK rebuild or Android launch was performed for this review.",
+    "remaining": "The review recommendation was accepted and UI-028 was selected and subsequently accepted. Native Android held swipes and explicit/System resolution are covered by UI-028. Actual live correction/simulator observation, outdoor use, reduced-motion behavior and recognition by affected users remain outside the review evidence. UX-003 remains deferred."
+  },
+  "sources": [
+    "https://developer.android.com/guide/topics/ui/accessibility/principles#use-cues-other-than-color",
+    "https://developer.android.com/design/ui/mobile/guides/styles/color",
+    "https://support.google.com/accessibility/answer/11183305?hl=en",
+    "https://developer.android.com/studio/debug/dev-options#hardware",
+    "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html",
+    "https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html",
+    "https://doi.org/10.1109/TVCG.2009.113",
+    "https://raw.githubusercontent.com/njsmith/colorspacious/master/colorspacious/cvd.py"
+  ],
+  "acceptance": "User asked whether the conclusion meant no changes, then selected: ok do 028. Retain action hues and improve local swipe icon contrast under UI-028.",
+  "resolved": "2026-11-07",
+  "resolution": {
+    "acceptance": "User accepted retaining red/green with non-color cues, selected UI-028, then accepted the fix and requested commit/closure on 2026-11-07.",
+    "summary": "Retain established red deletion and green checking/unchecking semantics. Improve local body/arrow contrast under UI-028; no additional color pickers or separate color-blind theme.",
+    "evidence": "reviews/UX-002.md and retained original measurements/frames document the baseline, primary guidance, alternatives, offline simulation limits and unresolved synthetic-probe assertion. UI-028 records the subsequent actual-touch Windows/Android regression results."
+  }
 }

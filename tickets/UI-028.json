@@ -1,0 +1,56 @@
+{
+  "id": "UI-028",
+  "title": "Light-theme swipe cart icons have low contrast over translucent Green feedback",
+  "status": "observed",
+  "type": "bug_candidate_from_rendered_review",
+  "severity": "unassigned",
+  "priority": "unassigned",
+  "created": "2026-11-06",
+  "reported_by": "UX-002 component/color-vision review",
+  "scope": "UX-002 review identifies low Light-theme cart-body contrast in rendered production components. Actual-touch reproduction, Android impact and permanent before/after regression coverage belong to the separately selected UI-028 implementation.",
+  "environment": "Qt 6.12.0 MSVC 2022 x64; native Windows window with Qt Quick software rendering, production delegate/icons, actual Font Awesome and two backgrounds. Review baseline is not an Android reproduction.",
+  "evidence": [
+    "Across Light-theme samples, check cart-body contrast falls to 2.274:1 and uncheck to 2.269:1. Per-state medians include 2.806:1 and 2.697:1, below the 3:1 meaningful-icon review target. Foreground is #fffbfe on the rendered 0.8-opacity Material Green500 strip.",
+    "Dark sampled cart bodies remain above 4.35:1. Light delete has a narrow 2.993:1 minimum but substantially higher medians; include its foreground/arrow combination rather than asserting all deletion frames are unclear.",
+    "The original values are measured at actual opaque body cores against the same pixels with the icon hidden. Antialiased edges are not the nominal foreground. See reviews/UX-002/measurements.json and normal frames.",
+    "Bin/cart silhouettes provide the non-color distinction when red/green become similar. Faint bodies therefore weaken that cue. The offline model preview is not Android correction output or a recognition study."
+  ],
+  "source_notes": [
+    "TextDelegate uses fixed Red500/Green500 at 0.8 opacity, separate from user primary/accent shades. TextIcon bodies inherit Material.backgroundColor; CartOut/Trash explicitly use the normal Theme context.",
+    "ArrowIcon uses Material.primaryTextColor for its arrow. A body-only switch to dark ink could make the Light arrow disappear into it; evaluate both together.",
+    "The new review probe's separate RHI assertion has no established cause and is not treated as this contrast bug or a confirmed opacity-binding defect."
+  ],
+  "reproduction": [
+    "Run the explicit UX-002 review probe under its documented native Windows software renderer and inspect Light check/uncheck frames over the bakery/evening-produce backgrounds.",
+    "Before implementing, reproduce on the actual app with a held deliberate swipe, in both directions and in shopping/edit modes, including checked and unchecked rows.",
+    "Capture real Android rendering with isolated data and inspect sufficient feedback reveal and relevant animation phases. System color-space simulator screenshots alone cannot prove the displayed simulation."
+  ],
+  "expected": "Meaningful cart/bin/arrow shapes remain discernible against the actual composed feedback surface, with a 3:1 review target and rounding margin where applicable. Preserve action semantics, existing non-color cues, vivid theme choices and one-handed gestures.",
+  "acceptance_criteria": [
+    "Add a permanent real-trigger regression first and confirm failure with the original Light cart pairing, then pass with the selected fix. Distinguish application behavior from review-fixture failures.",
+    "Evaluate body and arrow together against actual backgrounds in Light/Dark/System, both directions and edit/shopping/checked states, including live theme changes and representative image extremes.",
+    "Retain red deletion and green shopping semantics unless separately agreed, and avoid changing global primary/accent tones to fix this local feedback role.",
+    "Validate the actual Android swipe paths, saved check/delete outcomes and non-color recognition cues. Record platform/simulation limits and physical-phone acceptance before closure."
+  ],
+  "related_tickets": [
+    "UX-002",
+    "UX-003",
+    "UI-004",
+    "UI-017",
+    "UI-025"
+  ],
+  "relevant_files": [
+    "app/TextDelegate.qml",
+    "app/TextIcon.qml",
+    "app/ArrowIcon.qml",
+    "app/CartInIcon.qml",
+    "app/CartOutIcon.qml",
+    "app/TrashIcon.qml",
+    "app/IconChoser.qml",
+    "app/ShopView.qml",
+    "reviews/UX-002.md",
+    "reviews/UX-002/"
+  ],
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}
