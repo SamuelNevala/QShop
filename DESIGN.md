@@ -76,6 +76,12 @@ list and app process; successful reload/list switching ends the batch, while a
 failed load preserves it. Preserve newer edits and the surviving rows' order when
 restoring removed items by identity and their neighboring items.
 
+The user reported on 2026-11-06 that restoring the whole deletion batch can undo
+intentional cleanup when removing non-recurring items after Reset checks.
+[UX-005](tickets/UX-005.json) tracks real-use validation and a possible per-action
+Undo stack. This is a pending policy review; the existing batching behavior above
+remains the accepted implementation until a replacement is selected.
+
 Checked items follow first-in, last-out order: the most recently checked item
 stays nearest the unchecked items. This puts the most likely mistake within easy
 reach. Preserve that ordering and the ability to reverse a check quickly.

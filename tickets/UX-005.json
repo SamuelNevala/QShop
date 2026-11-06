@@ -1,0 +1,53 @@
+{
+  "id": "UX-005",
+  "title": "Evaluate Undo granularity during post-reset removal of non-recurring items",
+  "status": "backlog",
+  "type": "design_review_with_validation",
+  "priority": "unassigned",
+  "severity": "unassigned",
+  "created": "2026-11-06",
+  "reported_by": "user",
+  "scope": "Backlog only. Test the real list-reuse workflow and decide recovery granularity before changing application behavior. This revisits UI-023's accepted batching policy; it does not reopen its resolved reachability or timing defects.",
+  "user_report": "The primary deletion use case is removing non-recurring items after Reset checks. If several intentional removals are followed by one mistake, Undo returns all removed items, forcing the user to repeat the intentional cleanup. The user suggests a Gmail-like single-item stack and asks for alternatives; exact current Gmail behavior has not been verified or adopted as a requirement.",
+  "evidence": {
+    "user_observation": "User reports the restore-all outcome during real use; device/build and precise action sequence were not specified.",
+    "source_review": "UndoRemove::mergeWith appends consecutive commands' removed items and updateText reports their total count. UndoRemove::undo restores every member of the merged command. Model already owns QUndoStack. UI-023 explicitly records the previous user-selected policy: restore the whole deletion batch, each deletion restarting 15 seconds.",
+    "validation_gap": "No new workflow reproduction, automated test or phone study was run for this intake. Existing batch restoration tests establish the current policy, not its usability for post-reset cleanup."
+  },
+  "primary_scenario": [
+    "Use disposable mixed recurring/non-recurring items, complete a shopping trip, and Reset checks. Establish the resulting order before cleanup, preserving UI-006 semantics.",
+    "Deliberately delete Birthday candles, then Gift wrap, as two separate swipes within the recovery window.",
+    "Accidentally delete Milk and activate Undo with one hand.",
+    "Record exactly which items return, their identities/order/check flags, message clarity, time and additional gestures needed to finish cleanup. Current batching restores all three; the proposed behavior restores only Milk."
+  ],
+  "proposal": {
+    "granularity": "One Undo step per user deletion action. A single swipe is one item; an explicit Remove checked or Clear list action is one coherent bulk operation. Do not automatically merge separate swipes into one restore-all action.",
+    "interaction": "Keep the existing whole-bar Undo and animated countdown. Identify the latest action/item. A tap restores only that action; deliberate further taps can undo earlier pending actions in reverse order. No additional Undo-all button or history screen is proposed.",
+    "simplicity": "Evaluate reusing the existing QUndoStack and UUID/neighbor restoration. Prefer one shared bounded recovery clock rather than separate timers for every item. Recovery expiry/pause/restart behavior must be decided explicitly before implementation.",
+    "alternative": "Latest-action-only Undo would be simpler to explain but makes earlier accidental deletions unrecoverable as soon as a newer deletion replaces them. Compare that tradeoff against a short per-action stack rather than adopting it silently.",
+    "acceptance": "Recommendation only; final interaction and timer policy remain undecided."
+  },
+  "review_and_test_cases": [
+    "Real one-handed Android cleanup after Reset, including an accidental removal in the middle or at the end of several intended removals and a mistake noticed after another deletion.",
+    "Repeated Undo taps, accidental double taps, clear identification of the next action, deletion after Undo, and expiry while earlier actions remain pending.",
+    "A single bulk Remove checked/Clear list action, separate bulk actions, and a bulk action adjacent to individual swipes. Define which operation one Undo reverses.",
+    "Preserve the post-reset order, surviving/newly entered items, original UUIDs and check flags, pending editor drafts, scrolling and reorder behavior.",
+    "Retain reachable placement above native IME/safe areas, drawer/background pause policy, and deliberate list-switch/reload boundaries. Cross-restart recovery is not newly requested.",
+    "If a policy change is selected, add automated model/UI regression assertions first against the actual reset/delete/mistake/Undo sequence; prove the current implementation fails the newly accepted expectation and the change passes. Supplement with actual Android touch/IME verification and record limits."
+  ],
+  "acceptance_criteria": [
+    "Document current outcomes separately from the usability concern and possible replacement policies.",
+    "Evaluate post-reset cleanup on a physical phone with disposable data and propose the simplest policy that corrects one mistake without reversing intended cleanup.",
+    "Agree on individual/bulk granularity, repeated Undo behavior, message and recovery-window rules before implementation.",
+    "If selected for implementation, update DESIGN.md and affected batch assertions intentionally, retain permanent failing-before/passing-after coverage, and record phone confirmation before closure."
+  ],
+  "related_tickets": ["UI-023", "UI-006", "UI-015", "UI-027", "QA-001", "QA-003"],
+  "relevant_files": [
+    "DESIGN.md", "app/undoremove.cpp", "app/undoremove.h", "app/model.cpp",
+    "app/UndoBar.qml", "app/View.qml", "tests/test_model.cpp",
+    "tests/qml/tst_undorecovery.qml", "tests/flows/tst_userflows.qml",
+    "tests/android/test_undorecovery.py", "tests/INTERACTIONS.md"
+  ],
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null
+}
