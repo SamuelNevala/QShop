@@ -27,6 +27,12 @@ velocity, or travel beyond half the delegate's width. The distance trigger must
 work even for a slow drag. Right swipes select items in shopping mode and delete
 them in edit mode; preserve the distinct actions and the working left-swipe path.
 
+Keep red deletion and green checking/unchecking feedback separate from the user's
+primary/accent choices. Cart/bin silhouettes and directional arrows communicate
+the action without relying on color alone. UI-028 uses black cart/bin bodies and
+white arrows with black outlines in both themes, preserving their contrast over
+the translucent action strips without changing the existing swipe animations.
+
 The velocity trigger should work with a comfortable one-handed stroke. Higher
 swipe sensitivity must make the same gesture easier to activate, while the
 half-width fallback and deliberate pullback remain independent of that setting.

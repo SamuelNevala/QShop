@@ -65,7 +65,15 @@ public final class BackGesture {
         send(MotionEvent.ACTION_DOWN, start, y);
         SystemClock.sleep(Long.parseLong(args[4]));
         move(start, y, outward, endY);
-        SystemClock.sleep(args.length > 6 ? Long.parseLong(args[6]) : 1000);
+        System.out.println("HELD");
+        System.out.flush();
+        long hold = args.length > 6 ? Long.parseLong(args[6]) : 1000;
+        if (hold < 0) {
+            // Pixel tests release the hold after capturing, regardless of ADB latency.
+            System.in.read();
+        } else {
+            SystemClock.sleep(hold);
+        }
         if (cancel) {
             move(outward, endY, start, y);
         }

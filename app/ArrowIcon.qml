@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls.Material
 
 TextIcon {
     id: root
@@ -25,6 +24,8 @@ TextIcon {
     }
 
     clip: true
+    // Red/green feedback stays bright; preserve the icon silhouette in either theme.
+    color: "black"
     text: "\uf10a"
 
     onRatioChanged: {
@@ -39,7 +40,9 @@ TextIcon {
     TextIcon {
         id: arrowIcon
 
-        color: Material.primaryTextColor
+        color: "white"
+        style: Text.Outline
+        styleColor: root.color
         height: parent.height * 0.35
         width: parent.width
         leftPadding: width * 0.32

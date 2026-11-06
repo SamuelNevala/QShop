@@ -33,6 +33,11 @@ add_test(NAME qshopper_popupcontrast_tests COMMAND qshopper_ui_tests
     -platform offscreen -o -,txt -o popupcontrast-tests.xml,junitxml)
 set_tests_properties(qshopper_popupcontrast_tests PROPERTIES TIMEOUT 300)
 list(APPEND qshopper_qml_tests qshopper_popupcontrast_tests)
+add_test(NAME qshopper_swipecontrast_tests COMMAND qshopper_ui_tests
+    -input ${CMAKE_CURRENT_SOURCE_DIR}/swipecontrast -import ${CMAKE_BINARY_DIR}
+    -platform offscreen -o -,txt -o swipecontrast-tests.xml,junitxml)
+set_tests_properties(qshopper_swipecontrast_tests PROPERTIES TIMEOUT 240)
+list(APPEND qshopper_qml_tests qshopper_swipecontrast_tests)
 if(qshopper_keyboard_enabled)
     add_test(NAME qshopper_keyboard_tests COMMAND qshopper_ui_tests
         -input ${CMAKE_CURRENT_SOURCE_DIR}/keyboard -import ${CMAKE_BINARY_DIR}
@@ -54,6 +59,14 @@ target_link_libraries(qshopper_tests PRIVATE QShopper Qt6::Test)
 add_test(NAME qshopper_tests COMMAND qshopper_tests -o -,txt -o model-tests.xml,junitxml)
 set_tests_properties(qshopper_tests PROPERTIES ENVIRONMENT "QT_FORCE_STDERR_LOGGING=1" TIMEOUT 30)
 if(WIN32)
+    set_property(TEST qshopper_swipecontrast_tests APPEND PROPERTY ENVIRONMENT
+        "QT_QPA_FONTDIR=$ENV{WINDIR}/Fonts")
+    add_test(NAME qshopper_swipecontrast_rendering_tests COMMAND qshopper_ui_tests
+        -input ${CMAKE_CURRENT_SOURCE_DIR}/swipecontrast -import ${CMAKE_BINARY_DIR}
+        -platform windows -o -,txt -o swipecontrast-rendering-tests.xml,junitxml)
+    set_tests_properties(qshopper_swipecontrast_rendering_tests PROPERTIES TIMEOUT 240
+        ENVIRONMENT "QT_QUICK_BACKEND=rhi;QSG_RHI_BACKEND=d3d11;QSG_RHI_PREFER_SOFTWARE_RENDERER=1;QT_FORCE_STDERR_LOGGING=1")
+    list(APPEND qshopper_qml_tests qshopper_swipecontrast_rendering_tests)
     # These checks count actual text glyph pixels, including offscreen rendering.
     set_property(TEST qshopper_contrast_tests APPEND PROPERTY ENVIRONMENT
         "QT_QPA_FONTDIR=$ENV{WINDIR}/Fonts")

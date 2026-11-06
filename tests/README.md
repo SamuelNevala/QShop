@@ -7,6 +7,40 @@ Android package regression commands are in [ANDROID.md](../ANDROID.md#package-re
 closure and scan isolation; use `build-android.ps1 -VerifyPackage` to include it
 in a repeatable Android build. It accepts a Python interpreter via `-Python`.
 
+## Swipe feedback contrast (UI-028)
+
+The normal workflow includes `qshopper_swipecontrast_tests` (offscreen/software)
+and `qshopper_swipecontrast_rendering_tests` (native Windows, D3D11 WARP).
+`swipecontrast/tst_swipecontrast.qml` holds a real touch swipe beyond half width
+on the production ShopView. It checks actual body/arrow contrast, changes the
+theme and primary/accent while held, then releases and verifies check/delete
+and Undo outcomes. Light/Dark, both modes/directions/check states and four
+backgrounds produce 64 cases; native Windows adds two System cases. Including
+setup/cleanup, the suites report 66 and 68 records. Only the fixture's arrow
+animation is paused to compare identical body/arrow/background render frames.
+
+The native Android companion requires Pillow, the installed x86_64 APK and the
+existing `BackGesture` helper, rebuilt with its held-position signal. Run only on the isolated
+emulator, without other emulator workflows:
+
+```powershell
+./tools/build-android-gesture-test.ps1 -SdkRoot C:/android/sdk
+python tests/android/test_swipecontrast.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-swipecontrast
+```
+
+It uses disposable SQLite/settings and restores OS night mode afterward. Twenty
+profiles cover Light/Dark/System, modes, directions and checked states. Each
+checks the actual tinted strip, body contrast against adjacent pixels from the
+same frame, visible arrow pixels, unchanged saved data after a cancelled held
+swipe, and exact UUID/name/check outcomes after a separate committed swipe.
+The capture waits for the helper's actual held-position signal and explicitly
+releases its hold after both frames, avoiding shell/screenshot latency races. CartOut
+deliberately animates its arrow out of the clip, so an earlier frame
+checks that cue and a later frame samples the settled body. Separate background
+frames cannot establish contrast reliably during slideshow movement. These are
+ordinary RGB captures, not Android color-correction/simulator output or evidence
+of recognition by users with color-vision differences.
+
 ## About and offline notices (UI-012)
 
 The normal verification workflow includes `qshopper_about_tests`, using

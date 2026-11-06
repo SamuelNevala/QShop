@@ -1,14 +1,14 @@
 {
   "id": "UI-028",
   "title": "Light-theme swipe cart icons have low contrast over translucent Green feedback",
-  "status": "observed",
-  "type": "bug_candidate_from_rendered_review",
+  "status": "resolved",
+  "type": "bug",
   "severity": "unassigned",
   "priority": "unassigned",
   "created": "2026-11-06",
   "reported_by": "UX-002 component/color-vision review",
-  "scope": "UX-002 review identifies low Light-theme cart-body contrast in rendered production components. Actual-touch reproduction, Android impact and permanent before/after regression coverage belong to the separately selected UI-028 implementation.",
-  "environment": "Qt 6.12.0 MSVC 2022 x64; native Windows window with Qt Quick software rendering, production delegate/icons, actual Font Awesome and two backgrounds. Review baseline is not an Android reproduction.",
+  "scope": "User selected UI-028 on 2026-11-06 and accepted the fix on 2026-11-07. Improve local cart/bin/arrow readability while preserving action hues, translucency, gestures, animation, layout and model behavior.",
+  "environment": "Qt 6.12.0 MSVC 2022 x64; offscreen/software and native Windows D3D11 WARP. Native Android x86_64 on isolated QShopper_API_36 emulator-5580 with disposable SQLite/settings. ARM64 phone APK built; no physical-device installation by agent.",
   "evidence": [
     "Across Light-theme samples, check cart-body contrast falls to 2.274:1 and uncheck to 2.269:1. Per-state medians include 2.806:1 and 2.697:1, below the 3:1 meaningful-icon review target. Foreground is #fffbfe on the rendered 0.8-opacity Material Green500 strip.",
     "Dark sampled cart bodies remain above 4.35:1. Light delete has a narrow 2.993:1 minimum but substantially higher medians; include its foreground/arrow combination rather than asserting all deletion frames are unclear.",
@@ -49,8 +49,43 @@
     "app/IconChoser.qml",
     "app/ShopView.qml",
     "reviews/UX-002.md",
-    "reviews/UX-002/"
+    "reviews/UX-002/",
+    "tests/swipecontrast/tst_swipecontrast.qml",
+    "tests/android/test_swipecontrast.py",
+    "tests/CMakeLists.txt",
+    "tests/android/BackGesture.java"
   ],
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "implementation": {
+    "date": "2026-11-07",
+    "summary": "ArrowIcon.qml uses black cart/bin bodies in both themes and white directional arrows with black Text.Outline. Removed its unused Material import. The shared base covers CartInIcon, CartOutIcon and TrashIcon; global TextIcon colors are unchanged.",
+    "preserved": "Material Red500 deletion and Green500 checking/unchecking at 0.8 opacity, the existing animated arrows and opacity, geometry, sensitivity, half-width/velocity triggers, pullback, ordering, saved data and Undo policy."
+  },
+  "regression": {
+    "windows_test": "tests/swipecontrast/tst_swipecontrast.qml::test_held_swipe, registered in normal qshopper_swipecontrast_tests and qshopper_swipecontrast_rendering_tests. Production ShopView, actual touch press/move/hold/release, all directions/modes/check states/themes, white/black/two photos, body and arrow pixels, live theme/palette changes, actual check/delete and Undo outcomes. 66 offscreen and 68 native records including setup/cleanup.",
+    "windows_before": "out/ui028/before.txt: original Light/shop/unchecked/right/white body contrast 2.177:1 fails 3:1 after a real held touch crosses half width. Two setup/cleanup records pass.",
+    "windows_after": "All 15 Windows CTest entries pass, totaling 1063 records with zero failures/skips. Eight general suites and seven new/existing contrast/native suites were covered in disjoint filtered runs. Logs: out/ui028/general-windows-tests.log, native-windows-tests.log, swipe-tests-final.log and swipe-rhi-final.log. New native entry was rechecked with D3D11 WARP: 68 records, 142.52 seconds. An initial exact-black outline-edge assertion caused seven fixture failures per new suite; measuring actual antialiased darkened outline pixels corrects that assertion. No production change was needed for those failures.",
+    "android_test": "tests/android/test_swipecontrast.py: actual held/cancelled native swipe, same-frame opaque body cores against adjacent tinted pixels, arrow visibility, then separate committed swipe and exact saved UUID/name/check outcomes. 20 Light/Dark/System profiles. Screenshots do not establish native color-vision simulation.",
+    "android_before": "out/ui028/android-before/results.json: original Light cart body 2.438:1 fails 3:1 with a valid paired capture. Applying the final same-frame adjacent-pixel algorithm to that original held screenshot also fails at 2.346:1; see reprocessed.json.",
+    "android_driver_notes": "Earlier paired-frame attempts were invalidated by slideshow changes; the final driver compares opaque body cores with adjacent tinted pixels from one frame. Earlier wall-clock captures sampled partial fades, the deliberately outgoing CartOut arrow, or the timed return; those invalid runs remain under out/ui028. BackGesture.java now acknowledges HELD after actual movement and waits for a stdin acknowledgement after both captures; existing timed gesture paths are unchanged. The driver retries only fresh UI-tree dumps, matching existing native scripts. An earlier run was interrupted by emulator host-GPU external-memory/context errors and ADB timeout; the task-owned emulator was restarted before the final synchronized run. These driver/host failures are not additional application defects.",
+    "android_after": "Final synchronized native matrix passes all 100 checks across 20 profiles, with zero failures: out/ui028/android-final-synced/results.json and out/ui028/android-final-synced.log. Actual opaque black body cores versus adjacent same-frame feedback measure 3.929:1 to 5.043:1, above the 3:1 target. Early arrow visibility, preserved data after cancellation and exact committed check/delete results all pass. The final command exits 0 and restores the original OS night mode. Production frames were visually inspected; user accepted the fix on 2026-11-07."
+  },
+  "apk": {
+    "phone": "dist/QShopper-arm64-debug.apk",
+    "emulator": "dist/QShopper-x86_64-debug.apk",
+    "package_contract": "Both architecture builds pass -VerifyPackage, including ABI, required dependency closure, excluded unused payload and QML scan isolation.",
+    "certificate_sha256": "7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b",
+    "arm64_sha256": "a09c663baeac46514baff75a84619c91ad12fd59da237dc3579b169773ebc435",
+    "phone_acceptance": "2026-11-07: user stated: fix accepted, commit and close. No physical-device installation by agent."
+  },
+  "verification": "App/model build succeeds; all 15 Windows suites pass (1063 records), native Android passes 100 checks, both APK package contracts pass, all 65 tracked QML/templates pass formatter Check, and git diff --check passes. No C++ production files changed. User accepted the fix and requested closure/commit on 2026-11-07. No physical-device installation by agent.",
+  "resolved": "2026-11-07",
+  "resolution": {
+    "acceptance": "2026-11-07: user stated: fix accepted, commit and close.",
+    "summary": "Use black cart/bin bodies and white, black-outlined directional arrows on the existing red/green swipe strips in both themes. Preserve all gesture and model behavior.",
+    "regression": "Permanent real-touch Windows and native Android tests, failing-before/passing-after evidence and capture-driver limitations are recorded above.",
+    "verification": "All 15 Windows suites pass (1063 records), all 100 native Android checks pass, both APK package contracts pass, and all 65 tracked QML/templates pass formatter Check. User acceptance complements automated coverage.",
+    "remaining": "None within the accepted UI-028 scope. UX-003 remains deferred; color-vision recognition and live system correction were not certified by RGB screenshots."
+  }
 }
