@@ -46,8 +46,9 @@ RoundButton {
             font.family: root.font.family
             text: root.icon.name
             color: !root.enabled ? Material.hintTextColor : root.flat && root.highlighted
-                                   ? Material.accentColor : root.highlighted
-                                     ? Material.primaryHighlightedTextColor : Material.foreground
+                                   ? Material.accentColor : root.highlighted ? Theme.foregroundOn(
+                                                                                   Material.accentColor) :
+                                                                               Material.foreground
         }
 
         Text {
@@ -62,7 +63,8 @@ RoundButton {
                                                                                        1.25) : 0
             Layout.rightMargin: root.textUnderIcon ? 0 : Theme.pixels(1.25)
             text: root.text
-            color: Material.foreground
+            color: root.enabled && root.highlighted && !root.flat && !root.textUnderIcon
+                   ? Theme.foregroundOn(Material.accentColor) : Material.foreground
             font.bold: true
             font.pixelSize: Theme.pixels(2.5)
             horizontalAlignment: Text.AlignHCenter

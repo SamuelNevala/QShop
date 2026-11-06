@@ -53,13 +53,18 @@ Accepted Undo visual design, 2026-11-03 (UI-023): use a
 floating bar above the keyboard or bottom safe area, independent of the movable
 editor. An opaque accent-color fill recedes across the whole background to show
 time remaining; do not blend the fill with a translucent tint. The user's
-accepted refinement (2026-11-04) keeps a separate theme-colored Rectangle at
-20% opacity behind the progress fill. The remaining accent fill, text and Undo
-icon retain their full opacity. Use the ProgressBar itself as Popup.background;
-its own background supplies only that faint surface, without the default popup
-surface/elevation shadow. This preserves visibility of the list beneath the
-uncovered area while retaining a light surface behind the message and icon.
+2026-11-06 refinement (UI-027) replaces the earlier 20%-opacity surface: the
+background is fully opaque and uses the normal unchecked row's resolved
+Material.backgroundColor. Checked rows beneath Undo must not obscure its text
+or icon. Use the ProgressBar itself as Popup.background, without the default
+popup surface/elevation shadow. The accent countdown remains visible above the
+solid neutral surface.
 Keep the message, Font Awesome Undo arrow, outer shape and full touch area fixed.
+UI-025 preserves normal TextItem foreground colors on Undo and uses a compatible,
+fully opaque tone from the chosen accent color when the vivid fill would obscure
+that text. The global accent shade is unchanged.
+Filled current-day circles and selected buttons instead use a contrasting dark
+or light foreground; captions outside the button circle keep normal theme text.
 The whole bar is tappable to Undo; the Font Awesome arrow is its visual cue.
 A short message identifies the removed item/count.
 Use a brief slide/settle animation and keep recovery reachable while scrolling.
@@ -174,6 +179,8 @@ Keep System, Light and Dark independent of the selected primary/accent families.
 Foreground/background colors are derived automatically; do not add independent
 foreground/background pickers or a separate Custom theme mode. Keep all 19 color
 families. Coordinated primary/accent presets are only a possible future convenience.
+UI-026 uses readable normal popup captions with a bold current entry, preserving
+the vivid swatches rather than using potentially unreadable accent-colored text.
 
 ## Applying these principles
 

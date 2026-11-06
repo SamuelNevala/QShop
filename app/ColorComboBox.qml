@@ -32,8 +32,7 @@ ComboBox {
         text: model[root.textRole]
         highlighted: root.highlightedIndex === index
         hoverEnabled: root.hoverEnabled
-        Controls.Material.foreground: root.currentIndex === index ? root.Controls.Material.accent :
-                                                                    root.Controls.Material.foreground
+        Controls.Material.foreground: root.Controls.Material.foreground
 
         contentItem: ColorContent {
             swatchColor: root.colorFunction(delegate.model[root.valueRole])
@@ -41,6 +40,12 @@ ComboBox {
             font: delegate.font
             textColor: delegate.enabled ? delegate.Controls.Material.foreground :
                                           delegate.Controls.Material.hintTextColor
+        }
+
+        Binding {
+            target: delegate
+            property: "font.bold"
+            value: root.font.bold || root.currentIndex === delegate.index
         }
     }
     model: ColorModel {}

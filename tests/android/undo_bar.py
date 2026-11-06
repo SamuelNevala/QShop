@@ -8,7 +8,9 @@ def undo_bar_frame(raw, theme, limit=None):
     image = Image.open(BytesIO(raw)).convert("RGB")
     width, height = image.size
     limit = height if limit is None else limit
-    tint = (0, 230, 118) if theme == 0 else (105, 240, 174)
+    # These reachability tests use default Green. Recognize the original and
+    # UI-025 contrast-adjusted Dark tones; test_filledcontrast checks readability.
+    tints = ((0, 230, 118),) if theme == 0 else ((105, 240, 174), (56, 128, 92))
 
     def matches(pixel, color):
         return max(abs(a - b) for a, b in zip(pixel, color)) <= 4
@@ -17,9 +19,9 @@ def undo_bar_frame(raw, theme, limit=None):
     start = None
     for y in range(max(120, limit // 2), limit):
         # The narrow leading padding stays filled and contains no text.
-        # The unfilled surface is translucent, so it has no fixed RGB value.
+        # Locate the moving accent fill independently of the neutral surface.
         pixel = image.getpixel((round(width * .05), y))
-        inside = matches(pixel, tint)
+        inside = any(matches(pixel, tint) for tint in tints)
         if inside and start is None:
             start = y
         if not inside and start is not None:
@@ -36,6 +38,6 @@ def undo_bar_frame(raw, theme, limit=None):
     left, right = margin, width - margin
     sample_y = round(top + size * .85)
     pixels = [image.getpixel((x, sample_y)) for x in range(left + 20, right - 20)]
-    fraction = sum(matches(pixel, tint) for pixel in pixels) / len(pixels)
+    fraction = sum(any(matches(pixel, tint) for tint in tints) for pixel in pixels) / len(pixels)
     return dict(top=top, bottom=bottom, size=size, fraction=fraction,
                 action_x=round(right - size * (.5 + .5 / 9.27)), action_y=(top + bottom) // 2)

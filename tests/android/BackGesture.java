@@ -65,7 +65,7 @@ public final class BackGesture {
         send(MotionEvent.ACTION_DOWN, start, y);
         SystemClock.sleep(Long.parseLong(args[4]));
         move(start, y, outward, endY);
-        SystemClock.sleep(1000);
+        SystemClock.sleep(args.length > 6 ? Long.parseLong(args[6]) : 1000);
         if (cancel) {
             move(outward, endY, start, y);
         }

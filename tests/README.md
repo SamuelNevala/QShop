@@ -230,9 +230,9 @@ message fragments.
 
 General QML entries run offscreen/software. The separate Windows
 `qshopper_undo_rendering_tests` runs `rendering/tst_undopopup.qml` in a native
-window using D3D11 WARP. Its ten records compare actual fill pixels directly
-with the theme accent, compare uncovered pixels against the user-selected
-20% surface over a known underlay without disabling any production effect,
+window using D3D11 WARP. Its fourteen records compare actual fill pixels directly
+with the compatible theme accent tone, compare uncovered pixels against the
+opaque normal theme surface over known underlays without disabling production effects,
 verify solid message and
 Undo glyph pixels, and check fixed
 action geometry, Light/Dark, two sizes/scales, restart, drawer pause/resume and
@@ -817,6 +817,92 @@ app and expected rows before inspection. Exact/mixed checks and a pending-case
 retry are combined with source paths in `out/android-emulator/ui009-simple-verified`.
 Both APKs were rebuilt and the shared-key ARM64 signature verified.
 The user confirmed the supplied test APK works and requested closure on 2026-10-30.
+
+## Foreground contrast on colored fills (UI-025)
+
+`contrast/tst_filledcontrast.qml` exercises production Weekdays, IconButton and
+UndoBar over actual artwork. All 19 primary/accent families are checked in Light
+and Dark, including all four inherited button display modes, fully rendered
+foreground glyphs, fixed normal-theme Undo text, and opaque fills. Nine samples
+across the Undo message area cover full/half/empty progress over all ten artworks.
+The suite has 136 records. Independent sRGB luminance/alpha calculations check
+actual rendered backgrounds; it does not call the replacement contrast helper
+to determine success.
+
+The offscreen `qshopper_contrast_tests` and native Windows
+`qshopper_contrast_rendering_tests` CTest entries run normally. On Windows the
+offscreen entry explicitly loads `%WINDIR%/Fonts` because glyph-core assertions
+require real text fonts. Native rendering remains the typography check. Evidence
+and the initial before/after failures are recorded in `tickets/UI-025.json`.
+
+For actual Android controls, with the new x86_64 APK installed only on the test
+emulator:
+
+```powershell
+./tools/build-android-gesture-test.ps1 -SdkRoot C:/android/sdk
+python tests/android/test_filledcontrast.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/ui025/android-after
+```
+
+Requires Pillow. Six disposable profiles cover Light/Dark, both actual Android
+System schemes, Yellow/Lime and a dark-purple accent. The harness holds a real
+vertical pull to expose the day header, opens the actual drawer, deletes through
+a right swipe, samples native glyph/fill pixels and taps the whole Undo bar.
+It checks contrast plus restored names/order/UUIDs/flags, then restores the
+original Android night-mode setting. `--profile defaults-dark` is a focused
+before/after reproduction. The gesture helper's optional final argument extends
+its hold; existing calls retain the original one-second behavior.
+
+`undo_bar.py` recognizes both old and UI-025 default Green tones for the existing
+entry/recovery harnesses; contrast is asserted independently by the new harness.
+The existing `test_undorecovery.py` was rerun in both themes to cover offscreen
+editor recovery, IME, batches, expiry and background/resume after the visual fix.
+
+## Selected popup text contrast (UI-026)
+
+`popupcontrast/tst_popupcontrast.qml` uses the production Lists, Accent and Primary
+selectors. Both explicit themes cover all 19 accent families; native Windows also
+covers Green/Purple/Grey in both System schemes. Every case samples the actual
+selected-row background with the caption hidden, checks independent composited
+contrast of at least 4.5:1 and rendered caption pixels, and exercises keyboard
+highlight movement, a changed current entry and a live accent change. The current
+entry remains bold, preserves the caller's font size and retains vivid swatches.
+Native Windows uses preview scale 2 so caption strokes have fully covered pixels;
+the offscreen palette run retains scale 1. Antialiased edge colors are not used
+as the nominal foreground when evaluating contrast.
+There are 116 offscreen and 134 native Windows records, including setup/cleanup.
+The dedicated `qshopper_popupcontrast_tests` and
+`qshopper_popupcontrast_rendering_tests` entries run in normal verification.
+
+```powershell
+python tests/android/test_popupcontrast.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/ui026/android-after
+```
+
+Requires Pillow and an already installed test APK on the isolated emulator.
+Six disposable profiles cover bright/dark/neutral accents, Light/Dark and actual
+Android System Light/Dark. Actual screenshot caption pixels must meet 4.5:1;
+popup-only Back and saved row identity/order/flags are checked. Original Android
+night mode is restored. `--profile light-green` is the original reproduction.
+About tab ink and other accent state/focus cues remain separate UX-003 candidates.
+
+## Opaque Undo over checked rows (UI-027)
+
+`rendering/tst_undopopup.qml::test_opaque_surface_over_checked_row` checks that the
+empty/half-progress surface equals the normal unchecked theme background over
+white, black and colored underlays, at both preview scales in Light/Dark. Normal
+foreground roles remain, with native glyph-core checks at the larger scale on the
+fully uncovered surface. Existing fill/timing/interaction tests remain active.
+
+```powershell
+python tests/android/test_filledcontrast.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --profile defaults-dark --checked-underlay --output out/ui026/undo-android-dark
+python tests/android/test_filledcontrast.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --profile defaults-light --checked-underlay --output out/ui026/undo-android-light
+```
+
+This mode adds 24 checked rows to the fixture, waits eight seconds to uncover the
+surface and samples actual Android pixels above the inverse rows, then verifies
+Undo restores all identities/order/checks. It omits the unrelated pulled-day
+header check; the normal six UI-025 profiles retain that coverage. Long-list
+gesture targeting excludes zero-sized offscreen accessibility nodes, and setup
+collapses the emulator notification shade before launching the disposable app.
 
 ## Original slideshow artwork (UI-013)
 

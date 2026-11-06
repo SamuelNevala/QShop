@@ -1,13 +1,13 @@
 {
   "id": "UI-025",
   "title": "Colored fills can make day numbers, selected icons and Undo text hard to read",
-  "status": "observed",
+  "status": "resolved",
   "type": "bug",
   "severity": "unassigned",
   "priority": "unassigned",
   "created": "2026-11-05",
   "reported_by": "UX-001 native Windows component review",
-  "scope": "Backlog only. Rendered contrast observations; no corrective app changes authorized by UX-001. Preserve the user's deliberate vivid Theme shade shift.",
+  "scope": "Selected for implementation by the user on 2026-11-06 after UX-001. Preserve the deliberate vivid Theme shade shift. Implemented and automatically verified; awaiting physical-phone confirmation before closure and commit.",
   "environment": "Qt 6.12.0 MSVC 2022 x64, native Windows D3D11 WARP, production Weekdays/IconButton/UndoBar in an isolated review harness. Not reproduced as a physical-phone shopping incident.",
   "evidence": [
     "With default Indigo/Green in Dark, the current-day number on its primary circle is 2.31:1; the selected theme icon and full-fill Undo text on accent are 1.43:1. Default Light selected-icon contrast is 1.67:1.",
@@ -27,8 +27,33 @@
     "The current-day name and number-circle need separate foreground/container roles even when they share a primary family.",
     "An appropriate dark/light icon foreground can retain a bright selected-button fill.",
     "UI-024 intentionally makes Undo text/icon follow normal TextItem colors. Any exception needs explicit design acceptance; a compatible same-family fill tone can preserve that policy. Account for the moving fill and uncovered translucent area together.",
-    "Prefer a small local rule or helper over a broad theme/framework rewrite. UX-001 is analysis, not authorization to apply its suggestions."
+    "Prefer a small local rule or helper over a broad theme/framework rewrite. UX-001 itself was analysis; the user subsequently selected UI-025 for implementation."
   ],
+  "implementation": {
+    "date": "2026-11-06",
+    "changes": [
+      "Current-day numbers and highlighted filled IconButton icons use black or white according to the actual fill luminance. Inside captions follow that foreground; captions outside the circle retain normal theme text. All four inherited display modes are covered.",
+      "Undo keeps the accepted UI-024 normal TextItem foreground. Its opaque accent fill is adjusted toward black in Dark or white in Light only when required for readable text. The calculation targets 4.6:1 to leave an 8-bit rounding margin above the rendered 4.5:1 requirement; adjustment is bounded to 30 ten-percent RGB tone steps.",
+      "Global primary/accent shades, day-name color, Undo's separate 20% surface, geometry, timing, whole-bar action and list behavior are preserved. No C++ changes."
+    ],
+    "regression_tests": [
+      "tests/contrast/tst_filledcontrast.qml: production components, all 19 color families in Light/Dark, four button display modes, actual glyph/fill pixels, and Undo full/half/empty progress over all ten production backgrounds. Independent contrast calculations; 136 records in both offscreen and native Windows CTest entries.",
+      "tests/android/test_filledcontrast.py: real pulled day header, selected theme button, deletion/Undo and exact restored data on the isolated Android emulator. Six profiles cover default Light/Dark, Yellow/Lime Light, DeepPurple Light and actual System Light/Dark. Screenshot measurements and glyph pixels establish native contrast.",
+      "Existing tests/rendering/tst_undopopup.qml preserves fill geometry, opacity and normal foreground assertions; tests/android/undo_bar.py recognizes the compatible default Dark fill for existing recovery scenarios. BackGesture.java accepts an optional hold duration, preserving its previous default."
+    ],
+    "before": {
+      "windows": "out/ui025/before.txt: all three targeted assertions failed against the original application: Dark/Indigo day number 2.311:1, Light/Green selected icon 1.669:1, Dark/Green Undo text 1.431:1.",
+      "android": "out/ui025/android-before/results.json: the original installed emulator build reproduced all three failures (day 2.311:1, selected icon and Undo 1.431:1); actual Undo data restoration passed. That snapshot predates UI-013 artwork but uses the original affected color code."
+    },
+    "after": {
+      "windows": "Current reports contain 675 passing records across all 11 suites, zero failures/skips. The full run initially passed ten suites; the new offscreen contrast suite had 76 glyph failures because it lacked a real font directory. Configured QT_QPA_FONTDIR for that test, rebuilt/reconfigured, and reran the affected suite: 136/136 passed. Native Windows contrast independently passed 136/136. Logs: out/ui025/windows-tests.log, build-final.log, contrast-recheck.log and native-after.txt.",
+      "android_contrast": "24/24 checks passed across all six profiles on emulator-5580, with isolated data and original OS night mode restored. Default Dark ratios: day number 9.088:1, selected icon 14.676:1, Undo text 4.762:1. Light DeepPurple Undo is 4.661:1. Evidence: out/ui025/android-after/results.json and per-profile screenshots.",
+      "android_undo": "22/22 existing native recovery checks passed in Light/Dark, including offscreen-editor deletion, scrolling, native keyboard, batched deletion and submission, exact restored identities/order/flags, actual expiry and background/resume. Evidence: out/ui025/android-undo/results.json.",
+      "formatting": "All 62 tracked QML sources/templates pass tools/format-qml.ps1 -Check. git diff --check passes.",
+      "packages": "ARM64 and x86_64 Debug APKs built successfully and passed -VerifyPackage: expected runtime present, unused payload absent, QML roots isolated. dist/QShopper-arm64-debug.apk is signed with the shared debug.keystore; certificate SHA-256 7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b. ARM64 APK SHA-256 c3f41d7a6cf642f31313e5a9599e2ff5db0a389d0e5e5ee0e17d2a173ec4cb72. Build logs: out/ui025/arm64-build.log and android-build.log."
+    },
+    "user_review": "2026-11-06: user said 'Look ok' and accepted keeping automatic foreground/background roles and System/Light/Dark. They subsequently reported the translucent Undo surface over checked rows; its separate requested opaque-surface refinement is UI-027."
+  },
   "relevant_files": [
     "app/Theme.qml",
     "app/Weekdays.qml",
@@ -51,5 +76,14 @@
     "Verify the relevant native Android paths with isolated data and record exact platform coverage before closure."
   ],
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "resolved": "2026-11-06",
+  "resolution": {
+    "acceptance": "2026-11-06: user tested the updated app and requested: Tested, close ticket and commit changes.",
+    "summary": "Keep vivid primary/accent fills while contrasting current-day numbers and selected icon/inside-caption foregrounds. Undo retains normal TextItem foregrounds with a compatible opaque accent tone. Its later neutral-surface refinement is UI-027.",
+    "verification": "Current reports contain 929 passing records across all 13 Windows suites and 58 passing native Android checks (42 popup, 16 checked-row Undo). The initial native popup glyph fixture failure and successful scale-2 recheck are explicitly recorded in UI-026. Both APK architectures pass the package contract; all 63 tracked QML/templates pass formatting Check. User confirmation complements automated coverage.",
+    "regression": "Permanent test locations and failing-before/passing-after results are recorded in this ticket's implementation/regression section.",
+    "apk": "dist/QShopper-arm64-debug.apk",
+    "remaining": "None within the accepted fix scope. Other accent-ink/focus candidates remain UX-003."
+  }
 }

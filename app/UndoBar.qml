@@ -72,8 +72,7 @@ Controls.Popup {
         padding: 0
 
         background: Rectangle {
-            color: Material.backgroundColor
-            opacity: 0.2
+            color: Theme.Material.backgroundColor
             radius: root.Material.roundedScale
         }
         contentItem: Item {
@@ -82,7 +81,7 @@ Controls.Popup {
                 width: parent.width * undoProgress.position
                 height: parent.height
                 radius: root.Material.roundedScale
-                color: Theme.accentColor()
+                color: Theme.accentFillColor()
             }
         }
     }

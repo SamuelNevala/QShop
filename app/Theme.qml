@@ -56,6 +56,44 @@ Item {
         return color(primary);
     }
 
+    function luminance(value) {
+        function linear(channel) {
+            return channel <= 0.04045 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+        }
+        return 0.2126 * linear(value.r) + 0.7152 * linear(value.g) + 0.0722 * linear(value.b);
+    }
+
+    function foregroundOn(background) {
+        // Relative luminance where black and white provide equal contrast.
+        return luminance(background) > 0.179 ? "black" : "white";
+    }
+
+    function contrastRatio(foreground, background) {
+        const apparent = Qt.rgba(foreground.r * foreground.a + background.r * (1 - foreground.a),
+                                 foreground.g * foreground.a + background.g * (1 - foreground.a),
+                                 foreground.b * foreground.a + background.b * (1 - foreground.a),
+                                 1);
+
+
+        const front = luminance(apparent);
+        const back = luminance(background);
+        return (Math.max(front, back) + 0.05) / (Math.min(front, back) + 0.05);
+    }
+
+    function accentFillColor() {
+        let fill = accentColor();
+        const tone = Material.theme === Material.Dark ? Qt.rgba(0, 0, 0, 0.1) : Qt.rgba(1, 1, 1,
+                                                                                        0.1);
+
+
+        // Keep normal text; leave a small margin for 8-bit rendered-color rounding.
+        for (let step = 0; step < 30 && contrastRatio(Material.primaryTextColor, fill)
+             < 4.6; ++step) {
+            fill = Qt.tint(fill, tone);
+        }
+        return fill;
+    }
+
     function accentColorLighter() {
         if (accent === Material.Grey || accent === Material.Brown || accent === Material.BlueGrey) {
             return color(accent);

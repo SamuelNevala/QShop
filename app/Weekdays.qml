@@ -69,8 +69,9 @@ Controls.Control {
                     }
 
                     Text {
-                        color: day.index == 0 ? Material.primaryHighlightedTextColor :
+                        color: day.index == 0 ? Theme.foregroundOn(Material.primary) :
                                                 Material.foreground
+
                         fontSizeMode: Text.Fit
                         horizontalAlignment: Text.AlignHCenter
                         text: day.number

@@ -1,0 +1,34 @@
+{
+  "id": "UI-027",
+  "title": "Translucent Undo background loses readability over inverse checked rows",
+  "type": "bug",
+  "severity": "unassigned",
+  "status": "resolved",
+  "created": "2026-11-06",
+  "reported_by": "User phone observation",
+  "request": "Remove background opacity and follow the normal unchecked item's background color. Preserve the receding accent fill, normal text/icon and existing Undo behavior.",
+  "reproduction": "Use Dark theme, delete while checked white rows occupy the lower viewport, and let the countdown uncover the right-hand area. The underlying row and its black text interfere with the white Undo foreground.",
+  "implementation": "UndoBar ProgressBar.background uses Theme.Material.backgroundColor with its default full opacity. This follows the owning window's resolved normal theme, including System, rather than Undo's inverse Material theme. UI-025's compatible opaque accent fill is retained.",
+  "regression": {
+    "windows_test": "tests/rendering/tst_undopopup.qml::test_opaque_surface_over_checked_row; Light/Dark, preview scales 1/2, white/black/colored underlays, empty/half countdown and normal TextItem foreground. Existing fill tests now expect the solid normal theme surface.",
+    "windows_before": "out/ui026/undo-before.txt: original translucent surface fails Dark/scale-1 rendered background assertion over white (actual red channel 1.0, expected 0.110).",
+    "android_test": "tests/android/test_filledcontrast.py --checked-underlay: 27-item fixture with 24 actual checked rows; samples the native uncovered surface at three positions after eight seconds and verifies actual Undo restoration. This mode omits the separate day-header check, which the normal UI-025 profile retains.",
+    "android_before": "out/ui026/undo-android-before/results.json: uncovered Dark pixels (201,190,185), (247,232,226), (240,226,224) fail against normal Dark (28,27,31); actual saved row identities/order/checks restore. Screenshot confirms checked rows pass beneath the bar. Original installed snapshot also reproduces UI-025's separate foreground defects.",
+    "after": "Native Android: 16/16 checks pass across defaults-dark/defaults-light/system-dark/system-light. All three uncovered samples exactly equal normal Dark (28,27,31) or Light (255,251,254), above actual checked rows. Foreground/fill contrast and exact Undo restoration pass. Evidence: out/ui026/undo-android-<profile>/results.json and screenshots; Dark frame visually inspected. Windows native Undo suite passes all 14 records, including the four new overlap cases and existing fill/foreground/timing/focus scenarios. Current Windows reports total 929 passing records across 13 suites after the separate popup glyph fixture recheck; see tickets/UI-026.json for that initial failure and recheck. All 63 QML sources/templates pass formatter Check, and git diff --check passes."
+  },
+  "related_tickets": [
+    "UI-023",
+    "UI-024",
+    "UI-025"
+  ],
+  "apk": "dist/QShopper-arm64-debug.apk; both architecture builds, package-contract results, shared signing certificate and exact ARM64 hash are recorded in UI-026. No physical-device installation by the agent.",
+  "resolved": "2026-11-06",
+  "resolution": {
+    "acceptance": "2026-11-06: user tested the updated app and requested: Tested, close ticket and commit changes.",
+    "summary": "Use an opaque normal unchecked-row theme background beneath the shrinking accent countdown, keeping Undo text/icon readable over actual inverse checked rows. Preserve recovery timing, geometry and restoration.",
+    "verification": "Current reports contain 929 passing records across all 13 Windows suites and 58 passing native Android checks (42 popup, 16 checked-row Undo). The initial native popup glyph fixture failure and successful scale-2 recheck are explicitly recorded in UI-026. Both APK architectures pass the package contract; all 63 tracked QML/templates pass formatting Check. User confirmation complements automated coverage.",
+    "regression": "Permanent test locations and failing-before/passing-after results are recorded in this ticket's implementation/regression section.",
+    "apk": "dist/QShopper-arm64-debug.apk",
+    "remaining": "None within the accepted fix scope. Other accent-ink/focus candidates remain UX-003."
+  }
+}

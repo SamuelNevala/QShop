@@ -23,6 +23,16 @@ add_test(NAME qshopper_background_tests COMMAND qshopper_ui_tests
     -platform offscreen -o -,txt -o background-tests.xml,junitxml)
 set_tests_properties(qshopper_background_tests PROPERTIES TIMEOUT 60)
 list(APPEND qshopper_qml_tests qshopper_background_tests)
+add_test(NAME qshopper_contrast_tests COMMAND qshopper_ui_tests
+    -input ${CMAKE_CURRENT_SOURCE_DIR}/contrast -import ${CMAKE_BINARY_DIR}
+    -platform offscreen -o -,txt -o contrast-tests.xml,junitxml)
+set_tests_properties(qshopper_contrast_tests PROPERTIES TIMEOUT 120)
+list(APPEND qshopper_qml_tests qshopper_contrast_tests)
+add_test(NAME qshopper_popupcontrast_tests COMMAND qshopper_ui_tests
+    -input ${CMAKE_CURRENT_SOURCE_DIR}/popupcontrast -import ${CMAKE_BINARY_DIR}
+    -platform offscreen -o -,txt -o popupcontrast-tests.xml,junitxml)
+set_tests_properties(qshopper_popupcontrast_tests PROPERTIES TIMEOUT 300)
+list(APPEND qshopper_qml_tests qshopper_popupcontrast_tests)
 if(qshopper_keyboard_enabled)
     add_test(NAME qshopper_keyboard_tests COMMAND qshopper_ui_tests
         -input ${CMAKE_CURRENT_SOURCE_DIR}/keyboard -import ${CMAKE_BINARY_DIR}
@@ -44,6 +54,23 @@ target_link_libraries(qshopper_tests PRIVATE QShopper Qt6::Test)
 add_test(NAME qshopper_tests COMMAND qshopper_tests -o -,txt -o model-tests.xml,junitxml)
 set_tests_properties(qshopper_tests PROPERTIES ENVIRONMENT "QT_FORCE_STDERR_LOGGING=1" TIMEOUT 30)
 if(WIN32)
+    # These checks count actual text glyph pixels, including offscreen rendering.
+    set_property(TEST qshopper_contrast_tests APPEND PROPERTY ENVIRONMENT
+        "QT_QPA_FONTDIR=$ENV{WINDIR}/Fonts")
+    set_property(TEST qshopper_popupcontrast_tests APPEND PROPERTY ENVIRONMENT
+        "QT_QPA_FONTDIR=$ENV{WINDIR}/Fonts")
+    add_test(NAME qshopper_popupcontrast_rendering_tests COMMAND qshopper_ui_tests
+        -input ${CMAKE_CURRENT_SOURCE_DIR}/popupcontrast -import ${CMAKE_BINARY_DIR}
+        -platform windows -o -,txt -o popupcontrast-rendering-tests.xml,junitxml)
+    set_tests_properties(qshopper_popupcontrast_rendering_tests PROPERTIES TIMEOUT 300
+        ENVIRONMENT "QT_QUICK_BACKEND=rhi;QSG_RHI_BACKEND=d3d11;QSG_RHI_PREFER_SOFTWARE_RENDERER=1;QT_FORCE_STDERR_LOGGING=1")
+    list(APPEND qshopper_qml_tests qshopper_popupcontrast_rendering_tests)
+    add_test(NAME qshopper_contrast_rendering_tests COMMAND qshopper_ui_tests
+        -input ${CMAKE_CURRENT_SOURCE_DIR}/contrast -import ${CMAKE_BINARY_DIR}
+        -platform windows -o -,txt -o contrast-rendering-tests.xml,junitxml)
+    set_tests_properties(qshopper_contrast_rendering_tests PROPERTIES TIMEOUT 120
+        ENVIRONMENT "QT_QUICK_BACKEND=rhi;QSG_RHI_BACKEND=d3d11;QSG_RHI_PREFER_SOFTWARE_RENDERER=1;QT_FORCE_STDERR_LOGGING=1")
+    list(APPEND qshopper_qml_tests qshopper_contrast_rendering_tests)
     add_test(NAME qshopper_background_rendering_tests COMMAND qshopper_ui_tests
         -input ${CMAKE_CURRENT_SOURCE_DIR}/backgrounds -import ${CMAKE_BINARY_DIR}
         -platform windows -o -,txt -o background-rendering-tests.xml,junitxml)

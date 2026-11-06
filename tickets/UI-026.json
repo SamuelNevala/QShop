@@ -1,13 +1,13 @@
 {
   "id": "UI-026",
   "title": "Selected popup text has low contrast with bright accent colors",
-  "status": "observed",
+  "status": "resolved",
   "type": "bug",
   "severity": "unassigned",
   "priority": "unassigned",
   "created": "2026-11-05",
   "reported_by": "UX-001 native Windows component review",
-  "scope": "Backlog only. Corrective color/binding changes remain deferred. Separate readable accent ink from the accepted vivid fill/swatch where needed.",
+  "scope": "Selected by the user on 2026-11-06 after agreeing to keep automatic foreground/background colors, the existing 19 primary/accent families and System/Light/Dark. Fix popup caption readability; other accent-ink/state assessments remain UX-003.",
   "environment": "Qt 6.12.0 MSVC 2022 x64, production ColorComboBox in native Windows D3D11 WARP review frames. Physical Android popup contrast not independently measured.",
   "evidence": [
     "The selected Accent-popup Green label is #00e676 on rendered #e1e1e1 in Light: 1.28:1. DeepOrange/Purple gives 3.09:1; Brown/Grey gives 2.05:1. The label is normal small text.",
@@ -51,5 +51,24 @@
     "Validate relevant Android popup rendering with isolated data; record any untested candidate controls separately rather than claiming whole-app contrast coverage."
   ],
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "implementation": {
+    "date": "2026-11-06",
+    "summary": "ColorComboBox and Lists ComboBox popup delegates use normal theme foreground with a bold current entry. Vivid swatches, highlighted-row behavior, all existing selectors, safe-area geometry and Back policy remain. A font.bold Binding preserves the caller's complete font and follows current-index changes without copying/resetting font size.",
+    "tests": "tests/popupcontrast/tst_popupcontrast.qml covers all 19 accents across all three selectors in explicit Light/Dark. Native Windows additionally covers Green/Purple/Grey in both System schemes. Each case measures the actual highlighted surface, current selection after keyboard navigation, changed selection and live palette change; independent alpha/luminance math requires 4.5:1, actual caption pixels, bold current selection, retained caller size and vivid swatches. Dedicated offscreen/native CTest entries run in the normal workflow.",
+    "before_windows": "out/ui026/before.txt: original Light/Accent/Green caption assertion fails at 1.242:1 (#00e676 on rendered #e1dde0).",
+    "before_android": "out/ui026/android-before/results.json: actual default Light/Green Lists, Accent and Primary selected captions all fail (1.126:1, 1.277:1, 1.277:1); popup-only Back and exact data preservation pass.",
+    "android_test": "tests/android/test_popupcontrast.py uses isolated app data and actual popup screenshots. Six profiles cover default bright Green, Dark Purple, Light DeepPurple, neutral Grey and both Android System schemes. It independently identifies rendered caption/background colors, requires 4.5:1, checks Back preserves the drawer and verifies saved row identities/order/checks. Original OS night mode is restored.",
+    "after": "Native Android: 42/42 checks pass across all six profiles; caption contrast ranges from 5.329:1 to 12.749:1, popup-only Back preserves the drawer and all saved fixture identities/order/flags remain. Evidence: out/ui026/android-after/results.json and per-profile popup PNG/XML. Offscreen Windows: 116/116 records pass. Full Windows run passes the other 12 suites; native popup suite initially has 14 glyph-core failures (all reached contrast assertions pass). Diagnostic screenshot/log show 13px antialiased glyphs lacking nominal fully covered pixels. Retain offscreen scale 1; enlarge native Windows preview to 2, matching the existing native text-testing approach. Without any further application change, the complete native recheck passes 134/134 in 198.20 seconds. Current reports contain 929 passes across all 13 Windows suites, no failures/skips. Logs: out/ui026/windows-tests.log, glyph-diagnostic.txt, glyph-enlarged.txt and popup-native-recheck.log. All 63 tracked QML sources/templates pass formatting Check; git diff --check passes. No C++ source changes or analyzer rerun.",
+    "apk": "dist/QShopper-arm64-debug.apk and dist/QShopper-x86_64-debug.apk built and passed -VerifyPackage (expected runtime present, unused payload absent, QML roots isolated). Shared debug certificate SHA-256: 7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b. ARM64 package SHA-256: 8bde9897fd41eb696a022b4f7df059499b9013e29546e3413a7eff374c511cc7. Logs: out/ui026/arm64-build.log and x86_64-build.log. No physical-device installation by the agent."
+  },
+  "github_issue_url": null,
+  "resolved": "2026-11-06",
+  "resolution": {
+    "acceptance": "2026-11-06: user tested the updated app and requested: Tested, close ticket and commit changes.",
+    "summary": "Use readable normal-theme popup text with a bold current entry in Lists, Accent and Primary. Preserve vivid swatches, caller fonts, safe-area sizing and popup-only Back behavior.",
+    "verification": "Current reports contain 929 passing records across all 13 Windows suites and 58 passing native Android checks (42 popup, 16 checked-row Undo). The initial native popup glyph fixture failure and successful scale-2 recheck are explicitly recorded in UI-026. Both APK architectures pass the package contract; all 63 tracked QML/templates pass formatting Check. User confirmation complements automated coverage.",
+    "regression": "Permanent test locations and failing-before/passing-after results are recorded in this ticket's implementation/regression section.",
+    "apk": "dist/QShopper-arm64-debug.apk",
+    "remaining": "None within the accepted fix scope. Other accent-ink/focus candidates remain UX-003."
+  }
 }

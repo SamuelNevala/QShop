@@ -83,6 +83,8 @@ Controls.ComboBox {
         }
     }
     delegate: Controls.MenuItem {
+        id: delegate
+
         required property var model
         required property int index
 
@@ -95,8 +97,13 @@ Controls.ComboBox {
         spacing: Theme.pixels(1)
         highlighted: root.highlightedIndex === index
         hoverEnabled: root.hoverEnabled
-        Controls.Material.foreground: root.currentIndex === index ? root.Controls.Material.accent :
-                                                                    root.Controls.Material.foreground
+        Controls.Material.foreground: root.Controls.Material.foreground
+
+        Binding {
+            target: delegate
+            property: "font.bold"
+            value: root.font.bold || root.currentIndex === delegate.index
+        }
     }
 
     // Remove padding from the default Material text field only.

@@ -91,7 +91,7 @@ Item {
         function verifySolidForeground(image, icon, foreground, background) {
             verify(icon !== undefined);
             foreground = foreground || icon.color;
-            background = background || Theme.accentColor();
+            background = background || Theme.accentFillColor();
             const origin = icon.mapToItem(scene, 0, 0);
             const expected = Qt.rgba(foreground.r * foreground.a + background.r * (1 - foreground.a),
                                      foreground.g * foreground.a + background.g * (1 - foreground.a),
@@ -136,6 +136,39 @@ Item {
                     ];
         }
 
+        function test_opaque_surface_over_checked_row_data() {
+            return test_fill_data();
+        }
+
+        function test_opaque_surface_over_checked_row(data) {
+            Theme.theme = data.theme;
+            Theme.scale = data.scale;
+            open();
+            expiry.pause();
+            const reference = createTemporaryObject(textItemComponent, scene);
+            // Opposite-theme surfaces represent checked rows passing beneath Undo.
+            for (const color of ["white", "black", "#204060"]) {
+                underlay.color = color;
+                for (const value of [0, 0.5]) {
+                    progress.value = value;
+                    wait(70);
+                    const image = grabImage(scene);
+                    compareColor(sample(image, 0.8), reference.Material.backgroundColor);
+                    const message = popup.contentItem.children.find(item => item.text
+                                                                            === popup.message);
+                    const icon = popup.contentItem.children.find(item => item.text === "\uf0e2");
+                    compare(message.color, reference.color);
+                    compare(icon.color, reference.color);
+                    if (data.scale === 2 && value === 0) {
+                        verifySolidForeground(image, message, reference.color,
+                                              reference.Material.backgroundColor);
+                        verifySolidForeground(image, icon, reference.color,
+                                              reference.Material.backgroundColor);
+                    }
+                }
+            }
+        }
+
         function test_fill(data) {
             Theme.theme = data.theme;
             Theme.scale = data.scale;
@@ -143,10 +176,7 @@ Item {
             expiry.pause();
             const action = findChild(popup, "undoAction");
             const fill = findChild(popup, "undoRemainingFill");
-            const surface = popup.Material.backgroundColor;
-            const background = Qt.rgba(surface.r * 0.2 + underlay.color.r * 0.8, surface.g * 0.2
-                                       + underlay.color.g * 0.8, surface.b * 0.2 + underlay.color.b
-                                       * 0.8, 1);
+            const background = scene.Material.backgroundColor;
             for (const millimeters of [60, 76.6]) {
                 view.width = Theme.pixels(millimeters);
                 wait(50);
@@ -156,7 +186,7 @@ Item {
                     wait(70);
                     // Grab the actual overlay together with its owning window.
                     const image = grabImage(scene);
-                    const expected = Theme.accentColor();
+                    const expected = Theme.accentFillColor();
                     compareColor(sample(image, 0.15), value > 0 ? expected : background);
                     compareColor(sample(image, 0.8), value === 1 ? expected : background);
                     if (value === 1) {
