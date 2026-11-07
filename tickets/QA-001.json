@@ -7,6 +7,7 @@
   "record_created": "2026-11-07",
   "source": "Existing BACKLOG.md QA-001 row; selected with all non-REL-001 work on 2026-11-07.",
   "finding": "Coverage and physical acceptance task, not an observed application defect.",
+  "physical_reports_2026_11_08": "User reported two findings during phone validation: earlier deletion has too little time after near-expiry Undo (UI-032; user selected a fresh 15-second window), and editor moved to the end of a long list remains under the keyboard when tapped to open it (UI-033). Both implemented and regression-verified under the user's unattended authorization, including desktop/native before-and-after evidence. Physical retests and overall shopping/dictation acceptance remain open.",
   "procedure": "reviews/QA-001.md",
   "automated_coverage": "tests/INTERACTIONS.md maps model, actual-control Windows, real desktop VKB and isolated native Android coverage. Existing entry, Back, reset/cleanup and Undo recovery tests cover app mechanics; they do not establish real dictation or one-handed store use.",
   "current_work": "Extended actual-monitor/native Android validation and exercised real English Gboard speech recognition with synthetic audio, Return, keyboard continuity and restart persistence. Natural speech and one-handed physical acceptance remain pending.",
@@ -30,6 +31,6 @@
   ],
   "back_phone_confirmation": "UI-006 closed on 2026-11-08: user confirmed the explicit phone Back checklist. This does not establish the separate real shopping/dictation acceptance criteria.",
   "limitations": "No physical phone was connected at the 2026-11-07 device inventory. Scripts target only emulator-5580. The separate opt-in synthetic speech test activates the emulator's Gboard virtual input with host microphone access disabled; ordinary entry tests never activate speech. No phone installation, natural-speech or one-handed acceptance is claimed.",
-  "related_tickets": ["UI-006", "QA-002", "QA-003", "UX-005"],
+  "related_tickets": ["UI-006", "UI-032", "UI-033", "QA-002", "QA-003", "UX-005"],
   "closure_criteria": "Record the physical shopping and real dictation results in reviews/QA-001.md, in addition to the repeatable app-side checks. Keep unsupported recognizer/device claims explicit."
 }

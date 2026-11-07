@@ -450,7 +450,12 @@ Style.Control {
         font.family: awsome.name
         enabled: !menu.visible
 
-        onUndoRequested: shopView.model.undo()
+        onUndoRequested: {
+            shopView.model.undo();
+            if (shopView.model.canUndo) {
+                restart();
+            }
+        }
         onExpired: shopView.model.clearUndoStack()
 
         Quick.Connections {

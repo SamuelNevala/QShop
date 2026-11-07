@@ -35,6 +35,12 @@ ListView {
         itemModel.removeAll();
     }
 
+    function revealEditor() {
+        if (enabled && editMode && InputMethod.visible && itemModel.editorIndex >= 0) {
+            positionViewAtIndex(itemModel.editorIndex, ListView.Contain);
+        }
+    }
+
     cacheBuffer: Theme.pixels(9.27) * 20
     currentIndex: -1
     clip: true
@@ -210,6 +216,16 @@ ListView {
                 duration: move.editor ? 0 : 250
             }
         }
+    }
+
+    onHeightChanged: Qt.callLater(revealEditor)
+
+    Connections {
+        function onVisibleChanged() {
+            Qt.callLater(shopView.revealEditor);
+        }
+
+        target: InputMethod
     }
 
     Pulley {

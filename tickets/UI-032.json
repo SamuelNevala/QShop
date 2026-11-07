@@ -1,0 +1,40 @@
+{
+  "id": "UI-032",
+  "title": "Restart Undo countdown when restoring an action exposes an earlier deletion",
+  "status": "resolved",
+  "resolved": "2026-11-08",
+  "type": "user_reported_usability_policy_change",
+  "severity": "unassigned",
+  "created": "2026-11-08",
+  "reported_by": "user",
+  "source": "QA-001 phone testing: delete two items, wait until the remorse timer is nearly due, then Undo; the earlier item has very little recovery time left.",
+  "environment": "User's Android phone flow; exact installed APK hash, Android/IME settings and elapsed times were not supplied.",
+  "reproduction": [
+    "With disposable data, delete A and then B as separate swipes.",
+    "Wait until B's visible Undo countdown is nearly finished.",
+    "Tap Undo to restore B and observe the countdown offered for A."
+  ],
+  "actual": "The previous deletion inherits the almost-expired countdown, leaving very little time to undo it.",
+  "expected": "If Undo restores the latest action and exposes an earlier pending deletion, restart a full 15-second countdown for that previous action.",
+  "user_decision": "Explicitly answered Yes, restart 15 seconds for the previous item on 2026-11-08.",
+  "existing_policy": "UX-005 selected one shared 15-second window: deletion restarts it, Undo does not extend it, and expiry clears remaining steps. This report requests a change to that accepted policy rather than establishing a regression against it.",
+  "scope": "Retain one-action-per-tap reverse-order Undo, coherent bulk commands and existing drawer/inactive pause behavior. Restart when a successful Undo exposes another pending action. Do not revive expired history or introduce per-item timers.",
+  "verification_plan": [
+    "Add an automated near-expiry two-deletion regression first; prove that the previous action lacks the newly required full window before the change.",
+    "Verify a full refreshed countdown after Undo, successful restoration of the earlier item after the original deadline, repeated Undo steps, and normal expiry after the refreshed window.",
+    "Retain tests for final-action dismissal, exact identities/order/checks, newer edits, bulk actions, paused drawer/background and unchanged intentional cleanup.",
+    "Exercise actual timed taps and visible countdown on isolated native Android data."
+  ],
+  "implementation": "View's whole-bar Undo handler restores one action, then restarts the existing UndoBar clock only if model.canUndo is still true. Final-action dismissal, one shared timer, pause policy and model history behavior are preserved. DESIGN.md now records the user-selected refinement.",
+  "validation": {
+    "windows_before": "New production-view near-expiry regression fails before the change: Earlier deletion must get a full new countdown. Report: out/ui032-033/undo-before.txt.",
+    "windows_after": "New near-expiry and updated post-reset repeated-Undo cases pass (four focused records). The normal UI entry passes 211 records; actual-control flows 19, fast Undo 18, keyboard 7, model 104 and native Undo rendering 14 also pass. Reports: undo-after.txt and windows-regressions.txt under out/ui032-033.",
+    "native_test": "tests/android/test_recovery_entry.py --case undo (normal --case both runs it too). Actual two-swipe deletions, real 15-second countdown, near-expiry Undo, surviving the old deadline and exact full restoration.",
+    "android_before": "Valid baseline fails: after Undo the bar has about 10% remaining, rather than a fresh window. Report: out/ui032-033/android-undo-before/results.json.",
+    "android_after": "All six new Undo checks pass in Light/Dark as part of the 14-case native run: countdown refreshes to about 99%, the earlier deletion survives the old deadline, and final Undo restores exact IDs/order/checks. Report: out/ui032-033/android-after/results.json.",
+    "controls": "Existing native Undo/IME/expiry/background controls pass all 24 checks; the default native Back controls pass all seven checks. Reports: out/ui032-033/android-undo-controls/results.json and android-back-controls/results.json.",
+    "packages": "Final ARM64 and x86_64 APK payload contracts pass (out/ui032-033/package-arm64.json and package-x86.json). Phone APK uses the shared debug key and its signature is verified. Hashes: out/ui032-033/apk-hashes.json.",
+    "limits": "Native emulator API 36 verified; physical-phone acceptance of this fix is not claimed. Broader real-shopping/dictation QA-001 remains open."
+  },
+  "related_tickets": ["QA-001", "UX-005", "UI-023"]
+}

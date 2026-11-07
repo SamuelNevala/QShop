@@ -177,6 +177,30 @@ Item {
             tryCompare(panel, "opened", true);
         }
 
+        function test_end_editor_remains_visible_when_keyboard_opens() {
+            Qt.inputMethod.hide();
+            tryCompare(Qt.inputMethod, "visible", false);
+            for (let index = 0; index < 80; ++index) {
+                shop.model.insert(shop.count, "Long list " + index);
+            }
+            shop.model.moveEditor(shop.count - 1);
+            shop.positionViewAtEnd();
+            const field = editor();
+            wait(800);
+            mouseClick(field, field.width / 2, field.height / 2);
+            tryCompare(panel, "opened", true);
+            tryVerify(function () {
+                const bounds = field.mapToItem(shop, Qt.rect(0, 0, field.width, field.height));
+                return bounds.y >= -1 && bounds.y + bounds.height <= shop.height + 1;
+            }, 3000, "Active end editor must remain above the keyboard after viewport shrink");
+            field.text = "Last item";
+            tapKey(Qt.Key_Return);
+            tryCompare(field, "text", "");
+            compare(shop.count, 82);
+            compare(shop.model.data(shop.model.index(80, 0), Qt.DisplayRole), "Last item");
+            verify(Qt.inputMethod.visible);
+        }
+
         function test_back_hides_keyboard_then_leaves_edit() {
             const field = editor();
             field.text = "unfinished";

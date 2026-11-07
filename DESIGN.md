@@ -82,8 +82,10 @@ actions in reverse order; the message always identifies the next action to undo.
 This lets a shopper correct one mistaken removal after intentionally deleting
 non-recurring items following Reset checks.
 
-Keep one shared 15-second window, restarted by each new deletion. Undo does not
-extend it; expiry discards every remaining recovery step. Undoing the last step
+Keep one shared 15-second window, restarted by each new deletion and whenever
+Undo exposes an earlier pending action. The user selected this refinement on
+2026-11-08 (UI-032), so an earlier mistake still gets time for correction after a
+near-expiry Undo. Expiry discards every remaining recovery step. Undoing the last step
 hides the bar and stops its clock. A new deletion after Undo replaces the undone
 future steps while preserving earlier pending actions. There is no separate
 Undo-all action, history screen or per-item timer.

@@ -1,0 +1,42 @@
+{
+  "id": "UI-033",
+  "title": "Editor stays under the virtual keyboard after moving it to the end of a long list",
+  "status": "resolved",
+  "resolved": "2026-11-08",
+  "type": "user_reported_bug",
+  "severity": "major",
+  "severity_source": "Agent triage: active text input is obscured during the primary long-list entry workflow; user did not assign severity.",
+  "created": "2026-11-08",
+  "reported_by": "user",
+  "source": "QA-001 phone testing: Long list move editor to the end press editor to get keyboard, Input is left under the VBK.",
+  "environment": "Android phone with native virtual keyboard. Exact list length, installed APK hash, keyboard/version and device settings are not yet recorded.",
+  "reproduction": [
+    "Open a long list in edit mode with the virtual keyboard closed.",
+    "Move the editor to the end of the list.",
+    "Tap the editor to focus it and open the native keyboard."
+  ],
+  "actual": "The input remains underneath the virtual keyboard instead of becoming visible above it.",
+  "expected": "The active movable editor stays visible and reachable above the native keyboard and safe area, preserving its chosen insertion point and continuous entry.",
+  "design": "DESIGN.md requires a movable editor, user-selected shopping order and uninterrupted keyboard/dictation entry. Preserve those behaviors while revealing the active editor.",
+  "evidence": "User observation confirmed by desktop real-keyboard and native Android baselines. Native editor remains at y=2828..3030 while the actual IME begins at 1944: out/ui032-033/android-keyboard-before/results.json and screenshots.",
+  "cause": "ShopView did not keep the editor in view when IME opening shrank the viewport. Submission already positioned the insertion point, but focusing a moved editor did not cover this resize transition.",
+  "implementation": "ShopView queues revealEditor when its height or Qt Quick InputMethod visibility changes. In enabled edit mode with visible IME, ListView.Contain reveals the current model editor index. This does not pin ordinary scrolling or change the insertion index, model order, draft or keyboard sizing. Use the typed Qt Quick InputMethod singleton to avoid QObject missing-property warnings.",
+  "existing_coverage": "Earlier keyboard resize and QA-001 long-list/IME checks passed their tested paths. Those results do not establish this specific move-to-end, then open-keyboard transition. Preserve prior resolved history and add this trigger explicitly.",
+  "verification_plan": [
+    "Use disposable long-list data and the production movable editor. Start with the keyboard closed, move the editor to the final insertion position, then open the native IME by tapping the actual editor.",
+    "Add the regression first and establish a failing baseline. Assert the active editor's actual bounds, caret/input accessibility and screenshot visibility above the measured IME/insets after resizing settles.",
+    "Submit items with Return and verify exact text, retained insertion order, existing identities/checks, and an open keyboard. Repeat keyboard hide/reopen and scroll transitions.",
+    "Run native Android gesture/IME coverage; desktop/offscreen geometry alone cannot certify this reported failure."
+  ],
+  "validation": {
+    "windows_test": "tests/keyboard/tst_keyboard.qml::test_end_editor_remains_visible_when_keyboard_opens is part of the normal real-keyboard CTest entry.",
+    "windows_before": "New test fails: Active end editor must remain above the keyboard after viewport shrink. Report: out/ui032-033/keyboard-before.txt.",
+    "windows_after": "Focused regression passes; final keyboard suite passes all seven records after the typed-API refinement. Actual Return appends Last item at the end and keeps the keyboard open. Reports: keyboard-after.txt and windows-final-focus.txt under out/ui032-033.",
+    "native_test": "tests/android/test_recovery_entry.py --case keyboard. Actual 80-row scrolling, editor movement, visible closed-IME precondition, tap to open Gboard, screenshot/XML/inset bounds, exact Return submission and two hide/reopen cycles in both themes.",
+    "android_after": "All eight entry/visibility checks pass in the initial combined native run. The editor lies at y=1740..1942, above the IME at 1944. Original 80 names/IDs/order/checks survive and two exact entries are appended with the keyboard retained. Final typed-API APK repeats these eight checks: out/ui032-033/android-keyboard-final/results.json.",
+    "broader": "UI 211, flow 19, fast Undo 18, keyboard 7, model 104 and native Undo rendering 14 pass. Input-font rendering's initial harness-reference failure was corrected separately and its five native/five focused offscreen records pass; the original font-inheritance negative control still fails three cases. Reports: windows-regressions.txt, windows-final-focus.txt and inputfont-layout-negative.txt under out/ui032-033.",
+    "quality": "QML formatter check, Python compile and CMake QShopper_qmllint target pass; existing generated/unchanged QML lint diagnostics are retained. Both ABI APKs pass their package contracts; phone APK signed with the shared key and verified. Reports/hashes: out/ui032-033/package-arm64.json, package-x86.json and apk-hashes.json.",
+    "limits": "Native emulator API 36 verified; physical-phone retest is not claimed. QA-001's wider physical-flow acceptance remains open."
+  },
+  "related_tickets": ["QA-001", "QA-002", "UI-006"]
+}

@@ -13,7 +13,7 @@ intentional gestures, text fitting, animation, and list ordering intact.
 - Capture reports first. Do not implement fixes during backlog gathering.
 - Feature and code-quality requests are also backlog intake during this phase,
   unless the user explicitly asks to implement them now.
-- Keep stable IDs. Add new UI reports from UI-032 onward; UI-002 is already resolved.
+- Keep stable IDs. Add new UI reports from UI-034 onward; UI-002 is already resolved.
 - Distinguish user reports, previously observed bugs, source-review candidates,
   missing features, code-quality work, and validation tasks. Missing test coverage
   is not evidence of a bug.
@@ -82,6 +82,8 @@ regressions remain easy to trace.
 
 | ID | Finding | Evidence/status | Severity |
 | --- | --- | --- | --- |
+| [UI-033](tickets/UI-033.json) | Opening the keyboard covers an editor moved to the end of a long list | Resolved 2026-11-08: reveal the editor on IME/viewport changes. Desktop and actual Android baselines fail; real-keyboard and both-theme native open/Return/reopen regressions pass. Physical retest not claimed | Major (triaged) |
+| [UI-032](tickets/UI-032.json) | Earlier deletion has too little Undo time after restoring the newest one | Resolved 2026-11-08: Undo exposing an earlier action restarts the shared 15-second clock. Near-expiry regressions fail before/pass after on Windows and Android; per-action recovery/order, expiry and pause controls pass | Unassigned |
 | [UI-031](tickets/UI-031.json) | New cart arrow is misplaced | Resolved 2026-11-08 with user acceptance: whole-arrow centering at the matching arrival/departure position. All 16 center cases fail before/pass after; both Windows arrow suites and all ten native Android profiles pass | Minor (triaged) |
 | [UI-025](tickets/UI-025.json) | Colored fills can obscure current-day numbers, selected icons and Undo text | Resolved 2026-11-06 with user confirmation: readable day/button foregrounds and compatible Undo fill preserve the vivid palette. Regressions fail before/pass after; subsequent solid-surface refinement is UI-027 | Unassigned |
 | [UI-026](tickets/UI-026.json) | Selected popup captions lose contrast with bright accents | Resolved 2026-11-06 with phone confirmation: normal popup text and a bold current entry preserve vivid swatches. 116 offscreen/134 native Windows popup records and 42 Android checks pass | Unassigned |

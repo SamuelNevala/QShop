@@ -124,13 +124,12 @@ Item {
             const bar = undoBar();
             const progress = findChild(bar, "undoCountdown");
             const expiry = findChild(bar, "undoExpiry");
-            const remaining = progress.value;
             compare(bar.message, before[2] + " removed");
             undo(true);
             compare(names(), before.slice(2), "Correct only the last mistake");
             compare(bar.message, before[1] + " removed");
             compare(expiry.running, true);
-            verify(progress.value <= remaining, "Undo does not extend the shared recovery window");
+            verify(progress.value > .95, "The previous action receives a fresh recovery window");
             undo(true);
             compare(names(), before.slice(1));
             compare(bar.message, before[0] + " removed");
@@ -140,6 +139,28 @@ Item {
                 compare(shop.model.data(shop.model.index(index, 0), Qt.UserRole + 1),
                         identifiers[index - 1]);
             }
+        }
+
+        function test_near_expiry_undo_restarts_previous_action() {
+            const before = names();
+            deleteRow(1);
+            deleteRow(1);
+            const bar = undoBar();
+            const progress = findChild(bar, "undoCountdown");
+            const expiry = findChild(bar, "undoExpiry");
+            expiry.duration = 2000;
+            bar.restart();
+            tryVerify(function () {
+                return progress.value < .2;
+            }, 2500);
+            undo(true);
+            compare(names(), before.slice(1));
+            verify(progress.value > .9, "Earlier deletion must get a full new countdown");
+            wait(600);
+            compare(shop.model.canUndo, true, "Earlier action survives the original expiry");
+            undo();
+            compare(names(), before);
+            tryCompare(expiry, "running", false);
         }
 
         function test_expiry_discards_all_pending_actions() {

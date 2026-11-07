@@ -235,7 +235,8 @@ reuses the existing Font Awesome font through Popup.font.family. The view
 positions it above the safe area/keyboard and reserves bottom
 scrolling space. UX-005 replaces the original restore-all batch policy with one
 Undo step per user deletion action, including one coherent step per bulk action.
-Each deletion restarts the shared 15-second window; Undo does not extend it.
+Each deletion restarts the shared 15-second window. Undo also restarts it when
+an earlier pending action becomes the next recovery step (UI-032).
 Further taps restore earlier pending actions. Expiry discards all remaining steps.
 Scrolling, checking, typing, submission and editor movement preserve recovery.
 Opening the drawer or backgrounding pauses its clock.
@@ -1708,6 +1709,39 @@ floor and vertical center; `--profile light-in-left` provides a bounded reproduc
 `tests/qml/tst_inputfont.qml` drives the production editor with the real icon-font
 parent. Font Awesome 7's desktop font contains ASCII glyphs and icon-name ligatures;
 the text field explicitly uses the application's normal font. Three data rows
-compare observable text shaping against normal FontMetrics, then submit the exact
+compare observable text shaping against a plain TextInput using the same render
+type and normal font, then submit the exact
 text through Return. All three fail before the fix and pass afterward. The normal
 UI entry and native Windows `qshopper_inputfont_rendering_tests` both run this test.
+
+### Recovery timing and end-editor visibility (UI-032/UI-033)
+
+`qml/tst_undorecovery.qml::test_near_expiry_undo_restarts_previous_action` uses
+the production View and floating action. After two actual deletion swipes it
+waits until the recovery window is almost exhausted, restores the newest action,
+checks a fresh window for the previous action, crosses the original deadline,
+and restores the earlier item. Its clock is shortened to two seconds for this
+test; the native test uses the actual 15-second duration. Existing expiry,
+whole-bar, paused-drawer, bulk and identity/order controls remain in the suites.
+
+`keyboard/tst_keyboard.qml::test_end_editor_remains_visible_when_keyboard_opens`
+moves the production editor to the end of 80 items with the real desktop keyboard
+closed, opens it by tapping the field and checks actual viewport containment,
+Return submission at that insertion point and retained keyboard visibility.
+It runs in the normal `qshopper_keyboard_tests` entry.
+
+The companion uses actual Android touches, native Gboard/insets, screenshots,
+saved IDs/order/checks and isolated data in both themes:
+
+```powershell
+python tests/android/test_recovery_entry.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-recovery-entry
+```
+
+Use `--case keyboard` or `--case undo`, and optionally `--theme light|dark`, for a
+bounded reproduction. Keyboard setup scrolls to the end and moves/reveals the
+editor before tapping it; it does not pre-scroll after the IME opens. Two open/
+Return/hide cycles preserve all 80 original rows and append the exact new text.
+Undo measurement uses real countdown pixels without accessibility polling while
+the animated bar is active. The earlier action must receive over 85% of a fresh
+window and remain recoverable after the original deadline. All task data/staging
+paths are removed in `finally`. No microphone is activated.
