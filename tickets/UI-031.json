@@ -1,0 +1,29 @@
+{
+  "id": "UI-031",
+  "title": "Cart arrow is misplaced after the Font Awesome update",
+  "type": "user_reported_bug",
+  "severity": "minor",
+  "severity_source": "Agent triage: visual alignment; actions remain usable.",
+  "status": "resolved",
+  "created": "2026-11-08",
+  "resolved": "2026-11-08",
+  "reported_by": "user",
+  "source": "User screenshot codex-clipboard-1f19ea8e-22dd-433b-babc-12e1e2dc1fb3.png: On new cart the arrow is miss placed.",
+  "trigger": "Reveal the new cart feedback during a horizontal item swipe, including the mirrored left-swipe cart.",
+  "actual": "The arrow sits left of the new basket center in the supplied mirrored example; the non-mirrored direction has the opposite offset. The user then reported that the final arrow position was too low (screenshot codex-clipboard-31f67d93-541a-412f-a317-5f5ad209473e.png).",
+  "expected": "The arrow is horizontally centered and arrives inside the basket in either swipe direction.",
+  "cause": "CartInIcon and CartOutIcon retained asymmetric .42/.23 padding and a height/4 basket position tailored to the previous cart glyph.",
+  "implementation": "Inherit ArrowIcon's symmetric .32/.32 padding. Move CartIn's destination and CartOut's matching starting position to height/8. Shared ArrowIcon, sizes, animation timing and gesture thresholds are unchanged.",
+  "regression": {
+    "windows_test": "tests/arrowfeedback/tst_arrowfeedback.qml::test_cart_arrow_alignment",
+    "coverage": "16 actual pixel cases: CartIn/CartOut, left/right, Light/Dark and preview scales 1/2. Compare the rendered arrow centroid to the basket interior and its lowest ink to the actual basket floor at the real arrival/departure position, then pull back and verify no action.",
+    "before": "All 16 fail with the legacy padding; native Windows sample arrow center 39.59 versus basket 33.375. Report: out/fontawesome/cart-alignment-before.txt.",
+    "after": "All 16 alignment cases pass with native Windows rendering. After adding the endpoint assertion, all 16 fail with the old height/4 position and pass with height/8; both normal arrow CTest entries pass. Reports: cart-endpoint-before.txt, cart-endpoint-after.txt and windows-endpoint-regressions.txt under out/fontawesome. Earlier four arrow/contrast entries also pass (windows-cart-regressions.txt).",
+    "android_test": "tests/android/test_arrowfeedback.py",
+    "android_before": "Actual mirrored light-in-left profile fails: arrow center about 1317.7 versus basket 1335.65 pixels. Both first and repeated swipe are misaligned; saved data remains unchanged. Report: out/fontawesome/android-cart-before/results.json.",
+    "android_endpoint_before": "After horizontal centering, the actual settled mirrored arrow tip remains at pixel 255, below the basket floor at 254; both first and repeated swipes fail. Report: out/fontawesome/android-endpoint-before/results.json.",
+    "android_after": "All ten final profiles pass on API 36 emulator-5580, including both cart directions/themes, repeated swipes, alignment and unchanged saved data. Settled CartIn tip is at pixel 230 versus basket floor 254. Report: out/fontawesome/android-endpoint-after/results.json."
+  },
+  "related_tickets": ["DEV-012", "UI-017"],
+  "limitations": "Native Android emulator verified; no new physical-phone confirmation claimed."
+}

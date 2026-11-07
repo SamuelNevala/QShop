@@ -144,7 +144,7 @@ Item {
             tryVerify(function () {
                 return text.model.join("\n\n").includes("SIL OPEN FONT LICENSE");
             });
-            verify(text.model.join("\n\n").includes("Font Awesome 5 Free Solid, version 5.7.2"));
+            verify(text.model.join("\n\n").includes("Font Awesome 7 Free Solid, version 7.3.1"));
             verify(text.model.join("\n\n").length > 5000);
             compare(snapshot(), before);
             keyClick(Qt.Key_Back);
@@ -392,13 +392,23 @@ Item {
             flickable.forceLayout();
             verify(flickable.contentHeight > flickable.height);
             const bar = text.ScrollBar.vertical;
-            const thumbCenter = bar.topPadding + bar.availableHeight * bar.visualSize / 2;
-            mousePress(bar, bar.width / 2, thumbCenter);
-            mouseMove(bar, bar.width / 2, bar.height - bar.bottomPadding - 1, 20);
-            app.update();
-            verify(waitForRendering(text));
-            mouseMove(bar, bar.width / 2, bar.height - bar.bottomPadding, 20);
-            mouseRelease(bar, bar.width / 2, bar.height - bar.bottomPadding);
+            const end = bar.height - bar.bottomPadding;
+            // Newly exposed paragraphs can change ListView's estimated extent.
+            // Continue from the actual thumb position, without bypassing input.
+            for (let drag = 0; drag < 3 && !flickable.atYEnd; ++drag) {
+                const thumbCenter = bar.topPadding + bar.availableHeight * (bar.visualPosition
+                                                                            + bar.visualSize / 2);
+                mousePress(bar, bar.width / 2, thumbCenter);
+                for (let step = 1; step <= 20; ++step) {
+                    mouseMove(bar, bar.width / 2, thumbCenter + (end - thumbCenter) * step / 20,
+                              20);
+                    app.update();
+                    verify(waitForRendering(text));
+                }
+                mouseRelease(bar, bar.width / 2, end);
+                app.update();
+                verify(waitForRendering(text));
+            }
             tryVerify(function () {
                 return flickable.atYEnd;
             });

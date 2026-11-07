@@ -19,7 +19,7 @@
     }
   ],
   "buildPresets": [
-    { "name": "windows-agent", "configurePreset": "windows-agent", "targets": ["application", "qshopper_tests", "qshopper_ui_tests"], "jobs": 4 }
+    { "name": "windows-agent", "configurePreset": "windows-agent", "targets": ["application", "qshopper_tests", "qshopper_ui_tests", "qshopper_iconfont_tests"], "jobs": 4 }
   ],
   "testPresets": [
     { "name": "windows-agent", "configurePreset": "windows-agent", "output": { "outputOnFailure": true }, "execution": { "noTestsAction": "error" } }

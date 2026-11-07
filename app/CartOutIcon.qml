@@ -6,7 +6,7 @@ ArrowIcon {
     text: "\uf07a"
 
     animation {
-        from: root.height / 4
+        from: root.height / 8
         to: -arrow.height
 
         easing {
@@ -15,8 +15,6 @@ ArrowIcon {
     }
 
     arrow {
-        leftPadding: arrow.width * 0.42
-        rightPadding: arrow.width * 0.23
         text: "\uf062"
     }
 }

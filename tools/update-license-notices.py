@@ -16,6 +16,10 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / "out/ui012/license-source-cache"
 SOURCES = {}
+FONT_AWESOME_VERSION = "7.3.1"
+FONT_AWESOME_FILE = "fa-solid-900.otf"
+FONT_AWESOME_DOWNLOAD = ("https://github.com/FortAwesome/Font-Awesome/releases/download/"
+                         f"{FONT_AWESOME_VERSION}/fontawesome-free-{FONT_AWESOME_VERSION}-desktop.zip")
 
 
 def fetch(url):
@@ -99,6 +103,17 @@ def attribution(package, document):
     return entry["Id"], "\n".join(sections), package["licenseConcluded"]
 
 
+def font_awesome_notice(spdx_commit):
+    source = f"https://raw.githubusercontent.com/FortAwesome/Font-Awesome/{FONT_AWESOME_VERSION}/LICENSE.txt"
+    cc_by = f"https://raw.githubusercontent.com/spdx/license-list-data/{spdx_commit}/text/CC-BY-4.0.txt"
+    return (f"Font Awesome 7 Free Solid, version {FONT_AWESOME_VERSION}\n"
+            "Copyright (c) 2026 Fonticons, Inc. (https://fontawesome.com)\n"
+            f"The included {FONT_AWESOME_FILE} font is licensed under the SIL Open Font License 1.1.\n"
+            "The tab logo is the Font Awesome brand SVG (CC BY 4.0), with its fill changed to blue.\n"
+            f"Logo source: https://github.com/FortAwesome/Font-Awesome/blob/{FONT_AWESOME_VERSION}/svgs/brands/font-awesome.svg\n"
+            "https://fontawesome.com\n\n" + fetch(source) + "\n\n" + fetch(cc_by))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--package-report", type=Path, required=True)
@@ -156,20 +171,14 @@ def main():
             parts.extend(["\n" + license_id + "\n", text])
         outputs[filename] = "\n".join(parts) + "\n"
         inventories[filename] = sorted(entries)
-    font_source = "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.7.2/LICENSE.txt"
-    ofl_source = f"https://raw.githubusercontent.com/spdx/license-list-data/{spdx_commit}/text/OFL-1.1.txt"
-    cc_by_source = f"https://raw.githubusercontent.com/spdx/license-list-data/{spdx_commit}/text/CC-BY-4.0.txt"
-    outputs["FontAwesome.txt"] = ("Font Awesome 5 Free Solid, version 5.7.2\nCopyright (c) Font Awesome\n"
-                                "The included fa-solid-900.ttf font is licensed under the SIL Open Font License 1.1.\n"
-                                "The tab logo is the Font Awesome brand SVG (CC BY 4.0), with its fill changed to blue.\n"
-                                "Logo source: https://github.com/FortAwesome/Font-Awesome/blob/5.7.2/svgs/brands/font-awesome.svg\n"
-                                "https://fontawesome.com\n\n" + fetch(font_source) + "\n\n" + fetch(ofl_source)
-                                + "\n\n" + fetch(cc_by_source))
+    outputs["FontAwesome.txt"] = font_awesome_notice(spdx_commit)
     for filename, text in outputs.items():
         args.output.mkdir(parents=True, exist_ok=True)
         (args.output / filename).write_text(text, encoding="utf-8", newline="\n")
     manifest = {"qt_version": args.qt_version, "android_runtime_seeds": seeds,
-                "font_sha256": hashlib.sha256((ROOT / "app/fa-solid-900.ttf").read_bytes()).hexdigest(),
+                "font_version": FONT_AWESOME_VERSION, "font_file": FONT_AWESOME_FILE,
+                "font_source": FONT_AWESOME_DOWNLOAD,
+                "font_sha256": hashlib.sha256((ROOT / "app" / FONT_AWESOME_FILE).read_bytes()).hexdigest(),
                 "components": inventories, "sources": dict(sorted(SOURCES.items())),
                 "files": {name: hashlib.sha256(text.encode()).hexdigest() for name, text in outputs.items()}}
     (args.output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")

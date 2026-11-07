@@ -25,7 +25,7 @@ Item {
     FontLoader {
         id: icons
 
-        source: "qrc:/qt/qml/QShopper/fa-solid-900.ttf"
+        source: "qrc:/qt/qml/QShopper/fa-solid-900.otf"
     }
 
     Component {
@@ -95,11 +95,12 @@ Item {
                                                 signalName: "swiped"
                                             });
             wait(50);
-            return row.background.children.filter(child => child instanceof IconChoser)[0].item;
+            const loaders = row.background.children.filter(child => child instanceof IconChoser);
+            return loaders[data.right === false ? 1 : 0].item;
         }
 
         function pull(distance) {
-            origin = row.mapToItem(scene, 100, row.height / 2);
+            origin = row.mapToItem(scene, distance < 0 ? row.width - 100 : 100, row.height / 2);
             pointer = touchEvent(scene);
             pointer.press(0, scene, origin.x, origin.y).commit();
             for (let step = 1; step <= 4; ++step) {
@@ -114,6 +115,108 @@ Item {
             pointer = null;
             tryCompare(row, "x", 0, 400);
             wait(270);
+        }
+
+        function test_cart_arrow_alignment_data() {
+            const result = [];
+            for (const data of cases().filter(value => value.variant !== "trash")) {
+                for (const right of [false, true]) {
+                    for (const scale of [1, 2]) {
+                        result.push(Object.assign({}, data, {
+                                                      tag: data.tag + (right ? "-right-" :
+                                                                               "-left-") + scale,
+                                                      right: right,
+                                                      scale: scale
+                                                  }));
+                    }
+                }
+            }
+            return result;
+        }
+
+        function test_cart_arrow_alignment(data) {
+            Theme.scale = data.scale;
+            const icon = makeRow(data);
+            pull(row.height * (data.right ? 1.6 : -1.6));
+            if (data.variant === "in") {
+                icon.animation.complete();
+            } else {
+                icon.reset();
+            }
+            // Check the actual arrival (in) and departure (out) basket position.
+            tryCompare(icon, "opacity", 1, 1000);
+            const visible = grabImage(scene);
+            icon.arrow.visible = false;
+            wait(30);
+            const body = grabImage(scene);
+            const bounds = icon.mapToItem(scene, Qt.rect(0, 0, icon.width, icon.height));
+            const sx = body.width / scene.width;
+            const sy = body.height / scene.height;
+            const left = Math.ceil(bounds.x * sx);
+            const right = Math.floor((bounds.x + bounds.width) * sx);
+            let basketCenter = 0;
+            let basketRows = 0;
+            for (let y = Math.ceil((bounds.y + bounds.height * .3) * sy); y < Math.floor((bounds.y
+                                                                                          + bounds.height
+                                                                                          * .5) * sy); ++y) {
+                let start = left;
+                let bestStart = left;
+                let bestWidth = 0;
+                for (let x = left; x <= right; ++x) {
+                    const pixel = x < right ? body.pixel(x, y) : Qt.rgba(1, 1, 1, 1);
+                    if (pixel.r > .1 || pixel.g > .1 || pixel.b > .1) {
+                        if (x - start > bestWidth) {
+                            bestStart = start;
+                            bestWidth = x - start;
+                        }
+                        start = x + 1;
+                    }
+                }
+                if (bestWidth > (right - left) * .25) {
+                    basketCenter += bestStart + (bestWidth - 1) / 2;
+                    ++basketRows;
+                }
+            }
+            verify(basketRows > 0, "Actual basket interior must be rendered");
+            basketCenter /= basketRows;
+            let arrowCenter = 0;
+            let arrowPixels = 0;
+            let arrowBottom = 0;
+            for (let y = Math.ceil(bounds.y * sy); y < Math.floor((bounds.y + bounds.height)
+                                                                  * sy); ++y) {
+                for (let x = left; x < right; ++x) {
+                    const pixel = visible.pixel(x, y);
+                    if (pixel.r > .9 && pixel.g > .9 && pixel.b > .9) {
+                        arrowCenter += x;
+                        ++arrowPixels;
+                        arrowBottom = Math.max(arrowBottom, y);
+                    }
+                }
+            }
+            verify(arrowPixels >= 3, "Actual arrow cores must be rendered");
+            arrowCenter /= arrowPixels;
+            fuzzyCompare(arrowCenter, basketCenter, Math.max(1, bounds.width * sx * .025),
+                         "Arrow must be centered in the rendered basket, including mirrored swipes");
+
+
+            let basketBottom = 0;
+            for (let y = Math.ceil((bounds.y + bounds.height * .3) * sy); y < Math.floor((bounds.y
+                                                                                          + bounds.height
+                                                                                          * .6) * sy); ++y) {
+                const pixel = body.pixel(Math.round(basketCenter), y);
+                if (pixel.r < .1 && pixel.g < .1 && pixel.b < .1) {
+                    basketBottom = y;
+                } else if (basketBottom > 0) {
+                    break;
+                }
+            }
+            verify(basketBottom > 0, "Actual basket floor must be rendered");
+            verify(arrowBottom < basketBottom,
+                   "Arrow basket position must stay above the basket floor: tip=" + arrowBottom
+                   + ", floor=" + basketBottom);
+            icon.arrow.visible = true;
+            returnAndRelease();
+            compare(actions.count, 0);
         }
 
         function test_rapid_second_swipe_data() {

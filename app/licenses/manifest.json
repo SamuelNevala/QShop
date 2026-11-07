@@ -53,7 +53,10 @@
     "quickwindow",
     "workerscriptplugin"
   ],
-  "font_sha256": "947aac16aa6d2b3b0a4fa20e20b8defa4602e9b42f8fd9fa2b19538b4c5a8ea9",
+  "font_version": "7.3.1",
+  "font_file": "fa-solid-900.otf",
+  "font_source": "https://github.com/FortAwesome/Font-Awesome/releases/download/7.3.1/fontawesome-free-7.3.1-desktop.zip",
+  "font_sha256": "daa92774861a14e9ccbccc5e73a5fba514271ba4d1bd7e5adbf952182bc00835",
   "components": {
     "Qt-Android.txt": [
       "aglfn",
@@ -206,7 +209,7 @@
   },
   "sources": {
     "https://api.github.com/repos/spdx/license-list-data/commits/main": "cf30acf7045d78eef60d85110deff5f1d2f2052ad08bcb069a0c97924524ef93",
-    "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.7.2/LICENSE.txt": "e779748dfe75e84f974df3c7bc07f842011a100159158b0f1f49b2f2a5a515cb",
+    "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/7.3.1/LICENSE.txt": "20c6f40715a567c97b80f6944beb8bb325835cab47ea7dcab89ee3b8e077eced",
     "https://raw.githubusercontent.com/qt/qtbase/025bdad181de241e81bf853c8a2d7bf3d19261a9/LICENSES/GPL-3.0-only.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
     "https://raw.githubusercontent.com/qt/qtbase/025bdad181de241e81bf853c8a2d7bf3d19261a9/LICENSES/LGPL-3.0-only.txt": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
     "https://raw.githubusercontent.com/qt/qtbase/025bdad181de241e81bf853c8a2d7bf3d19261a9/src/3rdparty/D3D12MemoryAllocator/LICENSE.txt": "5478a2f36b736e13dd3250b9c71a4ab521bc327fb9d112a92c647bf3e69ddb68",
@@ -316,6 +319,6 @@
     "Qt-Android.txt": "204f1e6ad8fe78404028c530d775581ad5996336418eb4117aaedd0271c4e2e7",
     "Qt-Windows.txt": "42b1df8720adab052ce80c7c5a920036146ab59ca3dfdbb42237da6f73bd7c74",
     "Qt-Windows-Keyboard.txt": "480a9d0bb14a59c2c9d9c2f6885f32ffabf23c8c672f26df208293e20745eec7",
-    "FontAwesome.txt": "3031245c3307f64029b9ad58e26d1fb87583ee14e7bd67f58d60f9c5a4d658d4"
+    "FontAwesome.txt": "6715f70283b2287a03244a910160f01033a4e6117d03740699f894c27d86627d"
   }
 }

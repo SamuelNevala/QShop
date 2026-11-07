@@ -99,7 +99,7 @@ qt_add_qml_module(QShopper
         backgrounds/08-qshopper.jpg
         backgrounds/09-stocktaking.jpg
         backgrounds/10-evening-produce.jpg
-        fa-solid-900.ttf
+        fa-solid-900.otf
     DEPENDENCIES QtCore QtQml.Models QtQuick.VectorImage ${qshopper_keyboard_dependencies}
 )
 

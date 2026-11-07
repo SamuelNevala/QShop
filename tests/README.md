@@ -1657,3 +1657,57 @@ without an emulator or microphone: `python tests/android/test_dictation_control.
 They simulate channel acquisition/closure failures and a disconnected ADB,
 requiring removal of the trusted public key and an independent attempt/report
 for every cleanup action.
+
+### Font Awesome update and glyph coverage (DEV-012)
+
+QShopper bundles the unmodified Font Awesome Free Solid 7.3.1 desktop OTF as
+`app/fa-solid-900.otf`; only that font is shipped. The About tab uses the matching
+brand SVG with the existing blue fill. Version 7's web archive uses WOFF2; the
+desktop OTF is suitable for Qt's FontLoader and requires no conversion/subsetting.
+Source URLs, notice hashes and the font hash are in `app/licenses/manifest.json`.
+
+`qshopper_iconfont_tests` is included in the normal Windows build/test preset.
+Its 14 data rows load the bundled font with QRawFont, check the expected Free
+Solid family/style, Unicode coverage, nonzero glyph indexes and actual outlines.
+It also verifies that the old TTF resource is absent. This prevents a system-font
+fallback from disguising an omitted icon. Existing button, About, color,
+arrow-animation and Undo suites exercise the production callers.
+
+The full UI entry now has a 300-second outer timeout: all 205 original records completed
+in 219 seconds during this update, and the former 225-second limit expired in
+the first concurrent build/test pass. The added editor-font regression brings the
+final UI entry to 210 passing records. Per-assertion deadlines remain unchanged.
+The license scrollbar test uses at most three continuous drags from the actual
+thumb position, letting variable-height paragraphs update the estimated extent
+over rendered frames. Its strict endpoint and safe-area/data assertions remain.
+
+The software swipe-contrast entry checks actual body contrast, glyph presence,
+outline configuration, palette stability and gesture/action outcomes. It does
+not certify the rasterized OTF outline's 3:1 contrast. Native Windows and Android
+retain the strict rendered contrast checks. The distinction uses
+`GraphicsInfo.Software`, including a Windows process deliberately using that
+adaptation; it is not an offscreen-platform skip. Qt's software adaptation does
+draw outlines, through shifted native glyph runs, and differs from RHI rendering.
+Matched row/font sizes and an identical paused arrow position reproduced the
+19-pixel software difference while native Windows passed at both 18 and 19 pixels.
+See [Qt's software glyph implementation](https://raw.githubusercontent.com/qt/qtdeclarative/v6.12.0/src/quick/scenegraph/adaptations/software/qsgsoftwareglyphnode.cpp).
+
+Update evidence is in `out/fontawesome`, including the official release digest,
+old/new glyph comparison, the initial and corrected harness reports, both APK
+payload reports, and the native Android checks. See `tickets/DEV-012.json` for
+the final verification record. Icon sizes and gesture behavior are preserved.
+CartInIcon/CartOutIcon now inherit ArrowIcon's symmetric padding instead of offsets
+tailored to the old cart. Their matching arrival/departure position is height/8,
+keeping the tip inside the new basket. The arrow-feedback suite samples actual
+arrow and basket pixels at that position for both directions, themes and preview
+scales (16 alignment/endpoint cases).
+The Android driver checks both mirrored cart directions and rapid repeats in all
+ten profiles, including a settled CartIn screenshot checked against the basket
+floor; `--profile light-in-left` provides a bounded reproduction.
+
+`tests/qml/tst_inputfont.qml` drives the production editor with the real icon-font
+parent. Font Awesome 7's desktop font contains ASCII glyphs and icon-name ligatures;
+the text field explicitly uses the application's normal font. Three data rows
+compare observable text shaping against normal FontMetrics, then submit the exact
+text through Return. All three fail before the fix and pass afterward. The normal
+UI entry and native Windows `qshopper_inputfont_rendering_tests` both run this test.

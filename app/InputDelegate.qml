@@ -53,6 +53,7 @@ Delegate {
         }
 
         font {
+            family: Qt.application.font.family
             pixelSize: Theme.pixels(3.5)
         }
 

@@ -13,7 +13,7 @@ intentional gestures, text fitting, animation, and list ordering intact.
 - Capture reports first. Do not implement fixes during backlog gathering.
 - Feature and code-quality requests are also backlog intake during this phase,
   unless the user explicitly asks to implement them now.
-- Keep stable IDs. Add new UI reports from UI-031 onward; UI-002 is already resolved.
+- Keep stable IDs. Add new UI reports from UI-032 onward; UI-002 is already resolved.
 - Distinguish user reports, previously observed bugs, source-review candidates,
   missing features, code-quality work, and validation tasks. Missing test coverage
   is not evidence of a bug.
@@ -82,6 +82,7 @@ regressions remain easy to trace.
 
 | ID | Finding | Evidence/status | Severity |
 | --- | --- | --- | --- |
+| [UI-031](tickets/UI-031.json) | New cart arrow is misplaced horizontally and ends too low | Resolved 2026-11-08: centered padding and a higher basket position. Actual alignment/endpoint regressions fail before and pass after in both directions, themes and Windows scales; all ten native Android arrow profiles pass | Minor (triaged) |
 | [UI-025](tickets/UI-025.json) | Colored fills can obscure current-day numbers, selected icons and Undo text | Resolved 2026-11-06 with user confirmation: readable day/button foregrounds and compatible Undo fill preserve the vivid palette. Regressions fail before/pass after; subsequent solid-surface refinement is UI-027 | Unassigned |
 | [UI-026](tickets/UI-026.json) | Selected popup captions lose contrast with bright accents | Resolved 2026-11-06 with phone confirmation: normal popup text and a bold current entry preserve vivid swatches. 116 offscreen/134 native Windows popup records and 42 Android checks pass | Unassigned |
 | [UI-027](tickets/UI-027.json) | Translucent Undo becomes unreadable over checked rows | Resolved 2026-11-06 with phone confirmation: opaque normal-row background beneath the accent countdown. Original regressions fail; 14 native Windows Undo records and 16 Android checked-row checks pass | Unassigned |
@@ -362,6 +363,7 @@ actions while preserving the post-reset order and saved item identities.
 | [DEV-009](tickets/DEV-009.json) | Remove unused WheelIcon, its module registration and disabled cart-wheel snippets | Resolved 2026-11-01 at user request. File, CMake entry and inactive snippets removed; 247 Windows records, Android native build/module checks and formatting of 53 remaining QML/templates pass. Committed 2044afc5 |
 | [DEV-010](tickets/DEV-010.json) | Use a layout for IconButton content and honor inherited display modes | Resolved 2026-11-03 with DEV-006 acceptance; committed cff0e6a4. Four modes, caption limits, caller sizing and clicks verified; final combined suites pass |
 | [DEV-011](tickets/DEV-011.json) | Migrate Canvas drawing to QtCanvas2D.Canvas2D, starting with UndoIcon's countdown arc | Resolved 2026-11-03; user requested closure and commit. Qt 6.12 minimum and transparent Canvas2D arc. All 316 Windows records (including 8 native rendering records), original Canvas characterization and 12 native Android checks pass. Undo redesign remains UI-023 |
+| [DEV-012](tickets/DEV-012.json) | Update bundled Font Awesome Free | Resolved 2026-11-08: official Free Solid 7.3.1 OTF, matching About logo and refreshed notices/hashes. All 14 codepoints retained; plain editor font and centered cart arrows verified with before/after regressions. All 23 Windows entries pass across the full run and affected reruns; native Android and both APK payload contracts pass |
 
 DEV-002 should establish a checked-in `.qmlformat.ini`, Qt-style attribute order,
 and a repeatable formatter invocation usable with Qt Creator. Preserve behavior

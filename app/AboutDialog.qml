@@ -177,7 +177,7 @@ Controls.Dialog {
     FontLoader {
         id: closeFont
 
-        source: "fa-solid-900.ttf"
+        source: "fa-solid-900.otf"
     }
 
     Shortcut {

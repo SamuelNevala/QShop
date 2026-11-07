@@ -390,7 +390,7 @@ Style.Control {
         Quick.FontLoader {
             id: awsome
 
-            source: Quick.Qt.resolvedUrl("fa-solid-900.ttf")
+            source: Quick.Qt.resolvedUrl("fa-solid-900.otf")
         }
     ]
 

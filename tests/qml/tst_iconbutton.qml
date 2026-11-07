@@ -18,7 +18,7 @@ Item {
     FontLoader {
         id: glyphFont
 
-        source: "qrc:/qt/qml/QShopper/fa-solid-900.ttf"
+        source: "qrc:/qt/qml/QShopper/fa-solid-900.otf"
     }
 
     Component {

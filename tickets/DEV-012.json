@@ -1,0 +1,42 @@
+{
+  "id": "DEV-012",
+  "title": "Update bundled Font Awesome Free to the current stable release",
+  "status": "resolved",
+  "resolved": "2026-11-08",
+  "type": "dependency_maintenance",
+  "created": "2026-11-07",
+  "reported_by": "user",
+  "source": "User asked whether Font Awesome should be updated, then authorized the update while AFK.",
+  "scope": "Upgrade Free Solid 5.7.2 to stable 7.3.1 using the official desktop OTF; update the matching About logo, source attribution, license notices and asset manifest. Preserve the font-based approach, existing Unicode choices, control sizes and interactions.",
+  "upstream": {
+    "release": "https://github.com/FortAwesome/Font-Awesome/releases/tag/7.3.1",
+    "published": "2026-07-15",
+    "desktop_archive_sha256": "c61edde261707f33376a28e9a30bb8c70c1a20bf0bd975206b809f3b3b70add5",
+    "provenance": "Downloaded from the official stable release; archive SHA-256 matches GitHub's release-asset digest. All 14 existing codepoints map to Free Solid icons in official 7.3.1 metadata."
+  },
+  "implementation": [
+    "Replace the old TTF with the unmodified official 7.3.1 Free Solid desktop OTF; update production/test resources and retain all 14 codepoints. Only Free Solid is bundled.",
+    "Update the matching About brand logo, preserving its blue fill, plus upstream notices, provenance and hashes. Qt notices remain unchanged.",
+    "Explicitly use the normal application font for editor text: the new desktop font's ASCII/icon-name ligatures exposed inherited icon-font shaping. Action icons retain their icon font.",
+    "Resolve the user-reported cart offset under UI-031 by inheriting symmetric base padding. Move the matching arrival/departure position from height/4 to height/8 so the arrow ends inside the basket. Preserve icon sizes, gesture thresholds and animation timing."
+  ],
+  "regressions": {
+    "glyphs": "New normal-preset qshopper_iconfont_tests: 17 passing records, testing actual bundled QRawFont family/style, 14 codepoints, nonzero outlines and absence of the old TTF resource.",
+    "editor_before": "All three production-editor text-shaping cases fail before the normal-font fix. Icon ligature text measures 62.5 versus expected 194.58 pixels. Report: out/fontawesome/inputfont-before.txt.",
+    "editor_after": "Native Windows inputfont test: five passing records. Normal UI entry: 210 passing records. Actual Return preserves exact text and clears the editor. Native Android entry driver: 36 passing checks. Reports: inputfont-after.txt, windows-editor-workflows.txt and android-entry-final/results.json under out/fontawesome.",
+    "cart": "UI-031 records failing-before/passing-after actual Windows and Android pixel alignment and final position. All 16 Windows alignment/endpoint cases and ten final native Android arrow profiles pass. Endpoint reports: cart-endpoint-before.txt, cart-endpoint-after.txt, windows-endpoint-regressions.txt and android-endpoint-before/after/results.json under out/fontawesome."
+  },
+  "harness_adjustments": [
+    "Raise only the outer full-UI timeout from 225 to 300 seconds: its original 205 records completed in 219 seconds under the concurrent build/test load. Assertion deadlines stay unchanged; final expanded entry passes 210 records.",
+    "License scrollbar helper uses up to three continuous drags from its actual current thumb position while variable-height paragraph estimates settle. Strict endpoint, bounds and data assertions remain.",
+    "Software swipe-contrast checks retain body contrast, glyph presence, outline configuration, palettes and actions. Only arrow outline pixel certification is confined to native renderers: matched 19-pixel software rendering differs from native RHI. Native Windows and Android retain the strict 3:1 pixel predicate; no XFAIL/skip markers added."
+  ],
+  "verification": {
+    "windows": "All 23 normal CTest entries pass across the initial full run and corrected/affected reruns. Initial full-run failures (missing new preset target, outer UI timeout, scrollbar helper and software-only outline measurement) are retained in windows-tests.txt; fixes and passing results are in windows-rerun.txt, windows-final-about.txt, windows-editor-workflows.txt and windows-cart-regressions.txt under out/fontawesome. Final cart rerun passes all four offscreen/native arrow and contrast entries.",
+    "android": "API 36 isolated emulator: About 26 checks, strict swipe contrast 100 checks, final editor entry 36 checks and final cart feedback ten profiles pass. About/contrast reports predate the final editor-font/cart-position adjustments; the affected entry and arrow scenarios were rerun on the updated APK. Final arrow report: out/fontawesome/android-endpoint-after/results.json. No microphone used, no physical device installed.",
+    "packages": "Final x86_64 and signed ARM64 debug APKs built. Both payload contracts pass: 53 native libraries, no unwanted QML tooling, test, Canvas or desktop keyboard libraries, and valid isolated QML scan roots. Reports: out/fontawesome/package-x86-final.json and package-arm64-final.json. APK hashes: out/fontawesome/apk-hashes.json.",
+    "quality": "Qt 6.12 qmlformat and clang-format 22.1.8 checks pass. Python scripts compile. New C++ test translation unit passes configured clang-tidy/Clazy analysis; existing production C++ is unchanged."
+  },
+  "related_tickets": ["UI-031"],
+  "limitations": "Physical-device acceptance and release readiness are not claimed. Existing QA follow-ups and excluded REL-001 remain unchanged."
+}

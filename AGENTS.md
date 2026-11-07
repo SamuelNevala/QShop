@@ -159,7 +159,7 @@ The native popup script's --restart option verifies actual cold-restart selectio
 A safe-border regression compares actual pixels across all four safe areas,
 normal/inverse rows, themes and viewport changes. Its native companion covers
 Android System-mode changes, system-bar icon contrast, resume and IME with
-isolated data; see tests/README.md. The UI suite timeout is 225 seconds.
+isolated data; see tests/README.md. The UI suite timeout is 300 seconds.
 The native theme harness's --drawer mode covers Android-only UI-014 by comparing
 System drawer pixels with matching explicit Light/Dark references, including live
 OS changes and reopening. Desktop passing results do not establish its reproduction.

@@ -2,9 +2,10 @@
 
 UI-012 provides the Qt and Font Awesome notices requested by the user. Full
 license texts and copyright notices are bundled; the app never downloads them.
-The Font Awesome font remains unchanged following UX-004.
+UX-004 retained Font Awesome after the Tabler comparison. DEV-012 upgrades the
+bundled Free Solid font and matching brand logo to 7.3.1.
 
-`FontAwesome.txt` identifies the included Font Awesome 5 Free Solid 5.7.2 font,
+`FontAwesome.txt` identifies the included Font Awesome 7 Free Solid 7.3.1 OTF font,
 its copyright, the matching upstream distribution notice and the complete
 SIL Open Font License 1.1. The upstream notice also distinguishes the SVG/code
 formats. QShopper uses the font and the Font Awesome brand SVG in the About tab;

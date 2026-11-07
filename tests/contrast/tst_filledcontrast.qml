@@ -46,7 +46,7 @@ Item {
     FontLoader {
         id: icons
 
-        source: "qrc:/qt/qml/QShopper/fa-solid-900.ttf"
+        source: "qrc:/qt/qml/QShopper/fa-solid-900.otf"
     }
 
     IconButton {

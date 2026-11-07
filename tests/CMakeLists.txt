@@ -1,5 +1,11 @@
 find_package(Qt6 REQUIRED COMPONENTS Test QuickTest)
 
+add_executable(qshopper_iconfont_tests test_iconfont.cpp)
+target_link_libraries(qshopper_iconfont_tests PRIVATE QShopper Qt6::Test Qt6::Gui)
+add_test(NAME qshopper_iconfont_tests COMMAND qshopper_iconfont_tests
+    -platform offscreen -o -,txt -o iconfont-tests.xml,junitxml)
+set_tests_properties(qshopper_iconfont_tests PROPERTIES TIMEOUT 15)
+
 add_executable(qshopper_ui_tests test_ui.cpp)
 target_link_libraries(qshopper_ui_tests PRIVATE QShopper QShopperplugin Qt6::QuickTest)
 target_compile_definitions(qshopper_ui_tests PRIVATE
@@ -7,7 +13,7 @@ target_compile_definitions(qshopper_ui_tests PRIVATE
     QSHOPPER_EXPECT_PREVIEW=$<AND:$<NOT:$<BOOL:${ANDROID}>>,$<CONFIG:Debug>>)
 add_test(NAME qshopper_ui_tests COMMAND qshopper_ui_tests
     -import ${CMAKE_BINARY_DIR} -platform offscreen -o -,txt -o ui-tests.xml,junitxml)
-set_tests_properties(qshopper_ui_tests PROPERTIES TIMEOUT 225)
+set_tests_properties(qshopper_ui_tests PROPERTIES TIMEOUT 300)
 add_test(NAME qshopper_flow_tests COMMAND qshopper_ui_tests
     -input ${CMAKE_CURRENT_SOURCE_DIR}/flows -import ${CMAKE_BINARY_DIR}
     -platform offscreen -o -,txt -o flow-tests.xml,junitxml)
@@ -74,6 +80,12 @@ target_link_libraries(qshopper_tests PRIVATE QShopper Qt6::Test)
 add_test(NAME qshopper_tests COMMAND qshopper_tests -o -,txt -o model-tests.xml,junitxml)
 set_tests_properties(qshopper_tests PROPERTIES ENVIRONMENT "QT_FORCE_STDERR_LOGGING=1" TIMEOUT 30)
 if(WIN32)
+    add_test(NAME qshopper_inputfont_rendering_tests COMMAND qshopper_ui_tests
+        -input ${CMAKE_CURRENT_SOURCE_DIR}/qml -import ${CMAKE_BINARY_DIR}
+        -platform windows InputFont::test_literal_text -o -,txt -o inputfont-rendering-tests.xml,junitxml)
+    set_tests_properties(qshopper_inputfont_rendering_tests PROPERTIES TIMEOUT 30
+        ENVIRONMENT "QT_QUICK_BACKEND=rhi;QSG_RHI_BACKEND=d3d11;QSG_RHI_PREFER_SOFTWARE_RENDERER=1;QT_FORCE_STDERR_LOGGING=1")
+    list(APPEND qshopper_qml_tests qshopper_inputfont_rendering_tests)
     option(QSHOPPER_CONNECTED_DISPLAY_TESTS "Exercise actual connected monitors and desktop keyboard" OFF)
     if(QSHOPPER_CONNECTED_DISPLAY_TESTS)
         if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -152,7 +164,7 @@ if(WIN32)
     set_tests_properties(qshopper_undo_rendering_tests PROPERTIES TIMEOUT 45
         ENVIRONMENT "QT_QUICK_BACKEND=rhi;QSG_RHI_BACKEND=d3d11;QSG_RHI_PREFER_SOFTWARE_RENDERER=1;QT_FORCE_STDERR_LOGGING=1")
     list(APPEND qshopper_qml_tests qshopper_undo_rendering_tests qshopper_about_rendering_tests)
-    set_tests_properties(${qshopper_qml_tests} qshopper_tests PROPERTIES ENVIRONMENT_MODIFICATION
+    set_tests_properties(${qshopper_qml_tests} qshopper_tests qshopper_iconfont_tests PROPERTIES ENVIRONMENT_MODIFICATION
         "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>")
 endif()
 
