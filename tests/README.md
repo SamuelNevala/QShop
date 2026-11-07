@@ -226,21 +226,26 @@ Verified with MSVC 19.44 / Qt 6.12: **94.56% (452/478 lines)**.
 UI-023 replaces the editor-owned countdown icon with `UndoBar.qml`, a separate
 Qt Quick Controls `Popup` using `ProgressBar` for the receding whole-background
 fill, using the opaque theme accent without an alpha tint. The ProgressBar
-itself is the Popup background; its separate background Rectangle uses the
-user-selected 20% opacity. Progress fill, message and icon remain solid, with no
+itself is the Popup background; UI-027 makes its neutral background fully opaque
+and UI-025 retains readable normal text over a compatible accent fill.
+Progress fill, message and icon remain solid, with no
 default popup surface or elevation shadow behind them.
 A whole-surface TapHandler performs Undo without taking editor focus. TextIcon
 reuses the existing Font Awesome font through Popup.font.family. The view
 positions it above the safe area/keyboard and reserves bottom
-scrolling space. Consecutive deletions merge into one recoverable batch; each
-restarts 15 seconds. Scrolling, checking, typing, submission and editor movement
-preserve the batch. Opening the drawer or backgrounding pauses its clock.
+scrolling space. UX-005 replaces the original restore-all batch policy with one
+Undo step per user deletion action, including one coherent step per bulk action.
+Each deletion restarts the shared 15-second window; Undo does not extend it.
+Further taps restore earlier pending actions. Expiry discards all remaining steps.
+Scrolling, checking, typing, submission and editor movement preserve recovery.
+Opening the drawer or backgrounding pauses its clock.
 Successful reload/list switching and process termination end recovery; failed
 loads preserve it. Recovery is in memory, not a persistent deletion archive.
 
 `qml/tst_undorecovery.qml` reproduces offscreen-editor deletion and activates the
 actual floating action after scrolling and editor movement/submission. Model
-regressions verify names, UUIDs, flags and order across batching, new insertions,
+regressions verify names, UUIDs, flags and order across separate actions, bulk
+operations, new insertions,
 pending edits, reorder/check operations and reloads. The existing flow expiry
 case checks real 15-second delivery. Before the fix, all three new interaction
 cases and five new model cases failed; the original APK also failed reachable
@@ -1410,3 +1415,28 @@ helper's bidirectional capture handshake:
 ./tools/build-android-gesture-test.ps1 -SdkRoot C:/android/sdk
 python tests/android/test_customcolors.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-customcolors
 ```
+
+## Per-action Undo after list reuse (UX-005)
+
+`ModelTest::post_reset_cleanup_undoes_one_action` verifies the actual check/reset/
+three-removal sequence, exact identities/checks/order and repeated Undo. Additional
+model cases cover a new deletion after Undo, coherent bulk steps, older pending
+actions, mutation/pending-editor preservation and persistence. The actual QML
+swipe/whole-bar-tap scenario is
+`UndoRecovery::test_post_reset_cleanup_undoes_one_swipe_at_a_time`; it also checks
+that Undo keeps the countdown running without extending its deadline. The expiry
+case discards every pending step, complementing the real 15-second flow test.
+
+The emulator cleanup case is included in the reset script's default four cases:
+
+```powershell
+python tests/android/test_reset.py --adb C:/android/sdk/platform-tools/adb.exe --case cleanup --output out/android-cleanup
+python tests/android/test_undorecovery.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-undorecovery
+```
+
+The first performs real check swipes, drawer Reset, three cleanup deletions,
+individual Undo taps and a cold restart with exact saved UUID/order/flag checks.
+The second covers offscreen-editor reachability, scrolling, two separate Undo
+steps above Gboard after submitting a new entry, expiry and background/resume.
+No microphone or physical-device installation is used. Physical one-handed store
+use remains complementary acceptance evidence.

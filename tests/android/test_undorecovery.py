@@ -1,4 +1,4 @@
-"""UI-023: native offscreen-editor Undo, scrolling, batches, IME and expiry.
+"""UI-023/UX-005: native reachable, per-action Undo, IME and expiry.
 
 Requires Pillow. Uses only an isolated emulator and disposable app data.
 """
@@ -192,12 +192,13 @@ def main():
             ime_top = keyboard_top()
             ui = tree()
             delete(ui, ime_top)
+            after_first = saved()
             bar = bar_frame("keyboard-delete", ime_top)
             check("undo_above_native_keyboard", bar is not None and bar["bottom"] <= ime_top, bar=bar)
             limit = bar["top"]
             delete(ui, limit)
-            bar = bar_frame("batch-delete", ime_top)
-            check("consecutive_delete_batch", len(saved()) == 28 and bar is not None, bar=bar)
+            bar = bar_frame("second-delete", ime_top)
+            check("consecutive_delete_actions", len(saved()) == 28 and bar is not None, bar=bar)
             shell("input", "text", "new")
             shell("input", "keyevent", 66)
             bar = bar_frame("after-submit", keyboard_top())
@@ -206,7 +207,14 @@ def main():
             activate_bar(bar)
             restored = saved()
             added = [row for row in restored if row[0].casefold() == "new"]
-            check("batch_undo_preserves_new_entry_and_original_ids", len(restored) == 31
+            check("first_undo_restores_only_latest_action", len(restored) == 30
+                  and len(added) == 1
+                  and [row for row in restored if row[0].casefold() != "new"] == after_first)
+            bar = bar_frame("earlier-action", keyboard_top())
+            activate_bar(bar)
+            restored = saved()
+            added = [row for row in restored if row[0].casefold() == "new"]
+            check("second_undo_preserves_new_entry_and_original_ids", len(restored) == 31
                   and len(added) == 1
                   and [row for row in restored if row[0].casefold() != "new"] == original)
             check("undo_keeps_native_keyboard_open", keyboard_top() > 0)

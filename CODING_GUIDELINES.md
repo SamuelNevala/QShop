@@ -69,8 +69,10 @@ semantics or compare only selected fields for hypothetical future use.
 Keep values that form one logical unit in one record. UndoRemove stores each
 removed Item with its neighboring UUIDs and fallback position in a private named
 struct, held in one QList. Neighbors let recovery survive newer edits and row
-moves; the fallback is used when neither survives. Qt's Undo command merging
-combines successive deletions into the selected batch policy.
+moves; the fallback is used when neither survives. Each user deletion action
+owns one command; a bulk action can contain several removed records. UX-005
+uses QUndoCommand's default non-merging behavior so separate actions remain
+separate Undo steps. The existing QUndoStack owns their order and lifetime.
 This avoids maintaining matching positions in two containers. A small record
 with meaningful field names is enough; no generic wrapper is needed.
 

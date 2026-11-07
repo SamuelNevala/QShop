@@ -5,7 +5,6 @@
 #include <QtCore/QtTypes>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QUuid>
-#include <QtGui/QUndoCommand>
 
 #include <model.h>
 
@@ -53,22 +52,6 @@ qsizetype UndoRemove::restoreIndex(const RemovedItem &removed) const
         ++row;
     }
     return row;
-}
-
-int UndoRemove::id() const
-{
-    return 1;
-}
-
-bool UndoRemove::mergeWith(const QUndoCommand *command)
-{
-    const auto *removed = dynamic_cast<const UndoRemove *>(command);
-    if (removed == nullptr || &removed->m_model != &m_model) {
-        return false;
-    }
-    m_items.append(removed->m_items);
-    updateText();
-    return true;
 }
 
 void UndoRemove::append(qsizetype index)

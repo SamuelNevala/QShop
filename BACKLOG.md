@@ -320,7 +320,7 @@ authorization; none is requested as part of backlog intake.
 | [UX-002](tickets/UX-002.json) | Evaluate red delete and green selection feedback, including color blindness and Android guidance | Resolved 2026-11-07: accepted [report](reviews/UX-002.md) retains red/green plus non-color cues. Separate UI-028 contrast fix also accepted |
 | [UX-003](tickets/UX-003.json) | Review whether primary/accent usage in custom and non-Material components is sensible, readable, and consistent | Resolved 2026-11-07: user accepted the [review](reviews/UX-003.md) and UI-029/UI-030 corrections; vivid color roles retained, full platform checks pass |
 | [UX-004](tickets/UX-004.json) | Decide between Font Awesome and bundled SVG icons, including [Tabler Icons](https://tabler.io/icons): coverage, readability, Qt/QML integration, licensing and maintenance | Resolved 2026-11-04; user accepted keeping Font Awesome and requested commit. Production experiment restored; UI-012 prerequisite satisfied. Native comparison and dependency-cost evidence in reviews/UX-004.md |
-| [UX-005](tickets/UX-005.json) | Test Undo during post-reset cleanup of non-recurring items; evaluate a per-action stack instead of restoring the whole deletion batch | User reports that correcting one mistake also restores intended removals. Proposed: reverse the latest deletion action, with explicit bulk actions kept coherent. Real-phone workflow and timer/stack policy review deferred; no behavior change authorized |
+| [UX-005](tickets/UX-005.json) | Test Undo during post-reset cleanup of non-recurring items; evaluate a per-action stack instead of restoring the whole deletion batch | Resolved 2026-11-07: user tested and accepted per-action Undo, coherent bulk actions and the shared 15-second window; model/UI/native regressions pass |
 
 UX-001 covers primary/accent roles, palette choices, readability, state feedback,
 and behavior across Light, Dark, and System themes. Compare the actual Qt Material
@@ -344,7 +344,7 @@ an option to evaluate, not an agreed migration; priority remains unassigned.
 
 UX-005 revisits recovery granularity using real one-handed list reuse, not only
 isolated deletion tests. It links QA-001's physical shopping flow and the accepted
-UI-023 batch policy; retain that implementation until a replacement is selected.
+UI-023 batch policy; the replacement was selected on 2026-11-07 and its verification is tracked in UX-005.
 Test intentional removals followed by a mistake, repeated Undo and explicit bulk
 actions while preserving the post-reset order and saved item identities.
 

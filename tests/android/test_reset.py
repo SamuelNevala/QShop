@@ -24,7 +24,7 @@ def main():
     parser.add_argument("--adb", default="adb")
     parser.add_argument("--serial", default="emulator-5580")
     parser.add_argument("--output", type=Path, default=Path("out/android-reset"))
-    parser.add_argument("--case", choices=("all", "exact", "mixed", "pending", "clear", "remove"), default="all")
+    parser.add_argument("--case", choices=("all", "exact", "mixed", "pending", "clear", "remove", "cleanup"), default="all")
     args = parser.parse_args()
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator serial is allowed")
@@ -113,7 +113,7 @@ def main():
         return ui
 
     assert shell("getprop", "ro.kernel.qemu") == "1", "Target is not an emulator"
-    cases = ("exact", "mixed", "pending") if args.case == "all" else (args.case,)
+    cases = ("exact", "mixed", "pending", "cleanup") if args.case == "all" else (args.case,)
     with tempfile.TemporaryDirectory(prefix="qshopper-reset-") as temporary:
         for case in cases:
             case_dir = args.output / case
@@ -122,6 +122,10 @@ def main():
             initial = ["A", "B", "1", "2", "3"] if mixed else ["1", "2", "3"]
             checked_order = ["A", "B", "2", "1", "3"] if mixed else ["2", "1", "3"]
             expected = ["A", "B", "3", "1", "2"] if mixed else ["3", "1", "2"]
+            if case == "cleanup":
+                initial = ["Birthday candles", "Gift wrap", "Milk", "Bread"]
+                checked_order = list(reversed(initial))
+                expected = initial
             identities = {name: str(uuid.uuid4()) for name in initial}
             fixture = Path(temporary) / (case + ".sqlite")
             with closing(sqlite3.connect(fixture)) as db:
@@ -144,7 +148,7 @@ def main():
                 display = shell("dumpsys", "window", "displays")
                 width, height = map(int, re.search(r"DisplayFrames w=(\d+) h=(\d+)", display).groups())
                 assert width < height, "Use the portrait phone emulator"
-                for name in ("3", "1", "2"):
+                for name in (initial if case == "cleanup" else ("3", "1", "2")):
                     names = [record[0] for record in saved()]
                     left, top, right, bottom = rows(ui)[names.index(name)]
                     y = (top + bottom) // 2
@@ -153,7 +157,7 @@ def main():
                     ui = tree()
                 records = saved()
                 check("selection_order", [r[0] for r in records] == checked_order and all(
-                    bool(r[1]) == (r[0] in ("1", "2", "3")) for r in records), ui)
+                    bool(r[1]) == (r[0] in (initial if case == "cleanup" else ("1", "2", "3"))) for r in records), ui)
                 ui = enter_edit(ui)
                 if case == "pending":
                     left, top, right, bottom = rows(ui)[checked_order.index("3")]
@@ -176,14 +180,33 @@ def main():
                     records = saved()
                     check("reset_restores_checking_order_and_clears_checks", [r[0] for r in records] == expected
                           and all(not r[1] for r in records), ui)
-                    if case == "pending":
+                    if case == "cleanup":
+                        left, top, right, bottom = rows(ui)[0]
+                        y = (top + bottom) // 2
+                        for count in range(3):
+                            shell("input", "swipe", round(width * .15), y, round(width * .85), y, 350)
+                            time.sleep(.6)
+                            assert saved() == records[count + 1:], "Cleanup removed the wrong row"
+                        for step in range(3):
+                            raw = adb("exec-out", "screencap", "-p")
+                            frame = undo_bar_frame(raw, 0) or undo_bar_frame(raw, 1)
+                            assert frame is not None, "Earlier deletion must remain reachable"
+                            shell("input", "tap", frame["action_x"], frame["action_y"])
+                            time.sleep(.3)
+                            check(f"undo_step_{step + 1}_restores_one_action", saved() == records[2 - step:], None)
+                        shell("am", "force-stop", PACKAGE)
+                        ui = launch()
+                        check("cleanup_restart_preserves_order_flags_and_ids", saved() == records, ui)
+                        # This case has already exercised all its reset/cleanup steps.
+                    elif case == "pending":
                         check("reset_preserves_edit_text", editor(ui).get("text") == "3", ui)
-                    ui = drawer_action(ui)
-                    check("second_reset_is_unchanged", saved() == records, ui)
-                    shell("am", "force-stop", PACKAGE)
-                    ui = launch()
-                    check("restart_preserves_order_flags_and_ids", saved() == records and all(
-                        str(uuid.UUID(r[2])) == identities[r[0]] for r in records), ui)
+                    if case != "cleanup":
+                        ui = drawer_action(ui)
+                        check("second_reset_is_unchanged", saved() == records, ui)
+                        shell("am", "force-stop", PACKAGE)
+                        ui = launch()
+                        check("restart_preserves_order_flags_and_ids", saved() == records and all(
+                            str(uuid.UUID(r[2])) == identities[r[0]] for r in records), ui)
             finally:
                 shell("am", "force-stop", PACKAGE)
                 shell("rm", staging)

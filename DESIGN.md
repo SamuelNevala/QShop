@@ -74,19 +74,27 @@ or light foreground; captions outside the button circle keep normal theme text.
 The whole bar is tappable to Undo; the Font Awesome arrow is its visual cue.
 A short message identifies the removed item/count.
 Use a brief slide/settle animation and keep recovery reachable while scrolling.
-Consecutive deletions within the recovery window form one batch; each deletion
-restarts 15 seconds. Undo restores the whole batch. Scrolling, typing, submission,
-checking and editor movement preserve recovery. The clock pauses while the drawer
-blocks the action or the app is inactive. Recovery belongs to the current loaded
-list and app process; successful reload/list switching ends the batch, while a
-failed load preserves it. Preserve newer edits and the surviving rows' order when
-restoring removed items by identity and their neighboring items.
+UX-005, selected for implementation on 2026-11-07, replaces UI-023's original
+restore-all batch policy with one Undo step per deletion action. A swipe removes
+one item; each explicit Remove checked or Clear list action is one bulk step.
+One tap reverses only the latest action. Further taps reverse earlier pending
+actions in reverse order; the message always identifies the next action to undo.
+This lets a shopper correct one mistaken removal after intentionally deleting
+non-recurring items following Reset checks.
 
-The user reported on 2026-11-06 that restoring the whole deletion batch can undo
-intentional cleanup when removing non-recurring items after Reset checks.
-[UX-005](tickets/UX-005.json) tracks real-use validation and a possible per-action
-Undo stack. This is a pending policy review; the existing batching behavior above
-remains the accepted implementation until a replacement is selected.
+Keep one shared 15-second window, restarted by each new deletion. Undo does not
+extend it; expiry discards every remaining recovery step. Undoing the last step
+hides the bar and stops its clock. A new deletion after Undo replaces the undone
+future steps while preserving earlier pending actions. There is no separate
+Undo-all action, history screen or per-item timer.
+
+Scrolling, typing, submission, checking and editor movement preserve recovery.
+The clock pauses while the drawer blocks the action or the app is inactive.
+Recovery belongs to the current loaded list and app process; successful reload/
+list switching ends recovery, while a failed load preserves it. Preserve newer
+edits and the surviving rows' order when restoring removed items by identity and
+their neighboring items. Physical one-handed shopping acceptance remains a
+separate complement to automated touch tests.
 
 Checked items follow first-in, last-out order: the most recently checked item
 stays nearest the unchecked items. This puts the most likely mistake within easy

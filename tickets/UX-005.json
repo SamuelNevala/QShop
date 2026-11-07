@@ -1,13 +1,13 @@
 {
   "id": "UX-005",
   "title": "Evaluate Undo granularity during post-reset removal of non-recurring items",
-  "status": "backlog",
+  "status": "resolved",
   "type": "design_review_with_validation",
   "priority": "unassigned",
   "severity": "unassigned",
   "created": "2026-11-06",
   "reported_by": "user",
-  "scope": "Backlog only. Test the real list-reuse workflow and decide recovery granularity before changing application behavior. This revisits UI-023's accepted batching policy; it does not reopen its resolved reachability or timing defects.",
+  "scope": "Per-action Undo implementation and automated verification completed under the user's 2026-11-07 unattended authorization. User tested and accepted the per-action policy and fix on 2026-11-07.",
   "user_report": "The primary deletion use case is removing non-recurring items after Reset checks. If several intentional removals are followed by one mistake, Undo returns all removed items, forcing the user to repeat the intentional cleanup. The user suggests a Gmail-like single-item stack and asks for alternatives; exact current Gmail behavior has not been verified or adopted as a requirement.",
   "evidence": {
     "user_observation": "User reports the restore-all outcome during real use; device/build and precise action sequence were not specified.",
@@ -15,7 +15,7 @@
     "validation_gap": "No new workflow reproduction, automated test or phone study was run for this intake. Existing batch restoration tests establish the current policy, not its usability for post-reset cleanup."
   },
   "primary_scenario": [
-    "Use disposable mixed recurring/non-recurring items, complete a shopping trip, and Reset checks. Establish the resulting order before cleanup, preserving UI-006 semantics.",
+    "Use disposable mixed recurring/non-recurring items, complete a shopping trip, and Reset checks. Establish the resulting order before cleanup, preserving UI-009 semantics.",
     "Deliberately delete Birthday candles, then Gift wrap, as two separate swipes within the recovery window.",
     "Accidentally delete Milk and activate Undo with one hand.",
     "Record exactly which items return, their identities/order/check flags, message clarity, time and additional gestures needed to finish cleanup. Current batching restores all three; the proposed behavior restores only Milk."
@@ -41,13 +41,78 @@
     "Agree on individual/bulk granularity, repeated Undo behavior, message and recovery-window rules before implementation.",
     "If selected for implementation, update DESIGN.md and affected batch assertions intentionally, retain permanent failing-before/passing-after coverage, and record phone confirmation before closure."
   ],
-  "related_tickets": ["UI-023", "UI-006", "UI-015", "UI-027", "QA-001", "QA-003"],
+  "related_tickets": [
+    "UI-023",
+    "UI-006",
+    "UI-015",
+    "UI-027",
+    "QA-001",
+    "QA-003",
+    "UI-009"
+  ],
   "relevant_files": [
-    "DESIGN.md", "app/undoremove.cpp", "app/undoremove.h", "app/model.cpp",
-    "app/UndoBar.qml", "app/View.qml", "tests/test_model.cpp",
-    "tests/qml/tst_undorecovery.qml", "tests/flows/tst_userflows.qml",
-    "tests/android/test_undorecovery.py", "tests/INTERACTIONS.md"
+    "DESIGN.md",
+    "app/undoremove.cpp",
+    "app/undoremove.h",
+    "app/model.cpp",
+    "app/UndoBar.qml",
+    "app/View.qml",
+    "tests/test_model.cpp",
+    "tests/qml/tst_undorecovery.qml",
+    "tests/flows/tst_userflows.qml",
+    "tests/android/test_undorecovery.py",
+    "tests/INTERACTIONS.md"
   ],
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "selected_policy": {
+    "granularity": "One step per swipe; one step for each explicit bulk Remove checked/Clear list. No merging across user actions.",
+    "interaction": "Existing whole-bar tap restores the latest action. Further taps restore earlier pending actions. Message identifies the next action. No Undo-all/history screen.",
+    "clock": "One shared 15-second recovery window. Each deletion restarts it; Undo does not extend it. Expiry discards all remaining steps. Drawer/app-inactive pause behavior is retained.",
+    "boundaries": "Keep existing current-list/process/reload boundaries, identity/neighbor restoration and preservation of newer edits. New deletion after Undo discards undone future actions through QUndoStack."
+  },
+  "implementation": "Remove UndoRemove id()/mergeWith() overrides so the existing QUndoStack keeps commands separate. Bulk operations already construct one command containing their removed records. No new history engine, UI component, timer or message strings.",
+  "regression": {
+    "model_before": "out/ux003/undo-before.txt: four new post-reset/redo-branch/bulk cases fail on original merged policy.",
+    "qml_before": "out/ux003/undo-ui-before.txt: real reset/deletion sequence exposes 3 items removed instead of the latest named item.",
+    "android_before": "out/ux005/android-before-corrected: actual check swipes, drawer Reset, three cleanup swipes and one real Undo restore all four original rows instead of Milk/Bread only. Initial driver used a numeric-item flag predicate; that fixture-only assertion was corrected before retaining actual failing Undo evidence.",
+    "model_after": "out/ux005/model-all.txt: all 104 model records pass, including new policy and existing mutations, pending edits, identity, read-only and persistence cases.",
+    "tests": [
+      "tests/test_model.cpp",
+      "tests/qml/tst_undorecovery.qml",
+      "tests/rendering/tst_undopopup.qml",
+      "tests/android/test_reset.py --case cleanup",
+      "tests/android/test_undorecovery.py"
+    ],
+    "remaining": "No remaining implementation or regression gap within the user-accepted scope; specific dictation/accessibility studies were not claimed by this acceptance.",
+    "android_cleanup_after": "out/ux005/android-cleanup: all six checks pass. Real checks, Reset, three cleanup swipes, one-action-per-tap Undo and restart preserve exact UUIDs/order/flags. The real-keyboard/recovery matrix also passes all 24 checks in both themes.",
+    "android_recovery_after": "out/ux005/android-recovery-final: all 24 native checks pass in Light/Dark. Separate Undo steps preserve a newly submitted item and original identities/order, retain Gboard, expire after the actual timeout, and pause/resume in background. An intermediate driver requested an idle UiAutomator dump during the animated countdown; that invalid probe was removed in favor of the existing rendered-bar approach. Two-pending-step expiry remains covered by the permanent QML test."
+  },
+  "verification": {
+    "windows": "Combined color/Undo tree: All 17 normal Windows CTest entries pass: 1622 records, zero failures/skips. General entries, the main UI rerun including the new drawer test, and corrected offscreen/native custom-color rechecks were run in filtered groups. See out/ux003/windows-results.json and logs.",
+    "static_analysis": "Both Samuel-profile clang-tidy and Clazy pass all 7 tracked C++ translation units (14 analyzer runs), out/ux003/analysis.",
+    "qml_lint": "QShopper_qmllint exits 0 with five existing warnings: RoundButton alias, Qt.inputMethod commit/show QObject, and generated keyboard item.active/implicitHeight QObject. No new warnings in changed color bindings.",
+    "formatting": "All 67 tracked QML/templates and all 11 tracked C++ files match accepted formatter configurations. git diff --check passes.",
+    "android": "Combined color/Undo tree: All 283 native Android checks pass on the final APK: 48 custom colors, 6 post-reset cleanup, 24 recovery/IME/expiry/resume, 26 full About, 42 popup contrast and 137 System drawer/safe-area checks. Source scripts use isolated data; commands completed with clean final teardown. Reports are retained in out/ux003 and out/ux005.",
+    "environment_notes": "Initial native popup assertions all 42 passed but teardown timed out after emulator host-GPU external-memory/context errors. A fresh emulator rerun passes 42 with exit 0. System/safe-area harness rejected an old shared /sdcard XML file (Bad address); the final driver uses a unique shell-temporary dump and its 137 checks pass. These host/driver failures are retained as validation history, not additional application defects."
+  },
+  "apk": {
+    "phone": "dist/QShopper-arm64-debug.apk",
+    "emulator": "dist/QShopper-x86_64-debug.apk",
+    "package_contract": "Both ABIs pass dependency closure, unwanted-payload and production QML scan-root checks; both signatures verify.",
+    "certificate_sha256": "7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b",
+    "arm64_sha256": "9f41a21dde1695a515fa6abff8df5f1ec56317de39af974b16f4165da8845bc6",
+    "x86_64_sha256": "bb6da90b421af18e4987878d524c6b79ebd77fde2939bcbc32b26a84d697fce7",
+    "build_note": "Native C++/QML targets built normally. Gradle rejected OneDrive resource reparse metadata, so final APKs were assembled from byte-identical generated inputs in task-specific temporary staging outside OneDrive, then signed/contract-checked. Logs and helper are retained in out/ux003; repository build scripts are unchanged.",
+    "phone_acceptance": "2026-11-07: user tested and accepted the supplied APK, then requested ticket closure and commits. No physical-device installation by agent."
+  },
+  "review_report": "reviews/UX-005.md",
+  "resolved": "2026-11-07",
+  "resolution": {
+    "acceptance": "2026-11-07: user tested the supplied APK and requested: Tested, Close and Commit.",
+    "summary": "One Undo step per deletion action, coherent bulk operations and repeated recovery through the existing QUndoStack; retain the shared 15-second clock.",
+    "verification": "Combined color/Undo tree: all 17 Windows suites pass (1,622 records), all 283 native Android checks pass, both APK package/signature checks pass, and formatter/static-analysis results are recorded above.",
+    "regression": "Permanent test locations, original-source failures, passing-after results and fixture/environment dispositions are recorded in this ticket and its linked review.",
+    "remaining": "None within the accepted scope. Broader physical-shopping, dictation and accessibility studies remain their separate QA scope."
+  }
 }

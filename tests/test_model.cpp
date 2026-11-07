@@ -611,7 +611,110 @@ private Q_SLOTS:
         QVERIFY(!model.data(model.index(0), Qt::CheckStateRole).toBool());
     }
 
-    static void deletion_batch_survives_mutations_data()
+    static void post_reset_cleanup_undoes_one_action()
+    {
+        Model model;
+        loadItems(model);
+        const QStringList original{ "Birthday candles", "Gift wrap", "Milk", "Bread" };
+        QHash<QString, QString> identifiers;
+        for (const auto &name : original) {
+            model.insert(model.rowCount(), name);
+            identifiers.insert(name, id(model, model.rowCount() - 1));
+        }
+        for (int row = 0; row < original.size(); ++row) {
+            model.setChecked(0, true);
+        }
+        model.reset();
+        QCOMPARE(names(model), original);
+        model.remove(0);
+        model.remove(0);
+        model.remove(0);
+        QCOMPARE(names(model), QStringList({ "Bread" }));
+        QCOMPARE(model.undoMessage(), "Milk removed");
+        model.undo();
+        QCOMPARE(names(model), QStringList({ "Milk", "Bread" }));
+        QCOMPARE(model.undoMessage(), "Gift wrap removed");
+        QVERIFY(model.canUndo());
+        for (int row = 0; row < model.rowCount(); ++row) {
+            QCOMPARE(id(model, row), identifiers.value(names(model).at(row)));
+            QVERIFY(!model.data(model.index(row), Qt::CheckStateRole).toBool());
+        }
+        model.undo();
+        QCOMPARE(names(model), QStringList({ "Gift wrap", "Milk", "Bread" }));
+        QCOMPARE(model.undoMessage(), "Birthday candles removed");
+        model.undo();
+        QCOMPARE(names(model), original);
+        QVERIFY(!model.canUndo());
+        model.reload();
+        QCOMPARE(names(model), original);
+        for (int row = 0; row < model.rowCount(); ++row) {
+            QCOMPARE(id(model, row), identifiers.value(original.at(row)));
+        }
+    }
+
+    static void deletion_after_undo_discards_only_the_redo_branch()
+    {
+        Model model;
+        loadItems(model);
+        for (const auto &name : { "A", "B", "C", "D" }) {
+            model.insert(model.rowCount(), QString::fromLatin1(name));
+        }
+        const auto original = names(model);
+        const auto bId = id(model, 1);
+        model.remove(0);
+        model.remove(0);
+        model.undo();
+        QCOMPARE(names(model), QStringList({ "B", "C", "D" }));
+        QCOMPARE(id(model, 0), bId);
+        model.remove(1);
+        QCOMPARE(model.undoMessage(), "C removed");
+        model.undo();
+        QCOMPARE(names(model), QStringList({ "B", "C", "D" }));
+        model.undo();
+        QCOMPARE(names(model), original);
+        QCOMPARE(id(model, 1), bId);
+        QVERIFY(!model.canUndo());
+    }
+
+    static void bulk_deletion_is_one_separate_undo_action_data()
+    {
+        QTest::addColumn<bool>("clear");
+        QTest::newRow("remove-checked") << false;
+        QTest::newRow("clear-list") << true;
+    }
+
+    static void bulk_deletion_is_one_separate_undo_action()
+    {
+        QFETCH(const bool, clear);
+        Model model;
+        loadItems(model);
+        for (const auto &name : { "A", "B", "C", "D" }) {
+            model.insert(model.rowCount(), QString::fromLatin1(name));
+        }
+        const auto original = names(model);
+        const auto cId = id(model, 2);
+        QVERIFY(model.setData(model.index(2), true, Qt::CheckStateRole));
+        QVERIFY(model.setData(model.index(3), true, Qt::CheckStateRole));
+        model.remove(0);
+        if (clear) {
+            model.removeAll();
+            QCOMPARE(model.rowCount(), 0);
+        } else {
+            model.removeChecked();
+            QCOMPARE(names(model), QStringList({ "B" }));
+        }
+        model.undo();
+        QCOMPARE(names(model), QStringList({ "B", "C", "D" }));
+        QCOMPARE(id(model, 1), cId);
+        QVERIFY(model.data(model.index(1), Qt::CheckStateRole).toBool());
+        QVERIFY(model.data(model.index(2), Qt::CheckStateRole).toBool());
+        QCOMPARE(model.undoMessage(), "A removed");
+        model.undo();
+        QCOMPARE(names(model), original);
+        QVERIFY(!model.canUndo());
+    }
+
+    static void deletion_actions_survive_mutations_data()
     {
         QTest::addColumn<QString>("mutation");
         for (const auto &mutation : { "prepend", "reorder", "pending-edit", "check" }) {
@@ -619,7 +722,7 @@ private Q_SLOTS:
         }
     }
 
-    static void deletion_batch_survives_mutations()
+    static void deletion_actions_survive_mutations()
     {
         QFETCH(const QString, mutation);
         Model model;
@@ -649,6 +752,9 @@ private Q_SLOTS:
             model.setChecked(1, true);
             expected = { u"A"_s, u"E"_s, u"D"_s, u"B"_s, u"C"_s };
         }
+        model.undo();
+        QVERIFY(model.canUndo());
+        QVERIFY(!names(model).contains(u"B"_s));
         model.undo();
         QVERIFY(!model.canUndo());
         if (mutation == u"pending-edit"_s) {

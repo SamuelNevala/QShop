@@ -228,7 +228,7 @@ Item {
             const before = progress.value;
             shop.model.remove(1);
             verify(progress.value > before);
-            compare(shop.model.undoMessage, "2 items removed");
+            compare(shop.model.undoMessage, "Bread removed");
         }
 
         function test_foregrounds_follow_textitem_during_theme_changes_data() {

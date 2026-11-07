@@ -13,8 +13,6 @@ class UndoRemove : public QUndoCommand
 public:
     explicit UndoRemove(Model &model);
     void undo() override;
-    [[nodiscard]] int id() const override;
-    bool mergeWith(const QUndoCommand *command) override;
     void append(qsizetype index);
 
 private:

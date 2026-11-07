@@ -99,12 +99,61 @@ Item {
             return bar;
         }
 
-        function undo() {
+        function undo(recoveryRemains = false) {
             const bar = undoBar();
             const action = findChild(bar, "undoAction");
             verify(action !== null);
             mouseClick(action, action.width / 2, action.height / 2);
+            tryCompare(shop.model, "canUndo", recoveryRemains);
+        }
+
+        function test_post_reset_cleanup_undoes_one_swipe_at_a_time() {
+            for (let index = 0; index < 3; ++index) {
+                shop.model.setChecked(1, true);
+            }
+            shop.model.reset();
+            const before = names();
+            const identifiers = [];
+            for (let index = 1; index < shop.count; ++index) {
+                identifiers.push(shop.model.data(shop.model.index(index, 0), Qt.UserRole + 1));
+            }
+            deleteRow(1);
+            deleteRow(1);
+            deleteRow(1);
+            compare(names(), before.slice(3));
+            const bar = undoBar();
+            const progress = findChild(bar, "undoCountdown");
+            const expiry = findChild(bar, "undoExpiry");
+            const remaining = progress.value;
+            compare(bar.message, before[2] + " removed");
+            undo(true);
+            compare(names(), before.slice(2), "Correct only the last mistake");
+            compare(bar.message, before[1] + " removed");
+            compare(expiry.running, true);
+            verify(progress.value <= remaining, "Undo does not extend the shared recovery window");
+            undo(true);
+            compare(names(), before.slice(1));
+            compare(bar.message, before[0] + " removed");
+            undo();
+            compare(names(), before);
+            for (let index = 1; index < shop.count; ++index) {
+                compare(shop.model.data(shop.model.index(index, 0), Qt.UserRole + 1),
+                        identifiers[index - 1]);
+            }
+        }
+
+        function test_expiry_discards_all_pending_actions() {
+            deleteRow(1);
+            deleteRow(1);
+            const remaining = names();
+            const bar = undoBar();
+            const expiry = findChild(bar, "undoExpiry");
+            expiry.duration = 200;
+            bar.restart();
             tryCompare(shop.model, "canUndo", false);
+            tryCompare(bar, "visible", false);
+            shop.model.undo();
+            compare(names(), remaining);
         }
 
         function test_offscreen_editor_has_reachable_undo() {

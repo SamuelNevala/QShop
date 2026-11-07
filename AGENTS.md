@@ -180,7 +180,7 @@ the full-background fill in both themes at two preview scales/widths, fixed touc
 geometry, drawer pause/restart, and preserved draft/text focus after Undo.
 Harness rendering does not certify the full app's menu or Android appearance.
 tests/android/test_undorecovery.py checks native offscreen-editor recovery,
-scrolling, batches, IME placement/retention, expiry and background/resume with
+scrolling, per-action Undo, IME placement/retention, expiry and background/resume with
 disposable data. It uses rendered frames while the countdown is active;
 UiAutomator's idle-only dump cannot reliably snapshot a continuously animated bar.
 Coverage is optional and separate from the normal verification command.
