@@ -38,5 +38,6 @@
     "quality": "Qt 6.12 qmlformat and clang-format 22.1.8 checks pass. Python scripts compile. New C++ test translation unit passes configured clang-tidy/Clazy analysis; existing production C++ is unchanged."
   },
   "related_tickets": ["UI-031"],
+  "test_reference_followup": "During UI-032/UI-033 verification on 2026-11-08, native TextField contentWidth for 1234567890 was 130 while FontMetrics returned 140 with identical Segoe UI/25px QFonts. The harness now compares against a plain TextInput with the same render type and normal font instead of a separate measurement path. All five native and five offscreen records pass. A copy of the original InputDelegate without the normal-font override still fails all three data rows. Reports: out/ui032-033/inputfont-diagnostic.txt, inputfont-layout-negative.txt, inputfont-final-native.txt and inputfont-final-offscreen.txt. No production font change was needed.",
   "limitations": "Physical-device acceptance and release readiness are not claimed. Existing QA follow-ups and excluded REL-001 remain unchanged."
 }

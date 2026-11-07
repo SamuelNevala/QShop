@@ -31,9 +31,12 @@ Item {
         }
     }
 
-    FontMetrics {
-        id: plainMetrics
+    TextInput {
+        id: plainText
 
+        visible: false
+        text: test.input ? test.input.contentItem.text : ""
+        renderType: test.input ? test.input.contentItem.renderType : TextInput.QtRendering
         font.family: Qt.application.font.family
         font.pixelSize: test.input ? test.input.contentItem.font.pixelSize : 14
         font.weight: test.input ? test.input.contentItem.font.weight : Font.Normal
@@ -86,7 +89,7 @@ Item {
             field.text = data.text;
             field.forceActiveFocus();
             verify(waitForRendering(field));
-            const expected = plainMetrics.advanceWidth(data.text);
+            const expected = plainText.contentWidth;
             verify(expected > 0);
             fuzzyCompare(field.contentWidth, expected, 2,
                          "Editor words and quantities must use normal text shaping, not icon ligatures");
