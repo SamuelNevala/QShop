@@ -2,8 +2,8 @@
 
 Started: 2026-10-28. QShopper is near feature complete. Backlog gathering and
 prioritization are recorded below. UI-001, UI-003, UI-004, UI-005, UI-007, UI-008,
-UI-009, UI-010, UI-011, UI-014 and UI-016 are resolved. UI-006 is implemented pending phone
-confirmation. QA-003 is closed by user acceptance; other unselected tickets stay deferred.
+UI-009, UI-010, UI-011, UI-014 and UI-016 are resolved. UI-006 is resolved with user phone
+confirmation on 2026-11-08. QA-003 is closed by user acceptance; other unselected tickets stay deferred.
 
 Use [DESIGN.md](DESIGN.md) when deciding what counts as correct behavior. Keep
 intentional gestures, text fitting, animation, and list ordering intact.
@@ -43,7 +43,7 @@ test. This recommendation does not itself authorize starting implementation.
 | --- | --- | --- |
 | 1 | [UI-004](tickets/UI-004.json) — right-swipe selection/deletion | Resolved: regression tests pass; user confirmed half-width behavior and comfortable phone feel at 150% sensitivity |
 | 2 | [UI-007](tickets/UI-007.json) — Back/long-press leak | Resolved: QML and native Android regressions pass; user confirmed the fix works on the affected phone |
-| 3 | [UI-006](tickets/UI-006.json) — Back navigation | Implemented and covered by Windows and native Android tests; pending phone confirmation. User chose existing discard/restore behavior for unfinished edits |
+| 3 | [UI-006](tickets/UI-006.json) — Back navigation | Resolved 2026-11-08 with user phone confirmation and Windows/native Android regression coverage. User chose existing discard/restore behavior for unfinished edits |
 | 4 | [UI-010](tickets/UI-010.json) — unreachable ComboBox options | Resolved: endpoint bounds/selection regressions and 54 native Android checks pass; user confirmed the fix on the phone |
 | 5 | [UI-011](tickets/UI-011.json) — portrait-only Android | Resolved: native sensor and popup regressions pass; user waived physical-phone testing. Android's large-screen overrides are documented |
 | 6 | [UI-009](tickets/UI-009.json) — reset ordering | Closed with user confirmation: checked 2,1,3 resets to 3,1,2; unchecked entries stay first. Model/QML/native regressions cover pending edits, repeated Reset and restart persistence |
@@ -205,7 +205,7 @@ remains UI-007. See the ticket for evidence.
 
 ### [UI-006 — Android Back gesture priority](tickets/UI-006.json)
 
-Requested on 2026-10-28 and implemented on 2026-10-29; awaiting phone confirmation.
+Requested on 2026-10-28 and implemented on 2026-10-29; resolved with user phone confirmation on 2026-11-08.
 On each completed Android Back swipe, apply the first matching rule:
 
 | Order | Current state | Action |
@@ -224,8 +224,8 @@ item if an unfinished edit is cancelled.
 Related major bug: [UI-007](tickets/UI-007.json). Its separate cancellation fix
 prevents a stale long-press timer and unintended swipe actions after system
 takeover. Tests also verify that the first subsequent reorder and swipe work.
-The user confirmed UI-007 works on the affected phone. UI-006's full four-step
-priority still awaits explicit phone confirmation.
+The user confirmed UI-007 works on the affected phone. On 2026-11-08 the user
+also confirmed UI-006's four-step phone checklist, including retained contents on return.
 
 ### [UI-011 — Portrait-only Android orientation](tickets/UI-011.json)
 

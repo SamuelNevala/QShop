@@ -26,9 +26,9 @@
   },
   "remaining": [
     "Actual one-handed physical shopping flow using the current build.",
-    "Real speech/dictation with quantities/punctuation in the normal language; record recognized versus saved text and keyboard continuity.",
-    "Affected-phone Back confirmation remains UI-006."
+    "Real speech/dictation with quantities/punctuation in the normal language; record recognized versus saved text and keyboard continuity."
   ],
+  "back_phone_confirmation": "UI-006 closed on 2026-11-08: user confirmed the explicit phone Back checklist. This does not establish the separate real shopping/dictation acceptance criteria.",
   "limitations": "No physical phone was connected at the 2026-11-07 device inventory. Scripts target only emulator-5580. The separate opt-in synthetic speech test activates the emulator's Gboard virtual input with host microphone access disabled; ordinary entry tests never activate speech. No phone installation, natural-speech or one-handed acceptance is claimed.",
   "related_tickets": ["UI-006", "QA-002", "QA-003", "UX-005"],
   "closure_criteria": "Record the physical shopping and real dictation results in reviews/QA-001.md, in addition to the repeatable app-side checks. Keep unsupported recognizer/device claims explicit."
