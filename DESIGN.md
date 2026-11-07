@@ -194,6 +194,15 @@ families. Coordinated primary/accent presets are only a possible future convenie
 UI-026 uses readable normal popup captions with a bold current entry, preserving
 the vivid swatches rather than using potentially unreadable accent-colored text.
 
+UX-003 keeps vivid primary/accent fills separate from colored ink. When a small
+label or meaningful icon needs more contrast, tint its selected color toward
+black on a light neutral surface or white on a dark one. Use the owning surface,
+including its opacity over photographs, rather than changing the global palette.
+The current-day circle, swatches, slider fill and tab underline keep their vivid
+colors. The slider thumb has a small neutral outline, thicker with keyboard
+focus. A custom drawer surface must also propagate through Material.background
+so descendant controls use the surface that is actually painted.
+
 ## Applying these principles
 
 When evaluating a change, consider whether it:

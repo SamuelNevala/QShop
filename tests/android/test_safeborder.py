@@ -39,6 +39,7 @@ def main():
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator serial is allowed")
     args.output.mkdir(parents=True, exist_ok=True)
+    ui_path = "/data/local/tmp/qshopper-safeborder-" + uuid.uuid4().hex + ".xml"
 
     def adb(*command):
         return subprocess.check_output([args.adb, "-s", args.serial, *map(str, command)], timeout=45)
@@ -48,9 +49,9 @@ def main():
 
     def tree():
         for _ in range(3):
-            shell("rm", "-f", "/sdcard/qshopper-safeborder.xml")
-            if "dumped to" in shell("uiautomator", "dump", "/sdcard/qshopper-safeborder.xml"):
-                return ET.fromstring(adb("exec-out", "cat", "/sdcard/qshopper-safeborder.xml"))
+            shell("rm", "-f", ui_path)
+            if "dumped to" in shell("uiautomator", "dump", ui_path):
+                return ET.fromstring(adb("exec-out", "cat", ui_path))
         raise RuntimeError("Could not read current Android UI")
 
     def bounds(node):
@@ -265,6 +266,7 @@ def main():
             shell("am", "force-stop", PACKAGE)
             shell("cmd", "uimode", "night", old_mode)
             shell("rm", staging)
+            shell("rm", "-f", ui_path)
     assert all(record["passed"] for record in results), "Native theme checks failed; see results.json"
 
 

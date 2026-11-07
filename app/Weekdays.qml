@@ -56,7 +56,8 @@ Controls.Control {
                     justifyContent: FlexboxLayout.JustifyCenter
 
                     Text {
-                        color: day.index == 0 ? Material.primary : Material.foreground
+                        color: day.index == 0 ? Theme.readableInk(Material.primary, root.Material.backgroundColor,
+                                                                  0.8) : Material.foreground
                         fontSizeMode: Text.Fit
                         horizontalAlignment: Text.AlignHCenter
                         text: day.name

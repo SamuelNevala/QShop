@@ -59,7 +59,8 @@ Controls.Dialog {
                         fontSizeMode: Text.Fit
                         minimumPixelSize: Theme.pixels(2.5)
                         horizontalAlignment: Text.AlignHCenter
-                        color: qtTab.checked ? Controls.Material.accentColor :
+                        color: qtTab.checked ? Theme.readableInk(Controls.Material.accentColor,
+                                                                 Controls.Material.backgroundColor) :
                                                Controls.Material.primaryTextColor
                     }
                 }
@@ -100,7 +101,8 @@ Controls.Dialog {
                         fontSizeMode: Text.Fit
                         minimumPixelSize: Theme.pixels(2.5)
                         horizontalAlignment: Text.AlignHCenter
-                        color: fontTab.checked ? Controls.Material.accentColor :
+                        color: fontTab.checked ? Theme.readableInk(Controls.Material.accentColor,
+                                                                   Controls.Material.backgroundColor) :
                                                  Controls.Material.primaryTextColor
                     }
                 }

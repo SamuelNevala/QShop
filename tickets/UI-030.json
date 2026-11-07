@@ -1,0 +1,59 @@
+{
+  "type": "bug_from_rendered_review",
+  "severity": "minor",
+  "priority": "unassigned",
+  "status": "resolved",
+  "created": "2026-11-07",
+  "reported_by": "UX-003 custom color review",
+  "github_repository": "SamuelNevala/QShop",
+  "github_issue_url": null,
+  "id": "UI-030",
+  "title": "Vivid slider thumb lacks a readable boundary on the drawer surface",
+  "scope": "Confirmed during the selected UX-003 review; add a local boundary without muting the selected accent or changing sensitivity behavior.",
+  "evidence": "Light Yellow actual Windows thumb/drawer contrast is 1.236:1 in out/ux003/before-focused.txt; native Android actual boundary is 1.238:1 in out/ux003/android-before-final/results.json. Original thumb has no border except during keyboard focus.",
+  "implementation": "Keep the accent fill/track. Enabled thumb uses a 0.2 mm normal Material primaryTextColor boundary; keyboard focus retains 0.4 mm. Disabled non-focused thumb retains no outline.",
+  "regression": {
+    "test": "tests/customcolors/tst_customcolors.qml::test_slider_thumb verifies the actual painted boundary in all 19 families and themes, and retains the exact vivid fill.",
+    "before": "Actual original Windows and Android boundary pixels fail 3:1.",
+    "after": "Final offscreen custom-color matrix: 268 passed. Native Windows D3D11 WARP: 282 passed. Both are normal CTest entries, with zero failures/skips; original-source negative controls fail as recorded. Full suite reports total 1,622 records across 17 entries.",
+    "android": "tests/android/test_customcolors.py samples real thumb center/fill and boundary against the actual drawer surface.",
+    "android_after": "All 48 native custom-color checks pass across six profiles. Actual Light thumb boundary is about 11.16:1; Dark about 21:1, while the exact vivid center fill is retained. Evidence: out/ux003/android-colors-final/results.json.",
+    "final_before": "out/ux003/thumb-before-final-fixture.txt: original Slider source under native D3D11 WARP has zero readable contour core pixels and fails the final test. Restored fix passes all 282 native custom-color records in customcolor-native-contour.log.",
+    "driver_notes": "Initial single-coordinate sampling landed beside the subpixel contour under D3D11 and produced 17 fixture failures. The final test samples the actual top arc for three readable core pixels, excludes the track/background, and fails on the original unfocused Yellow thumb. Offscreen all 268 and native all 282 pass without changing the production outline."
+  },
+  "related_tickets": [
+    "UX-003",
+    "UI-029"
+  ],
+  "relevant_files": [
+    "app/Slider.qml",
+    "tests/customcolors/tst_customcolors.qml",
+    "tests/android/test_customcolors.py"
+  ],
+  "verification": {
+    "windows": "Combined color/Undo tree: All 17 normal Windows CTest entries pass: 1622 records, zero failures/skips. General entries, the main UI rerun including the new drawer test, and corrected offscreen/native custom-color rechecks were run in filtered groups. See out/ux003/windows-results.json and logs.",
+    "static_analysis": "Both Samuel-profile clang-tidy and Clazy pass all 7 tracked C++ translation units (14 analyzer runs), out/ux003/analysis.",
+    "qml_lint": "QShopper_qmllint exits 0 with five existing warnings: RoundButton alias, Qt.inputMethod commit/show QObject, and generated keyboard item.active/implicitHeight QObject. No new warnings in changed color bindings.",
+    "formatting": "All 67 tracked QML/templates and all 11 tracked C++ files match accepted formatter configurations. git diff --check passes.",
+    "android": "Combined color/Undo tree: All 283 native Android checks pass on the final APK: 48 custom colors, 6 post-reset cleanup, 24 recovery/IME/expiry/resume, 26 full About, 42 popup contrast and 137 System drawer/safe-area checks. Source scripts use isolated data; commands completed with clean final teardown. Reports are retained in out/ux003 and out/ux005.",
+    "environment_notes": "Initial native popup assertions all 42 passed but teardown timed out after emulator host-GPU external-memory/context errors. A fresh emulator rerun passes 42 with exit 0. System/safe-area harness rejected an old shared /sdcard XML file (Bad address); the final driver uses a unique shell-temporary dump and its 137 checks pass. These host/driver failures are retained as validation history, not additional application defects."
+  },
+  "apk": {
+    "phone": "dist/QShopper-arm64-debug.apk",
+    "emulator": "dist/QShopper-x86_64-debug.apk",
+    "package_contract": "Both ABIs pass dependency closure, unwanted-payload and production QML scan-root checks; both signatures verify.",
+    "certificate_sha256": "7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b",
+    "arm64_sha256": "9f41a21dde1695a515fa6abff8df5f1ec56317de39af974b16f4165da8845bc6",
+    "x86_64_sha256": "bb6da90b421af18e4987878d524c6b79ebd77fde2939bcbc32b26a84d697fce7",
+    "build_note": "Native C++/QML targets built normally. Gradle rejected OneDrive resource reparse metadata, so final APKs were assembled from byte-identical generated inputs in task-specific temporary staging outside OneDrive, then signed/contract-checked. Logs and helper are retained in out/ux003; repository build scripts are unchanged.",
+    "phone_acceptance": "2026-11-07: user tested and accepted the supplied APK, then requested ticket closure and commits. No physical-device installation by agent."
+  },
+  "resolved": "2026-11-07",
+  "resolution": {
+    "acceptance": "2026-11-07: user tested the supplied APK and requested: Tested, Close and Commit.",
+    "summary": "Keep the vivid slider fill and add a readable neutral thumb outline.",
+    "verification": "Combined color/Undo tree: all 17 Windows suites pass (1,622 records), all 283 native Android checks pass, both APK package/signature checks pass, and formatter/static-analysis results are recorded above.",
+    "regression": "Permanent test locations, original-source failures, passing-after results and fixture/environment dispositions are recorded in this ticket and its linked review.",
+    "remaining": "None within the accepted scope. Broader physical-shopping, dictation and accessibility studies remain their separate QA scope."
+  }
+}

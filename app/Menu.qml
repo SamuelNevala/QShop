@@ -5,6 +5,9 @@ import QtQuick.Controls.Material
 Controls.Drawer {
     id: root
 
+    Material.background: Material.shade(root.Material.theme === Material.Dark ? "#FF424242" :
+                                                                                "#FFFFFFFF",
+                                        Material.Shade800)
     bottomInset: Theme.pixels(2)
     topInset: Theme.pixels(2)
     bottomPadding: bottomInset + Theme.pixels(1) + SafeArea.margins.bottom
@@ -15,7 +18,6 @@ Controls.Drawer {
     Binding {
         target: root.background
         property: "color"
-        value: Material.shade(root.Material.theme === Material.Dark ? "#FF424242" : "#FFFFFFFF",
-                              Material.Shade800)
+        value: root.Material.backgroundColor
     }
 }

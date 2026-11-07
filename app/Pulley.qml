@@ -19,7 +19,9 @@ Controls.Control {
     contentItem: TextIcon {
         text: root.editMode ? "\uf07a" : "\uf044"
         font: root.font
-        color: root.height > root.treshold ? Material.accentColor : Material.foreground
+        color: root.height > root.treshold ? Theme.readableInk(Material.accentColor,
+                                                               root.Material.backgroundColor, 0.8,
+                                                               3) : Material.foreground
 
         Behavior on color {
             ColorAnimation {}

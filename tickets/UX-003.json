@@ -1,12 +1,12 @@
 {
   "id": "UX-003",
   "title": "Review primary and accent usage outside standard QML Material components",
-  "status": "requested",
+  "status": "resolved",
   "type": "design_review",
   "priority": "unassigned",
   "created": "2026-10-28",
   "reported_by": "user",
-  "scope": "Backlog item only. Focus on whether custom and non-Material components use primary/accent colors sensibly. Analysis and implementation remain deferred.",
+  "scope": "Review and confirmed local fixes completed under the user's 2026-11-07 unattended authorization. Keep established primary/accent roles and vivid palettes; UI-029/UI-030 implement the reproduced ink/boundary corrections. User tested and accepted the review/fixes on 2026-11-07.",
   "request": "Analyze whether the use of primary and accent colors in components outside QML Material controls is sensible and consistent.",
   "expected": "A component-level assessment of color roles, derivation, inheritance, and visual consistency outside standard Material controls, with justified recommendations where needed.",
   "review_topics": [
@@ -25,8 +25,29 @@
     "Do not automatically replace custom components with Material controls or change their interaction design as part of this review.",
     "Record any actionable implementation defects or proposed changes separately in the backlog."
   ],
-  "relevant_files": ["Theme.qml", "TextDelegate.qml", "TextItem.qml", "Icon.qml", "IconButton.qml", "UndoIcon.qml", "Weekdays.qml", "Pulley.qml", "ColorComboBox.qml"],
-  "related_tickets": ["UX-001", "UX-002"],
+  "relevant_files": [
+    "app/Theme.qml",
+    "app/Weekdays.qml",
+    "app/Pulley.qml",
+    "app/InputDelegate.qml",
+    "app/Icon.qml",
+    "app/IconButton.qml",
+    "app/ComboBox.qml",
+    "app/ColorComboBox.qml",
+    "app/GroupBox.qml",
+    "app/Slider.qml",
+    "app/AboutDialog.qml",
+    "app/Menu.qml",
+    "app/TextDelegate.qml",
+    "app/TextItem.qml",
+    "app/UndoBar.qml",
+    "app/View.qml",
+    "app/main.qml"
+  ],
+  "related_tickets": [
+    "UX-001",
+    "UX-002"
+  ],
   "acceptance_criteria": [
     "List the relevant custom/non-Material components and explain their current primary/accent usages.",
     "Assess semantic appropriateness, theme propagation, readability, and consistency with the rest of the UI.",
@@ -36,5 +57,42 @@
   ],
   "evidence": "Explicit user backlog request on 2026-10-28 to assess primary/accent usage in non-QML-Material components.",
   "github_repository": "SamuelNevala/QShop",
-  "github_issue_url": null
+  "github_issue_url": null,
+  "review": {
+    "date": "2026-11-07",
+    "baseline": "c632dd3",
+    "report": "reviews/UX-003.md",
+    "recommendation": "Keep primary/accent roles, vivid ramps, all 19 families and automatic neutral surfaces. Adjust unreadable ink locally, propagate actual drawer background and outline the thumb. No component rewrite or additional picker.",
+    "follow_ups": [
+      "UI-029",
+      "UI-030"
+    ],
+    "verification": "All 17 Windows suites / 1,622 records and all 283 native Android checks pass. Original-source negative controls, static-analysis results, lint warnings and package evidence are recorded in the linked bug tickets."
+  },
+  "verification": {
+    "windows": "Combined color/Undo tree: All 17 normal Windows CTest entries pass: 1622 records, zero failures/skips. General entries, the main UI rerun including the new drawer test, and corrected offscreen/native custom-color rechecks were run in filtered groups. See out/ux003/windows-results.json and logs.",
+    "static_analysis": "Both Samuel-profile clang-tidy and Clazy pass all 7 tracked C++ translation units (14 analyzer runs), out/ux003/analysis.",
+    "qml_lint": "QShopper_qmllint exits 0 with five existing warnings: RoundButton alias, Qt.inputMethod commit/show QObject, and generated keyboard item.active/implicitHeight QObject. No new warnings in changed color bindings.",
+    "formatting": "All 67 tracked QML/templates and all 11 tracked C++ files match accepted formatter configurations. git diff --check passes.",
+    "android": "Combined color/Undo tree: All 283 native Android checks pass on the final APK: 48 custom colors, 6 post-reset cleanup, 24 recovery/IME/expiry/resume, 26 full About, 42 popup contrast and 137 System drawer/safe-area checks. Source scripts use isolated data; commands completed with clean final teardown. Reports are retained in out/ux003 and out/ux005.",
+    "environment_notes": "Initial native popup assertions all 42 passed but teardown timed out after emulator host-GPU external-memory/context errors. A fresh emulator rerun passes 42 with exit 0. System/safe-area harness rejected an old shared /sdcard XML file (Bad address); the final driver uses a unique shell-temporary dump and its 137 checks pass. These host/driver failures are retained as validation history, not additional application defects."
+  },
+  "apk": {
+    "phone": "dist/QShopper-arm64-debug.apk",
+    "emulator": "dist/QShopper-x86_64-debug.apk",
+    "package_contract": "Both ABIs pass dependency closure, unwanted-payload and production QML scan-root checks; both signatures verify.",
+    "certificate_sha256": "7c4335c93ec24cb0f92b44ae84ce108180cb299b43ea4e6ef5baafaef7ae029b",
+    "arm64_sha256": "9f41a21dde1695a515fa6abff8df5f1ec56317de39af974b16f4165da8845bc6",
+    "x86_64_sha256": "bb6da90b421af18e4987878d524c6b79ebd77fde2939bcbc32b26a84d697fce7",
+    "build_note": "Native C++/QML targets built normally. Gradle rejected OneDrive resource reparse metadata, so final APKs were assembled from byte-identical generated inputs in task-specific temporary staging outside OneDrive, then signed/contract-checked. Logs and helper are retained in out/ux003; repository build scripts are unchanged.",
+    "phone_acceptance": "2026-11-07: user tested and accepted the supplied APK, then requested ticket closure and commits. No physical-device installation by agent."
+  },
+  "resolved": "2026-11-07",
+  "resolution": {
+    "acceptance": "2026-11-07: user tested the supplied APK and requested: Tested, Close and Commit.",
+    "summary": "Retain vivid primary/accent roles; fix local unreadable ink, actual drawer surface inheritance and slider boundary under UI-029/UI-030.",
+    "verification": "Combined color/Undo tree: all 17 Windows suites pass (1,622 records), all 283 native Android checks pass, both APK package/signature checks pass, and formatter/static-analysis results are recorded above.",
+    "regression": "Permanent test locations, original-source failures, passing-after results and fixture/environment dispositions are recorded in this ticket and its linked review.",
+    "remaining": "None within the accepted scope. Broader physical-shopping, dictation and accessibility studies remain their separate QA scope."
+  }
 }

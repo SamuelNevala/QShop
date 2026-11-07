@@ -47,7 +47,9 @@ Controls.ComboBox {
         color: "transparent"
         visible: !root.flat
         border.width: Theme.pixels(0.4)
-        border.color: root.activeFocus ? root.Controls.Material.accentColor : root.enabled && root.hovered
+        border.color: root.activeFocus ? Theme.readableInk(root.Controls.Material.accentColor,
+                                                           root.Controls.Material.backgroundColor, 1,
+                                                           3) : root.enabled && root.hovered
                                          ? root.Controls.Material.primaryTextColor :
                                            root.Controls.Material.hintTextColor
     }

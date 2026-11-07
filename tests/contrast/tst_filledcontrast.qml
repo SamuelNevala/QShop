@@ -176,8 +176,7 @@ Item {
             const circle = today.background.children[0];
             readable(number.color, circle.color, 4.5, "Current day number");
             compare(circle.color, Theme.primaryColor(), "Keep the selected primary fill");
-            compare(today.contentItem.children[0].color, Theme.primaryColor(),
-                    "Keep the current-day name's Dark-mode shade shift");
+            // UI-029 may adjust the name's ink; the selected primary fill stays vivid.
             solidGlyph(grabImage(scene), number, number.color, circle.color);
         }
 

@@ -21,7 +21,7 @@ Controls.Slider {
         radius: width / 2
         color: root.enabled ? root.Controls.Material.accentColor :
                               root.Controls.Material.sliderDisabledColor
-        border.width: root.visualFocus ? Theme.pixels(0.4) : 0
+        border.width: root.visualFocus ? Theme.pixels(0.4) : root.enabled ? Theme.pixels(0.2) : 0
         border.color: root.Controls.Material.primaryTextColor
     }
     background: Rectangle {

@@ -1384,3 +1384,29 @@ configuration matrix. No physical-device installation or macOS build is claimed.
 Package inspection found the same Virtual Keyboard native plugin/library bytes
 in both the previous and new Android APKs. This does not establish a native-IME
 regression; investigate required deployment payload separately under DEV-008.
+
+## Custom primary/accent roles (UX-003, UI-029/UI-030)
+
+`qshopper_customcolor_tests` and `qshopper_customcolor_rendering_tests` are normal
+CTest entries for `customcolors/tst_customcolors.qml`. The latter uses native
+Windows D3D11 WARP. Seven scenarios cover all 19 families in Light/Dark; native
+Windows adds System Light/Dark. Persistent controls receive live palette changes.
+Checks cover actual day/tab/icon ink against black/white photographic extremes,
+a real editor press, the actual drawer surface propagated to a child, painted
+selector focus borders and the actual thumb boundary with its vivid fill retained.
+The suites contain 268 and 282 records including setup/cleanup.
+
+For glyph/background comparisons, Layout-owned captions retain their allocation
+with opacity zero; control-owned TextIcon content can be hidden without reflow.
+Do not sample during TextIcon's opacity animation or let a hidden Layout caption
+move a logo under its old position. Native RGB checks do not certify color-vision
+recognition, outdoor use or the displayed Android correction output.
+
+The emulator-only companion uses real held pulls/editor presses, the drawer
+slider and both license tabs. It requires Pillow and the current BackGesture
+helper's bidirectional capture handshake:
+
+```powershell
+./tools/build-android-gesture-test.ps1 -SdkRoot C:/android/sdk
+python tests/android/test_customcolors.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-customcolors
+```

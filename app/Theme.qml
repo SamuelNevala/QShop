@@ -94,6 +94,19 @@ Item {
         return fill;
     }
 
+    function readableInk(ink, surface, opacity = 1, minimum = 4.5) {
+        // Neutral translucent surfaces must work over either end of a photograph.
+        const dark = luminance(surface) < 0.179;
+        const background = Qt.tint(dark ? "white" : "black", Qt.alpha(surface, opacity));
+        const tone = dark ? Qt.rgba(1, 1, 1, 0.1) : Qt.rgba(0, 0, 0, 0.1);
+        let result = ink;
+        // Preserve the selected hue; adjust only ink that needs more contrast.
+        for (let step = 0; step < 30 && contrastRatio(result, background) < minimum + 0.1; ++step) {
+            result = Qt.tint(result, tone);
+        }
+        return result;
+    }
+
     function accentColorLighter() {
         if (accent === Material.Grey || accent === Material.Brown || accent === Material.BlueGrey) {
             return color(accent);
