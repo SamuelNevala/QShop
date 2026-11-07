@@ -4,6 +4,6 @@ ArrowIcon {
     text: "\uf07a"
 
     animation {
-        to: root.height / 8
+        to: root.height * 0.1875
     }
 }

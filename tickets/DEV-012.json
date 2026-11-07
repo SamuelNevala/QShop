@@ -18,7 +18,7 @@
     "Replace the old TTF with the unmodified official 7.3.1 Free Solid desktop OTF; update production/test resources and retain all 14 codepoints. Only Free Solid is bundled.",
     "Update the matching About brand logo, preserving its blue fill, plus upstream notices, provenance and hashes. Qt notices remain unchanged.",
     "Explicitly use the normal application font for editor text: the new desktop font's ASCII/icon-name ligatures exposed inherited icon-font shaping. Action icons retain their icon font.",
-    "Resolve the user-reported cart offset under UI-031 by inheriting symmetric base padding. Move the matching arrival/departure position from height/4 to height/8 so the arrow ends inside the basket. Preserve icon sizes, gesture thresholds and animation timing."
+    "Initial UI-031 fix inherited symmetric base padding and moved the matching arrival/departure position from height/4 to height/8. The user subsequently clarified whole-arrow centering; UI-031 tracks its refined position and stronger midpoint regression. Preserve icon sizes, gesture thresholds and animation timing."
   ],
   "regressions": {
     "glyphs": "New normal-preset qshopper_iconfont_tests: 17 passing records, testing actual bundled QRawFont family/style, 14 codepoints, nonzero outlines and absence of the old TTF resource.",

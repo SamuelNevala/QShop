@@ -82,7 +82,7 @@ regressions remain easy to trace.
 
 | ID | Finding | Evidence/status | Severity |
 | --- | --- | --- | --- |
-| [UI-031](tickets/UI-031.json) | New cart arrow is misplaced horizontally and ends too low | Resolved 2026-11-08: centered padding and a higher basket position. Actual alignment/endpoint regressions fail before and pass after in both directions, themes and Windows scales; all ten native Android arrow profiles pass | Minor (triaged) |
+| [UI-031](tickets/UI-031.json) | New cart arrow is misplaced | Resolved 2026-11-08 with user acceptance: whole-arrow centering at the matching arrival/departure position. All 16 center cases fail before/pass after; both Windows arrow suites and all ten native Android profiles pass | Minor (triaged) |
 | [UI-025](tickets/UI-025.json) | Colored fills can obscure current-day numbers, selected icons and Undo text | Resolved 2026-11-06 with user confirmation: readable day/button foregrounds and compatible Undo fill preserve the vivid palette. Regressions fail before/pass after; subsequent solid-surface refinement is UI-027 | Unassigned |
 | [UI-026](tickets/UI-026.json) | Selected popup captions lose contrast with bright accents | Resolved 2026-11-06 with phone confirmation: normal popup text and a bold current entry preserve vivid swatches. 116 offscreen/134 native Windows popup records and 42 Android checks pass | Unassigned |
 | [UI-027](tickets/UI-027.json) | Translucent Undo becomes unreadable over checked rows | Resolved 2026-11-06 with phone confirmation: opaque normal-row background beneath the accent countdown. Original regressions fail; 14 native Windows Undo records and 16 Android checked-row checks pass | Unassigned |

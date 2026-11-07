@@ -1697,13 +1697,13 @@ old/new glyph comparison, the initial and corrected harness reports, both APK
 payload reports, and the native Android checks. See `tickets/DEV-012.json` for
 the final verification record. Icon sizes and gesture behavior are preserved.
 CartInIcon/CartOutIcon now inherit ArrowIcon's symmetric padding instead of offsets
-tailored to the old cart. Their matching arrival/departure position is height/8,
-keeping the tip inside the new basket. The arrow-feedback suite samples actual
-arrow and basket pixels at that position for both directions, themes and preview
-scales (16 alignment/endpoint cases).
+tailored to the old cart. Their matching arrival/departure position is height *
+0.1875, centering the whole arrow in the basket. The arrow-feedback suite compares
+actual arrow and basket midpoints at that position for both directions, themes
+and preview scales (16 alignment/endpoint cases), and retains the tip/floor check.
 The Android driver checks both mirrored cart directions and rapid repeats in all
 ten profiles, including a settled CartIn screenshot checked against the basket
-floor; `--profile light-in-left` provides a bounded reproduction.
+floor and vertical center; `--profile light-in-left` provides a bounded reproduction.
 
 `tests/qml/tst_inputfont.qml` drives the production editor with the real icon-font
 parent. Font Awesome 7's desktop font contains ASCII glyphs and icon-name ligatures;

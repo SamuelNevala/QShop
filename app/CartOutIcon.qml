@@ -6,7 +6,7 @@ ArrowIcon {
     text: "\uf07a"
 
     animation {
-        from: root.height / 8
+        from: root.height * 0.1875
         to: -arrow.height
 
         easing {

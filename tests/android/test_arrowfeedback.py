@@ -50,20 +50,30 @@ def basket_center(image, left, top, size):
 
 def settled_arrow(image, left, top, size):
     center = basket_center(image, left, top, size)
+    tops = []
     floors = []
     for x in (round(center - size * .15), round(center + size * .15)):
+        basket_top = None
         floor = None
-        for y in range(round(top + size * .3), round(top + size * .6)):
+        for y in range(round(top + size * .1), round(top + size * .6)):
             if max(image.getpixel((x, y))) < 30:
+                if basket_top is None:
+                    basket_top = y
                 floor = y
             elif floor is not None:
                 break
         assert floor is not None, "Rendered basket floor was not found"
+        tops.append(basket_top)
         floors.append(floor)
-    tip = max((y for y in range(top, top + size)
-               for x in range(left, left + size)
-               if min(image.getpixel((x, y))) > 235), default=None)
-    return dict(tip=tip, floor=min(floors), inside=tip is not None and tip < min(floors))
+    ink = [y for y in range(top, top + size) for x in range(left, left + size)
+           if min(image.getpixel((x, y))) > 235]
+    assert ink, "Settled arrow must remain visible"
+    tip = max(ink)
+    arrow_middle = (min(ink) + tip) / 2
+    basket_middle = (sum(tops) + sum(floors)) / (2 * len(tops))
+    return dict(tip=tip, floor=min(floors), inside=tip < min(floors),
+                arrow_middle=arrow_middle, basket_middle=basket_middle,
+                centered=abs(arrow_middle - basket_middle) <= max(1, size * .025))
 
 
 def main():
@@ -190,6 +200,7 @@ def main():
                       and abs(control["center"] - repeated["center"]) < size * .09 and unchanged
                       and all(value.get("aligned", True)
                               and value.get("settled", {}).get("inside", True)
+                              and value.get("settled", {}).get("centered", True)
                               for value in measurements))
             results.append(dict(case=name, passed=passed, control=control, repeated=repeated,
                                 size=size, list_unchanged=unchanged))

@@ -181,6 +181,7 @@ Item {
             basketCenter /= basketRows;
             let arrowCenter = 0;
             let arrowPixels = 0;
+            let arrowTop = visible.height;
             let arrowBottom = 0;
             for (let y = Math.ceil(bounds.y * sy); y < Math.floor((bounds.y + bounds.height)
                                                                   * sy); ++y) {
@@ -189,6 +190,7 @@ Item {
                     if (pixel.r > .9 && pixel.g > .9 && pixel.b > .9) {
                         arrowCenter += x;
                         ++arrowPixels;
+                        arrowTop = Math.min(arrowTop, y);
                         arrowBottom = Math.max(arrowBottom, y);
                     }
                 }
@@ -199,12 +201,16 @@ Item {
                          "Arrow must be centered in the rendered basket, including mirrored swipes");
 
 
+            let basketTop = 0;
             let basketBottom = 0;
-            for (let y = Math.ceil((bounds.y + bounds.height * .3) * sy); y < Math.floor((bounds.y
+            for (let y = Math.ceil((bounds.y + bounds.height * .1) * sy); y < Math.floor((bounds.y
                                                                                           + bounds.height
                                                                                           * .6) * sy); ++y) {
                 const pixel = body.pixel(Math.round(basketCenter), y);
                 if (pixel.r < .1 && pixel.g < .1 && pixel.b < .1) {
+                    if (basketTop === 0) {
+                        basketTop = y;
+                    }
                     basketBottom = y;
                 } else if (basketBottom > 0) {
                     break;
@@ -214,6 +220,10 @@ Item {
             verify(arrowBottom < basketBottom,
                    "Arrow basket position must stay above the basket floor: tip=" + arrowBottom
                    + ", floor=" + basketBottom);
+            fuzzyCompare((arrowTop + arrowBottom) / 2, (basketTop + basketBottom) / 2, Math.max(1,
+                                                                                                bounds.height
+                                                                                                * sy * .025),
+                         "The whole arrow must finish in the middle of the basket");
             icon.arrow.visible = true;
             returnAndRelease();
             compare(actions.count, 0);
