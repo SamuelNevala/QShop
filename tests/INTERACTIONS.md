@@ -21,6 +21,7 @@ rerun during QA-003. See the run record below for what actually ran.
 | Short slow stroke and deliberate pullback do nothing | `tst_swipe.qml::test_rejected_swipe` checks no action delivery, unchanged rows/checks and returned position | `test_swipes.py --rejections --gesture-jar ...`: eight cases; one continuous pointer for pullback |
 | Readable cart/bin and arrow during real held swipes | `swipecontrast/tst_swipecontrast.qml`: actual touch, both directions/modes/check states/themes, four backgrounds, live palette changes and action/Undo outcomes; offscreen and native Windows D3D11 WARP CTest entries | `test_swipecontrast.py`: 20 explicit/System profiles, actual held feedback pixels, cancel preserving exact data, then committed check/delete |
 | Repeat arrow feedback after pullback; resize idle feedback | `arrowfeedback/tst_arrowfeedback.qml`: production TextDelegate touch gestures, three icon variants in both themes, rapid replay, one animation per excursion and live preview resizing; offscreen and native Windows CTest entries | `test_arrowfeedback.py`: screenshot arrow pixels on control/repeated swipes in both themes, three variants, with unchanged saved items/checks; Android has no preview scaling |
+| Fast Undo during Clear-list row retirement | `fastundo/tst_fastundo.qml`: real drawer Clear, first available rendered bar, window-coordinate mouse/touch input, receiver spies, active retiring rows, exact names/order/flags/IDs and settled controls in both themes with 3/30 items; offscreen and native Windows CTest entries | `test_fastundo.py`: actual Clear/Undo taps with device-side frame capture, strict under-500-ms press deadline, exact saved names/order/flags/IDs; Light/Dark and 3/30 items with settled controls |
 | Check stack and nearby correction with either direction | `flows/tst_userflows.qml::test_correction`: real swipes, exact visible order and checked flags | `test_back.py --matrix`: checking/correction after interrupted Back; `test_reset.py`: exact stack order |
 | Shopping single/double tap is not a check or mode change | `UserFlows::test_shopping_taps_are_not_checks` | Native dedicated tap-only control not yet added |
 | Pull down to enter/leave edit mode; insufficient pull rejected | `UserFlows::test_mode_pull_threshold`: actual touch movement crosses the resisted pulley's geometry, then observes mode/data | Existing native swipe/Back/reset scripts enter edit mode through a real pull; both directions of mode change are not a dedicated Android matrix |
@@ -108,10 +109,11 @@ one-handed shopping, dictation quality and multi-device readability remain
 QA-001/QA-002 validation work. User acceptance closes this coverage pass with
 those limits recorded; it does not certify the unverified interactions.
 
-UI-015 is a transition-time input validation candidate, not a confirmed bug in
-the settled path. Early tests pressed before outgoing delegates retired. The
-final flow waits for actual whole-list readiness and retains all restoration
-assertions without XFAIL/skip markers. No application changes are bundled here.
+UI-015 closed with user acceptance on 2026-11-07: both fast and settled Undo
+pass without application changes. Its separate suite asserts rendered targets,
+active retiring delegates, input receivers and exact restoration; the native
+companion adds actual frames and timed input. Normal settled flows still wait
+for whole-list readiness and retain all assertions without XFAIL/skip markers.
 
 ## Repeatable runs
 

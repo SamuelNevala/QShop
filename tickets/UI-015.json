@@ -1,34 +1,57 @@
 {
   "id": "UI-015",
   "title": "Validate fast Undo while Clear-list delegates are retiring",
-  "status": "needs_reproduction",
+  "status": "resolved",
   "type": "validation_gap",
   "severity": "unassigned",
   "created": "2026-10-31",
   "reported_by": "ui_test_investigation",
-  "environment": "Qt 6.12 Windows Qt Quick Test, native/offscreen. Android touch controls pass.",
+  "environment": "Qt 6.12.0 Windows native D3D11 WARP/offscreen Qt Quick Test and Android API 36 x86_64 isolated emulator-5580; current application after UI-023, UX-005 and UI-017.",
   "finding": "Early coverage tests sometimes lost Undo history when tapping before outgoing delegates had retired. This was initially classified too strongly as a confirmed Clear-list bug.",
-  "current_evidence": "Waiting for all short-fixture delegates to match the current model count and finish moving makes normal editor entry and both mouse/touch Clear/Undo pass without application changes. Full flip angle alone was not sufficient input readiness.",
-  "reproduction_status": "No confirmed defect in the settled user path. Fast input during the transition still needs a rendered-hit-target reproduction before assigning bug severity or implementing an app fix.",
-  "reproduction_to_collect": [
-    "Clear a list, then capture an actual pointer press on the visibly offered Undo icon while outgoing delegates remain.",
-    "Record the rendered state and receiver of the press; distinguish a retiring row intercepting input from the Undo button receiving it.",
-    "Compare with the fully settled control on Windows and Android."
+  "current_evidence": "2026-11-07: Fast and settled Clear/Undo both pass without application changes. Window-coordinate mouse/touch presses on the actually rendered bar reach Undo while delegates still retire; no outgoing row receives a press. Native Android presses at 398-439 ms after Clear restore exact persisted records before the 500 ms removal sequence ends.",
+  "reproduction_status": "No current application defect reproduced, including the transition-time path. Validation and permanent coverage are complete; user accepted closure on 2026-11-07.",
+  "validation_paths": [
+    "Real drawer Clear, then first enabled/rendered Undo while outgoing delegates remain; assert the transition is active at press time.",
+    "Capture the rendered bar and inject through window coordinates; spy Undo request delivery and outgoing-row press signals.",
+    "Compare fast and settled controls with 3/30 items and Light/Dark; Windows mouse/touch plus real native Android input and frames."
   ],
-  "expected": "A settled Undo control restores removed names, ordering, flags and IDs. Establish the intended/actual behavior for an interruption during the animation before declaring another defect.",
+  "expected": "The offered, enabled Undo bar restores removed names, ordering, flags and IDs even while outgoing rows are still retiring. Their eventual cleanup must not damage the restored model.",
   "tests": [
     "tests/flows/tst_userflows.qml: UserFlows::test_drawer_removal:all_mouse and :all_touch retain full restoration assertions; no XFAIL or skip remains.",
-    "tests/android/test_reset.py --case clear verifies real native touch Undo, including saved order/checks/IDs."
+    "tests/android/test_reset.py --case clear verifies real native touch Undo, including saved order/checks/IDs.",
+    "tests/fastundo/tst_fastundo.qml, registered as qshopper_fastundo_tests and qshopper_fastundo_rendering_tests: 18 records each, all pass; direct input-receiver and active-retirement assertions plus actual bar pixels and exact restoration.",
+    "tests/android/test_fastundo.py with BackGesture clear-undo mode: 8 fast/settled records pass, with actual frames, device-clock press deadlines and exact saved names/order/flags/UUIDs."
   ],
-  "history": "Earlier flows-stable.txt/undo-final-native.txt failures and expected-failure runs lacked whole-list settlement. They are investigation evidence, superseded as acceptance results by the final readiness-aware runs.",
+  "history": "Earlier flows-stable.txt/undo-final-native.txt failures and expected-failure runs lacked whole-list settlement. They are investigation evidence, superseded as acceptance results by the final readiness-aware runs. The 2026-11-07 native driver initially compared UUID spelling with/without braces; canonical identity comparison corrects that test-only failure. A PNG export delayed its supposedly fast tap to 1817 ms; that run was rejected as timing-invalid. Device-local raw capture with deferred transfer fixes the driver timing, not the app.",
   "related_tickets": [
-    "QA-003"
+    "QA-003",
+    "UI-023",
+    "UX-005"
   ],
   "artifacts": [
     "out/qa003/settled.txt",
     "out/qa003/flows-native-final.txt",
     "out/qa003/verify-final.txt",
-    "out/android-emulator/qa003-clear/results.json"
+    "out/android-emulator/qa003-clear/results.json",
+    "out/ui015/native-final.txt",
+    "out/ui015/fastundo-ctest.txt",
+    "out/ui015/control-ctest.txt",
+    "out/ui015/android-localframe/results.json"
   ],
-  "implementation_scope": "No application fix is authorized or implemented for this candidate. Keep investigation separate from QA-003 test-driver changes."
+  "implementation_scope": "Selected by the user on 2026-11-07 before release planning. No application change is needed or made. Add permanent transition-time validation and record the current passing result; do not label historical driver failures as a confirmed app bug.",
+  "resolved": "2026-11-07",
+  "resolution": {
+    "acceptance": "User accepted the validation results and requested ticket closure and commit.",
+    "summary": "Close the validation gap with permanent fast/settled Clear/Undo coverage. No current application bug was reproduced and no application change was needed.",
+    "verification": "159 Windows records across the four affected/control CTest entries and eight native Android fast/settled records pass. Exact test locations, timing, outcomes and limits are recorded below.",
+    "remaining": "None within UI-015. Release planning remains REL-001."
+  },
+  "validation": {
+    "date": "2026-11-07",
+    "application_changes": false,
+    "windows": "Configured/built with tools/verify-windows.ps1 -Action Build -Jobs 2. Four affected/control CTest entries pass: fastundo, fastundo_rendering, flow and model; 159 records total, zero failures/skips. The unchanged full suite was not repeated for this test-only investigation.",
+    "android": "8 records pass on the installed UI-017 APK, using disposable data. Fast presses: Light 3/30 items at 398/415 ms; Dark 3/30 items at 436/439 ms. Device-local actual frames precede each press; transfer/PNG encoding happens afterward. Settled controls also restore exact saved order/checks/UUIDs.",
+    "limits": "Windows directly observes retiring delegates and input receivers. Android establishes native timing, visible target and persisted outcome without instrumenting application QML; it does not directly inspect delegate lifetime. The under-500-ms deadline is tied to the unchanged production remove transition. No physical-device installation or new APK is required for test-only changes.",
+    "conclusion": "Current fast Undo works as expected. No app fix or failing-before app regression is claimed; the new tests guard the formerly uncovered trigger."
+  }
 }

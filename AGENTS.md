@@ -189,8 +189,10 @@ The current interaction inventory and platform gaps are in tests/INTERACTIONS.md
 The separate qshopper_flow_tests entry drives actual editor/drawer/list controls,
 undo/expiry, reordering, settings and mode pulls. For settled-path tests, wait for
 whole-list readiness; test intentional animation interruptions separately.
-Current flow assertions have no XFAIL/skip markers. UI-015 tracks transition-time
-input validation. Native entry tests use the configured English QWERTY Gboard layout; they never activate the microphone.
+Current flow assertions have no XFAIL/skip markers. UI-015's separate fast-Undo
+suite covers transition-time input with rendered targets and receiver checks;
+its Android companion enforces the native press deadline. See tests/README.md.
+Native entry tests use the configured English QWERTY Gboard layout; they never activate the microphone.
 Android selector-popup Back must close only the popup, preserving the drawer.
 The optional test_back.py --selector-back regression covers UI-016 from either
 edge. Selector popups wait for an outside release (with modal delivery), so an

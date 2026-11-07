@@ -324,8 +324,9 @@ the proxy migration; binding-loop warnings fail the characterization.
 For the current control-to-test map, new user-flow suite, platform gaps and
 native commands, see [INTERACTIONS.md](INTERACTIONS.md). Historical counts below
 describe earlier verification stages. QA-003 adds a separate flow CTest entry
-with explicit input-readiness checks. UI-015 remains a transition-time validation
-candidate; normal flow assertions have no expected-failure or skip markers.
+  with explicit input-readiness checks. UI-015 now has separate fast-input coverage
+  during row retirement; no current failure is reproduced. Normal flow assertions
+  have no expected-failure or skip markers.
 Remaining native/dictation gaps are recorded explicitly. UI-016 subsequently
 fixes the selector Back regression: all 26 native left/right checks pass. The
 selector waits for outside release, so Android cancelling the initial edge
@@ -1465,3 +1466,34 @@ pullback, then checks the saved names/checkmarks are unchanged. Six profiles cov
 Light/Dark and incoming/outgoing cart/bin arrows. Android uses preview scale 1;
 the Windows tests establish the live preview resize case. The original Android
 build loses the outgoing arrow on the repeated swipe in both themes.
+
+## Fast Clear/Undo during row retirement (UI-015)
+
+`qshopper_fastundo_tests` and `qshopper_fastundo_rendering_tests` run
+`fastundo/tst_fastundo.qml` offscreen and with native Windows D3D11 WARP.
+The test opens the real app/drawer, clicks Clear list, then uses the first
+enabled, rendered Undo bar without waiting for list settlement. It proves
+outgoing delegates still exist in the remove transition at press time, captures
+the bar's actual pixels and sends input through window coordinates. Signal spies
+verify Undo receives one request and outgoing rows receive no press. Restoration
+checks exact names, flags, order and UUIDs immediately and after row cleanup.
+Light/Dark, 3/30 items, mouse/touch and fast/settled controls give 18 records per
+entry, including setup/cleanup. The production code is unchanged.
+
+Build `tools/build-android-gesture-test.ps1`, then run:
+
+```powershell
+python tests/android/test_fastundo.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-fastundo
+```
+
+The native companion uses disposable app data and the `clear-undo` helper mode.
+It captures an on-device raw frame before pressing, then transfers/encodes it
+afterward so PNG/ADB latency cannot turn a fast case into a settled one.
+Press timestamps must stay below the production 500 ms removal sequence;
+missed timing is a failed validation, never an application-bug finding or a pass.
+The captured frame must contain Undo at the target. Eight records cover both
+themes and list lengths with fast and settled controls, comparing exact saved
+order/checks/UUIDs after recovery and cleanup. UUID comparison normalizes optional
+braces, preserving identity checks. Windows supplies the direct retiring-delegate
+and input-receiver assertions; Android supplies native input, actual frames,
+measured timing and persistence. Current production builds pass without an app fix.

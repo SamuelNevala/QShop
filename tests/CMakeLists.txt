@@ -13,6 +13,11 @@ add_test(NAME qshopper_flow_tests COMMAND qshopper_ui_tests
     -platform offscreen -o -,txt -o flow-tests.xml,junitxml)
 set_tests_properties(qshopper_flow_tests PROPERTIES TIMEOUT 120)
 set(qshopper_qml_tests qshopper_ui_tests qshopper_flow_tests)
+add_test(NAME qshopper_fastundo_tests COMMAND qshopper_ui_tests
+    -input ${CMAKE_CURRENT_SOURCE_DIR}/fastundo -import ${CMAKE_BINARY_DIR}
+    -platform offscreen -o -,txt -o fastundo-tests.xml,junitxml)
+set_tests_properties(qshopper_fastundo_tests PROPERTIES TIMEOUT 100)
+list(APPEND qshopper_qml_tests qshopper_fastundo_tests)
 add_test(NAME qshopper_arrowfeedback_tests COMMAND qshopper_ui_tests
     -input ${CMAKE_CURRENT_SOURCE_DIR}/arrowfeedback -import ${CMAKE_BINARY_DIR}
     -platform offscreen -o -,txt -o arrowfeedback-tests.xml,junitxml)
@@ -69,6 +74,12 @@ target_link_libraries(qshopper_tests PRIVATE QShopper Qt6::Test)
 add_test(NAME qshopper_tests COMMAND qshopper_tests -o -,txt -o model-tests.xml,junitxml)
 set_tests_properties(qshopper_tests PROPERTIES ENVIRONMENT "QT_FORCE_STDERR_LOGGING=1" TIMEOUT 30)
 if(WIN32)
+    add_test(NAME qshopper_fastundo_rendering_tests COMMAND qshopper_ui_tests
+        -input ${CMAKE_CURRENT_SOURCE_DIR}/fastundo -import ${CMAKE_BINARY_DIR}
+        -platform windows -o -,txt -o fastundo-rendering-tests.xml,junitxml)
+    set_tests_properties(qshopper_fastundo_rendering_tests PROPERTIES TIMEOUT 100
+        ENVIRONMENT "QT_QUICK_BACKEND=rhi;QSG_RHI_BACKEND=d3d11;QSG_RHI_PREFER_SOFTWARE_RENDERER=1;QT_FORCE_STDERR_LOGGING=1")
+    list(APPEND qshopper_qml_tests qshopper_fastundo_rendering_tests)
     add_test(NAME qshopper_arrowfeedback_rendering_tests COMMAND qshopper_ui_tests
         -input ${CMAKE_CURRENT_SOURCE_DIR}/arrowfeedback -import ${CMAKE_BINARY_DIR}
         -platform windows -o -,txt -o arrowfeedback-rendering-tests.xml,junitxml)

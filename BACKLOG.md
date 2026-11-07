@@ -48,7 +48,7 @@ test. This recommendation does not itself authorize starting implementation.
 | 5 | [UI-011](tickets/UI-011.json) — portrait-only Android | Resolved: native sensor and popup regressions pass; user waived physical-phone testing. Android's large-screen overrides are documented |
 | 6 | [UI-009](tickets/UI-009.json) — reset ordering | Closed with user confirmation: checked 2,1,3 resets to 3,1,2; unchecked entries stay first. Model/QML/native regressions cover pending edits, repeated Reset and restart persistence |
 | 7 | [UI-008](tickets/UI-008.json), then [UI-001](tickets/UI-001.json) | Both resolved: UI-008 has phone confirmation; UI-001 has before/after drawer-selection regressions, real Windows rendering and native Android cold-restart coverage |
-| 8 | [QA-003](tickets/QA-003.json), [UI-003](tickets/UI-003.json), and QA-001 | UI-003 and QA-003 are closed by user acceptance. Continue physical-phone/dictation validation under QA-001/QA-002; UI-015/UI-016 remain separate follow-ups |
+| 8 | [QA-003](tickets/QA-003.json), [UI-003](tickets/UI-003.json), and QA-001 | UI-003 and QA-003 are closed by user acceptance. Continue physical-phone/dictation validation under QA-001/QA-002; UI-015/UI-016 follow-ups are resolved |
 | 9 | [UX-001](tickets/UX-001.json) → [UX-002](tickets/UX-002.json) → [UX-003](tickets/UX-003.json), then [UI-005](tickets/UI-005.json) and QA-002 | UI-005 selected directly and resolved with phone confirmation; UX-001 is resolved; UX-002 and its UI-028 follow-up are resolved by user acceptance; UX-003 and its UI-029/UI-030 follow-ups are resolved by user acceptance. Verify typography, contrast, physical sizing and visual continuity on devices |
 | 10 | [DEV-006](tickets/DEV-006.json) → [DEV-002](tickets/DEV-002.json) / [DEV-003](tickets/DEV-003.json) → [DEV-004](tickets/DEV-004.json) → [DEV-005](tickets/DEV-005.json), with DEV-001 | Establish practical KISS guidance, apply formatting in separate mechanical changes, simplify CMake, then run configured analyzers against a clear build. Investigate the remaining QML warning alongside quality work |
 | 11 | [REL-001](tickets/REL-001.json), with final QA-001/QA-002 checks | Prepare production signing/builds and store submission from the stabilized app. Repeat affected interaction/device checks after the quality changes before declaring release readiness |
@@ -88,7 +88,7 @@ regressions remain easy to trace.
 | [UI-028](tickets/UI-028.json) | Light swipe cart icons are faint on translucent Green feedback | Resolved 2026-11-07: user accepted dark cart/bin bodies and white outlined arrows. All 15 Windows suites (1063 records) and 100 native Android checks pass | Unassigned |
 | [UI-029](tickets/UI-029.json) | Custom colored ink and focus borders can become unreadable | Resolved 2026-11-07: user tested and accepted the local ink/surface fixes; all 17 Windows suites and 283 native checks pass | Minor |
 | [UI-030](tickets/UI-030.json) | Vivid slider thumb lacks a readable boundary | Resolved 2026-11-07: user tested and accepted the 0.2 mm neutral outline; original-source regression fails, full platform checks pass | Minor |
-| [UI-015](tickets/UI-015.json) | Validate fast Undo during the Clear-list animation | Input-readiness investigation: settled mouse/touch Undo passes after correcting the test driver; transition-time hit-target reproduction remains open | Unassigned |
+| [UI-015](tickets/UI-015.json) | Validate fast Undo during the Clear-list animation | Resolved 2026-11-07 with user acceptance: no current app defect reproduced. Rendered-window mouse/touch presses reach Undo while rows retire; 36 Windows records and eight Android fast/settled records pass. Permanent regression coverage added | Unassigned |
 | [UI-017](tickets/UI-017.json) | Arrow feedback on rapid repeated swipes and preview resizing | Resolved 2026-11-07 with phone confirmation: reset completes the previous animation and restores the size binding. Original regressions fail; 1,650 Windows records across split runs and six Android profiles pass | Minor |
 | [UI-018](tickets/UI-018.json) | WeekModel incorrectly reports child rows in a flat list | Resolved 2026-11-02: permanent QTest fails before/passes after; 269 Windows records, final model rerun, format and changed-unit analyzers pass. Committed 2260f0f1; no visible shopping-screen failure claimed | Unassigned |
 | [UI-019](tickets/UI-019.json) | WeekModel skips refresh for different full dates sharing a day number | Resolved 2026-11-02: controlled-date model regression fails in three cases before/passes after; all 278 Windows records, format and changed-unit analyzers pass. Committed ccc341ea; Android suspension not simulated | Unassigned |
@@ -434,7 +434,8 @@ QA-003 closed by user acceptance on 2026-10-31: the interaction map and expanded
 control-driven coverage are accepted with validation limits recorded. All four
 Windows suites pass; Android passes 65/68 checks, with three selector Back
 failures tracked as UI-016. Dictation/physical-device checks continue under
-QA-001/QA-002; UI-015 remains a separate transition-time input candidate.
+QA-001/QA-002. UI-015 subsequently validated fast input without an application
+change and closed with user acceptance on 2026-11-07.
 
 | Reference | Finding | Resolution/evidence |
 | --- | --- | --- |
@@ -493,8 +494,8 @@ The user confirmed the desktop appearance and accepted closure on 2026-10-31.
 QA-003 was then selected. The interaction inventory is in tests/INTERACTIONS.md;
 coverage additions use real controls and isolated data. Initial Clear/Undo failures
 were narrowed to test input before outgoing delegates retired. Settled mouse/touch
-Undo passes with no app changes; UI-015 retains the transition-time validation
-candidate. The user accepted closure of QA-003 on 2026-10-31 with its documented
+Undo passes with no app changes; UI-015 separately validated the transition-time
+path and closed with user acceptance on 2026-11-07. The user accepted closure of QA-003 on 2026-10-31 with its documented
 platform/dictation limits retained under QA-001/QA-002. The user clarified
 selector-popup Back priority: dismiss only the popup first. All three selectors
 fail that native regression; UI-016 tracks the app fix separately.

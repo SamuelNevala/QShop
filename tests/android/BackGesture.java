@@ -51,6 +51,36 @@ public final class BackGesture {
         Class<?> manager = Class.forName("android.hardware.input.InputManagerGlobal");
         input = manager.getMethod("getInstance").invoke(null);
         inject = manager.getMethod("injectInputEvent", InputEvent.class, int.class);
+        if (args[0].equals("clear-undo")) {
+            float clearX = Float.parseFloat(args[1]);
+            float clearY = Float.parseFloat(args[2]);
+            float undoX = Float.parseFloat(args[3]);
+            float undoY = Float.parseFloat(args[4]);
+            downTime = SystemClock.uptimeMillis();
+            send(MotionEvent.ACTION_DOWN, clearX, clearY);
+            SystemClock.sleep(25);
+            send(MotionEvent.ACTION_UP, clearX, clearY);
+            long cleared = SystemClock.uptimeMillis();
+            SystemClock.sleep(Long.parseLong(args[5]));
+            System.out.println("FRAME " + (SystemClock.uptimeMillis() - cleared));
+            System.out.flush();
+            // Keep screenshot encoding/ADB transfer outside the timed input interval.
+            Process capture = Runtime.getRuntime().exec(new String[] { "screencap", args[6] });
+            if (capture.waitFor() != 0) {
+                throw new IllegalStateException("Raw frame capture failed");
+            }
+            System.out.println("READY");
+            System.out.flush();
+            System.in.read();
+            long elapsed = SystemClock.uptimeMillis() - cleared;
+            downTime = SystemClock.uptimeMillis();
+            send(MotionEvent.ACTION_DOWN, undoX, undoY);
+            SystemClock.sleep(25);
+            send(MotionEvent.ACTION_UP, undoX, undoY);
+            System.out.println("UNDO " + elapsed);
+            System.out.flush();
+            return;
+        }
         if (args[0].equals("arrow-repeat")) {
             float x = Float.parseFloat(args[1]);
             float end = Float.parseFloat(args[2]);
