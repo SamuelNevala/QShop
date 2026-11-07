@@ -80,7 +80,7 @@ User confirmed the final feature works on the phone on 2026-11-05.
 | Drawer outside click and Escape; popup Escape without changing selection | `UserFlows::test_drawer_and_popup_dismissal_preserve_draft` | Outside click covered by native entry/portrait scripts. `test_back.py --selector-back --edge left/right` asserts popup-only dismissal, then drawer-only Back; all 26 UI-016 checks pass with drafts/settings/data preserved |
 | Back: drawer, keyboard, edit mode, background; unfinished replacement | `tst_back.qml`, real-key routing with only desktop platform gate overridden; real desktop VKB Back case | `test_back.py`: actual system edge gestures, live process/background return and saved rows. `test_entry.py` also verifies pending replacement cancellation through native Back, preserving original text/ID |
 | Cancelled Android edge gesture must not leak a hold or break next swipe | `tst_cancel.qml` desktop control; domain tests alone are insufficient | `test_back.py --matrix` + `BackGesture.java`, UI-007 evidence: 69 native checks |
-| Voice/dictation | App-side commit/continuous-entry behavior is covered by VKB and native Gboard entry | **Open validation gap:** no controlled speech/audio fixture; recognizer/network/permission behavior and voice punctuation/correction require manual or purpose-built native validation. Microphone is not activated by tests |
+| Voice/dictation | App-side commit/continuous-entry behavior is covered by VKB and native Gboard entry | Opt-in `test_dictation.py`: synthetic English WAVs through actual Gboard, exact expected transcripts with quantities/punctuation, direct Return/Space-commit controls, keyboard continuity and restart. Host mic stays disabled. Natural speech, word correction/cancellation and recognizer/network permutations remain QA-001 |
 
 ## Drawer settings, layout and desktop controls
 
@@ -98,11 +98,11 @@ User confirmed the final feature works on the phone on 2026-11-05.
 ## Remaining work and interpretation
 
 QA-003 was **closed by user acceptance on 2026-10-31**. Core interactions have substantially more
-control-driven coverage, but the explicitly listed native permutations and real
+control-driven coverage, but the explicitly listed native permutations and natural
 dictation are gaps, not passing claims. Selector-popup Back policy is clarified;
 UI-016 subsequently fixes the native regression (26 left/right checks pass). Additional native
-expiry/invalidation permutations remain identified; real dictation needs a
-controlled speech fixture or manual validation. Physical
+expiry/invalidation permutations remain identified. The later opt-in synthetic
+English fixture covers real recognition/IME delivery; it does not establish natural-speech quality. Physical
 one-handed shopping, dictation quality and multi-device readability remain
 QA-001/QA-002 validation work. User acceptance closes this coverage pass with
 those limits recorded; it does not certify the unverified interactions.
@@ -185,3 +185,17 @@ text. Exercise correction/composition cancellation, keyboard hide/reopen and
 drawer dismissal, then restart and inspect saved text. Record device, IME,
 recognizer configuration and results. This is a manual validation procedure,
 not an automated speech-recognition result.
+
+The separate opt-in `android/test_dictation.py` now supplies synthetic English
+WAVs to real Gboard through authenticated emulator audio injection. Ten native
+records verify recognition, direct Return, an explicit Space-commit control,
+one-item submission, empty editor/retained keyboard and exact cold-restart data.
+Raw recognized/committed/saved strings are reported; the observed optional one
+terminal space at direct Return is recorded explicitly. Host microphone access
+must remain disabled. This is actual recognizer/IME coverage, distinct from
+natural human dictation and the physical acceptance procedure above.
+
+`displays/tst_displays.qml` is an optional native Windows CTest for actual
+connected monitors: both themes, preview scales 1/2, current density/render-target
+DPR, fitted glyph pixels and repeated moving-window draft/data/keyboard retention.
+See `reviews/QA-002.md` for actual hardware metadata and remaining ruler checks.

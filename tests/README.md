@@ -1551,3 +1551,109 @@ For DEV-001's optional standalone Qt keyboard diagnostic, see
 [the investigation](../reviews/DEV-001.md). Its exact original-source warning
 remains visible and is rechecked when upgrading the SDK; no global warning
 filter or patched Qt file is part of QShopper.
+
+### Connected Windows monitor checks (optional)
+
+Configure the Windows Debug preset with `-DQSHOPPER_CONNECTED_DISPLAY_TESTS=ON`
+and the desktop keyboard enabled (the preset's AUTO default enables it).
+Initialize the Visual Studio environment as described above, then run:
+
+```powershell
+cmake --preset windows-agent -DQSHOPPER_CONNECTED_DISPLAY_TESTS=ON
+cmake --build --preset windows-agent --parallel 2
+ctest --test-dir out/windows-agent -R '^qshopper_connected_display_tests$' --output-on-failure
+```
+
+This serial, native Windows test opens the actual app on every connected monitor
+in both themes at preview scales 1 and 2. With two monitors it also moves the
+same editing window between them, preserving its draft, list data and keyboard.
+It checks current-screen density, native render-target DPR, text pixels/fitting
+and settled reference geometry. Captures and XML are written to the CTest
+working directory. Keep other interactive UI automation stopped. The default
+is OFF because foreground windows and connected hardware are required; turn it
+off again with `-DQSHOPPER_CONNECTED_DISPLAY_TESTS=OFF` for unattended suites.
+See [QA-002](../reviews/QA-002.md) for the actual-monitor record and the remaining
+physical measurement/comfort checks.
+
+### Synthetic English Gboard dictation (explicit opt-in)
+
+`android/test_dictation.py` exercises the real voice button and Return with two
+synthetic WAV files. It never enables the host microphone. It requires the
+configured English Gboard layout, voice typing enabled, guest RECORD_AUDIO
+permission and completed first-use prompts (decline optional improvement/data
+sharing). Ordinary entry tests remain microphone-free. Do not run another
+Android driver concurrently.
+
+Install optional dependencies into an ignored task directory; generate bindings
+from the installed emulator's own protocol, rather than committing generated SDK
+files or adding dependencies to the app:
+
+```powershell
+New-Item -ItemType Directory -Force out/android-audio | Out-Null
+python -m pip install --target out/android-audio/deps grpcio==1.85.1 grpcio-tools==1.85.1 cryptography==50.0.2
+$env:PYTHONPATH = (Resolve-Path out/android-audio/deps).Path
+python -m grpc_tools.protoc -I C:/android/sdk/emulator/lib --python_out=out/android-audio --grpc_python_out=out/android-audio C:/android/sdk/emulator/lib/emulator_controller.proto
+```
+
+For this test, start only the isolated QShopper_API_36 AVD described in ANDROID.md
+with additional `-grpc 8554 -grpc-use-jwt -grpc-allowlist <absolute-access.json>`
+arguments. Never use bare `-grpc` without authentication. The task-local access
+file contains:
+
+```json
+{"unprotected": [], "allowlist": [{"iss": "qshopper-local-test", "protected": [
+  "/android.emulation.control.EmulatorController/getMicrophoneState",
+  "/android.emulation.control.EmulatorController/injectAudio"
+]}]}
+```
+
+Select the `pid_*.ini` under `$env:TEMP/avd/running` whose `avd.id` is
+QShopper_API_36 and `port.serial` is 5580. The test validates those fields,
+connects only to loopback, registers an ephemeral public JWK and removes it in
+cleanup. Private signing keys/tokens stay in memory. It refuses host microphone
+access, checks before/after injection, and has no API for enabling it. Use paced
+real-time PCM; do not issue nested state RPCs from an audio stream iterator.
+
+Example offline Windows fixture generation (file output only; no playback):
+
+```powershell
+$voice = New-Object -ComObject SAPI.SpVoice
+$english = $null
+foreach ($candidate in $voice.GetVoices()) {
+    if ($candidate.GetDescription() -match 'Zira') { $english = $candidate }
+}
+if ($null -eq $english) { throw 'Install the English Zira desktop voice first.' }
+$voice.Voice = $english
+foreach ($fixture in @(
+    @{ Name = 'milk.wav'; Speech = 'Two cartons of milk' },
+    @{ Name = 'bread.wav'; Speech = 'Bread comma six rolls' }
+)) {
+    $stream = New-Object -ComObject SAPI.SpFileStream
+    $stream.Format.Type = 38 # 48 kHz, 16-bit, mono
+    $stream.Open((Join-Path $PWD ('out/android-audio/' + $fixture.Name)), 3)
+    try {
+        $voice.AudioOutputStream = $stream
+        [void]$voice.Speak($fixture.Speech)
+    } finally { $stream.Close() }
+}
+python tests/android/test_dictation.py --adb C:/android/sdk/platform-tools/adb.exe --grpc-discovery "$env:TEMP/avd/running/pid_<owned-emulator>.ini" --proto-python out/android-audio --wav out/android-audio/milk.wav --wav out/android-audio/bread.wav --expected "Two cartons of milk" --expected "Bread, 6 rolls" --output out/android-dictation
+```
+
+The report requires the expected transcript for each WAV and retains hashes and
+raw recognized/committed/saved text. `cleanup.json` records errors while every
+key/channel, app, data and staging cleanup is attempted independently. Direct
+Return accepts only an exact match or the observed single terminal ASCII space;
+the Space-then-Return control requires exact committed-string equality. Both
+paths assert one new row, draft clearing, retained Gboard and exact cold-restart
+records. Recognition/service failures fail the speech case; they are not by
+themselves evidence of application text loss. Restore any guest permissions
+changed for setup, and stop the task-owned authenticated emulator afterward.
+See [the actual run](../reviews/QA-001.md), the
+[AOSP authentication guide](https://android.googlesource.com/platform/external/qemu/+/686efa16baf59d776cadc3f975d12570fe44bbb9/android/android-grpc/docs/README.md)
+and the installed `emulator_controller.proto` for audio semantics.
+
+With the optional dependencies installed, the driver cleanup controls run
+without an emulator or microphone: `python tests/android/test_dictation_control.py`.
+They simulate channel acquisition/closure failures and a disconnected ADB,
+requiring removal of the trusted public key and an independent attempt/report
+for every cleanup action.

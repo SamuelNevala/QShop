@@ -409,8 +409,8 @@ shopping order.
 
 | ID | Area | Checks still needed |
 | --- | --- | --- |
-| [QA-001](tickets/QA-001.json) | Full shopping flow on the updated physical phone | Native entry 36, both-edge Back 26 and cancellation/reorder controls 14 pass; [physical shopping and real dictation acceptance](reviews/QA-001.md) remain pending. No physical device is connected; emulator input cannot certify speech or one-handed use |
-| [QA-002](tickets/QA-002.json) | Physical sizing and text on different displays | [Three-profile native matrix](reviews/QA-002.md) passes 138 text/popup/restart records with verified geometry and restored settings. Controller disconnect regression fails before/passes after. Calibrated mm, comfort and distinct-hardware results remain pending |
+| [QA-001](tickets/QA-001.json) | Full shopping flow on the updated physical phone | Native entry 36, full Back matrix 75, Undo recovery 24 and long-list/IME 6 pass. Opt-in synthetic English Gboard dictation adds ten records with expected transcripts, submission/keyboard and restart controls. [Natural speech and one-handed physical acceptance](reviews/QA-001.md) remain pending |
+| [QA-002](tickets/QA-002.json) | Physical sizing and text on different displays | [Three-profile native matrix](reviews/QA-002.md) passes 138 records; actual LG TV/UltraFine rendering and repeated cross-monitor draft/data/keyboard moves pass 11 Windows records. Controller disconnect regression fails before/passes after. Independent ruler measurements, shopping comfort and phone readability remain pending |
 | [DEV-001](tickets/DEV-001.json) | Repeated QML diagnostic | Resolved 2026-11-07 as an upstream Qt diagnostic: standalone Qt-only original-source reproduction and real keyboard controls pass. Warning remains visible; no app/SDK patch or global suppression. [Investigation](reviews/DEV-001.md) |
 
 QA-003 should exercise actual user paths, not count direct model calls or emitted

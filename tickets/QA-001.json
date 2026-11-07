@@ -9,13 +9,19 @@
   "finding": "Coverage and physical acceptance task, not an observed application defect.",
   "procedure": "reviews/QA-001.md",
   "automated_coverage": "tests/INTERACTIONS.md maps model, actual-control Windows, real desktop VKB and isolated native Android coverage. Existing entry, Back, reset/cleanup and Undo recovery tests cover app mechanics; they do not establish real dictation or one-handed store use.",
-  "current_work": "Completed the available app-side validation and added native shopping single/double-tap, short/full mode pulls in both modes, no-checked Remove and cold System-selection controls to the existing entry driver. Physical acceptance remains pending.",
+  "current_work": "Extended actual-monitor/native Android validation and exercised real English Gboard speech recognition with synthetic audio, Return, keyboard continuity and restart persistence. Natural speech and one-handed physical acceptance remain pending.",
   "verification": {
     "date": "2026-11-07",
     "entry": "out/remaining/android-entry-expanded/results.json: all 36 native records pass using actual Gboard/Return, control-driven edits, catalog lifecycle, Undo, checked-row controls and the 8 added cases. Exact saved identity/order/checks are retained; no microphone is activated.",
     "back": "out/remaining/android-back-current/results.json and android-back-right-current/results.json: 13 checks per edge pass, including layer priority, live background/return and saved contents.",
     "gesture_helper_control": "out/remaining/android-back-helper-control/results.json: 14 checks pass, including deliberate reorder/restore, cancelled-edge recovery and next swipe/correction. The helper's existing default 150 ms movement behavior is retained; the new duration argument is optional for held selector setup.",
     "windows": "out/remaining/windows-controls.txt: flow 19, keyboard 6 and model 104 records pass. Full unchanged Windows suites were not repeated for this test/documentation work.",
+    "continued_back": "out/displays/android-back-full/results.json: all 75 records pass, including the full both-edge/IME/hold/cancel/complete/reorder/correction matrix and selector-only Back before drawer dismissal.",
+    "continued_windows": "out/displays/windows-controls.txt: model, actual editor-flow and desktop-keyboard CTest entries pass again after the connected-display test registration. The optional connected-display suite also passes on both actual monitors.",
+    "synthetic_dictation": "out/displays/android-dictation-verified/results.json: ten records pass through real English Gboard recognition from synthetic WAVs, exact expected transcripts, native Return and cold restart. Recognized Two cartons of milk and Bread, 6 rolls; recorded one terminal space at direct Return's commit boundary, and exact equality after an explicit Gboard Space commit. Host microphone access remains disabled; no natural-speech acceptance is claimed. Independent cleanup is recorded in cleanup.json. See reviews/QA-001.md.",
+    "continued_undo": "out/displays/android-undorecovery/results.json: all 24 native records pass, covering reachable per-action Undo with offscreen editor, exact order/IDs/flags, new-entry preservation, open IME, expiry and live-process background pause/resume.",
+    "continued_long_list": "out/displays/android-longlist-ime/results.json: all six native records pass with 80 items, actual IME/insets, both scroll directions, rendered background continuity, keyboard hiding and unchanged saved contents.",
+    "dictation_driver_regressions": "tests/android/test_dictation_control.py: three offline controls fail the earlier driver snapshot and pass after acquisition/close/disconnect cleanup corrections. Reports: out/displays/dictation-control-before.txt and dictation-control-after.txt.",
     "application_changes": false
   },
   "remaining": [
@@ -23,7 +29,7 @@
     "Real speech/dictation with quantities/punctuation in the normal language; record recognized versus saved text and keyboard continuity.",
     "Affected-phone Back confirmation remains UI-006."
   ],
-  "limitations": "No physical device was connected at the 2026-11-07 device inventory. Automated scripts target only emulator-5580 and never activate the microphone. No phone installation or physical/speech acceptance is claimed.",
+  "limitations": "No physical phone was connected at the 2026-11-07 device inventory. Scripts target only emulator-5580. The separate opt-in synthetic speech test activates the emulator's Gboard virtual input with host microphone access disabled; ordinary entry tests never activate speech. No phone installation, natural-speech or one-handed acceptance is claimed.",
   "related_tickets": ["UI-006", "QA-002", "QA-003", "UX-005"],
   "closure_criteria": "Record the physical shopping and real dictation results in reviews/QA-001.md, in addition to the repeatable app-side checks. Keep unsupported recognizer/device claims explicit."
 }

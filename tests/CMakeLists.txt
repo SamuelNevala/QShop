@@ -74,6 +74,21 @@ target_link_libraries(qshopper_tests PRIVATE QShopper Qt6::Test)
 add_test(NAME qshopper_tests COMMAND qshopper_tests -o -,txt -o model-tests.xml,junitxml)
 set_tests_properties(qshopper_tests PROPERTIES ENVIRONMENT "QT_FORCE_STDERR_LOGGING=1" TIMEOUT 30)
 if(WIN32)
+    option(QSHOPPER_CONNECTED_DISPLAY_TESTS "Exercise actual connected monitors and desktop keyboard" OFF)
+    if(QSHOPPER_CONNECTED_DISPLAY_TESTS)
+        if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+            message(FATAL_ERROR "Connected display tests require a single-configuration Debug build")
+        endif()
+        if(NOT qshopper_keyboard_enabled)
+            message(FATAL_ERROR "Connected display tests require QSHOPPER_DESKTOP_KEYBOARD=ON")
+        endif()
+        add_test(NAME qshopper_connected_display_tests COMMAND qshopper_ui_tests
+            -input ${CMAKE_CURRENT_SOURCE_DIR}/displays -import ${CMAKE_BINARY_DIR}
+            -platform windows -o -,txt -o connected-display-tests.xml,junitxml)
+        set_tests_properties(qshopper_connected_display_tests PROPERTIES TIMEOUT 120 RUN_SERIAL TRUE
+            ENVIRONMENT "QT_QUICK_BACKEND=rhi;QSG_RHI_BACKEND=d3d11;QSG_RHI_PREFER_SOFTWARE_RENDERER=1;QT_FORCE_STDERR_LOGGING=1;QT_IM_MODULE=qtvirtualkeyboard;QT_VIRTUALKEYBOARD_DESKTOP_DISABLE=1")
+        list(APPEND qshopper_qml_tests qshopper_connected_display_tests)
+    endif()
     add_test(NAME qshopper_fastundo_rendering_tests COMMAND qshopper_ui_tests
         -input ${CMAKE_CURRENT_SOURCE_DIR}/fastundo -import ${CMAKE_BINARY_DIR}
         -platform windows -o -,txt -o fastundo-rendering-tests.xml,junitxml)

@@ -9,10 +9,11 @@
   "finding": "Physical validation task; no application sizing defect is established.",
   "procedure": "reviews/QA-002.md",
   "automated_coverage": "tests/android/test_displaymatrix.py reuses native text-fitting and selector endpoint/cold-restart tests at baseline, compact and roomy viewport/logical-density profiles. It records metadata/screenshots/row bounds and verifies restoration of original overrides.",
-  "current_work": "Completed the native simulation matrix and documented bounded harness/environment findings. Physical sizing and usability acceptance remain pending.",
+  "current_work": "Completed the native simulation matrix and added opt-in actual Windows monitor rendering/transition coverage. Physical ruler measurements and shopping comfort remain pending.",
   "setup_observation": "Compact immediate-release input-swipe setup sometimes did not enter editing, including once after bounded waiting. Three independent held-frame probes visibly armed the pulley and activated editing. Selector setup now uses one requested-1200 ms continuous motion plus exactly 200 ms hold, no retry; the complete compact 26-selector matrix passes. No root cause or application threshold defect is claimed; original failures and a transient missing initial accessibility root are preserved in reviews/QA-002.md.",
   "verification": {
     "date": "2026-11-07",
+    "connected_displays": "tests/displays/tst_displays.qml exercises the production window on LG TV SSCR2 (DPR 1) and LG ULTRAFINE (DPR 1.25), both themes and scales 1/2, plus repeated cross-monitor moves at scale 1.5 retaining draft, keyboard and list identity/order/checks. Actual text pixels, fitting, owning screen, reference geometry and render-target DPR are asserted. See out/displays/connected-ctest-final.txt and reviews/QA-002.md; EDID dimensions are not independent ruler measurements.",
     "profiles": "Baseline 1440x3120/560, compact 1080x1920/480 and roomy 1440x3120/420 each pass 20 native text records and 26 selector/endpoint/cold-restart records: 138 total. Requested effective wm geometry and both-theme actual screenshot dimensions are verified. Every final run reports restore_matches=true.",
     "reports": ["out/remaining/android-displaymatrix-baseline-final/results.json", "out/remaining/android-displaymatrix-compact-verified/results.json", "out/remaining/android-displaymatrix-roomy-verified/results.json"],
     "installed_apk_sha256": "a385e40b015805592fcea0fe0b87f546b0bbf56cd9e9e64e08b7ca5799682506",

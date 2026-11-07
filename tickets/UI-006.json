@@ -59,6 +59,7 @@
   },
   "validation_refresh": {
     "date": "2026-11-07",
+    "continued_full_matrix": "out/displays/android-back-full/results.json: all 75 native records pass, including both edges, both IME states, initial holds, cancelled/completed Back, deliberate reorder/restore, next swipe/correction and selector-only dismissal. Affected-phone confirmation remains open.",
     "selected_scope": "All remaining backlog work except REL-001, while the user is AFK.",
     "native_left": "out/remaining/android-back-current/results.json: 13 checks pass on the current isolated Android 16/API36 emulator, including four-step routing, same-process background/return, unchanged saved data and popup-only/drawer-only Back.",
     "native_right": "out/remaining/android-back-right-current/results.json: the same 13 native checks pass from the right edge.",
