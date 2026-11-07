@@ -1,25 +1,25 @@
 {
   "id": "UI-017",
   "title": "Validate ArrowIcon reset/rearm and resized idle arrow position",
-  "status": "needs_reproduction",
-  "type": "source_review_candidate",
-  "severity": "unassigned",
+  "status": "resolved",
+  "type": "observed_bug",
+  "severity": "minor",
   "created": "2026-11-01",
   "reported_by": "DEV-006 source review",
-  "environment": "Qt 6.12 Windows native Qt Quick Test component probe; production IconChoser and cart/trash variants, bundled icon font, 9.27 mm reference allocation.",
-  "finding": "Component-state observations suggest reset may not fully rearm arrow feedback during an active animation, and idle y no longer follows resized endpoints after reset. No undesired rendered user-path behavior is established.",
+  "environment": "Qt 6.12.0 Windows native D3D11 WARP and Android API 36 x86_64 emulator, production TextDelegate touch gestures and actual app screenshots; bundled icon font and 9.27 mm reference rows.",
+  "finding": "Confirmed 2026-11-07: rapid pullback/repeat gestures reuse the old arrow trajectory. Android screenshots show the outgoing cart arrow disappears on the repeated swipe in both themes. After a desktop preview resize, exposed pre-threshold feedback can use the previous arrow position.",
   "observed": [
     "Set displacement to 1.1 icon widths, wait 150 ms, return to zero, wait 80 ms and cross the threshold again. In all three variants the old animation remains running and continues changing y; only one started signal is observed.",
     "Finish an animation, return displacement to zero, then double the IconChoser dimensions. Animation from updates but arrow y keeps its old value. CartOut measured approximately 8.343 px y versus 16.686 px new from.",
     "Settled cycles behave consistently: one start per excursion beyond ratio 1, another start after returning to zero and completing the prior cycle."
   ],
   "source_notes": [
-    "ArrowIcon.qml reset clears animated and assigns arrow.y = animation.from, without stopping or completing the running animation.",
+    "Original ArrowIcon.qml reset clears animated and assigns arrow.y = animation.from, without stopping or completing the running animation.",
     "Animation.start has no effect while already running. alwaysRunToEnd is enabled; do not assume simply adding stop implements a desired immediate reset.",
     "Imperative assignment removes the original y binding. The real TextDelegate opacity target is zero at rest, so stale hidden geometry alone does not demonstrate a visible bug.",
     "The animated latch means already animated during this excursion, distinct from animation.running. Do not remove it without checking repeated threshold crossings."
   ],
-  "expected": "Preserve intentional animation/pullback behavior. Establish whether feedback should finish or restart across rapid gestures and whether resized idle coordinates cause an unwanted visible result before selecting a correction.",
+  "expected": "Each new swipe after returning to zero replays its arrow feedback, while threshold recrossings within one excursion do not restart it. Visible feedback follows the current icon size after preview resizing. Preserve easing, duration, pullback and check/delete behavior.",
   "reproduction_to_collect": [
     "Capture the real rendered TextDelegate during a rejected/pulled-back swipe followed by an immediate second swipe, comparing a settled control on Windows and Android.",
     "Compare visible arrow trajectories after window/preview size changes with a newly created icon at that same size, at equal gesture positions.",
@@ -29,12 +29,33 @@
     "probe": "out/dev006/arrowicon-review/tst_arrowicon_review.qml",
     "report": "out/dev006/arrowicon-review/native.txt",
     "result": "11 observational records pass without warnings. This characterizes current component state, not bug-fix acceptance.",
-    "regression_gap": "No permanent rendered real-gesture failing-before test exists. Add that first if a bug fix is selected."
+    "regression_gap": "Addressed by the permanent TextDelegate touch regression and native Android screenshot companion described below. The original probe remains historical evidence."
   },
   "related_tickets": [
     "DEV-006"
   ],
-  "implementation_scope": "Deferred validation candidate only. No application fix or UI-015 work is authorized or performed by the review.",
+  "implementation_scope": "Selected by the user on 2026-11-07. ArrowIcon.reset completes the preceding animation and restores y with Qt.binding. Keep the excursion latch, alwaysRunToEnd, duration/easing, cart/bin styling and swipe action logic. UI-015 remains deferred.",
+  "implementation": {
+    "date": "2026-11-07",
+    "files": ["app/ArrowIcon.qml"],
+    "regression": "tests/arrowfeedback/tst_arrowfeedback.qml, registered as qshopper_arrowfeedback_tests and qshopper_arrowfeedback_rendering_tests; tests/android/test_arrowfeedback.py with BackGesture arrow-repeat mode",
+    "before_windows": "out/ui017/before.txt: 3 records passed and 11 failed. Real touch input exposes differing arrow trajectories and all six stale resized positions; screenshots show visible feedback.",
+    "after_windows_focused": "out/ui017/offscreen-final.txt and native-final.txt: 14 records pass in each run, zero warnings/failures/skips. Three variants in both themes cover rapid replay, preserved one-animation-per-excursion latch, live preview resizing and no check/delete action on pullback.",
+    "after_windows_combined": "out/ui017/windows-results.json: 19 registered suites, 1650 unique records, zero assertion failures/skips. The all-in-one UI suite exceeded 225 seconds; its passing prefix plus a separate complete UndoRecovery run cover all 205 UI records. Other suites pass, with the remaining batch run two at a time (out/ui017/remaining-tests.txt). The uninterrupted verify-windows invocation therefore did not pass; coverage passed across these bounded runs.",
+    "before_android": "out/ui017/android-before/results.json: 4 profiles pass, 2 fail. Outgoing cart arrow has zero visible white core pixels on the repeated swipe in Light and Dark, versus roughly 700 in settled controls.",
+    "after_android": "out/ui017/android-final/results.json: all 6 profiles pass using actual screenshots, with saved names/checkmarks unchanged in every profile. Isolated emulator-5580 only; no physical-device installation.",
+    "tooling": "All 68 QML/template files and 11 C++ files pass formatter checks. QShopper_qmllint exits 0 with the same five pre-existing warnings outside ArrowIcon. Android x86_64 and arm64 builds and package-contract checks pass.",
+    "apk": "dist/QShopper-arm64-debug.apk; shared debug.keystore; SHA256 ce57000903b6fcadd2fbc977e90a9ba3020870de64e1d7d1e631547a709942bf",
+    "manual_acceptance": "2026-11-07: user tested the supplied phone APK and requested closure and commit. Android has no desktop preview zoom, so live preview resizing is certified by the Windows regression."
+  },
+  "resolved": "2026-11-07",
+  "resolution": {
+    "acceptance": "User confirmed: tested, close and commit.",
+    "summary": "Complete the previous arrow animation on reset and restore its position binding; preserve the excursion latch, timing, easing and swipe actions.",
+    "regression": "Permanent TextDelegate touch and native Android screenshot regressions fail before the fix and pass afterward; locations and results are recorded above.",
+    "verification": "All 1,650 Windows records pass across bounded runs after the initial UI-suite timeout; all six native Android profiles pass. Formatting, QML lint and both Android package checks are recorded above.",
+    "remaining": "None within UI-017. UI-015 remains deferred."
+  },
   "references": [
     "https://doc.qt.io/qt-6/qml-qtquick-animation.html",
     "https://doc.qt.io/qt-6/qtqml-syntax-propertybinding.html"

@@ -40,10 +40,40 @@ public final class BackGesture {
         }
     }
 
+    private static void quickMove(float fromX, float y, float toX) throws Exception {
+        for (int step = 1; step <= 4; ++step) {
+            SystemClock.sleep(15);
+            send(MotionEvent.ACTION_MOVE, fromX + (toX - fromX) * step / 4, y);
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         Class<?> manager = Class.forName("android.hardware.input.InputManagerGlobal");
         input = manager.getMethod("getInstance").invoke(null);
         inject = manager.getMethod("injectInputEvent", InputEvent.class, int.class);
+        if (args[0].equals("arrow-repeat")) {
+            float x = Float.parseFloat(args[1]);
+            float end = Float.parseFloat(args[2]);
+            float y = Float.parseFloat(args[3]);
+            if (Boolean.parseBoolean(args[4])) {
+                downTime = SystemClock.uptimeMillis();
+                send(MotionEvent.ACTION_DOWN, x, y);
+                quickMove(x, y, end);
+                SystemClock.sleep(50);
+                quickMove(end, y, x);
+                send(MotionEvent.ACTION_UP, x, y);
+                SystemClock.sleep(270);
+            }
+            downTime = SystemClock.uptimeMillis();
+            send(MotionEvent.ACTION_DOWN, x, y);
+            quickMove(x, y, end);
+            System.out.println("HELD");
+            System.out.flush();
+            System.in.read();
+            quickMove(end, y, x);
+            send(MotionEvent.ACTION_UP, x, y);
+            return;
+        }
         if (args[0].equals("double-tap")) {
             float x = Float.parseFloat(args[1]);
             float y = Float.parseFloat(args[2]);

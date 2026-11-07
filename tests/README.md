@@ -1440,3 +1440,28 @@ The second covers offscreen-editor reachability, scrolling, two separate Undo
 steps above Gboard after submitting a new entry, expiry and background/resume.
 No microphone or physical-device installation is used. Physical one-handed store
 use remains complementary acceptance evidence.
+
+## Arrow replay and preview resizing (UI-017)
+
+The normal workflow includes `qshopper_arrowfeedback_tests` (offscreen) and
+`qshopper_arrowfeedback_rendering_tests` (native Windows, D3D11 WARP).
+`arrowfeedback/tst_arrowfeedback.qml` drives the production TextDelegate with
+touch input. It compares visible arrow trajectories on a first and rapid second
+swipe, preserves the one-animation-per-excursion latch, and exposes feedback below
+the animation threshold after changing preview scale. All three variants run in
+both themes; pullbacks must deliver no check/delete action. Screenshots accompany
+the position assertions. This fixture isolates feedback; ShopView/model action
+outcomes remain covered by the existing swipe suites.
+
+Build the gesture helper with `tools/build-android-gesture-test.ps1`, then run:
+
+```powershell
+python tests/android/test_arrowfeedback.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-arrowfeedback
+```
+
+This native companion uses disposable data and actual app rows. It compares white
+arrow pixels between a settled control and a second swipe following a quick
+pullback, then checks the saved names/checkmarks are unchanged. Six profiles cover
+Light/Dark and incoming/outgoing cart/bin arrows. Android uses preview scale 1;
+the Windows tests establish the live preview resize case. The original Android
+build loses the outgoing arrow on the repeated swipe in both themes.

@@ -20,7 +20,8 @@ TextIcon {
             return;
         }
         arrowAnimation.animated = false;
-        arrow.y = arrowAnimation.from;
+        arrowAnimation.complete();
+        arrow.y = Qt.binding(() => arrowAnimation.from);
     }
 
     clip: true
