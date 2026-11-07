@@ -50,10 +50,14 @@ def main():
 
     def tree(folder):
         for _ in range(3):
-            if "dumped to" in shell("uiautomator", "dump", "/sdcard/qshopper-text.xml"):
-                raw = adb("exec-out", "cat", "/sdcard/qshopper-text.xml")
-                (folder / "ui.xml").write_bytes(raw)
-                return ET.fromstring(raw)
+            path = "/data/local/tmp/qshopper-text-" + uuid.uuid4().hex + ".xml"
+            try:
+                if "dumped to" in shell("uiautomator", "dump", path):
+                    raw = adb("exec-out", "cat", path)
+                    (folder / "ui.xml").write_bytes(raw)
+                    return ET.fromstring(raw)
+            finally:
+                shell("rm", "-f", path)
         raise RuntimeError("Could not read Android UI")
 
     results = []
@@ -76,11 +80,13 @@ def main():
             db.commit()
         staging = "/data/local/tmp/qshopper-text-" + uuid.uuid4().hex + ".sqlite"
         adb("push", fixture, staging)
+        data_paths = []
         try:
             for theme, light in (("Dark", False), ("Light", True)):
                 folder = args.output / theme.lower()
                 folder.mkdir(exist_ok=True)
                 data = f"/data/user/0/{PACKAGE}/files/agent-testing/text-{uuid.uuid4().hex}"
+                data_paths.append(data)
                 (folder / "data-path.txt").write_text(data, encoding="utf-8")
                 shell("am", "force-stop", PACKAGE)
                 shell("run-as", PACKAGE, "mkdir", "-p", data)
@@ -140,6 +146,9 @@ def main():
                 check(f"{theme}_source_text_preserved", saved == [(text, 0) for text in ENTRIES])
         finally:
             shell("am", "force-stop", PACKAGE)
+            for data_path in data_paths:
+                shell("run-as", PACKAGE, "rm", "-rf", data_path)
+            shell("rm", "-f", staging, staging + ".conf")
     assert all(result["passed"] for result in results), "Native text fitting failed; see results.json"
 
 

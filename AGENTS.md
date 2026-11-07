@@ -243,6 +243,9 @@ as module dependencies only when enabled.
 The separate qshopper_keyboard_tests CTest entry runs with the real keyboard plugin
 and isolated data. It checks virtual-key submission, composed text, hide/reopen,
 preview resizing, and drawer dismissal. Ordinary UI tests also verify the build gate.
+DEV-001 identifies the PopupList contentWidth override warning as upstream Qt.
+Keep it visible; do not patch the SDK or suppress QML warnings globally. The
+optional standalone Qt source repro and upgrade recheck are in reviews/DEV-001.md.
 
 ## About and offline notices
 

@@ -1,0 +1,26 @@
+{
+  "id": "DEV-001",
+  "title": "Investigate the Qt PopupList contentWidth override diagnostic",
+  "status": "resolved",
+  "type": "diagnostic_investigation",
+  "created": "2026-10-28",
+  "record_created": "2026-11-07",
+  "source": "Existing BACKLOG.md DEV-001 row; selected in all non-REL-001 work.",
+  "finding": "The installed Qt Virtual Keyboard PopupList.qml redeclares ListView/Flickable contentWidth. Parsing that original SDK source in a standalone Qt qmltestrunner emits the exact warning without any QShopper imports.",
+  "review": "reviews/DEV-001.md",
+  "reproduction": "tests/upstream/tst_virtualkeyboard.qml; optional standalone Qt-only repro for the validated Windows 6.12.0 SDK. Explicit source loading reproduces; ordinary embedded compiled-module loading may be quiet.",
+  "verification": {
+    "qt_only": "out/remaining/qt-only-final.txt: four records pass and the direct original-source case emits the exact diagnostic. Generated isolated Debug runner independently gives the same result (out/remaining/qt-only-source.txt).",
+    "application": "out/remaining/keyboard-ctest.txt and out/windows-agent/tests/keyboard-tests.xml: production keyboard suite passes six records with real virtual-key/Return/composition, hide/reopen, zoom, drawer and Back controls; warning remains in the log.",
+    "scope": "Investigation only, no application fix or failing-before app regression claimed. Direct PopupList fixture uses an empty model and does not certify all language/candidate popup geometry or selection."
+  },
+  "resolved": "2026-11-07",
+  "resolution": {
+    "summary": "Upstream-owned property-override diagnostic; no application change required. Complete the requested origin/impact investigation with independent reproduction and bounded passing behavior controls.",
+    "warning_fixed": false,
+    "application_changes": false,
+    "sdk_changes": false,
+    "global_suppression": false,
+    "follow_up": "Recheck the optional source probe and keyboard controls when upgrading Qt. No external upstream issue was filed."
+  }
+}

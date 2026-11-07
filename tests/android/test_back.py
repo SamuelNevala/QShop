@@ -50,8 +50,12 @@ def main():
         return adb("shell", *command).decode().strip()
 
     def tree():
-        shell("uiautomator", "dump", "/sdcard/qshopper-back.xml")
-        return ET.fromstring(adb("exec-out", "cat", "/sdcard/qshopper-back.xml"))
+        path = "/data/local/tmp/qshopper-back-" + uuid.uuid4().hex + ".xml"
+        try:
+            shell("uiautomator", "dump", path)
+            return ET.fromstring(adb("exec-out", "cat", path))
+        finally:
+            shell("rm", "-f", path)
 
     def editor(ui):
         return ui.find(f'.//node[@class="android.widget.EditText"][@package="{PACKAGE}"]')
@@ -295,6 +299,7 @@ def main():
             assert all(result["passed"] for result in results), "Native Back checks failed; see results.json"
         finally:
             shell("am", "force-stop", PACKAGE)
+            shell("run-as", PACKAGE, "rm", "-rf", data)
             shell("rm", staging)
             if args.check_cancellation:
                 shell("rm", gesture_path)

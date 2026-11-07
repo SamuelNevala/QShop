@@ -40,7 +40,7 @@
     "Returning to the app retains saved shopping data; backgrounding is not implemented as an explicit app termination.",
     "Verify with the native Android Back gesture and real virtual keyboard, since desktop/offscreen key events alone do not establish system gesture behavior."
   ],
-  "relevant_files": ["View.qml", "TextDelegate.qml", "tests/qml/tst_back.qml", "tests/keyboard/tst_keyboard.qml", "tests/android/test_back.py"],
+  "relevant_files": ["app/View.qml", "app/TextDelegate.qml", "tests/qml/tst_back.qml", "tests/keyboard/tst_keyboard.qml", "tests/android/test_back.py"],
   "related_tickets": ["UI-007"],
   "open_questions": [],
   "draft_policy": "User selected option 1 on 2026-10-29: keep the existing mode-exit behavior. Hiding the keyboard preserves the draft. Leaving edit mode discards unsubmitted text and restores the original item when cancelling an unfinished item edit.",
@@ -56,6 +56,15 @@
     "android_command": "python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui006-after",
     "artifacts": ["out/windows-agent/tests/ui006-before.xml", "out/windows-agent/tests/ui006-keyboard-before.xml", "out/windows-agent/tests/ui006-drag-before.xml", "out/windows-agent/tests/ui006-after.xml", "out/windows-agent/tests/ui006-windows.xml", "out/android-emulator/ui006-before/results.json", "out/android-emulator/ui006-after/results.json", "dist/QShopper-arm64-debug.apk"],
     "remaining": "Verify the signed APK's four-step Back behavior on the affected Android 17 Pixel. No physical-device installation was performed."
+  },
+  "validation_refresh": {
+    "date": "2026-11-07",
+    "selected_scope": "All remaining backlog work except REL-001, while the user is AFK.",
+    "native_left": "out/remaining/android-back-current/results.json: 13 checks pass on the current isolated Android 16/API36 emulator, including four-step routing, same-process background/return, unchanged saved data and popup-only/drawer-only Back.",
+    "native_right": "out/remaining/android-back-right-current/results.json: the same 13 native checks pass from the right edge.",
+    "windows": "Current keyboard and actual-control flow suites pass; exact run is out/remaining/windows-controls.txt. These do not establish the affected Pixel's OS/IME behavior.",
+    "physical_gate": "No physical Android device is connected. The affected Android 17 Pixel's explicit four-step/draft/return confirmation remains open; no phone installation or waiver is inferred from the AFK instruction.",
+    "procedure": "reviews/QA-001.md: Back confirmation (UI-006)"
   },
   "evidence": "User-specified four-step Back priority in the QShopper development chat on 2026-10-28.",
   "github_repository": "SamuelNevala/QShop",

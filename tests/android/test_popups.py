@@ -29,9 +29,13 @@ def main():
                         help="Also test a rotated-device request and a real keyboard resize")
     parser.add_argument("--profile", choices=("portrait", "keyboard_resize", "rotated"), default="portrait")
     parser.add_argument("--restart", action="store_true", help="Verify list/color selection after a cold restart")
+    parser.add_argument("--gesture-jar", type=Path,
+                        default=Path("out/android-emulator/back-gesture/gesture.jar"))
     args = parser.parse_args()
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator serial is allowed")
+    if not args.gesture_jar.is_file():
+        parser.error("Build tools/build-android-gesture-test.ps1 before running native popup tests")
     args.output.mkdir(parents=True, exist_ok=True)
     expected_rotation = 0
 
@@ -43,13 +47,17 @@ def main():
 
     def tree():
         # A failed dump can leave an old XML file; never accept that as current UI.
-        for _ in range(3):
-            shell("rm", "-f", "/sdcard/qshopper-popups.xml")
-            result = shell("uiautomator", "dump", "/sdcard/qshopper-popups.xml")
-            if "dumped to" in result:
-                ui = ET.fromstring(adb("exec-out", "cat", "/sdcard/qshopper-popups.xml"))
-                assert int(ui.attrib["rotation"]) == expected_rotation, "Accessibility dump changed the requested rotation"
-                return ui
+        for _ in range(5):
+            path = "/data/local/tmp/qshopper-popups-" + uuid.uuid4().hex + ".xml"
+            try:
+                result = shell("uiautomator", "dump", path)
+                if "dumped to" in result:
+                    ui = ET.fromstring(adb("exec-out", "cat", path))
+                    assert int(ui.attrib["rotation"]) == expected_rotation, "Accessibility dump changed the requested rotation"
+                    return ui
+            finally:
+                shell("rm", "-f", path)
+            time.sleep(.25)  # A freshly launched activity may not yet expose an accessibility root.
         raise RuntimeError("Could not read the current Android UI")
 
     def bounds(node):
@@ -57,6 +65,31 @@ def main():
 
     def editor(ui):
         return ui.find(f'.//node[@class="android.widget.EditText"][@content-desc="Tap to add items"]')
+
+    def wait_for_editor(ui, stage):
+        # The production pulley schedules its mode change 450 ms after dragEnded.
+        # Wait for the result of this one gesture; do not silently retry input.
+        if editor(ui) is not None:
+            return ui
+        for attempt in range(4):
+            print("WAIT_EDIT", stage, "poll", attempt + 1, flush=True)
+            time.sleep(.25)
+            ui = tree()
+            if editor(ui) is not None:
+                return ui
+        (case_dir / (stage + "-missing-editor.xml")).write_bytes(ET.tostring(ui))
+        (case_dir / (stage + "-missing-editor.png")).write_bytes(adb("exec-out", "screencap", "-p"))
+        raise AssertionError(stage + " did not enter edit mode after the single pull")
+
+    def pull_to_edit(first, width, height, stage):
+        # Selector navigation needs a deliberately armed pull, not a kinetic test.
+        # One continuous pointer: requested 1200 ms motion, then 200 ms held at the end.
+        command = (f"CLASSPATH={gesture_path} app_process /system/bin BackGesture "
+                   f"{width // 2} {width // 2} {(first[1] + first[3]) // 2} false 0 {height - 100} 200 1200")
+        print("PULL_EDIT", stage, "single held gesture", flush=True)
+        adb("shell", command)
+        time.sleep(.7)
+        return wait_for_editor(tree(), stage)
 
     def tap(node):
         left, top, right, bottom = bounds(node)
@@ -134,7 +167,10 @@ def main():
                            [(str(uuid.uuid4()), "milk"), (str(uuid.uuid4()), "bread")])
             db.commit()
         staging = "/data/local/tmp/qshopper-popups-" + uuid.uuid4().hex + ".sqlite"
+        gesture_path = staging + ".jar"
         adb("push", fixture, staging)
+        adb("push", args.gesture_jar, gesture_path)
+        data_paths = []
         try:
             shell("settings", "put", "system", "accelerometer_rotation", 0)
             for profile, rotation, with_keyboard in profiles:
@@ -144,6 +180,7 @@ def main():
                         case_dir = args.output / case_name
                         case_dir.mkdir(parents=True, exist_ok=True)
                         data = f"/data/user/0/{PACKAGE}/files/agent-testing/popups-{uuid.uuid4().hex}"
+                        data_paths.append(data)
                         (case_dir / "data-path.txt").write_text(data)
                         shell("am", "force-stop", PACKAGE)
                         shell("run-as", PACKAGE, "mkdir", "-p", data)
@@ -156,10 +193,7 @@ def main():
                                 if n.get("resource-id", "").rsplit(".", 1)[-1].startswith("TextDelegate_")]
                         assert len(rows) == 2, "Shopping fixture did not load"
                         first = min(rows, key=lambda r: r[1])
-                        shell("input", "swipe", width // 2, (first[1] + first[3]) // 2,
-                              width // 2, height - 100, 1200)
-                        time.sleep(0.7)
-                        ui = tree()
+                        ui = pull_to_edit(first, width, height, "initial")
                         field = editor(ui)
                         if rotation != 0:
                             # Request rotation with an existing editor; the app stays portrait.
@@ -249,9 +283,7 @@ def main():
                                 and bounds(n)[3] > bounds(n)[1]]
                             assert rows, "Restart did not load shopping rows"
                             first = min(rows, key=lambda rect: rect[1])
-                            shell("input", "swipe", width // 2, (first[1] + first[3]) // 2,
-                                  width // 2, height - 100, 1200)
-                            ui = tree()
+                            ui = pull_to_edit(first, width, height, "restart")
                             field = editor(ui)
                             assert field is not None, "Restart did not enter edit mode"
                             left, top, right, bottom = bounds(field)
@@ -272,10 +304,16 @@ def main():
                             check("restart_selection", len(selected) == 1
                                   and selected[0].get("content-desc") == label, ui)
         finally:
-            shell("am", "force-stop", PACKAGE)
-            shell("rm", staging)
-            shell("wm", "user-rotation", "lock", old_rotation)
-            shell("settings", "put", "system", "accelerometer_rotation", old_auto)
+            try:
+                shell("am", "force-stop", PACKAGE)
+                for data_path in data_paths:
+                    shell("run-as", PACKAGE, "rm", "-rf", data_path)
+                shell("rm", "-f", staging, gesture_path)
+            finally:
+                try:
+                    shell("wm", "user-rotation", "lock", old_rotation)
+                finally:
+                    shell("settings", "put", "system", "accelerometer_rotation", old_auto)
 
 
 if __name__ == "__main__":

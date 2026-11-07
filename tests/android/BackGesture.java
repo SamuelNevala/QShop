@@ -32,11 +32,12 @@ public final class BackGesture {
         }
     }
 
-    private static void move(float fromX, float fromY, float toX, float toY) throws Exception {
-        for (int step = 1; step <= 10; ++step) {
-            SystemClock.sleep(15);
-            send(MotionEvent.ACTION_MOVE, fromX + (toX - fromX) * step / 10,
-                    fromY + (toY - fromY) * step / 10);
+    private static void move(float fromX, float fromY, float toX, float toY, long duration) throws Exception {
+        int steps = duration == 150 ? 10 : 60;
+        for (int step = 1; step <= steps; ++step) {
+            SystemClock.sleep(duration / steps);
+            send(MotionEvent.ACTION_MOVE, fromX + (toX - fromX) * step / steps,
+                    fromY + (toY - fromY) * step / steps);
         }
     }
 
@@ -124,7 +125,8 @@ public final class BackGesture {
         downTime = SystemClock.uptimeMillis();
         send(MotionEvent.ACTION_DOWN, start, y);
         SystemClock.sleep(Long.parseLong(args[4]));
-        move(start, y, outward, endY);
+        long moveDuration = args.length > 7 ? Long.parseLong(args[7]) : 150;
+        move(start, y, outward, endY, moveDuration);
         System.out.println("HELD");
         System.out.flush();
         long hold = args.length > 6 ? Long.parseLong(args[6]) : 1000;
@@ -135,7 +137,7 @@ public final class BackGesture {
             SystemClock.sleep(hold);
         }
         if (cancel) {
-            move(outward, endY, start, y);
+            move(outward, endY, start, y, moveDuration);
         }
         send(MotionEvent.ACTION_UP, cancel ? start : outward, cancel ? y : endY);
     }

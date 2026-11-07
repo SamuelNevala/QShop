@@ -36,8 +36,8 @@ Item {
         property string originalLocale
 
         function init() {
-            // Match the existing popup suite; DEV-001 tracks its pre-existing
-            // PopupList member-override diagnostic separately.
+            // DEV-001 identifies the separate PopupList override warning as
+            // upstream Qt; keep binding-loop failures distinct from it.
             failOnWarning(/.*Binding loop detected.*/);
             originalLocale = uiSetup.exchangeLocale("C");
             uiSetup.resetDatabase();

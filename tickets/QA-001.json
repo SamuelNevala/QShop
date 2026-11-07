@@ -1,0 +1,29 @@
+{
+  "id": "QA-001",
+  "title": "Validate the full physical-phone shopping flow and real dictation",
+  "status": "awaiting_physical_validation",
+  "type": "validation_task",
+  "created": "2026-10-28",
+  "record_created": "2026-11-07",
+  "source": "Existing BACKLOG.md QA-001 row; selected with all non-REL-001 work on 2026-11-07.",
+  "finding": "Coverage and physical acceptance task, not an observed application defect.",
+  "procedure": "reviews/QA-001.md",
+  "automated_coverage": "tests/INTERACTIONS.md maps model, actual-control Windows, real desktop VKB and isolated native Android coverage. Existing entry, Back, reset/cleanup and Undo recovery tests cover app mechanics; they do not establish real dictation or one-handed store use.",
+  "current_work": "Completed the available app-side validation and added native shopping single/double-tap, short/full mode pulls in both modes, no-checked Remove and cold System-selection controls to the existing entry driver. Physical acceptance remains pending.",
+  "verification": {
+    "date": "2026-11-07",
+    "entry": "out/remaining/android-entry-expanded/results.json: all 36 native records pass using actual Gboard/Return, control-driven edits, catalog lifecycle, Undo, checked-row controls and the 8 added cases. Exact saved identity/order/checks are retained; no microphone is activated.",
+    "back": "out/remaining/android-back-current/results.json and android-back-right-current/results.json: 13 checks per edge pass, including layer priority, live background/return and saved contents.",
+    "gesture_helper_control": "out/remaining/android-back-helper-control/results.json: 14 checks pass, including deliberate reorder/restore, cancelled-edge recovery and next swipe/correction. The helper's existing default 150 ms movement behavior is retained; the new duration argument is optional for held selector setup.",
+    "windows": "out/remaining/windows-controls.txt: flow 19, keyboard 6 and model 104 records pass. Full unchanged Windows suites were not repeated for this test/documentation work.",
+    "application_changes": false
+  },
+  "remaining": [
+    "Actual one-handed physical shopping flow using the current build.",
+    "Real speech/dictation with quantities/punctuation in the normal language; record recognized versus saved text and keyboard continuity.",
+    "Affected-phone Back confirmation remains UI-006."
+  ],
+  "limitations": "No physical device was connected at the 2026-11-07 device inventory. Automated scripts target only emulator-5580 and never activate the microphone. No phone installation or physical/speech acceptance is claimed.",
+  "related_tickets": ["UI-006", "QA-002", "QA-003", "UX-005"],
+  "closure_criteria": "Record the physical shopping and real dictation results in reviews/QA-001.md, in addition to the repeatable app-side checks. Keep unsupported recognizer/device claims explicit."
+}

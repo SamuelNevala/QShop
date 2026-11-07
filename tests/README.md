@@ -318,8 +318,10 @@ The test-only locale bridge restores the previous process locale after each case
 Existing selector persistence and catalog user-flow tests remain in normal CTest.
 Qt's model property keeps the Qt 6.10/6.11 API while using its retained alias in
 the validated Qt 6.12 kits; this preview API must be rechecked on Qt upgrades.
-The pre-existing PopupList member-override warning remains DEV-001, separate from
-the proxy migration; binding-loop warnings fail the characterization.
+DEV-001 diagnoses the pre-existing PopupList member-override warning as upstream
+Qt, separate from the proxy migration; binding-loop warnings still fail the
+characterization. Its optional Qt-only reproduction is documented in
+[reviews/DEV-001.md](../reviews/DEV-001.md).
 
 For the current control-to-test map, new user-flow suite, platform gaps and
 native commands, see [INTERACTIONS.md](INTERACTIONS.md). Historical counts below
@@ -1497,3 +1499,55 @@ order/checks/UUIDs after recovery and cleanup. UUID comparison normalizes option
 braces, preserving identity checks. Windows supplies the direct retiring-delegate
 and input-receiver assertions; Android supplies native input, actual frames,
 measured timing and persistence. Current production builds pass without an app fix.
+
+## Remaining physical validation and native display simulation
+
+[QA-001](../reviews/QA-001.md) records the actual one-handed shopping, dictation
+and affected-phone Back acceptance procedure.
+[QA-002](../reviews/QA-002.md) separates native geometry tests from physical
+row measurements, touch comfort and reading on distinct real displays.
+Passing emulator tests does not fill their physical acceptance fields.
+
+The entry driver additionally covers shopping single/double taps, short/full
+mode pulls, Remove checked with no checks, and cold restoration of the System
+choice. These use actual controls and saved records; the microphone is not used.
+
+Build the test helper, then run the display matrix serially on its own emulator:
+
+```powershell
+./tools/build-android-gesture-test.ps1 -SdkRoot C:/android/sdk
+python tests/android/test_displaymatrix.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-displaymatrix
+```
+
+`--profile baseline|compact|roomy` runs a bounded subset. Every profile reuses
+the existing text-fitting and all-selector endpoint/cold-restart checks. The
+runner verifies effective size/density and both-theme screenshot dimensions,
+records display/window/IME/font-scale metadata and installed APK hash, and
+attempts both override and rotation restorations even if a child test or cleanup
+fails. Restoration errors are retained in results.json and fail the run; an
+unavailable emulator/ADB transport requires recovery before a passing claim.
+
+The controller's offline disconnect regression needs no emulator:
+
+```powershell
+python tests/android/test_displaymatrix_control.py
+```
+
+It simulates the actual transport-loss boundary and verifies that failed cleanup
+is recorded, every setting restoration is attempted, and no success is claimed.
+
+Native popup tests now require the helper jar (override `--gesture-jar` for
+another build). Their navigation setup uses one continuous pull with requested
+1200 ms motion and a 200 ms final hold before release, then waits for the editor.
+This makes the intended armed gesture explicit; it does not retry a failed
+gesture or alter app thresholds. Immediate-release/rejected-pull behavior is
+covered separately. Original compact immediate-release setup failures are
+retained in the QA-002 record rather than reported as a fixed app bug.
+
+These drivers use unique shell-temporary UI dumps and remove their disposable
+app data. Do not run another native script concurrently with the display runner.
+
+For DEV-001's optional standalone Qt keyboard diagnostic, see
+[the investigation](../reviews/DEV-001.md). Its exact original-source warning
+remains visible and is rechecked when upgrading the SDK; no global warning
+filter or patched Qt file is part of QShopper.

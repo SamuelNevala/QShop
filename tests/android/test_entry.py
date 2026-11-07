@@ -48,8 +48,12 @@ def main():
 
     def tree():
         for _ in range(3):
-            if "dumped to" in shell("uiautomator", "dump", "/sdcard/qshopper-entry.xml"):
-                return ET.fromstring(adb("exec-out", "cat", "/sdcard/qshopper-entry.xml"))
+            path = "/data/local/tmp/qshopper-entry-" + uuid.uuid4().hex + ".xml"
+            try:
+                if "dumped to" in shell("uiautomator", "dump", path):
+                    return ET.fromstring(adb("exec-out", "cat", path))
+            finally:
+                shell("rm", "-f", path)
         raise RuntimeError("Could not read Android UI")
 
     def bounds(node):
@@ -145,6 +149,17 @@ def main():
         if rightward:
             time.sleep(.8)
             return None
+        return tree()
+
+    def pull_mode(ui, short=False):
+        rectangles = sorted({bounds(node) for node in ui.iter("node")
+                             if node.get("resource-id", "").rsplit(".", 1)[-1].startswith("TextDelegate_")})
+        assert rectangles, "Mode pull needs a real shopping row"
+        left, top, right, bottom = rectangles[0]
+        start_y = (top + bottom) // 2
+        shell("input", "swipe", width // 2, start_y, width // 2,
+              start_y + 60 if short else height - 140, 350 if short else 1200)
+        time.sleep(.6)  # The production pulley delays mode changes after release.
         return tree()
 
     def enter_text(ui, text, replace=False):
@@ -245,6 +260,35 @@ def main():
                   and editor(ui).get("text") == "unfinished", ui)
             ui = back()
             check("back_discards_draft_leaves_edit", editor(ui) is None and saved() == original, ui)
+            ui = item_tap(ui, original[0][0])
+            check("shopping_single_tap_preserves_mode_and_items", editor(ui) is None
+                  and saved() == original, ui)
+            ui = item_tap(ui, original[0][0], twice=True)
+            check("shopping_double_tap_preserves_mode_and_items", editor(ui) is None
+                  and saved() == original, ui)
+            ui = pull_mode(ui, short=True)
+            check("short_pull_keeps_shopping_mode", editor(ui) is None and saved() == original, ui)
+            ui = pull_mode(ui)
+            check("mode_pull_enters_edit", editor(ui) is not None and saved() == original, ui)
+            tap(editor(ui), "left")
+            ui = tree()
+            remove = next(node for node in ui.iter("node") if node.get("class") == "android.widget.Button"
+                          and node.get("content-desc", "").startswith("Remove"))
+            left, top, right, bottom = bounds(remove)
+            assert remove.get("enabled") == "true" and 0 <= left < right <= width and 0 <= top < bottom <= height
+            tap(remove)
+            time.sleep(.5)
+            ui = tree()
+            frame = undo_bar_frame(adb("exec-out", "screencap", "-p"), 0)
+            drawer_closed = not any(node.get("class") == "android.widget.Button"
+                                    and node.get("content-desc") in ("Dark", "Light", "System")
+                                    for node in ui.iter("node"))
+            check("remove_checked_without_checks_is_noop", saved() == original
+                  and editor(ui) is not None and frame is None and drawer_closed, ui)
+            ui = pull_mode(ui, short=True)
+            check("short_pull_keeps_edit_mode", editor(ui) is not None and saved() == original, ui)
+            ui = pull_mode(ui)
+            check("mode_pull_leaves_edit", editor(ui) is None and saved() == original, ui)
             shell("am", "force-stop", PACKAGE)
             ui = launch()
             frame = Image.open(BytesIO(adb("exec-out", "screencap", "-p"))).convert("RGB")
@@ -335,8 +379,29 @@ def main():
             check("renamed_list_remains_selectable", saved(weekly_id) == eggs, ui)
             ui = select_list(ui, "default")
             check("catalog_workflow_preserves_original_list", saved() == replacement_original, ui)
+            tap(editor(ui), "left")
+            ui = tree()
+            system = ui.find('.//node[@class="android.widget.Button"][@content-desc="System"]')
+            assert system is not None, "System theme button was not found"
+            tap(system)
+            ui = tree()
+            system = ui.find('.//node[@class="android.widget.Button"][@content-desc="System"]')
+            assert system is not None and system.get("checked") == "true"
+            settings = shell("run-as", PACKAGE, "cat", data + "/Nevala/QShopper.ini")
+            assert re.search(r"(?m)^theme=2$", settings), "Wait for System selection to be stored before restarting"
+            shell("am", "force-stop", PACKAGE)
+            ui = launch()
+            ui = pull_mode(ui)
+            tap(editor(ui), "left")
+            ui = tree()
+            system = ui.find('.//node[@class="android.widget.Button"][@content-desc="System"]')
+            settings = shell("run-as", PACKAGE, "cat", data + "/Nevala/QShopper.ini")
+            check("cold_restart_restores_system_choice_and_items", system is not None
+                  and system.get("checked") == "true" and re.search(r"(?m)^theme=2$", settings)
+                  and saved() == replacement_original, ui)
         finally:
             shell("am", "force-stop", PACKAGE)
+            shell("run-as", PACKAGE, "rm", "-rf", data)
             shell("rm", staging)
             shell("rm", staging + ".jar")
 

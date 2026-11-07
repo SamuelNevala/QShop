@@ -409,9 +409,9 @@ shopping order.
 
 | ID | Area | Checks still needed |
 | --- | --- | --- |
-| QA-001 | Full shopping flow on the updated physical phone | One-handed check/correction, checked-item stack order, movable editor, long-press reordering, drawer and list switching, restart persistence, dictation, repeated Return, the end of a long list with the keyboard open, and UI-006 Back behavior once implemented |
-| QA-002 | Physical sizing and text on different displays | Check real touch dimensions, short/long-entry readability, and layout on different phone sizes/densities; desktop zoom alone does not establish physical Android usability |
-| DEV-001 | Repeated QML diagnostic | Investigate the `PopupList` `contentWidth` override warning in existing Windows UI/keyboard reports. Determine whether it is an app or Qt issue and whether it affects behavior; no user-visible failure is established |
+| [QA-001](tickets/QA-001.json) | Full shopping flow on the updated physical phone | Native entry 36, both-edge Back 26 and cancellation/reorder controls 14 pass; [physical shopping and real dictation acceptance](reviews/QA-001.md) remain pending. No physical device is connected; emulator input cannot certify speech or one-handed use |
+| [QA-002](tickets/QA-002.json) | Physical sizing and text on different displays | [Three-profile native matrix](reviews/QA-002.md) passes 138 text/popup/restart records with verified geometry and restored settings. Controller disconnect regression fails before/passes after. Calibrated mm, comfort and distinct-hardware results remain pending |
+| [DEV-001](tickets/DEV-001.json) | Repeated QML diagnostic | Resolved 2026-11-07 as an upstream Qt diagnostic: standalone Qt-only original-source reproduction and real keyboard controls pass. Warning remains visible; no app/SDK patch or global suppression. [Investigation](reviews/DEV-001.md) |
 
 QA-003 should exercise actual user paths, not count direct model calls or emitted
 signals as coverage of UI controls. Reuse existing tests, add missing platform
