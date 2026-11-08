@@ -18,7 +18,11 @@
     "push_plan": "Publish qt5/qshopper at the exact old remote master and verify it first. Then publish the current Qt 6 tree to master and qt6/qshopper, using an explicit master lease for the expected old tip and an atomic multi-ref push where supported. Never overwrite an unexpected remote update.",
     "authentication": "Dedicated repository SSH deploy key accepted by GitHub with write access. This checkout's core.sshCommand selects it and a host key pinned to GitHub's published Ed25519 fingerprint. Private credentials stay outside the repository.",
     "verification": "Root GPL text matches the official GNU download, local Markdown links and PNG files validate, both native app screenshots were visually inspected, no application sources changed, and the verified pre-promotion bundle preserves all original refs. Root Git connectivity check succeeds.",
-    "status": "Documentation and license prepared, SSH verified; archive and master/development publication in progress."
+    "initial_promotion_revision": "934cb7c0b25ef2ce707dd75cbe7e371ea2cb783c",
+    "published_archive_revision": "d34356f55cd8e35b35008a6b21f2e9c87d65d9cc",
+    "publication_result": "Qt 5 archive was published and read back before the atomic, lease-protected master/development update. GitHub serves the new README, exact GNU GPL text and both screenshots. Default branch remains master. git merge-base confirms master and qt5/qshopper have no common ancestor; no history-joining merge was created.",
+    "transport": "Origin retains its SSH URL. This checkout uses the dedicated deploy key over GitHub's documented ssh.github.com:443 endpoint, with strict host checking against the published Ed25519 key; port 22 was intermittently unavailable.",
+    "status": "Repository publication complete and verified. Broader store planning/signing/distribution work remains open; this does not close REL-001."
   },
   "request": "Prepare the app for app-store publication and define the steps needed to publish it.",
   "expected": "A practical release checklist and preparation plan with dependencies, required user decisions, acceptance criteria, and a clear path from the current development build to a store release.",
