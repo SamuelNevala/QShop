@@ -4,6 +4,7 @@ import QtQml.Models as Models
 import QtQuick as Quick
 import QtQuick.Controls.Material as Style
 import QtQuick.Layouts
+import QtQuick.Window as QuickWindow
 
 Style.Control {
     id: root
@@ -41,6 +42,8 @@ Style.Control {
         }
 
         Quick.Rectangle {
+            id: topSafeArea
+
             height: root.topPadding
             color: safeAreaBackground.borderColor
             opacity: 0.8
@@ -53,6 +56,8 @@ Style.Control {
         }
 
         Quick.Rectangle {
+            id: bottomSafeArea
+
             height: root.bottomPadding
             color: safeAreaBackground.borderColor
             opacity: 0.8
@@ -61,6 +66,32 @@ Style.Control {
                 bottom: parent.bottom
                 left: parent.left
                 right: parent.right
+            }
+        }
+
+        Quick.Rectangle {
+            anchors.fill: topSafeArea
+            visible: menu.visible
+            color: menu.Style.Material.backgroundDimColor
+            opacity: menu.position
+
+            Quick.Behavior on opacity {
+                Quick.NumberAnimation {
+                    duration: 150
+                }
+            }
+        }
+
+        Quick.Rectangle {
+            anchors.fill: bottomSafeArea
+            visible: menu.visible
+            color: menu.Style.Material.backgroundDimColor
+            opacity: menu.position
+
+            Quick.Behavior on opacity {
+                Quick.NumberAnimation {
+                    duration: 150
+                }
             }
         }
 
@@ -393,6 +424,14 @@ Style.Control {
             source: Quick.Qt.resolvedUrl("fa-solid-900.otf")
         }
     ]
+
+    Quick.Binding {
+        target: root.QuickWindow.Window.window
+        property: "color"
+        value: Qt.tint(root.Style.Material.backgroundColor, Qt.alpha(
+                           menu.Style.Material.backgroundDimColor,
+                           menu.Style.Material.backgroundDimColor.a * menu.position))
+    }
 
     AboutDialog {
         id: aboutDialog

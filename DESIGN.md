@@ -11,6 +11,12 @@ and drawer interactions in portrait when the phone rotates. Android platform
 overrides on large displays are documented in ANDROID.md; portrait-only use is
 the product intent, rather than a request to redesign the landscape interface.
 
+When the drawer opens, its resolved Material dimming must extend across the
+exposed system-bar safe areas. Preserve their normal 80%-opacity row surface
+underneath, and restore it on close. Side insets beneath the drawer retain the
+native panel/shadow treatment. System-bar icons follow the effective dimmed
+palette; the user's stored Light/Dark/System selection remains unchanged.
+
 ## One-handed use and deliberate gestures
 
 Small buttons and checkboxes are easy to hit by mistake when using a phone with

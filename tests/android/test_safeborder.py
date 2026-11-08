@@ -1,4 +1,4 @@
-"""UI-005 surfaces and optional UI-014 drawer palette regression, with isolated data.
+"""UI-005 surfaces, optional UI-014 palette/UI-034 dimming, with isolated data.
 
 Requires Pillow. Tests Light/Dark, both real Android System modes and an open IME.
 Pixel ranges allow the deliberate 20% wallpaper contribution to each surface.
@@ -8,6 +8,7 @@ import argparse
 from contextlib import closing
 from io import BytesIO
 import json
+import math
 from pathlib import Path
 import re
 import sqlite3
@@ -33,6 +34,8 @@ def main():
                                              "keyboard_light", "light_on_dark_system"), default="all")
     parser.add_argument("--drawer", action="store_true",
                         help="UI-014: compare rendered System drawer controls with matching explicit themes")
+    parser.add_argument("--dimming", action="store_true",
+                        help="UI-034: compare safe-area dimming with the actual exposed content")
     args = parser.parse_args()
     if args.drawer and args.profile != "all":
         parser.error("Use --profile all with --drawer to capture matching explicit-theme references")
@@ -89,6 +92,51 @@ def main():
 
     drawer_references = {}
 
+    def drawer_dimming(ui, normal, checked, top_safe, bottom_safe):
+        def capture():
+            return Image.open(BytesIO(adb("exec-out", "screencap", "-p"))).convert("RGB")
+
+        before = capture()
+        tap_node = editor(ui)
+        left, top, right, bottom = bounds(tap_node)
+        shell("input", "tap", left + (bottom - top) // 2, (top + bottom) // 2)
+        time.sleep(.7)
+        opened = capture()
+        points = [(normal[2] - 20, (normal[1] + normal[3]) // 2),
+                  (checked[2] - 20, (checked[1] + checked[3]) // 2)]
+        a, b = (before.getpixel(point) for point in points)
+        c, d = (opened.getpixel(point) for point in points)
+        slopes = [(c[i] - d[i]) / (a[i] - b[i]) for i in range(3)]
+        check("drawer_content_dims", all(.1 < slope < .9 for slope in slopes), slopes=slopes)
+        # Compare simultaneous pixels. Wallpaper can change between screencaps
+        # and differs between positions. Its 20% contribution is attenuated by
+        # the measured scrim transmission; 4 levels allow native rounding.
+        dimmed_tolerance = math.ceil(255 * .2 * max(slopes)) + 4
+        border_points = [("top", (int(width * .63), int(top_safe * .6))),
+                         ("bottom", (int(width * .88), bottom_safe + 15))]
+        for name, point in border_points:
+            actual = opened.getpixel(point)
+            expected = c
+            error = max(abs(actual[i] - expected[i]) for i in range(3))
+            check("drawer_dims_" + name, error <= dimmed_tolerance, actual=actual,
+                  expected=expected, error=error, wallpaper_tolerance=dimmed_tolerance)
+        clock = [sum(opened.getpixel((x, y))) / 3
+                 for x in range(int(width * .04), int(width * .22), 2)
+                 for y in range(int(top_safe * .25), int(top_safe * .8), 2)]
+        background = sum(opened.getpixel(border_points[0][1])) / 3
+        contrast = max(abs(min(clock) - background), abs(max(clock) - background))
+        check("drawer_status_icon_contrast", contrast >= 45, brightness_separation=contrast)
+        shell("input", "keyevent", "KEYCODE_BACK")
+        time.sleep(.7)
+        closed = capture()
+        before.save(folder / "dimming-before.png")
+        opened.save(folder / "dimming-open.png")
+        closed.save(folder / "dimming-closed.png")
+        for name, point in border_points:
+            error = max(abs(a - b) for a, b in zip(closed.getpixel(points[0]), closed.getpixel(point)))
+            check("drawer_restores_" + name, error <= 255 * .2 + 2,
+                  error=error, wallpaper_tolerance=255 * .2 + 2)
+
     def drawer_snapshot(name):
         ui = tree()
         frame = Image.open(BytesIO(adb("exec-out", "screencap", "-p"))).convert("RGB")
@@ -136,6 +184,7 @@ def main():
     if args.profile != "all":
         profiles = [item for item in profiles if item[0] == args.profile]
     with tempfile.TemporaryDirectory(prefix="qshopper-safeborder-") as temporary:
+        data_directories = []
         fixture = Path(temporary) / "fixture.sqlite"
         with closing(sqlite3.connect(fixture)) as db:
             schema = "(id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, checked INTEGER NOT NULL DEFAULT 0)"
@@ -154,6 +203,7 @@ def main():
                 shell("am", "force-stop", PACKAGE)
                 shell("cmd", "uimode", "night", night)
                 data = f"/data/user/0/{PACKAGE}/files/agent-testing/safeborder-{uuid.uuid4().hex}"
+                data_directories.append(data)
                 (folder / "data-path.txt").write_text(data, encoding="utf-8")
                 shell("run-as", PACKAGE, "mkdir", "-p", data)
                 shell("run-as", PACKAGE, "cp", staging, data + "/shop_list.sqlite")
@@ -238,6 +288,8 @@ def main():
                     surface("bottom_border", (width * 0.88, bottom_safe + 15), light)
                 check("content_in_safe_area", bounds(editor(ui))[1] >= top_safe - 2
                       and checked[3] <= bottom_safe + 2, top=top_safe, bottom=bottom_safe)
+                if args.dimming and not keyboard:
+                    drawer_dimming(ui, normal, checked, top_safe, bottom_safe)
                 if profile == "system_light":
                     shell("cmd", "uimode", "night", "yes")
                     time.sleep(0.7)
@@ -264,6 +316,10 @@ def main():
                 check("items_preserved", saved == [("Milk", 0), ("Bread", 1)])
         finally:
             shell("am", "force-stop", PACKAGE)
+            for data_directory in data_directories:
+                assert re.fullmatch(r"/data/user/0/" + re.escape(PACKAGE)
+                                    + r"/files/agent-testing/safeborder-[0-9a-f]{32}", data_directory)
+                shell("run-as", PACKAGE, "rm", "-rf", data_directory)
             shell("cmd", "uimode", "night", old_mode)
             shell("rm", staging)
             shell("rm", "-f", ui_path)

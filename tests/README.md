@@ -1746,6 +1746,30 @@ the animated bar is active. The earlier action must receive over 85% of a fresh
 window and remain recoverable after the original deadline. All task data/staging
 paths are removed in `finally`. No microphone is activated.
 
+### Drawer safe-area dimming (UI-034)
+
+`qml/tst_safeborder.qml::test_drawer_dims_safe_areas` opens the production drawer
+with four nonzero insets and a uniform backdrop. Rendered pixels in the exposed
+top/bottom/right safe areas must exactly match the dimmed normal row in
+Light/Dark/System. The left inset must receive the drawer's native panel/shadow
+treatment (or scrim with software rendering).
+Closing restores the existing normal/inverse surfaces. The window color used by
+native system-bar contrast handling follows the resolved dimmed palette too.
+This runs in the normal `qshopper_ui_tests` entry.
+
+```powershell
+python tests/android/test_safeborder.py --adb C:/android/sdk/platform-tools/adb.exe --drawer --dimming --output out/android-drawer-dimming
+```
+
+Native screenshots compare simultaneous safe-area and exposed-content pixels.
+The slideshow contributes 20% of each base surface, so the tolerance is bounded
+by that contribution after the measured scrim transmission, plus native rounding.
+This avoids requiring identical wallpaper across separate Android screencaps;
+the QML test retains exact equality with a controlled backdrop. The script checks
+close/restore, clock visibility, explicit/System palette equivalence, live scheme
+changes, resume, native IME and preserved list data. Only isolated emulator data
+is used and removed afterward. Use `--profile light --dimming` for a bounded run.
+
 ### Release logging and versions (DEV-013)
 
 `qshopper.app` covers startup/storage/license failures; `qshopper.model` covers

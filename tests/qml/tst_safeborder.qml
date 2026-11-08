@@ -137,6 +137,64 @@ Item {
                     ];
         }
 
+        function test_drawer_dims_safe_areas_data() {
+            return test_theme_surfaces_data();
+        }
+
+        function test_drawer_dims_safe_areas(data) {
+            Theme.theme = data.theme;
+            wait(350);
+            const normal = verifySurfaces();
+            let drawer = null;
+            for (const child of shop.data) {
+                if (child instanceof Drawer) {
+                    drawer = child;
+                }
+            }
+            verify(drawer !== null);
+            shop.openMenu();
+            tryCompare(drawer, "opened", true);
+            wait(200);
+            const row = shop.itemAtIndex(0);
+            const point = row.mapToItem(app.contentItem, row.width - 8, row.height / 2);
+            const image = grabImage(app.contentItem);
+            const dimmed = pixel(image, point);
+            verify(dimmed !== normal, "The exposed shopping surface must be dimmed");
+            for (const border of [
+                     {
+                         name: "top",
+                         x: point.x,
+                         y: view.topPadding / 2
+                     },
+                     {
+                         name: "bottom",
+                         x: point.x,
+                         y: app.height - view.bottomPadding / 2
+                     },
+                     {
+                         name: "right",
+                         x: app.width - view.rightPadding / 2,
+                         y: point.y
+                     }
+                 ]) {
+                compare(pixel(image, border), dimmed, border.name
+                        + " safe area must follow drawer dimming");
+            }
+            // The left inset lies under the drawer itself. Native Material
+            // rendering includes its elevation shadow here; software uses the
+            // scrim. Both must affect the inset and restore on close.
+            verify(pixel(image, {
+                             x: view.leftPadding / 2,
+                             y: point.y
+                         }) !== normal, "The drawer must affect the left safe area");
+            compare(app.color, Qt.tint(app.Material.backgroundColor,
+                                       drawer.Material.backgroundDimColor),
+                    "Native icon contrast must follow the effective dimmed window background");
+            drawer.close();
+            tryCompare(drawer, "visible", false);
+            verifySurfaces();
+        }
+
         function test_theme_surfaces(data) {
             Theme.theme = data.theme;
             wait(350);

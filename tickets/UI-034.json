@@ -1,22 +1,37 @@
 {
   "id": "UI-034",
   "title": "Android safe-area background should follow drawer dimming",
-  "status": "reported",
+  "status": "resolved",
   "type": "user_reported_visual_bug",
   "severity": "unassigned",
   "created": "2026-11-08",
   "reported_by": "user",
   "source": "On Android, when drawer/menu is open safe area should follow the drawer's dictated background dimming.",
-  "environment": "Android; exact device, build, theme and screenshot not supplied for this report.",
+  "environment": "Reproduced on QShopper_API_36/emulator-5580, Android API 36; complementary controlled Windows software/native D3D11 tests.",
   "trigger": "Open the drawer/menu and compare the safe-area background with the surrounding dimmed app background.",
-  "actual": "User reports that the safe area does not follow the drawer's background-dimming treatment consistently. No new runtime reproduction or pixel measurement is claimed.",
+  "actual": "Confirmed: the drawer begins below the top safe inset and ends above the bottom inset, so Qt Material native overlay excludes both. Original APK leaves bright undimmed safe areas around dimmed content.",
   "expected": "Opening the drawer applies its background-dimming treatment consistently across the relevant safe areas. Closing it restores the normal theme-derived appearance, while system-bar icons remain readable.",
-  "scope": "Backlog intake only. Preserve UI-005's accepted base safe-area colors and geometry; investigate the drawer-open dimming layer as a distinct trigger.",
+  "scope": "User explicitly selected this fix with UX-006 and DEV-013. Keep UI-005 base palette, opacity, row geometry and input behavior.",
   "verification_plan": [
     "Reproduce on native Android with screenshots before, during and after drawer opening; record actual insets and theme.",
     "Add a failing-before/passing-after regression comparing actual safe-area and dimmed-content pixels, rather than only checking assigned color values.",
     "Cover Light/Dark and resolved System themes, nonzero safe areas where available, close/restore behavior and system-bar icon readability. Desktop tests may complement but cannot certify native system-bar rendering."
   ],
-  "related_tickets": ["UI-005", "UI-014", "QA-002"],
-  "validation": "No application code changed and no new reproduction/test result claimed during intake."
+  "related_tickets": [
+    "UI-005",
+    "UI-014",
+    "QA-002"
+  ],
+  "validation": {
+    "test": "tests/qml/tst_safeborder.qml::test_drawer_dims_safe_areas; tests/android/test_safeborder.py --dimming (plus --drawer controls).",
+    "windows_before": "New Light/Dark/System cases fail on the undimmed top inset against the original View. out/ux006-dev013-ui034/dimming-before.txt.",
+    "android_before": "Final permanent native regression against preserved original APK fails only drawer_dims_top and drawer_dims_bottom; all normal surfaces, icons, close/restore and exact data controls pass. out/ux006-dev013-ui034/android-dimming-before/results.json.",
+    "android_after": "All 167 checks pass in Light/Dark/System Light/System Dark, explicit Light on dark OS and native IME profile, including live OS changes, reopened selector palettes, dimming/restoration, visible status icons, resume and exact saved list data. out/ux006-dev013-ui034/android-dimming-final/results.json.",
+    "native_windows": "All 10 safe-border records pass using actual D3D11 WARP rendering. Left inset is underneath the native drawer elevation shadow, so it must receive that treatment rather than equal exposed-content pixels. Exposed top/bottom/right comparisons remain exact. out/ux006-dev013-ui034/dimming-native-windows-final.txt.",
+    "regression_scope": "Seven Windows CTest entries pass (UI, actual flows, fast Undo, keyboard, model, input font and Undo rendering); final affected controls rerun after repairing a malformed generated incremental-link executable. No application workaround was added for that build-artifact failure.",
+    "tolerance": "Native comparisons use simultaneous pixels. The 20% wallpaper contribution, attenuated by measured scrim transmission, bounds color differences plus four RGB rounding levels. This prevents slideshow transitions between screencaps from appearing as application failures. Controlled QML uses a uniform backdrop and exact exposed-area equality.",
+    "limits": "Automated emulator/native Windows verification; physical-phone confirmation is not claimed. Android fixture data and staging files are removed in finally."
+  },
+  "resolved": "2026-11-08",
+  "implementation": "Two sibling scrim rectangles cover the top/bottom safe areas using the drawer resolved Material.backgroundDimColor and position, matching the native 150 ms opacity behavior. Original 80%-opacity base surfaces remain. Existing native system-bar icon handling follows the effective dimmed Window.color. Side insets keep native drawer/scrim/shadow rendering."
 }
