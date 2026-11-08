@@ -21,6 +21,8 @@
 #include <QtSql/QSqlError>
 #include <QQuickStyle>
 #include "model.h"
+#include "logging.h"
+#include <QtCore/QLoggingCategory>
 
 #ifdef Q_OS_ANDROID
 #  include <QtCore/QJniObject>
@@ -88,6 +90,7 @@ int main(int argc, char *argv[])
     qputenv("QT_VIRTUALKEYBOARD_DESKTOP_DISABLE", "1");
 #endif
     QGuiApplication application(argc, argv);
+    qCDebug(qshopperAppLog) << "Starting QShopper" << QCoreApplication::applicationVersion();
 
     QTranslator translator;
     const auto uiLanguages = QLocale::system().uiLanguages();
@@ -109,40 +112,41 @@ int main(int argc, char *argv[])
             ? QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
             : testDataDirectory;
     const auto databaseLocation = QDir(dataDirectory).filePath(QStringLiteral("shop_list.sqlite"));
-    qDebug() << "Database location: " << databaseLocation;
+    qCDebug(qshopperAppLog) << "Database location: " << databaseLocation;
     const QDir dir(QFileInfo(databaseLocation).absolutePath());
     if (!dir.mkpath(QStringLiteral("."))) {
-        qWarning() << "Failed to create directory for database. Name: " << databaseLocation;
+        qCWarning(qshopperAppLog) << "Failed to create directory for database. Name: "
+                                  << databaseLocation;
         return -1;
     }
 
     auto database = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"));
     database.setDatabaseName(databaseLocation);
     if (!database.open()) {
-        qWarning() << "Failed to open to the database. Error: " << database.lastError()
-                   << " Name: " << databaseLocation;
+        qCWarning(qshopperAppLog) << "Failed to open to the database. Error: "
+                                  << database.lastError() << " Name: " << databaseLocation;
         return -1;
     }
 
     {
         QSqlQuery query;
         if (!query.exec(SQL::create().arg(SQL::tableLists()))) {
-            qWarning() << "Failed to create  " << SQL::tableLists()
-                       << " table. Error: " << query.lastError();
+            qCWarning(qshopperAppLog) << "Failed to create  " << SQL::tableLists()
+                                      << " table. Error: " << query.lastError();
             return -1;
         }
 
         if (!query.exec(SQL::selectFrom().arg(SQL::tableLists()))) {
-            qWarning() << "Failed to select rows from " << SQL::tableLists()
-                       << " table. Error:" << query.lastError().text();
+            qCWarning(qshopperAppLog) << "Failed to select rows from " << SQL::tableLists()
+                                      << " table. Error:" << query.lastError().text();
             return -1;
         }
 
         if (!query.next()) {
             const auto defaultTableId = QUuid::createUuid().toString(QUuid::WithoutBraces);
             if (!query.exec(SQL::create().arg(defaultTableId))) {
-                qWarning() << "Failed to create  " << SQL::tableDefault()
-                           << " table. Error: " << query.lastError();
+                qCWarning(qshopperAppLog) << "Failed to create  " << SQL::tableDefault()
+                                          << " table. Error: " << query.lastError();
                 return -1;
             }
             query.prepare(SQL::insertTo().arg(SQL::tableLists()));
@@ -150,11 +154,12 @@ int main(int argc, char *argv[])
             query.addBindValue(SQL::tableDefault());
             query.addBindValue(false);
             if (!query.exec()) {
-                qWarning() << "Failed to insert " << SQL::tableDefault() << " table info to "
-                           << SQL::tableLists() << " table. Error:" << query.lastError();
+                qCWarning(qshopperAppLog)
+                        << "Failed to insert " << SQL::tableDefault() << " table info to "
+                        << SQL::tableLists() << " table. Error:" << query.lastError();
                 return -1;
             }
-            qDebug() << SQL::tableDefault() << " table created.";
+            qCDebug(qshopperAppLog) << SQL::tableDefault() << " table created.";
         }
     }
 

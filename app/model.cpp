@@ -1,4 +1,6 @@
 #include "model.h"
+#include "logging.h"
+#include <QtCore/QLoggingCategory>
 
 #include <algorithm>
 #include <iterator>
@@ -579,15 +581,16 @@ void Model::save()
 
     auto database = QSqlDatabase::database();
     if (!database.transaction()) {
-        qWarning() << "Failed to start transaction while saving. Error:" << database.lastError();
+        qCWarning(qshopperModelLog)
+                << "Failed to start transaction while saving. Error:" << database.lastError();
         return;
     }
 
     const auto table = activeList();
     QSqlQuery query(database);
     if (!query.exec(SQL::deleteFrom().arg(table))) {
-        qWarning() << "Failed to clear items from " << resolve(m_activeListId) << "("
-                   << m_activeListId << "). Error:" << query.lastError();
+        qCWarning(qshopperModelLog) << "Failed to clear items from " << resolve(m_activeListId)
+                                    << "(" << m_activeListId << "). Error:" << query.lastError();
         database.rollback();
         return;
     }
@@ -605,8 +608,9 @@ void Model::save()
             query.addBindValue(savedItem.checked);
 
             if (!query.exec()) {
-                qWarning() << "Failed to insert item to " << resolve(m_activeListId) << "("
-                           << m_activeListId << ") while saving. Error:" << query.lastError();
+                qCWarning(qshopperModelLog)
+                        << "Failed to insert item to " << resolve(m_activeListId) << "("
+                        << m_activeListId << ") while saving. Error:" << query.lastError();
                 database.rollback();
                 return;
             }
@@ -614,7 +618,8 @@ void Model::save()
     }
 
     if (!database.commit()) {
-        qWarning() << "Failed to commit transaction while saving error:" << database.lastError();
+        qCWarning(qshopperModelLog)
+                << "Failed to commit transaction while saving error:" << database.lastError();
         database.rollback();
     }
 }
@@ -625,15 +630,16 @@ bool Model::load(QUuid identifier)
             identifier.isNull() ? SQL::tableLists() : identifier.toString(QUuid::WithoutBraces);
     QList<Item> items;
     QSqlQuery query(SQL::selectFrom().arg(table), QSqlDatabase::database());
-    qDebug() << "Load from " << resolve(identifier) << "(" << identifier << ")";
+    qCDebug(qshopperModelLog) << "Load from " << resolve(identifier) << "(" << identifier << ")";
     while (query.next()) {
-        qDebug() << " id:" << query.value(kId) << " name:" << query.value(kName)
-                 << " checked:" << query.value(kChecked);
+        qCDebug(qshopperModelLog) << " id:" << query.value(kId) << " name:" << query.value(kName)
+                                  << " checked:" << query.value(kChecked);
         items.append(Item(query.value(kName).toString(), query.value(kChecked).toBool(),
                           query.value(kId).toUuid()));
     }
     if (query.lastError().isValid()) {
-        qWarning() << "Failed to load list" << table << ". Error:" << query.lastError();
+        qCWarning(qshopperModelLog)
+                << "Failed to load list" << table << ". Error:" << query.lastError();
         return false;
     }
 
@@ -686,9 +692,9 @@ void Model::createList(const Item &row)
 
     QSqlQuery query(QSqlDatabase::database());
     if (!query.exec(SQL::create().arg(row.uuid.toString(QUuid::WithoutBraces)))) {
-        qWarning() << "Failed to create " << row.name << "("
-                   << row.uuid.toString(QUuid::WithoutBraces)
-                   << ") table. Error: " << query.lastError();
+        qCWarning(qshopperModelLog)
+                << "Failed to create " << row.name << "(" << row.uuid.toString(QUuid::WithoutBraces)
+                << ") table. Error: " << query.lastError();
         return;
     }
 }
@@ -716,13 +722,13 @@ void Model::dropRemovedTables() const
         activeLists.append(query.value(kId).toUuid());
     }
     if (query.lastError().isValid()) {
-        qWarning() << "Failed to read list catalog before table cleanup. Error:"
-                   << query.lastError();
+        qCWarning(qshopperModelLog)
+                << "Failed to read list catalog before table cleanup. Error:" << query.lastError();
         return;
     }
 
     if (!query.exec(SQL::selectAllTables())) {
-        qWarning() << "Failed to all tables. Error:" << query.lastError();
+        qCWarning(qshopperModelLog) << "Failed to all tables. Error:" << query.lastError();
         return;
     }
 
@@ -736,9 +742,10 @@ void Model::dropRemovedTables() const
 
     for (const auto &uuid : uuids) {
         if (!activeLists.contains(uuid)) {
-            qWarning() << "Drop table " << uuid;
+            qCDebug(qshopperModelLog) << "Drop table " << uuid;
             if (!query.exec(SQL::drop().arg(uuid.toString(QUuid::WithoutBraces)))) {
-                qWarning() << "Failed to drop table " << uuid << ". Error:" << query.lastError();
+                qCWarning(qshopperModelLog)
+                        << "Failed to drop table " << uuid << ". Error:" << query.lastError();
             }
         }
     }

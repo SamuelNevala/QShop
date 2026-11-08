@@ -1,4 +1,6 @@
 #include "licensenotices.h"
+#include "logging.h"
+#include <QtCore/QLoggingCategory>
 
 #include <QtCore/QFile>
 #include <QtCore/QString>
@@ -14,7 +16,8 @@ QStringList readNotice(const QString &path)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
-        qWarning().noquote() << "Cannot read bundled license notice:" << path << file.errorString();
+        qCWarning(qshopperAppLog).noquote()
+                << "Cannot read bundled license notice:" << path << file.errorString();
         return { LicenseNotices::tr("License information unavailable.") };
     }
     return QString::fromUtf8(file.readAll()).split(QStringLiteral("\n\n"));

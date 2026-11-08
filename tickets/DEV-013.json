@@ -1,13 +1,13 @@
 {
   "id": "DEV-013",
   "title": "Use categorized logging and keep Release console output minimal",
-  "status": "requested",
+  "status": "resolved",
   "type": "code_quality",
   "priority": "unassigned",
   "created": "2026-11-08",
   "reported_by": "user",
   "source": "Use categorised loggers to suppress debug prints. On Release there should be very little to print on the console.",
-  "scope": "Backlog intake only. Review C++ and QML diagnostic output and adopt simple Qt logging categories/defaults when selected. Do not change logging as part of repository publication.",
+  "scope": "User selected implementation alongside UX-006/UI-034; review and categorize application diagnostics without a custom logging framework.",
   "expected": "Normal Release use produces very little console output. Useful development diagnostics remain selectively available by category, while actionable warnings and errors remain observable.",
   "review_points": [
     "Inventory qDebug/qInfo/qWarning/qCritical and QML console output, distinguishing app diagnostics from Qt or platform messages.",
@@ -15,6 +15,18 @@
     "Keep Debug output useful and document how to enable individual categories for troubleshooting.",
     "Verify a Release normal-use flow is quiet and controlled failure cases still emit actionable diagnostics."
   ],
-  "related_tickets": ["DEV-005", "DEV-006", "REL-001"],
-  "validation": "No logger or console behavior changed during intake."
+  "related_tickets": [
+    "DEV-005",
+    "DEV-006",
+    "REL-001"
+  ],
+  "validation": {
+    "before": "tests/test_release_logging.py fails release_normal_startup_is_quiet against the original diagnostics; legacy default-category database/model messages are captured in out/ux006-dev013-ui034/logging-before.",
+    "after": "All seven blackbox checks pass after the final build: quiet Release, opt-in diagnostics, runtime CMake version, independent category selection, actionable storage failure, Debug defaults and Debug suppression. Report: out/ux006-dev013-ui034/logging-includes/results.json.",
+    "models": "Debug and Release model CTest entries pass; seven Windows interaction/model/rendering entries pass. Normal Release model cleanup stays quiet unless diagnostics are enabled.",
+    "analysis": "clang-tidy and Clazy pass all six production translation units with the Samuel baseline. Direct public includes added for logging macros/types. Reports: out/ux006-dev013-ui034/analysis-final.",
+    "limits": "Verification covers application-owned diagnostics. Existing framework/platform warnings are retained. No blanket log suppression or global handler was added."
+  },
+  "resolved": "2026-11-08",
+  "implementation": "qshopper.app and qshopper.model QLoggingCategory objects default to Debug messages in Debug and warnings in Release. Converted all app C++ diagnostics, including license reads; routine dropped-table notices are debug diagnostics. No QML console output was found. Qt/platform logs remain unaffected. Runtime QT_LOGGING_RULES can select categories independently."
 }

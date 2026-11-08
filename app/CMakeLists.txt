@@ -79,6 +79,7 @@ qt_add_qml_module(QShopper
         Weekdays.qml
         YAnimation.qml
     SOURCES
+        logging.h logging.cpp
         licensenotices.h licensenotices.cpp
         model.h model.cpp
         undoremove.h undoremove.cpp

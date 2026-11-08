@@ -1746,6 +1746,26 @@ the animated bar is active. The earlier action must receive over 85% of a fresh
 window and remain recoverable after the original deadline. All task data/staging
 paths are removed in `finally`. No microphone is activated.
 
+### Release logging and versions (DEV-013)
+
+`qshopper.app` covers startup/storage/license failures; `qshopper.model` covers
+model diagnostics. Debug defaults to debug output. Release defaults to warnings
+and above, preserving actionable failures. Qt/platform diagnostics are unaffected.
+For troubleshooting, set `QT_LOGGING_RULES=qshopper.model.debug=true` or
+`qshopper.*.debug=true`; `qshopper.*.debug=false` silences Debug diagnostics.
+
+After configuring a separate Release build with the desktop keyboard OFF:
+
+```powershell
+python tests/test_release_logging.py --app out/windows-release-agent/application.exe --debug-app out/windows-agent/application.exe --qt-bin C:/Qt/6.12.0/msvc2022_64/bin --output out/release-logging
+```
+
+The real executable starts with disposable storage. Checks cover quiet Release
+startup, opt-in diagnostics, independent categories, retained Debug defaults,
+runtime version and a controlled storage failure with an actionable warning.
+The regular Android package test also checks installed-package metadata against
+the root CMake version name/code using the deployment kit's `aapt2`.
+
 ### Android launcher icon (UX-006)
 
 See [the editable artwork and export commands](../artwork/UX-006/README.md).
