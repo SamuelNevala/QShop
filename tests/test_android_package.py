@@ -78,6 +78,18 @@ def main():
     if args.deployment_settings:
         settings = json.loads(args.deployment_settings.read_text(encoding="utf-8-sig"))
         repository = Path(__file__).resolve().parents[1]
+        cmake = (repository / "CMakeLists.txt").read_text()
+        version = re.search(r"project\(QShopper VERSION ([0-9.]+)", cmake).group(1)
+        code = re.search(r"set\(QSHOPPER_ANDROID_VERSION_CODE (\d+)\)", cmake).group(1)
+        aapt2 = Path(settings["sdk"]) / "build-tools" / settings["sdkBuildToolsRevision"] / "aapt2.exe"
+        badging = subprocess.check_output([str(aapt2), "dump", "badging", str(args.apk)], text=True)
+        metadata = re.search(r"^package: name='([^']+)' versionCode='([^']+)' versionName='([^']+)'",
+                             badging, re.MULTILINE)
+        assert metadata, "APK metadata missing"
+        assert metadata.groups() == ("shopper.nevala.com", code, version), \
+            f"APK version does not match CMake: {metadata.groups()}"
+        report["version_name"] = version
+        report["version_code"] = int(code)
         app = repository / "app"
         roots = [Path(path).resolve() for path in settings["qml-root-path"]]
         generated = args.deployment_settings.resolve().parent / "generated"

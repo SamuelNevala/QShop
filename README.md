@@ -47,6 +47,23 @@ reference; current development targets Qt 6.
 For an existing Qt 5 clone, keep local work on the legacy history; a fresh clone
 is the simplest way to start with Qt 6.
 
+## Versions
+
+The current development version is **0.1.0**. Before the first public release,
+use `0.MINOR.PATCH`: increase PATCH for fixes and MINOR for features or deliberate
+behavior changes. Reserve `1.0.0` for the first stable public release.
+
+The root `CMakeLists.txt` owns both `project(... VERSION ...)` and
+`QSHOPPER_ANDROID_VERSION_CODE` (currently **2**). The project version becomes
+the runtime application version and Android `versionName`. Increase the Android
+code for every shared update build, even if its display version stays the same;
+local rebuilds may reuse it. ARM64 and emulator builds of the same revision use
+the same code. Keep the signing key unchanged when updating an existing install.
+
+For an accepted release, record its changes and tag the exact tested commit
+`v0.1.0` (and similarly for later versions). A version bump alone does not publish
+a release. Include the source revision in bug reports about development builds.
+
 ## Build and run
 
 Requirements:

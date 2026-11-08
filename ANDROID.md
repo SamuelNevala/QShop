@@ -28,7 +28,7 @@ The script defaults to Qt 6.12.0 in `C:\Qt`, the Android SDK in
 JDK 21. Override `-QtRoot`, `-QtVersion`, `-SdkRoot`, `-NdkVersion`, or
 `-JavaHome` for other installations. This build uses compile SDK 36; Qt selects an installed SDK build-tools revision. Gradle downloads build dependencies on the first run.
 
-The APK uses package `shopper.nevala.com`, version 0.1 (code 1), and supports
+The APK uses package `shopper.nevala.com`, version 0.1.0 (code 2), and supports
 ARM64 Android devices running Android 9 (API 28) or later. By default it is signed
 with the local Android debug key. To update an existing installation built on
 another machine, supply the original debug keystore:

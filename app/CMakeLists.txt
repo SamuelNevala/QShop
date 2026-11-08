@@ -112,11 +112,12 @@ if(qshopper_keyboard_enabled)
 endif()
 
 qt_add_executable(application main.cpp)
+target_compile_definitions(application PRIVATE QSHOPPER_VERSION="${PROJECT_VERSION}")
 target_link_libraries(application PRIVATE QShopper QShopperplugin)
 set_target_properties(application PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER shopper.nevala.com
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
@@ -164,7 +165,7 @@ if(ANDROID)
         QT_ANDROID_APP_NAME "QShopper"
         QT_ANDROID_PACKAGE_NAME "shopper.nevala.com"
         QT_ANDROID_VERSION_NAME "${PROJECT_VERSION}"
-        QT_ANDROID_VERSION_CODE 1
+        QT_ANDROID_VERSION_CODE ${QSHOPPER_ANDROID_VERSION_CODE}
     )
 endif()
 

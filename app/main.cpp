@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
 {
 
     QCoreApplication::setApplicationName(QStringLiteral("QShopper"));
+    QCoreApplication::setApplicationVersion(QStringLiteral(QSHOPPER_VERSION));
     QCoreApplication::setOrganizationName(QStringLiteral("Nevala"));
 #if QSHOPPER_DESKTOP_KEYBOARD && !defined(Q_OS_ANDROID)
     qputenv("QT_IM_MODULE", "qtvirtualkeyboard");

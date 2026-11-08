@@ -60,5 +60,11 @@
   "github_repository": "SamuelNevala/QShop",
   "github_issue_url": null,
   "ui023_payload_observation": {"date": "2026-11-03", "finding": "Fresh UI-023 Android packages still contain Canvas2D and CanvasPainter libraries despite removal of explicit QML/module/link usage. Inventory the actual APK; the deployment dependency/scan path has not been established. No packaging change is included in UI-023."},
-  "dev008_inventory_update": {"date": "2026-11-04", "finding": "DEV-008 removes Canvas/VirtualKeyboard/test/Widgets/unused-style and plugin payload from fresh packages through source isolation, explicit imports and Qt plugin deployment. Inventory the final retained APK libraries/assets; keep historical UI-023 observations as history, not current shipped dependencies.", "reports": "out/dev008/final-arm64-package.json and final-x86-package.json contain final runtime libraries/ELF dependencies. Default and Release packages exclude QML tooling; developer opt-in packages have a separate inventory."}
+  "dev008_inventory_update": {"date": "2026-11-04", "finding": "DEV-008 removes Canvas/VirtualKeyboard/test/Widgets/unused-style and plugin payload from fresh packages through source isolation, explicit imports and Qt plugin deployment. Inventory the final retained APK libraries/assets; keep historical UI-023 observations as history, not current shipped dependencies.", "reports": "out/dev008/final-arm64-package.json and final-x86-package.json contain final runtime libraries/ELF dependencies. Default and Release packages exclude QML tooling; developer opt-in packages have a separate inventory."},
+  "versioning": {
+    "date": "2026-11-08",
+    "request": "User asked to start app versioning.",
+    "policy": "Start at development version 0.1.0 / Android code 2. Root CMake owns both runtime/name and increasing Android update code. Patch increments for fixes, minor increments for features/behavior changes before 1.0.0. Tag only an accepted tested release; no tag or release has been published by this change.",
+    "verification": "Release/Debug runtime-version check and both APK metadata tests agree with CMake; native package-manager probe reports 0.1.0 (2). README Versions section documents the policy."
+  }
 }
