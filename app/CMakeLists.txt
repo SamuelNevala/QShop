@@ -157,7 +157,7 @@ if(ANDROID)
     set(android_package_dir "${CMAKE_CURRENT_BINARY_DIR}/android-package")
     configure_file("${PROJECT_SOURCE_DIR}/android/AndroidManifest.xml"
         "${android_package_dir}/AndroidManifest.xml" COPYONLY)
-    file(GLOB android_icon_dirs "${PROJECT_SOURCE_DIR}/android/res/drawable-*")
+    file(GLOB android_icon_dirs "${PROJECT_SOURCE_DIR}/android/res/drawable*")
     file(COPY ${android_icon_dirs} DESTINATION "${android_package_dir}/res")
     set_target_properties(application PROPERTIES
         QT_ANDROID_PACKAGE_SOURCE_DIR "${android_package_dir}"

@@ -3,6 +3,9 @@ Copyright (c) 2026 Fonticons, Inc. (https://fontawesome.com)
 The included fa-solid-900.otf font is licensed under the SIL Open Font License 1.1.
 The tab logo is the Font Awesome brand SVG (CC BY 4.0), with its fill changed to blue.
 Logo source: https://github.com/FortAwesome/Font-Awesome/blob/7.3.1/svgs/brands/font-awesome.svg
+The Android launcher artwork uses the file-pen SVG (CC BY 4.0), recolored,
+scaled and centered on a Green background; the original path is unchanged.
+Launcher source: https://github.com/FortAwesome/Font-Awesome/blob/7.3.1/svgs/solid/file-pen.svg
 https://fontawesome.com
 
 Fonticons, Inc. (https://fontawesome.com)

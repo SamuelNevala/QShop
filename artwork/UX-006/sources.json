@@ -1,0 +1,8 @@
+{
+  "source": "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/7.3.1/svgs/solid/file-pen.svg",
+  "source_sha256": "d16e972a578430682823ae8583d704164fcc2a971fd2f006481b2343197e2e97",
+  "license": "CC-BY-4.0",
+  "background": "#69F0AE",
+  "foreground": "#121212",
+  "changes": "Unmodified path recolored and scaled/centered; expanded geometry retains the original pen descender below the upstream viewBox. Round legacy icon, adaptive foreground/background and monochrome resources."
+}

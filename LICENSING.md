@@ -21,6 +21,7 @@ versions. The archived `qt5/qshopper` tree retains its original LGPLv3 license.
 | Qt Virtual Keyboard | Commercial or GPLv3; used by the optional desktop development keyboard, not the Android build. See [Qt's module documentation](https://doc.qt.io/qt-6/qtvirtualkeyboard-index.html#licenses-and-attributions) |
 | Font Awesome Free Solid 7.3.1 font | SIL Open Font License 1.1. Unmodified desktop OTF; full notice in [FontAwesome.txt](app/licenses/FontAwesome.txt) |
 | Font Awesome brand SVG | CC BY 4.0, with fill changed to blue. Attribution and full license in [FontAwesome.txt](app/licenses/FontAwesome.txt); source/hash in [logos/sources.json](app/logos/sources.json) |
+| Android launcher artwork | Font Awesome Free Solid 7.3.1 `file-pen` SVG, CC BY 4.0; recolored/scaled. Source/hash and changes in [UX-006](artwork/UX-006/README.md); full notice in [FontAwesome.txt](app/licenses/FontAwesome.txt) |
 | Qt logo | Upstream Qt asset and trademark; source/hash in [logos/sources.json](app/logos/sources.json). The project license does not grant rights to Qt's trademarks |
 | Background illustrations | Generated for QShopper. Prompts, revisions, inventories and exports are documented in [artwork/UI-013](artwork/UI-013/README.md) |
 

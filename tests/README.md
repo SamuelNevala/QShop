@@ -1745,3 +1745,22 @@ Undo measurement uses real countdown pixels without accessibility polling while
 the animated bar is active. The earlier action must receive over 85% of a fresh
 window and remain recoverable after the original deadline. All task data/staging
 paths are removed in `finally`. No microphone is activated.
+
+### Android launcher icon (UX-006)
+
+See [the editable artwork and export commands](../artwork/UX-006/README.md).
+The static `tests/test_launcher_icon.py` check covers the original artwork hash,
+shared native paths, all six PNG density exports, round transparency and adaptive
+safe-circle geometry. Native API 33+ verification uses the installed package's
+actual `AdaptiveIconDrawable` and Android renderer:
+
+```powershell
+python tests/android/test_icon.py --serial emulator-5580 --output out/android-icon
+```
+
+It builds the small Java probe using JDK 21/SDK 36, checks the adaptive mask,
+foreground, background, monochrome silhouette and installed version/code, and
+saves a Settings icon screenshot. It never launches QShopper or accesses list
+data. Native rasterization has slightly different edge coverage for black/white
+paints; silhouette comparison allows less than 0.1% edge pixels. No physical
+phone or other launcher's appearance is certified by this emulator check.

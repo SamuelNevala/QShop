@@ -10,6 +10,9 @@ its copyright, the matching upstream distribution notice and the complete
 SIL Open Font License 1.1. The upstream notice also distinguishes the SVG/code
 formats. QShopper uses the font and the Font Awesome brand SVG in the About tab;
 the latter has its fill changed to blue and is attributed with full CC BY 4.0 text.
+UX-006 also uses the Free Solid `file-pen` SVG for the Android launcher icon.
+Its recoloring/scaling and upstream source are attributed in the same notice;
+the original path, hash and editable sources are in `artwork/UX-006`.
 Qt's official logo identifies its tab; asset URLs, hashes and changes are recorded
 in `../logos/sources.json`. Qt and logo trademarks retain their upstream ownership.
 

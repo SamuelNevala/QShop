@@ -1,13 +1,13 @@
 {
   "id": "UX-006",
   "title": "Redesign the Android application icon",
-  "status": "requested",
+  "status": "resolved",
   "type": "design_task",
   "priority": "unassigned",
   "created": "2026-11-08",
   "reported_by": "user",
   "source": "Backlog: re-design Android application icon.",
-  "scope": "Backlog intake only. Select a new Android launcher-icon design when this ticket is chosen; no icon replacement is authorized by this intake request.",
+  "scope": "User selected implementation of UX-006, DEV-013 and UI-034 together. Icon direction: round default accent/primary background and Font Awesome page-and-pen artwork.",
   "expected": "Prepare and review a recognizable QShopper application icon, then supply the Android assets needed by the selected design.",
   "review_points": [
     "Agree the visual direction with the user; the request does not yet specify a motif, palette or preferred style.",
@@ -15,7 +15,20 @@
     "Assess recognition and legibility at small sizes, across launcher masks and Light/Dark backgrounds.",
     "Record asset provenance/licensing and verify packaged resources plus actual launcher appearance."
   ],
-  "relevant_files": ["android/AndroidManifest.xml", "android/res"],
-  "related_tickets": ["REL-001"],
-  "validation": "No new artwork generated and no application asset changed."
+  "relevant_files": [
+    "android/AndroidManifest.xml",
+    "android/res"
+  ],
+  "related_tickets": [
+    "REL-001"
+  ],
+  "validation": {
+    "static": "tests/test_launcher_icon.py passes source/path, all six PNG dimensions/colors/alpha, safe-circle and manifest/resource checks.",
+    "native": "tests/android/test_icon.py passes installed version 0.1.0/code 2, actual native AdaptiveIconDrawable mask/background/foreground/monochrome. Native Settings icon screenshot visually inspected; foreground preserves the pen descender. Reports: out/ux006-dev013-ui034/android-icon-final.",
+    "packaging": "Both APK version/runtime-payload contracts pass: 53 native libraries per ABI, dependency closure intact, no QML tooling/test/unused payload. Reports: out/ux006-dev013-ui034/package-arm64.json and package-x86.json.",
+    "limits": "API 36 emulator verified. Physical-phone/user acceptance and other launcher masks are not claimed. Play Store listing assets and production signing remain REL-001."
+  },
+  "resolved": "2026-11-08",
+  "user_decision": "Round Green accent (#69F0AE, the default Dark palette) with dark Font Awesome Free Solid 7.3.1 file-pen. No font migration or in-app palette change.",
+  "implementation": "Pinned original SVG, provenance/hash, editable round SVG, six transparent PNG densities and Android adaptive vector foreground/background plus API 33 monochrome. Manifest uses matching normal/round resources. CMake stages all drawable qualifiers. Updated bundled Font Awesome attribution and regeneration tool retain CC BY 4.0 terms."
 }

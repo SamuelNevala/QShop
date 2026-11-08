@@ -111,6 +111,9 @@ def font_awesome_notice(spdx_commit):
             f"The included {FONT_AWESOME_FILE} font is licensed under the SIL Open Font License 1.1.\n"
             "The tab logo is the Font Awesome brand SVG (CC BY 4.0), with its fill changed to blue.\n"
             f"Logo source: https://github.com/FortAwesome/Font-Awesome/blob/{FONT_AWESOME_VERSION}/svgs/brands/font-awesome.svg\n"
+            "The Android launcher artwork uses the file-pen SVG (CC BY 4.0), recolored,\n"
+            "scaled and centered on a Green background; the original path is unchanged.\n"
+            f"Launcher source: https://github.com/FortAwesome/Font-Awesome/blob/{FONT_AWESOME_VERSION}/svgs/solid/file-pen.svg\n"
             "https://fontawesome.com\n\n" + fetch(source) + "\n\n" + fetch(cc_by))
 
 
