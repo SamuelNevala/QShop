@@ -10,6 +10,8 @@
   "procedure": "reviews/QA-002.md",
   "automated_coverage": "tests/android/test_displaymatrix.py reuses native text-fitting and selector endpoint/cold-restart tests at baseline, compact and roomy viewport/logical-density profiles. It records metadata/screenshots/row bounds and verifies restoration of original overrides.",
   "current_work": "Completed the native simulation matrix and added opt-in actual Windows monitor rendering/transition coverage. Physical ruler measurements and shopping comfort remain pending.",
+  "planned_validation_date": "2026-11-09",
+  "planned_validation": "User plans to perform QA-002 during the regular Monday shopping trip. Record actual phone readability and one-handed touch comfort afterward; no physical validation result or closure is claimed yet.",
   "setup_observation": "Compact immediate-release input-swipe setup sometimes did not enter editing, including once after bounded waiting. Three independent held-frame probes visibly armed the pulley and activated editing. Selector setup now uses one requested-1200 ms continuous motion plus exactly 200 ms hold, no retry; the complete compact 26-selector matrix passes. No root cause or application threshold defect is claimed; original failures and a transient missing initial accessibility root are preserved in reviews/QA-002.md.",
   "verification": {
     "date": "2026-11-07",
