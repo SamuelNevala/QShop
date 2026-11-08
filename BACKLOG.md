@@ -307,7 +307,7 @@ This is separate from resolved UI-023; severity and priority remain unassigned.
 
 | ID | Request | Status |
 | --- | --- | --- |
-| [REL-001](tickets/REL-001.json) | Prepare and define the steps for app-store publication: readiness, Release builds/signing, testing, store materials, submission, and rollout | Requested; preparation/planning deferred; target store to confirm, likely Google Play |
+| [REL-001](tickets/REL-001.json) | Prepare and define the steps for app-store publication: readiness, Release builds/signing, testing, store materials, submission, and rollout | In progress: user selected public repository preparation on 2026-11-08 (GPLv3-or-later, public documentation, separate Qt 5 archive and Qt 6 master promotion). Broader store planning remains open; target store to confirm |
 
 REL-001 should produce a concise publication checklist based on the selected
 store's current official requirements, with dependencies and user decisions

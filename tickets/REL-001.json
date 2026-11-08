@@ -1,12 +1,25 @@
 {
   "id": "REL-001",
   "title": "Prepare a step-by-step plan for publishing QShopper in an app store",
-  "status": "requested",
+  "status": "in_progress",
   "type": "release_preparation",
   "priority": "unassigned",
   "created": "2026-10-28",
   "reported_by": "user",
-  "scope": "Backlog item only. Define and prepare the publication steps when requested. This intake item does not authorize account creation, uploads, external submissions, or publication.",
+  "scope": "Repository publication preparation selected on 2026-11-08: choose the Qt 6 project license, prepare public Markdown documentation, preserve Qt 5 separately, promote Qt 6 to master and push to origin. User explicitly authorized this GitHub push. Broader store planning, account creation, store uploads/submissions and app-store publication remain outside this selected repository step.",
+  "repository_preparation": {
+    "date": "2026-11-08",
+    "license_decision": "User selected GPL-3.0-or-later for the Qt 6 project. Root LICENSE is the unmodified GNU GPLv3 text; COPYRIGHT states the or-later grant. Third-party terms and the Qt 5 archive's original LGPLv3 license are retained.",
+    "branch_decision": "User selected Qt 6 as master and Qt 5 archived as qt5/qshopper, then explicitly requested that the two histories remain separate. Do not create a merge joining those histories.",
+    "expected_remote_qt5_tip": "d34356f55cd8e35b35008a6b21f2e9c87d65d9cc",
+    "expected_remote_qt6_tip_before_push": "f6a2ceef980661abdf1abf4cf55c9cf317ea2f49",
+    "local_master_preservation": "Old local master's unpublished partial-port commit 9745fce690370883c928323883dd0b7156889474 is preserved under local codex/backup-master-before-qt6. It is not the archived working Qt 5 tip.",
+    "backup": "Verified complete pre-promotion Git bundle: out/rel001/before-promotion.bundle. Connectivity check succeeds; dangling objects are not missing history.",
+    "push_plan": "Publish qt5/qshopper at the exact old remote master and verify it first. Then publish the current Qt 6 tree to master and qt6/qshopper, using an explicit master lease for the expected old tip and an atomic multi-ref push where supported. Never overwrite an unexpected remote update.",
+    "authentication": "Dedicated repository SSH deploy key accepted by GitHub with write access. This checkout's core.sshCommand selects it and a host key pinned to GitHub's published Ed25519 fingerprint. Private credentials stay outside the repository.",
+    "verification": "Root GPL text matches the official GNU download, local Markdown links and PNG files validate, both native app screenshots were visually inspected, no application sources changed, and the verified pre-promotion bundle preserves all original refs. Root Git connectivity check succeeds.",
+    "status": "Documentation and license prepared, SSH verified; archive and master/development publication in progress."
+  },
   "request": "Prepare the app for app-store publication and define the steps needed to publish it.",
   "expected": "A practical release checklist and preparation plan with dependencies, required user decisions, acceptance criteria, and a clear path from the current development build to a store release.",
   "planning_steps": [
