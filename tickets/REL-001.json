@@ -6,7 +6,7 @@
   "priority": "unassigned",
   "created": "2026-10-28",
   "reported_by": "user",
-  "scope": "Repository publication preparation selected on 2026-11-08: choose the Qt 6 project license, prepare public Markdown documentation, preserve Qt 5 separately, promote Qt 6 to master and push to origin. User explicitly authorized this GitHub push. Broader store planning, account creation, store uploads/submissions and app-store publication remain outside this selected repository step.",
+  "scope": "Repository publication is complete. On 2026-11-08 the user selected Google Play with APKs for testing, a new personal developer account and a new production/upload signing setup. Current authorized work prepares the account/release instructions, unsigned production artifacts, size optimization and isolated validation. Account creation/payment, production key creation, store uploads/submissions and publication have not been performed.",
   "repository_preparation": {
     "date": "2026-11-08",
     "license_decision": "User selected GPL-3.0-or-later for the Qt 6 project. Root LICENSE is the unmodified GNU GPLv3 text; COPYRIGHT states the or-later grant. Third-party terms and the Qt 5 archive's original LGPLv3 license are retained.",
@@ -16,7 +16,7 @@
     "local_master_preservation": "Old local master's unpublished partial-port commit 9745fce690370883c928323883dd0b7156889474 is preserved under local codex/backup-master-before-qt6. It is not the archived working Qt 5 tip.",
     "backup": "Verified complete pre-promotion Git bundle: out/rel001/before-promotion.bundle. Connectivity check succeeds; dangling objects are not missing history.",
     "push_plan": "Publish qt5/qshopper at the exact old remote master and verify it first. Then publish the current Qt 6 tree to master and qt6/qshopper, using an explicit master lease for the expected old tip and an atomic multi-ref push where supported. Never overwrite an unexpected remote update.",
-    "authentication": "Dedicated repository SSH deploy key accepted by GitHub with write access. This checkout's core.sshCommand selects it and a host key pinned to GitHub's published Ed25519 fingerprint. Private credentials stay outside the repository.",
+    "authentication": "Dedicated repository SSH deploy key accepted by GitHub with write access. The local per-PC Git configuration selects it and a host key pinned to GitHub's published Ed25519 fingerprint. Private credentials stay outside the repository.",
     "verification": "Root GPL text matches the official GNU download, local Markdown links and PNG files validate, both native app screenshots were visually inspected, no application sources changed, and the verified pre-promotion bundle preserves all original refs. Root Git connectivity check succeeds.",
     "initial_promotion_revision": "934cb7c0b25ef2ce707dd75cbe7e371ea2cb783c",
     "published_archive_revision": "d34356f55cd8e35b35008a6b21f2e9c87d65d9cc",
@@ -27,7 +27,7 @@
   "request": "Prepare the app for app-store publication and define the steps needed to publish it.",
   "expected": "A practical release checklist and preparation plan with dependencies, required user decisions, acceptance criteria, and a clear path from the current development build to a store release.",
   "planning_steps": [
-    "Confirm the target store(s), developer account/identity, intended audience, supported countries/languages, and distribution or pricing decisions. Google Play is the likely Android target but remains to be confirmed.",
+    "Google Play and a new personal developer account are confirmed. Follow RELEASE.md for account/physical-device verification; owner choices for audience, countries, languages, pricing and public contacts remain.",
     "Check the selected store's current official requirements at implementation time, recording sources and dates rather than treating this backlog as a fixed policy checklist.",
     "Agree release readiness criteria and identify blocking bugs, missing behavior, and validation work from the existing backlog, including critical right-swipe behavior and comprehensive UI coverage.",
     "Define a reproducible production Release build and required store artifact, including package identity, version name/code progression, SDK/ABI requirements, dependency packaging, and disabled development-only behavior.",
@@ -44,7 +44,7 @@
     "Record unknown account-specific requirements and user decisions explicitly instead of inventing account access, completed verification, or policy compliance.",
     "Do not commit signing secrets or store credentials. Define the release-key handling process before producing publication artifacts.",
     "Separate readiness analysis, approved preparation changes, store submission, and actual publication so each step has concrete evidence and appropriate user authorization.",
-    "DEV-011 raises the Qt baseline to 6.12 and adds Qt Canvas Painter / QtCanvas2D (commercial or GPLv3; Canvas2D is technology preview). Include its distribution terms/notices and target ABI deployment in release dependency review, linked to UI-012."
+    "Historical DEV-011 added Qt Canvas Painter / QtCanvas2D. DEV-008 subsequently removed that runtime payload. Review the actual final artifact inventory, including JNI/Maven dependencies, against notices and corresponding-source arrangements; do not treat the old Canvas observation as a current dependency."
   ],
   "relevant_files": ["ANDROID.md", "build-android.ps1", "CMakeLists.txt", "CMakePresets.json", "android/AndroidManifest.xml", "android/res", "tests/README.md", "BACKLOG.md", "DESIGN.md"],
   "related_tickets": ["QA-003", "UI-004", "UI-006", "UI-007", "UI-008", "UI-009", "UI-010", "UI-012", "UI-013", "DEV-011"],
@@ -61,6 +61,44 @@
   "github_issue_url": null,
   "ui023_payload_observation": {"date": "2026-11-03", "finding": "Fresh UI-023 Android packages still contain Canvas2D and CanvasPainter libraries despite removal of explicit QML/module/link usage. Inventory the actual APK; the deployment dependency/scan path has not been established. No packaging change is included in UI-023."},
   "dev008_inventory_update": {"date": "2026-11-04", "finding": "DEV-008 removes Canvas/VirtualKeyboard/test/Widgets/unused-style and plugin payload from fresh packages through source isolation, explicit imports and Qt plugin deployment. Inventory the final retained APK libraries/assets; keep historical UI-023 observations as history, not current shipped dependencies.", "reports": "out/dev008/final-arm64-package.json and final-x86-package.json contain final runtime libraries/ELF dependencies. Default and Release packages exclude QML tooling; developer opt-in packages have a separate inventory."},
+  "release_preparation": {
+    "date": "2026-11-08",
+    "guide": "RELEASE.md",
+    "owner_choices": {
+      "store": "Google Play; APKs for testing",
+      "account": "New personal developer account; not yet created",
+      "production_signing": "Plan a new owner-controlled upload key with Play-managed app signing; no key generated"
+    },
+    "profile": "MinSizeRel (-Os), native ThinLTO, R8/resource shrinking, retained Qt JNI/bootstrap resources. Debug workflow unchanged. Android code advances from 2 to 3; version name stays 0.1.0.",
+    "size": {
+      "baseline_unsigned_arm64_apk_bytes": 63317333,
+      "final_unsigned_arm64_apk_bytes": 24585386,
+      "reduction_percent": 61.17,
+      "native_libraries_before": 53,
+      "native_libraries_after": 40,
+      "dex_bytes_before": 5298532,
+      "dex_bytes_after": 267312,
+      "assets": "All ten full-size backgrounds and existing features retained"
+    },
+    "library_selection": "android/runtime-libraries.txt records the 40 required Release libraries. All 13 Qt-declared optional QML wrappers were removed cumulatively and exercised on native Android; final combination passes. Removing a required Material plugin intentionally fails the same harness. Native backing modules remain because of actual ELF dependencies.",
+    "packaging": "Standalone APK compresses native libraries for the smallest file, trading extraction and installed storage. AAB uses independent uncompressed, 16 KB-aligned Play native splits. Actual device-targeted splits retain all 40 libraries and pass native interactions; universal bundletool output is not used to infer split layout.",
+    "regression": {
+      "artifact_tests": "tests/test_android_release.py plus tests/test_android_package.py: original 53-library payload fails the minimal inventory contract; Debug is rejected as Release. Final ARM64/x86_64 APK and AAB metadata, dependency closure, exact inventory, stripped runtime, ELF 16 KB alignment, ZIP alignment/bundle config pass.",
+      "native_tests": "tests/android/test_optional_plugins.py and tests/android/test_release.py: actual non-debuggable standalone and device-targeted split installs pass native entry, drawer/theme/selectors, both offline notices, delete/Undo, exact text and cold restart. Same-key Debug code 2 to Release code 3 update preserves item text and Light theme.",
+      "isolation": "Fresh temporary emulator userdata/cache on emulator-5580, no normal emulator or phone data used. Genuine Release ignores Qt debug environment extras and denies run-as; tests require --disposable-device and only accept emulator serials.",
+      "compatibility": "Default ARM64 Debug shared-key build/package verification and Windows configure/build/model tests pass. No application QML/C++ behavior changed in this release-preparation step.",
+      "evidence": "out/rel001/size-report.json, optional-plugins/results.json, release-upgrade-final/results.json, release-device-splits-final/results.json; dist/QShopper-{arm64,x86_64}-release-{apk,aab}.json"
+    },
+    "remaining": [
+      "Owner creates/verifies personal account, including physical Android-device verification; follow current Console prompts and RELEASE.md.",
+      "Owner creates/backs up production upload identity and enrolls Play App Signing; no production credentials or keys are committed.",
+      "Resolve and test migration of existing debug-signed phone lists before moving to the incompatible production signing identity; no public export/import flow exists yet.",
+      "QA-002 physical shopping on Monday 2026-11-09; actual 16 KB runtime, minimum/API 37 device coverage and real Play-generated delivery/update still need verification.",
+      "Finish privacy/Data safety/permissions and Java/Maven/license/source/install-arrangements audit; prepare public policy, listing assets and owner audience/country/pricing/contact choices.",
+      "Complete internal/closed testing (new personal account: at least 12 continuously opted-in testers for 14 days), apply for production access, then obtain owner approval for submission/publication."
+    ],
+    "status": "Preparation implemented and locally verified; REL-001 stays in_progress. No production key, account, tag, Play upload or store publication has been created."
+  },
   "versioning": {
     "date": "2026-11-08",
     "request": "User asked to start app versioning.",

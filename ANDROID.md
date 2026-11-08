@@ -28,7 +28,7 @@ The script defaults to Qt 6.12.0 in `C:\Qt`, the Android SDK in
 JDK 21. Override `-QtRoot`, `-QtVersion`, `-SdkRoot`, `-NdkVersion`, or
 `-JavaHome` for other installations. This build uses compile SDK 36; Qt selects an installed SDK build-tools revision. Gradle downloads build dependencies on the first run.
 
-The APK uses package `shopper.nevala.com`, version 0.1.0 (code 2), and supports
+The APK uses package `shopper.nevala.com`, version 0.1.0 (code 3), and supports
 ARM64 Android devices running Android 9 (API 28) or later. By default it is signed
 with the local Android debug key. To update an existing installation built on
 another machine, supply the original debug keystore:
@@ -43,6 +43,31 @@ The supplied key must match the installed app's certificate; the shared source
 folder alone does not share each machine's default `~/.android/debug.keystore`.
 Store publication requires a release build
 signed with the production keystore.
+
+## Release APKs and Google Play bundles
+
+[RELEASE.md](RELEASE.md) gives the account/signing/publication steps. The helper
+also supports unsigned Release artifacts in separate build directories:
+
+```powershell
+./build-android.ps1 -Architecture arm64 -Configuration MinSizeRel -SdkRoot C:/android/sdk -VerifyPackage
+./build-android.ps1 -Architecture arm64 -Configuration MinSizeRel -AppBundle -SdkRoot C:/android/sdk -VerifyPackage -Bundletool out/rel001/bundletool-all-1.18.3.jar
+```
+
+Use `-Python` for a specific interpreter. Outputs are
+`dist/QShopper-arm64-release-unsigned.apk` and `.aab`; they need test/upload
+signing before use. `Release` is also supported; `MinSizeRel` adds native
+size optimization and ThinLTO. Both enable R8/resource shrinking and omit 13
+individually validated optional wrappers. `android/runtime-libraries.txt` records
+the 40 required Release libraries. The default Debug workflow keeps 53 libraries.
+
+Standalone APK libraries are compressed/extracted at install time for a smaller
+file. Play-generated native splits remain uncompressed for direct loading.
+The actual Release APK/AAB checks cover manifest/version, non-debuggable state,
+dependency closure, required inventory, stripped delivered libraries and 16 KB
+alignment. The ARM64 unsigned APK is 24,585,386 bytes versus the original
+63,317,333-byte Release baseline. Production signing is separate; the helper
+rejects DebugKeystore/QmlDebug for Release configurations.
 
 CMake stages the manifest and launcher icons from `android/`; Qt supplies
 the Gradle configuration and wrapper appropriate to the installed Qt version.

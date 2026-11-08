@@ -54,7 +54,7 @@ use `0.MINOR.PATCH`: increase PATCH for fixes and MINOR for features or delibera
 behavior changes. Reserve `1.0.0` for the first stable public release.
 
 The root `CMakeLists.txt` owns both `project(... VERSION ...)` and
-`QSHOPPER_ANDROID_VERSION_CODE` (currently **2**). The project version becomes
+`QSHOPPER_ANDROID_VERSION_CODE` (currently **3**). The project version becomes
 the runtime application version and Android `versionName`. Increase the Android
 code for every shared update build, even if its display version stays the same;
 local rebuilds may reuse it. ARM64 and emulator builds of the same revision use
@@ -100,6 +100,9 @@ portrait-oriented; Android's large-screen overrides are documented there.
 
 Debug APKs are development artifacts. Production signing and store publication
 are separate release tasks.
+The [release guide](RELEASE.md) covers personal Play Console registration,
+signing/update planning, size-optimized APK/AAB builds and the testing path to
+publication.
 
 ## Tests and contributions
 

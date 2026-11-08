@@ -1808,3 +1808,69 @@ saves a Settings icon screenshot. It never launches QShopper or accesses list
 data. Native rasterization has slightly different edge coverage for black/white
 paints; silhouette comparison allows less than 0.1% edge pixels. No physical
 phone or other launcher's appearance is certified by this emulator check.
+
+### Android Release payload and native smoke (REL-001)
+
+[RELEASE.md](../RELEASE.md) documents the selected MinSizeRel/ThinLTO/R8 profile,
+personal Play account, unsigned artifacts, signing ownership and remaining gates.
+`build-android.ps1 -Configuration MinSizeRel -VerifyPackage` runs the static
+Release contract. Add `-AppBundle -Bundletool <official-jar>` to verify an AAB.
+Both ABIs must retain the exact inventory in `android/runtime-libraries.txt`,
+resolve native dependencies, exclude debug/tooling payload and pass ELF 16 KB
+checks. APKs also pass zipalign; bundles enable uncompressed, 16 KB-aligned
+Play native splits. Actual 16 KB runtime coverage remains a separate gate.
+
+The native harness requires **a fresh disposable emulator userdata disk**.
+It accepts only an emulator serial and requires `--disposable-device`; it clears
+QShopper data on that device. Genuine Release denies `run-as` and ignores Qt
+debug environment injection, so `QSHOPPER_DATA_DIR` extras cannot isolate it.
+Never run this against a normal emulator profile containing wanted list data.
+Start the AVD with a new temporary `-data <directory>/userdata-qemu.img`, a
+temporary `-cache`, and `-no-snapshot`; stop it and remove only that verified
+temporary directory afterwards. See [ANDROID.md](../ANDROID.md) for the AVD.
+
+Sign the unsigned emulator APK with the existing **test/debug certificate**
+using SDK apksigner, verify the signature, and run:
+
+```powershell
+$env:ANDROID_USER_HOME = "$env:USERPROFILE/.android"
+python tests/android/test_release.py --disposable-device --apk out/rel001/final-release-test-x86.apk --output out/rel001/release-native
+python tests/android/test_release.py --disposable-device --apk out/rel001/final-release-test-x86.apk --upgrade-from out/rel001/upgrade-from-debug-v2.apk --output out/rel001/release-upgrade
+```
+
+The update source must be an older, same-certificate Debug build. The test seeds
+an item and Light theme in normal storage, updates without clearing data, then
+checks both. The initial disposable fixture may be uninstalled to allow seeding
+the older version; the update under test uses `install -r`. The full harness
+checks the non-debuggable manifest, native keyboard entry, theme/drawer controls,
+selector Back, both offline notices, delete/Undo and exact text after restart.
+Its Undo check reads the actual rendered action while the countdown is active;
+waiting for accessibility idle would let it expire.
+
+Use bundletool `get-device-spec`, `build-apks --device-spec ...` and
+`extract-apks` with that spec, signing only with the test key. Check each extracted
+APK with `zipalign -c -P 16 4`, install the device-targeted split set with
+`adb -s emulator-5580 install-multiple -r <all-splits>`, then run the harness
+without `--apk`. A universal APK does not certify Play's device split packaging.
+
+`tests/android/test_optional_plugins.py` records the one-by-one removal experiment:
+
+```powershell
+python tests/android/test_optional_plugins.py out/rel001/optimized-before-pruning.apk --debug-keystore ../debug.keystore --disposable-device --output out/rel001/optional-plugins
+```
+
+Its input is an optimized, unsigned x86_64 baseline **before optional-wrapper
+exclusions** (53 libraries in Qt 6.12.0), not the final 40-library artifact. On a
+Qt upgrade, build this baseline in a disposable checkout with only the Gradle
+exclusion list disabled; preserve the production contract. The matrix confirms
+baseline operation, deliberately removes a required Material plugin to prove
+failure detection, then tests each declared-optional wrapper cumulatively and
+the complete accepted combination. Native backing modules remain included.
+
+Verified 2026-11-08: original Release payload fails the minimal inventory check;
+all 13 optional-wrapper removals and the required-plugin negative control pass
+their expected outcomes. Both ABI APK/AAB contracts pass. A same-key code 2 to
+code 3 update preserves the exact item and theme; final standalone and
+device-targeted bundle split builds pass native Release interactions. Evidence
+is retained under `out/rel001`. Physical shopping, minimum/API 37 devices,
+actual 16 KB runtime, production-key migration and Play testing remain open.

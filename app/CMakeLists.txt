@@ -160,6 +160,18 @@ if(ANDROID)
         "${android_package_dir}/AndroidManifest.xml" COPYONLY)
     file(GLOB android_icon_dirs "${PROJECT_SOURCE_DIR}/android/res/drawable*")
     file(COPY ${android_icon_dirs} DESTINATION "${android_package_dir}/res")
+    if(CMAKE_BUILD_TYPE MATCHES "^(Release|MinSizeRel)$")
+        # Extend this kit's template rather than maintaining a fork of Qt's Gradle setup.
+        file(READ "${Qt6Core_DIR}/../../../src/android/templates/build.gradle" android_gradle)
+        file(WRITE "${android_package_dir}/build.gradle"
+            "${android_gradle}\napply from: 'release.gradle'\n")
+        configure_file("${PROJECT_SOURCE_DIR}/android/release.gradle"
+            "${android_package_dir}/release.gradle" COPYONLY)
+        configure_file("${PROJECT_SOURCE_DIR}/android/qshopper.pro"
+            "${android_package_dir}/qshopper.pro" COPYONLY)
+        configure_file("${PROJECT_SOURCE_DIR}/android/res/raw/qshopper_keep.xml"
+            "${android_package_dir}/res/raw/qshopper_keep.xml" COPYONLY)
+    endif()
     set_target_properties(application PROPERTIES
         QT_ANDROID_PACKAGE_SOURCE_DIR "${android_package_dir}"
         QT_ANDROID_COMPILE_SDK_VERSION 36

@@ -79,6 +79,13 @@ Thumbs.db
 /build-android-*/
 /dist/
 
+# Signing identities stay outside the source checkout.
+*.jks
+*.keystore
+*.p12
+*.pfx
+/keystore.properties
+
 
 # Per-worktree agent build products
 /out/

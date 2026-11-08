@@ -69,4 +69,10 @@ renders the two local SVG logos, with Qt Svg/VectorImage runtime dependencies
 included in the package inventory and notices.
 These notices implement the in-app notice/text requirement; source distribution,
 relinking/installation arrangements and publication preparation remain REL-001.
+
+The MinSizeRel Android profile omits 13 experimentally verified optional QML
+wrapper plugins. Their backing Qt modules remain; the shared Android notice text
+still applies. Debug and Release have different payload counts, so retain the
+actual artifact report alongside its source revision rather than using a Debug
+inventory as evidence of the Release payload. See [RELEASE.md](../../RELEASE.md).
 Background provenance/replacement remains UI-013.

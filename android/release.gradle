@@ -1,0 +1,35 @@
+// Qt's selected-kit build.gradle applies this only for Release/MinSizeRel builds.
+android {
+    // Smaller standalone APKs; Android extracts these libraries at installation.
+    // App bundles retain their independent Play-generated APK packaging policy.
+    packagingOptions.jniLibs.useLegacyPackaging = true
+    // Each optional wrapper was removed and tested cumulatively on native Android.
+    // Its backing Qt library remains loaded; mandatory style/shape/window plugins stay.
+    packagingOptions.jniLibs.excludes += [
+        '**/libqml_QtCore_qtqmlcoreplugin_*.so',
+        '**/libqml_QtQml_Models_modelsplugin_*.so',
+        '**/libqml_QtQml_WorkerScript_workerscriptplugin_*.so',
+        '**/libqml_QtQml_qmlplugin_*.so',
+        '**/libqml_QtQuick_Controls_Basic_impl_qtquickcontrols2basicstyleimplplugin_*.so',
+        '**/libqml_QtQuick_Controls_Fusion_impl_qtquickcontrols2fusionstyleimplplugin_*.so',
+        '**/libqml_QtQuick_Controls_Material_impl_qtquickcontrols2materialstyleimplplugin_*.so',
+        '**/libqml_QtQuick_Controls_impl_qtquickcontrols2implplugin_*.so',
+        '**/libqml_QtQuick_Effects_effectsplugin_*.so',
+        '**/libqml_QtQuick_Layouts_qquicklayoutsplugin_*.so',
+        '**/libqml_QtQuick_VectorImage_qquickvectorimageplugin_*.so',
+        '**/libqml_QtQuick_qtquick2plugin_*.so',
+        '**/libqml_Qt_labs_qmlmodels_labsmodelsplugin_*.so'
+    ]
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'qshopper.pro'
+        }
+    }
+}
+
+androidComponents.onVariants(androidComponents.selector().withBuildType('release')) { variant ->
+    // Play-generated APKs keep mmap-friendly, 16 KB-aligned native libraries.
+    variant.packaging.jniLibs.useLegacyPackagingFromBundle.set(false)
+}

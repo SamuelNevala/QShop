@@ -308,7 +308,7 @@ This is separate from resolved UI-023; severity and priority remain unassigned.
 
 | ID | Request | Status |
 | --- | --- | --- |
-| [REL-001](tickets/REL-001.json) | Prepare and define the steps for app-store publication: readiness, Release builds/signing, testing, store materials, submission, and rollout | Repository publication completed and verified 2026-11-08: GPLv3-or-later, public README/screenshots, Qt 5 archive and Qt 6 master with separate histories. Broader store planning/signing/distribution remains open; target store to confirm |
+| [REL-001](tickets/REL-001.json) | Prepare and define the steps for app-store publication: readiness, Release builds/signing, testing, store materials, submission, and rollout | In progress 2026-11-08: Google Play/new personal account selected; [release guide](RELEASE.md) covers registration, signing and rollout. Verified unsigned ARM64 Release APK shrinks from 63.3 to 24.6 MB, with 40 required libraries. Account/key creation, production migration, remaining device checks and submission remain open; QA-002 is Monday 2026-11-09 |
 
 REL-001 should produce a concise publication checklist based on the selected
 store's current official requirements, with dependencies and user decisions

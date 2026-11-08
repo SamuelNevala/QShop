@@ -1,0 +1,43 @@
+# Validated Qt 6.12 Release runtime; {abi} is arm64-v8a or x86_64.
+# Core/module libraries, seven required QML plugins, platform/JPEG/SQLite plugins,
+# the app and C++ runtime. See tests/android/test_optional_plugins.py and RELEASE.md.
+libQt6Core_{abi}.so
+libQt6Gui_{abi}.so
+libQt6LabsQmlModels_{abi}.so
+libQt6Network_{abi}.so
+libQt6OpenGL_{abi}.so
+libQt6QmlCore_{abi}.so
+libQt6QmlMeta_{abi}.so
+libQt6QmlModels_{abi}.so
+libQt6QmlWorkerScript_{abi}.so
+libQt6Qml_{abi}.so
+libQt6QuickControls2BasicStyleImpl_{abi}.so
+libQt6QuickControls2Basic_{abi}.so
+libQt6QuickControls2FusionStyleImpl_{abi}.so
+libQt6QuickControls2Fusion_{abi}.so
+libQt6QuickControls2Impl_{abi}.so
+libQt6QuickControls2MaterialStyleImpl_{abi}.so
+libQt6QuickControls2Material_{abi}.so
+libQt6QuickControls2_{abi}.so
+libQt6QuickEffects_{abi}.so
+libQt6QuickLayouts_{abi}.so
+libQt6QuickShapes_{abi}.so
+libQt6QuickTemplates2_{abi}.so
+libQt6QuickVectorImageGenerator_{abi}.so
+libQt6QuickVectorImageHelpers_{abi}.so
+libQt6QuickVectorImage_{abi}.so
+libQt6Quick_{abi}.so
+libQt6Sql_{abi}.so
+libQt6Svg_{abi}.so
+libapplication_{abi}.so
+libc++_shared.so
+libplugins_imageformats_qjpeg_{abi}.so
+libplugins_platforms_qtforandroid_{abi}.so
+libplugins_sqldrivers_qsqlite_{abi}.so
+libqml_QtQuick_Controls_Basic_qtquickcontrols2basicstyleplugin_{abi}.so
+libqml_QtQuick_Controls_Fusion_qtquickcontrols2fusionstyleplugin_{abi}.so
+libqml_QtQuick_Controls_Material_qtquickcontrols2materialstyleplugin_{abi}.so
+libqml_QtQuick_Shapes_qmlshapesplugin_{abi}.so
+libqml_QtQuick_Templates_qtquicktemplates2plugin_{abi}.so
+libqml_QtQuick_VectorImage_Helpers_qquickvectorimagehelpersplugin_{abi}.so
+libqml_QtQuick_Window_quickwindowplugin_{abi}.so

@@ -7,6 +7,7 @@ import re
 import subprocess
 import tempfile
 import zipfile
+import xml.etree.ElementTree as ET
 
 
 def main():
@@ -16,19 +17,24 @@ def main():
     parser.add_argument("--report", type=Path)
     parser.add_argument("--deployment-settings", type=Path, required=True)
     parser.add_argument("--readelf", type=Path, required=True)
+    parser.add_argument("--bundletool", type=Path)
+    parser.add_argument("--java", default="java")
     parser.add_argument("--qml-debug", action="store_true",
                         help="Expect the explicitly enabled QML debugging/profiling plugins")
     args = parser.parse_args()
 
     with zipfile.ZipFile(args.apk) as package:
+        prefix = "base/" if args.apk.suffix.lower() == ".aab" else ""
         libraries = [entry for entry in package.infolist()
-                     if entry.filename.startswith("lib/") and entry.filename.endswith(".so")]
-        names = {entry.filename for entry in libraries}
+                     if entry.filename.startswith(prefix + "lib/") and entry.filename.endswith(".so")]
+        names = {entry.filename.removeprefix(prefix) for entry in libraries}
         actual_abis = {name.split("/")[1] for name in names}
         assert actual_abis == {args.abi}, f"Unexpected native ABIs: {actual_abis}"
         required = {f"lib/{args.abi}/libQt6{module}_{args.abi}.so"
-                    for module in ("Core", "Gui", "Qml", "Quick", "Sql", "Svg", "QuickVectorImage")}
-        required.add(f"lib/{args.abi}/libqml_QtQuick_VectorImage_qquickvectorimageplugin_{args.abi}.so")
+                    for module in ("Core", "Gui", "Qml", "Quick", "Sql", "Svg", "QuickVectorImage",
+                                   "QmlCore", "QmlModels", "QuickLayouts", "LabsQmlModels",
+                                   "QuickControls2Material", "QuickControls2Fusion",
+                                   "QuickVectorImageHelpers", "QuickShapes")}
         required.add(f"lib/{args.abi}/libapplication_{args.abi}.so")
         required.add(f"lib/{args.abi}/libplugins_platforms_qtforandroid_{args.abi}.so")
         required.add(f"lib/{args.abi}/libplugins_imageformats_qjpeg_{args.abi}.so")
@@ -55,7 +61,7 @@ def main():
                 output = subprocess.check_output([str(args.readelf), "--needed-libs", str(local)],
                                                  text=True)
                 dependencies = re.findall(r"^\s+(\S+\.so)\s*$", output, re.MULTILINE)
-                needed[entry.filename] = dependencies
+                needed[entry.filename.removeprefix(prefix)] = dependencies
                 bundled = {name for name in dependencies
                            if name.startswith(("libQt6", "libqml_", "libplugins_"))
                            or name == "libc++_shared.so"}
@@ -82,12 +88,26 @@ def main():
         version = re.search(r"project\(QShopper VERSION ([0-9.]+)", cmake).group(1)
         code = re.search(r"set\(QSHOPPER_ANDROID_VERSION_CODE (\d+)\)", cmake).group(1)
         aapt2 = Path(settings["sdk"]) / "build-tools" / settings["sdkBuildToolsRevision"] / "aapt2.exe"
-        badging = subprocess.check_output([str(aapt2), "dump", "badging", str(args.apk)], text=True)
-        metadata = re.search(r"^package: name='([^']+)' versionCode='([^']+)' versionName='([^']+)'",
-                             badging, re.MULTILINE)
-        assert metadata, "APK metadata missing"
-        assert metadata.groups() == ("shopper.nevala.com", code, version), \
-            f"APK version does not match CMake: {metadata.groups()}"
+        if prefix:
+            assert args.bundletool and args.bundletool.is_file(), "AAB inspection needs --bundletool"
+            manifest = ET.fromstring(subprocess.check_output([args.java, "-jar", str(args.bundletool),
+                "dump", "manifest", "--bundle", str(args.apk)], text=True))
+            android = "{http://schemas.android.com/apk/res/android}"
+            actual = (manifest.get("package"), manifest.get(android + "versionCode"),
+                      manifest.get(android + "versionName"))
+            report["debuggable"] = manifest.find("application").get(android + "debuggable", "false") == "true"
+            report["min_sdk"] = int(manifest.find("uses-sdk").get(android + "minSdkVersion"))
+            report["target_sdk"] = int(manifest.find("uses-sdk").get(android + "targetSdkVersion"))
+        else:
+            badging = subprocess.check_output([str(aapt2), "dump", "badging", str(args.apk)], text=True)
+            metadata = re.search(r"^package: name='([^']+)' versionCode='([^']+)' versionName='([^']+)'",
+                                 badging, re.MULTILINE)
+            assert metadata, "APK metadata missing"
+            actual = metadata.groups()
+            report["debuggable"] = "application-debuggable" in badging
+            report["min_sdk"] = int(re.search(r"^(?:minSdkVersion|sdkVersion):'(\d+)'", badging, re.MULTILINE).group(1))
+            report["target_sdk"] = int(re.search(r"^targetSdkVersion:'(\d+)'", badging, re.MULTILINE).group(1))
+        assert actual == ("shopper.nevala.com", code, version), f"Package version does not match CMake: {actual}"
         report["version_name"] = version
         report["version_code"] = int(code)
         app = repository / "app"
