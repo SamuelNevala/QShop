@@ -1,0 +1,22 @@
+{
+  "id": "UI-034",
+  "title": "Android safe-area background should follow drawer dimming",
+  "status": "reported",
+  "type": "user_reported_visual_bug",
+  "severity": "unassigned",
+  "created": "2026-11-08",
+  "reported_by": "user",
+  "source": "On Android, when drawer/menu is open safe area should follow the drawer's dictated background dimming.",
+  "environment": "Android; exact device, build, theme and screenshot not supplied for this report.",
+  "trigger": "Open the drawer/menu and compare the safe-area background with the surrounding dimmed app background.",
+  "actual": "User reports that the safe area does not follow the drawer's background-dimming treatment consistently. No new runtime reproduction or pixel measurement is claimed.",
+  "expected": "Opening the drawer applies its background-dimming treatment consistently across the relevant safe areas. Closing it restores the normal theme-derived appearance, while system-bar icons remain readable.",
+  "scope": "Backlog intake only. Preserve UI-005's accepted base safe-area colors and geometry; investigate the drawer-open dimming layer as a distinct trigger.",
+  "verification_plan": [
+    "Reproduce on native Android with screenshots before, during and after drawer opening; record actual insets and theme.",
+    "Add a failing-before/passing-after regression comparing actual safe-area and dimmed-content pixels, rather than only checking assigned color values.",
+    "Cover Light/Dark and resolved System themes, nonzero safe areas where available, close/restore behavior and system-bar icon readability. Desktop tests may complement but cannot certify native system-bar rendering."
+  ],
+  "related_tickets": ["UI-005", "UI-014", "QA-002"],
+  "validation": "No application code changed and no new reproduction/test result claimed during intake."
+}
