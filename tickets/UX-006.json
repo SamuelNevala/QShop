@@ -1,0 +1,21 @@
+{
+  "id": "UX-006",
+  "title": "Redesign the Android application icon",
+  "status": "requested",
+  "type": "design_task",
+  "priority": "unassigned",
+  "created": "2026-11-08",
+  "reported_by": "user",
+  "source": "Backlog: re-design Android application icon.",
+  "scope": "Backlog intake only. Select a new Android launcher-icon design when this ticket is chosen; no icon replacement is authorized by this intake request.",
+  "expected": "Prepare and review a recognizable QShopper application icon, then supply the Android assets needed by the selected design.",
+  "review_points": [
+    "Agree the visual direction with the user; the request does not yet specify a motif, palette or preferred style.",
+    "Check current official Android launcher/adaptive/themed-icon requirements when implementation begins.",
+    "Assess recognition and legibility at small sizes, across launcher masks and Light/Dark backgrounds.",
+    "Record asset provenance/licensing and verify packaged resources plus actual launcher appearance."
+  ],
+  "relevant_files": ["android/AndroidManifest.xml", "android/res"],
+  "related_tickets": ["REL-001"],
+  "validation": "No new artwork generated and no application asset changed."
+}

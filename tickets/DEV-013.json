@@ -1,0 +1,20 @@
+{
+  "id": "DEV-013",
+  "title": "Use categorized logging and keep Release console output minimal",
+  "status": "requested",
+  "type": "code_quality",
+  "priority": "unassigned",
+  "created": "2026-11-08",
+  "reported_by": "user",
+  "source": "Use categorised loggers to suppress debug prints. On Release there should be very little to print on the console.",
+  "scope": "Backlog intake only. Review C++ and QML diagnostic output and adopt simple Qt logging categories/defaults when selected. Do not change logging as part of repository publication.",
+  "expected": "Normal Release use produces very little console output. Useful development diagnostics remain selectively available by category, while actionable warnings and errors remain observable.",
+  "review_points": [
+    "Inventory qDebug/qInfo/qWarning/qCritical and QML console output, distinguishing app diagnostics from Qt or platform messages.",
+    "Choose a small, useful QLoggingCategory set and Release defaults; avoid a custom logging framework or blanket suppression of failures.",
+    "Keep Debug output useful and document how to enable individual categories for troubleshooting.",
+    "Verify a Release normal-use flow is quiet and controlled failure cases still emit actionable diagnostics."
+  ],
+  "related_tickets": ["DEV-005", "DEV-006", "REL-001"],
+  "validation": "No logger or console behavior changed during intake."
+}

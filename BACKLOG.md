@@ -324,6 +324,7 @@ authorization; none is requested as part of backlog intake.
 | [UX-003](tickets/UX-003.json) | Review whether primary/accent usage in custom and non-Material components is sensible, readable, and consistent | Resolved 2026-11-07: user accepted the [review](reviews/UX-003.md) and UI-029/UI-030 corrections; vivid color roles retained, full platform checks pass |
 | [UX-004](tickets/UX-004.json) | Decide between Font Awesome and bundled SVG icons, including [Tabler Icons](https://tabler.io/icons): coverage, readability, Qt/QML integration, licensing and maintenance | Resolved 2026-11-04; user accepted keeping Font Awesome and requested commit. Production experiment restored; UI-012 prerequisite satisfied. Native comparison and dependency-cost evidence in reviews/UX-004.md |
 | [UX-005](tickets/UX-005.json) | Test Undo during post-reset cleanup of non-recurring items; evaluate a per-action stack instead of restoring the whole deletion batch | Resolved 2026-11-07: user tested and accepted per-action Undo, coherent bulk actions and the shared 15-second window; model/UI/native regressions pass |
+| [UX-006](tickets/UX-006.json) | Redesign the Android application icon | Requested 2026-11-08. Select a visual direction, prepare appropriate Android assets and verify launcher appearance when chosen; backlog only |
 
 UX-001 covers primary/accent roles, palette choices, readability, state feedback,
 and behavior across Light, Dark, and System themes. Compare the actual Qt Material
@@ -366,6 +367,7 @@ actions while preserving the post-reset order and saved item identities.
 | [DEV-010](tickets/DEV-010.json) | Use a layout for IconButton content and honor inherited display modes | Resolved 2026-11-03 with DEV-006 acceptance; committed cff0e6a4. Four modes, caption limits, caller sizing and clicks verified; final combined suites pass |
 | [DEV-011](tickets/DEV-011.json) | Migrate Canvas drawing to QtCanvas2D.Canvas2D, starting with UndoIcon's countdown arc | Resolved 2026-11-03; user requested closure and commit. Qt 6.12 minimum and transparent Canvas2D arc. All 316 Windows records (including 8 native rendering records), original Canvas characterization and 12 native Android checks pass. Undo redesign remains UI-023 |
 | [DEV-012](tickets/DEV-012.json) | Update bundled Font Awesome Free | Resolved 2026-11-08: official Free Solid 7.3.1 OTF, matching About logo and refreshed notices/hashes. All 14 codepoints retained; plain editor font and centered cart arrows verified with before/after regressions. All 23 Windows entries pass across the full run and affected reruns; native Android and both APK payload contracts pass |
+| [DEV-013](tickets/DEV-013.json) | Categorized logging with minimal Release console output | Requested 2026-11-08. Select simple Qt logging categories and Release defaults, preserve actionable warnings/errors and verify quiet normal use; backlog only |
 
 DEV-002 should establish a checked-in `.qmlformat.ini`, Qt-style attribute order,
 and a repeatable formatter invocation usable with Qt Creator. Preserve behavior
