@@ -49,6 +49,11 @@ At the user's request, gravity is now **666.67 mm/s²**, making **100% sensitivi
 match that tested effort. Keep the existing sensitivity preference and half-width
 fallback unchanged. The reference is not proof of the same feel on every device.
 
+The Monday 2026-11-09 shopping trial was successful overall. On 2026-11-11 the
+user requested a further real-shopping trial at **110% sensitivity** before any
+default adjustment. Keep gravity and the existing default unchanged pending
+that result; [UX-007](tickets/UX-007.json) records the follow-up.
+
 ## Keep mistakes close enough to correct
 
 Android Back closes one layer per gesture: an open About/licenses view or

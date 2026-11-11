@@ -177,6 +177,47 @@ Item {
             tryCompare(panel, "opened", true);
         }
 
+        function test_offscreen_editor_keeps_draft_focus_and_keyboard_data() {
+            return [
+                        {
+                            tag: "40_items",
+                            count: 40
+                        },
+                        {
+                            tag: "200_items",
+                            count: 200
+                        }
+                    ];
+        }
+
+        function test_offscreen_editor_keeps_draft_focus_and_keyboard(data) {
+            for (let index = 0; index < data.count; ++index) {
+                shop.model.insert(shop.count, "Long list " + index);
+            }
+            const field = editor();
+            field.text = "Unsubmitted draft";
+            wait(800);
+            shop.positionViewAtEnd();
+            shop.forceLayout();
+            wait(500);
+            verify(Qt.inputMethod.visible, "Scrolling must not dismiss the keyboard");
+            verify(field !== null, "The editor must survive outside the delegate cache");
+            verify(field.activeFocus);
+            compare(field.text, "Unsubmitted draft");
+            if (data.count > 40) {
+                verify(shop.contentY > shop.cacheBuffer + Theme.pixels(9.27));
+                // Ordinary rows still release; retaining the editor must not cache the list.
+                compare(shop.itemAtIndex(1), null);
+            }
+            shop.positionViewAtBeginning();
+            compare(editor(), field);
+            tapKey(Qt.Key_Return);
+            tryCompare(field, "text", "");
+            compare(shop.model.data(shop.model.index(0, 0), Qt.DisplayRole), "Unsubmitted draft");
+            compare(shop.count, data.count + 2);
+            verify(Qt.inputMethod.visible);
+        }
+
         function test_end_editor_remains_visible_when_keyboard_opens() {
             Qt.inputMethod.hide();
             tryCompare(Qt.inputMethod, "visible", false);

@@ -1,0 +1,41 @@
+{
+  "id": "UI-035",
+  "title": "Scrolling a long list destroys the offscreen editor and closes the keyboard",
+  "status": "resolved",
+  "type": "user_reported_bug",
+  "severity": "minor",
+  "reported_by": "user",
+  "created": "2026-11-11",
+  "source": "Monday 2026-11-09 physical shopping test reported on 2026-11-11. Major functionality worked as expected; with 40+ items, editor at index 0 and native keyboard open, scrolling to the end closes the keyboard.",
+  "scope": "User explicitly requested review of the Qt 5 ListView cache solution and a Qt 6 fix. Preserve the continuous-entry design without caching every row.",
+  "reproduction": [
+    "Open edit mode with 40 or more items and the editor at index 0.",
+    "Open the native keyboard, optionally type an unsubmitted draft.",
+    "Scroll far enough toward the end to move the editor beyond the delegate cache."
+  ],
+  "actual": "The editor delegate is released, losing focus/draft and closing the virtual keyboard.",
+  "expected": "Scrolling preserves the same editor, draft and keyboard while ordinary offscreen rows remain eligible for release. Returning to the editor permits normal Return submission and Back behavior.",
+  "legacy_review": "Qt 5 qt5/qshopper:qml/View.qml uses cacheBuffer: theme.heights.large * 40; the pre-fix Qt 6 view cached 20 reference rows. Enlarging that buffer only moves the failure threshold and retains extra ordinary delegates.",
+  "qt_review": "Qt ListView currentItem is retained outside the cache. Keep the movable editor current, disable highlight following and automatic key navigation, and use the user-selected 40-row cache. reuseItems is a possible later measured performance optimization, not an identity-preservation fix; pooled gesture/animation state would need a separate review.",
+  "references": [
+    "https://doc.qt.io/qt-6/qml-qtquick-listview.html#cacheBuffer-prop",
+    "https://doc.qt.io/qt-6/qml-qtquick-listview.html#reusing-items"
+  ],
+  "regression": {
+    "windows": "tests/keyboard/tst_keyboard.qml::test_offscreen_editor_keeps_draft_focus_and_keyboard, with 40 and 200 items. Both original cases fail because scrolling dismisses the real desktop virtual keyboard. Evidence: out/ui035/keyboard-before.txt.",
+    "android": "Original APK fails with 40 items at scroll step 3: native IME closes. Final 40-row-cache/retained-editor APK passes 10 checks each for 40 and 200 items, both themes, real Gboard/touch, exact draft, Return, original saved identity/order/checks and Back. Existing UI-033 end-editor regression also passes eight checks. Evidence: out/ui035/android-before-final-test, android-40, android-200 and android-end-editor/results.json.",
+    "windows_after": "Final 40-row-cache Windows build passes all five affected CTest entries: ui 214, flow 19, fastundo 18, keyboard 9, model 104. The keyboard entry includes both new 40/200-row scenarios. Report: out/ui035/windows-tests-final.txt and verification-summary.json.",
+    "packages": "Final ARM64 and x86_64 Debug APKs built with the selected 40-row cache and pass actual package checks. Both are signed with the existing shared debug key. SHA-256 values: out/ui035/apk-hashes.json. No physical-phone installation performed.",
+    "quality": "QML formatting check, Python parse, ticket JSON and changed documentation links pass. Normal AVD data and phone untouched; the task-owned temporary emulator disk was removed after successful tests (out/ui035/emulator-cleanup.json)."
+  },
+  "related_tickets": [
+    "QA-001",
+    "QA-002",
+    "UI-033"
+  ],
+  "cache_decision": "User explicitly selected roughly one weekly family shopping list as the cache target and proposed 40 rows. Keep 40 row-heights per side of the viewport, matching the Qt 5 heuristic; do not use a larger unsupported family-size estimate. Editor lifetime is protected independently for longer lists.",
+  "implementation": "Implemented 2026-11-11. ShopView caches 40 reference rows per side and binds currentIndex to Model.editorIndex. The current delegate survives beyond that cache, preserving the actual field/draft/focus/IME. Disable highlight following and automatic list key navigation so ordinary scrolling and field focus remain user controlled. Other rows still release; reuseItems stays at the existing false default.",
+  "remaining": "None for UI-035. UX-007 remains open for the separate 110% sensitivity shopping trial.",
+  "resolved": "2026-11-11",
+  "phone_confirmation": "User confirmed Works and requested closure/commit on 2026-11-11 after receiving the fixed ARM64 test APK. This confirmation is separate from the earlier Monday shopping report."
+}

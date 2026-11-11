@@ -1,0 +1,17 @@
+{
+  "id": "UX-007",
+  "title": "Evaluate 110% swipe sensitivity during the next real shopping trip",
+  "status": "awaiting_physical_validation",
+  "type": "usability_validation",
+  "severity": "minor",
+  "created": "2026-11-11",
+  "reported_by": "user",
+  "source": "After successful Monday shopping, swipe sensitivity may feel too low. User requests another shop run at 110% before changing defaults.",
+  "expected": "Record deliberate activation effort and accidental actions during the next physical trip at 110%, then decide whether a default change is justified.",
+  "implementation": "No default, gravity, velocity or distance-trigger changes authorized by this report. The user can select the existing 110% setting.",
+  "related_tickets": [
+    "UI-004",
+    "QA-001",
+    "QA-002"
+  ]
+}

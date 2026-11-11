@@ -1,4 +1,4 @@
-"""UI-032/UI-033: timed Undo and end-editor/native-IME regressions.
+"""UI-032/UI-033/UI-035: Undo, end-editor visibility and offscreen-editor IME.
 
 Only an isolated emulator is accepted. Uses disposable data and no microphone.
 """
@@ -26,7 +26,9 @@ def main():
     parser.add_argument("--adb", default="adb")
     parser.add_argument("--serial", default="emulator-5580")
     parser.add_argument("--output", type=Path, default=Path("out/android-recovery-entry"))
-    parser.add_argument("--case", choices=("keyboard", "undo", "both"), default="both")
+    parser.add_argument("--case", choices=("keyboard", "scroll", "undo", "both"), default="both")
+    parser.add_argument("--count", type=int, choices=(40, 80, 200), default=80,
+                        help="List length for the offscreen-editor scroll case")
     parser.add_argument("--theme", choices=("light", "dark", "both"), default="both")
     args = parser.parse_args()
     if not re.fullmatch(r"emulator-\d+", args.serial):
@@ -109,7 +111,7 @@ def main():
                         db.execute("CREATE TABLE lists " + schema)
                         db.execute("INSERT INTO lists VALUES (?, 'default', 0)", (TABLE,))
                         db.execute(f'CREATE TABLE "{TABLE}" ' + schema)
-                        count = 80 if case == "keyboard" else 3
+                        count = args.count if case == "scroll" else (80 if case == "keyboard" else 3)
                         db.executemany(f'INSERT INTO "{TABLE}" VALUES (?, ?, 0)',
                                        [("{" + str(uuid.uuid4()) + "}", f"Item {i:02d}") for i in range(count)])
                         db.commit()
@@ -175,6 +177,41 @@ def main():
                               appended=[r[0] for r in current[80:]])
                         shell("input", "keyevent", "KEYCODE_BACK")
                         ui = tree()
+                elif case == "scroll":
+                    tap(editor(ui))
+                    time.sleep(.8)
+                    assert keyboard(), "Scroll case must start with native Gboard open"
+                    shell("input", "text", "ScrollDraft")
+                    ime_top, nav_top = ime_bounds()
+                    row_height = first[3] - first[1]
+                    start = round(ime_top * .8)
+                    end = round(ime_top * .3)
+                    # Pass the entire list using actual vertical touch motion,
+                    # well beyond either the Qt 5 or Qt 6 delegate cache.
+                    for step in range(count * row_height // (start - end) + 4):
+                        shell("input", "swipe", width // 2, start, width // 2, end, 250)
+                        time.sleep(.2)
+                        if not keyboard():
+                            check(f"scroll_keeps_native_ime_step_{step}", False)
+                    check("scroll_keeps_native_ime", keyboard())
+                    check("offscreen_editor_preserves_saved_rows", saved() == original)
+                    for _ in range(count * row_height // (start - end) + 4):
+                        shell("input", "swipe", width // 2, end, width // 2, start, 250)
+                        time.sleep(.2)
+                    ui = tree()
+                    field = editor(ui)
+                    check("scroll_back_preserves_draft", field is not None
+                          and field.get("text") == "ScrollDraft" and keyboard())
+                    ime_top, nav_top = ime_bounds()
+                    shell("input", "tap", round(width * .925), round(ime_top + (nav_top - ime_top) * .82))
+                    time.sleep(.8)
+                    current = saved()
+                    check("return_keeps_original_order_and_ime", keyboard()
+                          and len(current) == count + 1 and current[0][0] == "ScrollDraft"
+                          and current[1:] == original)
+                    shell("input", "keyevent", "KEYCODE_BACK")
+                    time.sleep(.5)
+                    check("back_still_hides_keyboard", not keyboard())
                 else:
                     row = rows(ui)[0]
                     left, top, right, bottom = row

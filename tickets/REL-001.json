@@ -93,7 +93,7 @@
       "Owner creates/verifies personal account, including physical Android-device verification; follow current Console prompts and RELEASE.md.",
       "Owner creates/backs up production upload identity and enrolls Play App Signing; no production credentials or keys are committed.",
       "Resolve and test migration of existing debug-signed phone lists before moving to the incompatible production signing identity; no public export/import flow exists yet.",
-      "QA-002 physical shopping on Monday 2026-11-09; actual 16 KB runtime, minimum/API 37 device coverage and real Play-generated delivery/update still need verification.",
+      "Monday 2026-11-09 shopping succeeded overall, reported on 2026-11-11. UI-035 long-list/IME is phone-confirmed fixed on 2026-11-11. UX-007 110% sensitivity remains, along with detailed QA-002 physical checks, actual 16 KB runtime, minimum/API 37 device coverage and real Play-generated delivery/update.",
       "Finish privacy/Data safety/permissions and Java/Maven/license/source/install-arrangements audit; prepare public policy, listing assets and owner audience/country/pricing/contact choices.",
       "Complete internal/closed testing (new personal account: at least 12 continuously opted-in testers for 14 days), apply for production access, then obtain owner approval for submission/publication."
     ],

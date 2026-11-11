@@ -81,7 +81,7 @@ signed with the new production identity cannot directly update it. Neither the
 upload key nor changing the version code bridges that certificate difference.
 See [Android update signing](https://developer.android.com/studio/publish/app-signing).
 
-Continue Monday's shopping test with the compatible debug-signed build.
+Use the compatible debug-signed build for ongoing physical shopping tests.
 Before moving that phone to the Play installation, prepare and verify a list
 export/import or another explicitly tested migration route. QShopper currently
 has no public export/import flow. A private SQLite backup alone does not prove
@@ -176,8 +176,10 @@ would need a separate custom/static Qt build assessment or product/asset changes
 - Keep 16 KB runtime coverage and API 28 compatibility as explicit readiness
   checks if only the API 36/4 KB emulator has run. Include an API 37 device run
   matching the current target SDK before declaring the production matrix complete.
-- Complete QA-001's real-shopping/dictation acceptance and QA-002's physical
-  readability/touch checks. QA-002 is planned for **Monday, 9 November 2026**.
+- The **Monday, 9 November 2026** shopping run succeeded overall, reported on
+  11 November. UI-035 is fixed with phone confirmation; UX-007 awaits
+  the next trip at 110% sensitivity. Natural-speech details and QA-002's specific
+  physical measurement/readability checks remain separate.
 
 AAB upload size, locally installed APK size and Play's compressed download size
 are different measurements. Native symbols/R8 maps can be retained in bundle

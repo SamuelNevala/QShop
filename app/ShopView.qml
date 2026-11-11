@@ -41,8 +41,12 @@ ListView {
         }
     }
 
-    cacheBuffer: Theme.pixels(9.27) * 20
-    currentIndex: -1
+    cacheBuffer: Theme.pixels(9.27) * 40
+    // The current delegate survives scrolling beyond cacheBuffer. Retain only
+    // the editor so its draft, focus and IME survive while other rows are released.
+    currentIndex: itemModel.editorIndex
+    highlightFollowsCurrentItem: false
+    keyNavigationEnabled: false
     clip: true
 
     delegate: DelegateChoser {

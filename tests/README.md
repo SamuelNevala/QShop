@@ -1874,3 +1874,44 @@ code 3 update preserves the exact item and theme; final standalone and
 device-targeted bundle split builds pass native Release interactions. Evidence
 is retained under `out/rel001`. Physical shopping, minimum/API 37 devices,
 actual 16 KB runtime, production-key migration and Play testing remain open.
+
+### Offscreen editor and native keyboard (UI-035)
+
+`DevelopmentKeyboard::test_offscreen_editor_keeps_draft_focus_and_keyboard`
+uses the production view and real desktop input plugin with 40 and 200 items.
+It opens the keyboard, keeps a draft in the index-0 editor, scrolls to the end,
+then returns and submits. The 200-row case also checks that ordinary offscreen
+rows are released. Both cases fail the original 20-row-cache/unretained editor
+with a keyboard dismissal. The test belongs to the normal keyboard CTest entry.
+
+The Qt 5 view buffered 40 reference rows; the Qt 6 target is now the same,
+selected by the user as a rough weekly family-shopping cache. This is a distance
+on each side of the viewport, not a maximum list length. The editor is retained
+independently as ListView.currentItem. Highlight following and automatic list
+key navigation are disabled so the user can scroll away and keep editing focus.
+The Qt 6 reuseItems default remains unchanged: pooling would require a separate
+review of per-row gesture/animation state and measured performance benefit.
+
+Native regression, with the Debug x86_64 APK installed on the isolated emulator:
+
+```powershell
+python tests/android/test_recovery_entry.py --adb C:/android/sdk/platform-tools/adb.exe --case scroll --count 40 --output out/ui035/android-40
+python tests/android/test_recovery_entry.py --adb C:/android/sdk/platform-tools/adb.exe --case scroll --count 200 --output out/ui035/android-200
+```
+
+Both themes use disposable SQLite/settings and the real Gboard IME. The test
+checks keyboard visibility after every actual upward swipe beyond the full
+list extent, scrolls back, verifies the exact draft, submits with native Return,
+compares original saved names/IDs/checks/order and confirms Back can still hide
+the keyboard. Run serially with other Android UI tests. The existing
+`--case keyboard` path separately checks the end-editor/IME-opening behavior
+(UI-033). Evidence is under `out/ui035`; phone acceptance is separate.
+
+Native UI-035 result, 2026-11-11: original APK closes Gboard at scroll step 3
+with 40 items. The final 40-row-cache/editor-retention APK passes ten checks for
+40 items and ten for 200, across both themes. The existing end-editor visibility
+case adds eight passing native checks. Both actual APK payload contracts pass;
+the agent did not install on the phone. The user subsequently confirmed the
+fix works on the phone and requested closure/commit on 2026-11-11.
+
+Final UI-035 Windows build: ui 214, flow 19, fastundo 18, keyboard 9, model 104 records pass in all five affected CTest entries. Report: `out/ui035/windows-tests-final.txt`.

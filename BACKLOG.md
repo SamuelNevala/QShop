@@ -82,6 +82,7 @@ regressions remain easy to trace.
 
 | ID | Finding | Evidence/status | Severity |
 | --- | --- | --- | --- |
+| [UI-035](tickets/UI-035.json) | Scrolling a 40+ item list away from the editor closes the keyboard | Resolved 2026-11-11 with user phone confirmation. Cache 40 reference rows per side and retain the editor independently. Original desktop/Android regressions fail; final Windows UI/flow/fast Undo/keyboard/model and 28 native Android checks pass, including 40/200-row drafts and Return | Minor (user) |
 | [UI-034](tickets/UI-034.json) | Android safe areas do not follow drawer background dimming | Resolved 2026-11-08: top/bottom scrims follow the resolved Material drawer treatment; normal base surface and native side shadows remain. Original QML/Android tests fail before; 167 native Android checks and 10 native Windows records pass | Unassigned |
 | [UI-033](tickets/UI-033.json) | Opening the keyboard covers an editor moved to the end of a long list | Resolved 2026-11-08: reveal the editor on IME/viewport changes. Desktop and actual Android baselines fail; real-keyboard and both-theme native open/Return/reopen regressions pass. Physical retest not claimed | Major (triaged) |
 | [UI-032](tickets/UI-032.json) | Earlier deletion has too little Undo time after restoring the newest one | Resolved 2026-11-08: Undo exposing an earlier action restarts the shared 15-second clock. Near-expiry regressions fail before/pass after on Windows and Android; per-action recovery/order, expiry and pause controls pass | Unassigned |
@@ -308,7 +309,7 @@ This is separate from resolved UI-023; severity and priority remain unassigned.
 
 | ID | Request | Status |
 | --- | --- | --- |
-| [REL-001](tickets/REL-001.json) | Prepare and define the steps for app-store publication: readiness, Release builds/signing, testing, store materials, submission, and rollout | In progress 2026-11-08: Google Play/new personal account selected; [release guide](RELEASE.md) covers registration, signing and rollout. Verified unsigned ARM64 Release APK shrinks from 63.3 to 24.6 MB, with 40 required libraries. Account/key creation, production migration, remaining device checks and submission remain open; QA-002 is Monday 2026-11-09 |
+| [REL-001](tickets/REL-001.json) | Prepare and define the steps for app-store publication: readiness, Release builds/signing, testing, store materials, submission, and rollout | In progress 2026-11-08: Google Play/new personal account selected; [release guide](RELEASE.md) covers registration, signing and rollout. Verified unsigned ARM64 Release APK shrinks from 63.3 to 24.6 MB, with 40 required libraries. Account/key creation, production migration, remaining device checks and submission remain open; Monday shopping passed and UI-035 is phone-confirmed fixed; UX-007 and detailed QA-002 measurements remain open |
 
 REL-001 should produce a concise publication checklist based on the selected
 store's current official requirements, with dependencies and user decisions
@@ -416,8 +417,9 @@ shopping order.
 
 | ID | Area | Checks still needed |
 | --- | --- | --- |
-| [QA-001](tickets/QA-001.json) | Full shopping flow on the updated physical phone | Native entry 36, full Back matrix 75, Undo recovery 24 and long-list/IME 6 pass. Opt-in synthetic English Gboard dictation adds ten records with expected transcripts, submission/keyboard and restart controls. [Natural speech and one-handed physical acceptance](reviews/QA-001.md) remain pending |
-| [QA-002](tickets/QA-002.json) | Physical sizing and text on different displays | [Three-profile native matrix](reviews/QA-002.md) passes 138 records; actual LG TV/UltraFine rendering and repeated cross-monitor draft/data/keyboard moves pass 11 Windows records. Controller disconnect regression fails before/passes after. User plans real-shopping validation on Monday, 2026-11-09. Independent ruler measurements, shopping comfort and phone readability remain pending |
+| [UX-007](tickets/UX-007.json) | Evaluate swipe sensitivity at 110% during the next shopping trip | Awaiting user trial; default and gravity unchanged. General Monday shopping succeeded, but activation may feel too demanding |
+| [QA-001](tickets/QA-001.json) | Full shopping flow on the updated physical phone | Native entry 36, full Back matrix 75, Undo recovery 24 and long-list/IME 6 pass. Opt-in synthetic English Gboard dictation adds ten records with expected transcripts, submission/keyboard and restart controls. [General Monday shopping passed](reviews/QA-001.md), reported 2026-11-11; UI-035/UX-007 record minor follow-ups. Natural-speech details remain pending |
+| [QA-002](tickets/QA-002.json) | Physical sizing and text on different displays | [Three-profile native matrix](reviews/QA-002.md) passes 138 records; actual LG TV/UltraFine rendering and repeated cross-monitor draft/data/keyboard moves pass 11 Windows records. Controller disconnect regression fails before/passes after. User reports Monday 2026-11-09 shopping went well with major functionality working. Detailed ruler/readability and additional-device evidence remain pending |
 | [DEV-001](tickets/DEV-001.json) | Repeated QML diagnostic | Resolved 2026-11-07 as an upstream Qt diagnostic: standalone Qt-only original-source reproduction and real keyboard controls pass. Warning remains visible; no app/SDK patch or global suppression. [Investigation](reviews/DEV-001.md) |
 
 QA-003 should exercise actual user paths, not count direct model calls or emitted

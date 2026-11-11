@@ -10,7 +10,8 @@
   "physical_reports_2026_11_08": "User reported two findings during phone validation: earlier deletion has too little time after near-expiry Undo (UI-032; user selected a fresh 15-second window), and editor moved to the end of a long list remains under the keyboard when tapped to open it (UI-033). Both implemented and regression-verified under the user's unattended authorization, including desktop/native before-and-after evidence. Physical retests and overall shopping/dictation acceptance remain open.",
   "procedure": "reviews/QA-001.md",
   "automated_coverage": "tests/INTERACTIONS.md maps model, actual-control Windows, real desktop VKB and isolated native Android coverage. Existing entry, Back, reset/cleanup and Undo recovery tests cover app mechanics; they do not establish real dictation or one-handed store use.",
-  "current_work": "Extended actual-monitor/native Android validation and exercised real English Gboard speech recognition with synthetic audio, Return, keyboard continuity and restart persistence. Natural speech and one-handed physical acceptance remain pending.",
+  "current_work": "Extended actual-monitor/native Android validation and exercised real English Gboard speech recognition with synthetic audio, Return, keyboard continuity and restart persistence. General physical shopping is accepted by the 2026-11-11 user report; UI-035 is now phone-confirmed fixed; natural-speech details and the UX-007 sensitivity trial remain pending.",
+  "physical_shopping_2026_11_09": "Monday 2026-11-09 physical shopping went well; user reports all major functionality worked as expected (reported 2026-11-11). Minor findings are UI-035 offscreen-editor/IME closure and UX-007 sensitivity evaluation at 110%. This establishes the general shopping-flow result, not unreported natural-speech transcripts, ruler measurements or additional physical devices.",
   "verification": {
     "date": "2026-11-07",
     "entry": "out/remaining/android-entry-expanded/results.json: all 36 native records pass using actual Gboard/Return, control-driven edits, catalog lifecycle, Undo, checked-row controls and the 8 added cases. Exact saved identity/order/checks are retained; no microphone is activated.",
@@ -26,11 +27,11 @@
     "application_changes": false
   },
   "remaining": [
-    "Actual one-handed physical shopping flow using the current build.",
+    "General physical shopping passed on 2026-11-09; UI-035 is phone-confirmed fixed on 2026-11-11. Await the UX-007 110% sensitivity trial and retain the separate dictation acceptance below.",
     "Real speech/dictation with quantities/punctuation in the normal language; record recognized versus saved text and keyboard continuity."
   ],
   "back_phone_confirmation": "UI-006 closed on 2026-11-08: user confirmed the explicit phone Back checklist. This does not establish the separate real shopping/dictation acceptance criteria.",
-  "limitations": "No physical phone was connected at the 2026-11-07 device inventory. Scripts target only emulator-5580. The separate opt-in synthetic speech test activates the emulator's Gboard virtual input with host microphone access disabled; ordinary entry tests never activate speech. No phone installation, natural-speech or one-handed acceptance is claimed.",
+  "limitations": "No physical phone was connected at the 2026-11-07 device inventory. Scripts target only emulator-5580. The separate opt-in synthetic speech test activates the emulator's Gboard virtual input with host microphone access disabled; ordinary entry tests never activate speech. Those automated runs do not establish natural-speech or physical acceptance. The later Monday shopping report supplies general one-handed acceptance; natural-speech details remain unreported.",
   "related_tickets": ["UI-006", "UI-032", "UI-033", "QA-002", "QA-003", "UX-005"],
   "closure_criteria": "Record the physical shopping and real dictation results in reviews/QA-001.md, in addition to the repeatable app-side checks. Keep unsupported recognizer/device claims explicit."
 }
