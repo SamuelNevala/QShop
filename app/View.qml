@@ -9,8 +9,8 @@ import QtQuick.Window as QuickWindow
 Style.Control {
     id: root
 
-    readonly property bool backNavigationActive: !menu.visible && !aboutDialog.visible
-                                                 && shopView.editMode
+    readonly property bool backNavigationActive: !menu.visible && !aboutDialog.visible &&
+                                                 !privacyDialog.visible && shopView.editMode
 
     function navigateBack() {
         if (menu.visible) {
@@ -334,14 +334,28 @@ Style.Control {
                             title: qsTr("About")
                             width: menu.contentItem.width
 
-                            IconButton {
-                                objectName: "aboutButton"
+                            RowLayout {
                                 width: parent.width
-                                text: qsTr("Licenses")
-                                font.family: awsome.name
-                                icon.name: "\uf05a"
 
-                                onClicked: aboutDialog.open()
+                                IconButton {
+                                    objectName: "aboutButton"
+                                    Layout.fillWidth: true
+                                    text: qsTr("Licenses")
+                                    font.family: awsome.name
+                                    icon.name: "\uf05a"
+
+                                    onClicked: aboutDialog.open()
+                                }
+
+                                IconButton {
+                                    objectName: "privacyButton"
+                                    Layout.fillWidth: true
+                                    text: qsTr("Privacy policy")
+                                    font.family: awsome.name
+                                    icon.name: "\uf3ed"
+
+                                    onClicked: privacyDialog.open()
+                                }
                             }
                         }
                     }
@@ -404,9 +418,8 @@ Style.Control {
                 Quick.Shortcut {
                     objectName: "drawerBackShortcut"
                     sequences: ["Back"]
-                    enabled: Quick.Qt.platform.os === "android" && menu.visible &&
-                             !aboutDialog.visible
-
+                    enabled: Quick.Qt.platform.os === "android" && menu.visible && !aboutDialog.visible
+                             && !privacyDialog.visible
                     autoRepeat: false
 
                     onActivated: menu.close()
@@ -435,6 +448,22 @@ Style.Control {
 
     AboutDialog {
         id: aboutDialog
+
+        parent: root
+        x: root.leftPadding + Theme.pixels(2)
+        y: root.topPadding + Theme.pixels(2)
+        width: root.availableWidth - Theme.pixels(4)
+        height: root.availableHeight - Theme.pixels(4)
+
+        onClosed: {
+            if (menu.visible) {
+                menu.forceActiveFocus();
+            }
+        }
+    }
+
+    PrivacyDialog {
+        id: privacyDialog
 
         parent: root
         x: root.leftPadding + Theme.pixels(2)

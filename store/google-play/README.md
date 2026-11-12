@@ -37,13 +37,14 @@ see the [metadata policy](https://support.google.com/googleplay/android-develope
 | Package ID | `shopper.nevala.com` |
 | Website | Existing public source project: https://github.com/SamuelNevala/QShop |
 | Tags | Choose available tags that describe shopping lists; no keyword padding |
-| Public support email | Owner to supply |
-| Privacy-policy URL | Prepare and publish after the release data/backup audit |
+| Public support email | samuel.nevala@gmail.com (owner-selected 12 November 2026) |
+| Privacy-policy URL | Prepared: `https://samuelnevala.github.io/QShop/privacy-policy.html`; publish and verify before entering it in Console |
 | Countries and target audience | Owner decisions still required |
 
-Do not copy the Git author email into the public support field without the
-owner choosing it. Content rating, Data safety and regional declarations are
-separate Console tasks. The offline-list claim is about core list operations;
+The owner selected the address and GitHub Pages hosting. Review the
+[privacy policy](../../app/privacy-policy.txt) and [Data safety draft](data-safety.md)
+before submission. Content rating and regional declarations are separate
+Console tasks. The offline-list claim is about core list operations;
 it is not a claim that Android backup or keyboard dictation never transfers
 data. See [release preparation](../../RELEASE.md#8-complete-the-store-and-distribution-material).
 
@@ -103,7 +104,7 @@ The four 1080 x 1920 captures also follow Google's recommended portrait format.
 ## Content checks before upload
 
 - Review the proposed title, descriptions, screenshot captions and test notes.
-- Supply the public support email and complete the privacy-policy audit/URL.
+- Review the policy and Data safety draft; publish and verify the public policy URL.
 - Finish the feature graphic and capture the real phone screenshots.
 - Review all visuals at phone size and verify text/image dimensions and formats.
 - Recheck copy against the exact accepted build and selected test track.

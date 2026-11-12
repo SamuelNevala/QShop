@@ -15,6 +15,13 @@ because the shopping UI does not call them directly. The app uses local assets
 and SQLite; its current user flows do not require Qt TLS/network-information
 providers. JPEG is the only image plugin; PNG decoding is built into Qt Gui.
 
+Code 4 opts out of Qt's generic permission injection: ordinary Debug and
+Release declare only AndroidX's generated internal signature permission.
+Internet, network-state and external-storage access are not needed. Explicit
+development `-QmlDebug` adds Internet permission; Release excludes it. The
+actual APK/AAB permission set is checked by `-VerifyPackage`. Android backup
+remains enabled; see the [privacy audit](reviews/REL-001-privacy.md).
+
 Build an installable ARM64 debug APK from PowerShell:
 
 ```powershell
@@ -28,7 +35,7 @@ The script defaults to Qt 6.12.0 in `C:\Qt`, the Android SDK in
 JDK 21. Override `-QtRoot`, `-QtVersion`, `-SdkRoot`, `-NdkVersion`, or
 `-JavaHome` for other installations. This build uses compile SDK 36; Qt selects an installed SDK build-tools revision. Gradle downloads build dependencies on the first run.
 
-The APK uses package `shopper.nevala.com`, version 0.1.0 (code 3), and supports
+The APK uses package `shopper.nevala.com`, version 0.1.0 (code 4), and supports
 ARM64 Android devices running Android 9 (API 28) or later. By default it is signed
 with the local Android debug key. To update an existing installation built on
 another machine, supply the original debug keystore:

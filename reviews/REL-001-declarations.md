@@ -4,13 +4,21 @@ Reviewed 12 November 2026 against the local app, retained Release APK and curren
 official guidance. This is a readiness review, not Google approval or an export
 classification. No declarations have been accepted on the owner's behalf.
 
+Later on the same day, the [privacy implementation](REL-001-privacy.md) added
+offline policy access and prepared the public page and Data safety answers.
+Fresh code-4 packages remove the three unnecessary permissions. The initial
+findings below preserve the original code-3 review; the table records current
+remaining work.
+Publication/verification of the policy URL, final Console answers and the
+source/license/export/signing gates remain open.
+
 | Declaration | Assessment | Remaining work |
 | --- | --- | --- |
-| Developer Programme Policies | Not yet established as fully compliant | Privacy policy in Console and accessible in the app; accurate Data safety; final permissions, dependencies and distribution-license review; remaining Console content declarations |
+| Developer Programme Policies | Not yet established as fully compliant | Publish/verify the prepared policy URL; finalize Data safety and remaining Console declarations; complete source/distribution-license review |
 | Play App Signing terms | Technically compatible; owner acceptance of terms | Read/accept terms, then establish the upload key and Play app-signing identity for the accepted bundle |
 | US export laws | No app-purpose encryption feature found; application-specific compliance not established | Review the complete distributed product and intended destinations using current export guidance; Qt's classification does not classify QShopper |
 
-## Concrete app findings
+## Initial code-3 app findings
 
 - Core lists are stored in local SQLite and preferences. No application-level
   HTTP client, analytics/ad SDK or microphone/camera access was found in the
@@ -62,7 +70,8 @@ scan. No export notification or filing has been made.
 - [Google export guidance](https://support.google.com/googleplay/android-developer/answer/113770): developer responsibility and distribution through US servers.
 - [Qt 6.12 export guidance](https://doc.qt.io/qt-6/exportcontrols.html): framework classification and its limits for customer products.
 
-Next implementation priority is the privacy/data/permission review and a
-QShopper-specific policy with in-app access. Then finish the remaining release
-declarations and source/license delivery checks before seeking publication.
+The privacy/data/permission implementation is now prepared locally; see the
+linked audit for verification and policy-publication steps. Next finish the
+remaining release declarations and source/license delivery checks before
+seeking publication.
 Creating a Console draft is separate from uploading or publishing a release.

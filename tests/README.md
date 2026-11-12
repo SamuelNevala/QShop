@@ -43,12 +43,36 @@ of recognition by users with color-vision differences.
 
 ## About and offline notices (UI-012)
 
+REL-001 adds a second About button, **Privacy policy**, and two Light/Dark cases
+to the same normal and native-rendering suites. `AboutLicenses::test_privacy_policy`
+opens the actual drawer button, reads the bundled policy, drags the body without
+selection or IME, resizes within safe margins, reaches the final line, and checks
+Back/Close preserve the drawer and exact draft/list state. The original app fails
+both cases because offline policy access is missing. The large license reader
+remains a virtualized ListView; only the small privacy document uses Qt's built-in
+TextDocument source and a TextArea attached to Flickable.
+
+Native Android policy coverage uses the same isolated harness and restores radios:
+
+```powershell
+python tests/android/test_about.py --privacy --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-privacy
+python tools/export-privacy-policy.py --check
+```
+
+Sixteen Android checks cover both palettes, offline text, touch body scrolling,
+both Back edges, Close and retained draft/items. The original installed app fails
+at the absent button. The default command below still runs the full license
+coverage. `tests/test_android_package.py` also checks actual APK/AAB permissions:
+only the generated internal signature permission normally; explicit development
+QML debugging additionally permits Internet. The original APK fails for three
+unnecessary permissions. See [the privacy audit](../reviews/REL-001-privacy.md).
+
 The normal verification workflow includes `qshopper_about_tests`, using
 `about/tst_about.qml` and the real application window. It opens the actual drawer
 entry, reads the complete Qt/Font Awesome texts, scrolls both to the end, changes
 safe margins/viewport size, and closes with Back or Close. Both themes preserve
 the drawer, unfinished draft and exact item IDs/order/checks. The original app
-fails at the missing drawer entry. The current suite has eleven records, including
+fails at the missing drawer entry. The original license coverage has eleven records, including
 opening under one second and tab-to-render under 500 ms. Native Windows measured
 273–289 ms opening and 29–40 ms switching; the original reader took 3,338 ms.
 Dragging text also failed on the previous selectable TextArea and passes with
@@ -1843,7 +1867,9 @@ an item and Light theme in normal storage, updates without clearing data, then
 checks both. The initial disposable fixture may be uninstalled to allow seeding
 the older version; the update under test uses `install -r`. The full harness
 checks the non-debuggable manifest, native keyboard entry, theme/drawer controls,
-selector Back, both offline notices, delete/Undo and exact text after restart.
+selector Back, both offline notices, the bundled privacy policy and its Back
+layer, delete/Undo and exact text after restart. The code-4 full standalone
+Release run has 16 checks (two theme-dark observations are deliberate).
 Its Undo check reads the actual rendered action while the countdown is active;
 waiting for accessibility idle would let it expire.
 

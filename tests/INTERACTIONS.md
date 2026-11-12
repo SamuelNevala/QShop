@@ -35,6 +35,14 @@ rerun during QA-003. See the run record below for what actually ran.
 
 ## About and licenses (UI-012)
 
+REL-001's additional **Privacy policy** drawer action is covered by
+`AboutLicenses::test_privacy_policy` in both ordinary and native-rendering About
+CTest entries: Light/Dark, actual button, offline text, body drag/non-selection,
+safe-area resizing, final-line reachability, no keyboard, Back/Close and unchanged
+draft/items. `test_about.py --privacy` supplies 16 native Android checks including
+both system Back edges with radios disabled/restored. The license cases below
+remain separate; no physical-phone verification of the new policy is claimed.
+
 `about/tst_about.qml` runs in the normal `qshopper_about_tests` CTest entry.
 Actual drawer activation, both complete documents, scroll endpoints, both themes,
 safe-margin/viewport resizing and Back/Close retain the drawer, draft and exact

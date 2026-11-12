@@ -98,6 +98,7 @@ def main():
             report["debuggable"] = manifest.find("application").get(android + "debuggable", "false") == "true"
             report["min_sdk"] = int(manifest.find("uses-sdk").get(android + "minSdkVersion"))
             report["target_sdk"] = int(manifest.find("uses-sdk").get(android + "targetSdkVersion"))
+            permissions = {entry.get(android + "name") for entry in manifest.findall("uses-permission")}
         else:
             badging = subprocess.check_output([str(aapt2), "dump", "badging", str(args.apk)], text=True)
             metadata = re.search(r"^package: name='([^']+)' versionCode='([^']+)' versionName='([^']+)'",
@@ -107,6 +108,13 @@ def main():
             report["debuggable"] = "application-debuggable" in badging
             report["min_sdk"] = int(re.search(r"^(?:minSdkVersion|sdkVersion):'(\d+)'", badging, re.MULTILINE).group(1))
             report["target_sdk"] = int(re.search(r"^targetSdkVersion:'(\d+)'", badging, re.MULTILINE).group(1))
+            permission_dump = subprocess.check_output([str(aapt2), "dump", "permissions", str(args.apk)], text=True)
+            permissions = set(re.findall(r"^uses-permission: name='([^']+)'", permission_dump, re.MULTILINE))
+        expected_permissions = {"shopper.nevala.com.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"}
+        if args.qml_debug:
+            expected_permissions.add("android.permission.INTERNET")
+        report["permissions"] = sorted(permissions)
+        assert permissions == expected_permissions, f"Unexpected Android permissions: {sorted(permissions - expected_permissions)}; missing: {sorted(expected_permissions - permissions)}"
         assert actual == ("shopper.nevala.com", code, version), f"Package version does not match CMake: {actual}"
         report["version_name"] = version
         report["version_code"] = int(code)

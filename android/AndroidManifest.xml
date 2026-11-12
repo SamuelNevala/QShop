@@ -4,7 +4,9 @@
     android:installLocation="auto"
     android:versionCode="-- %%INSERT_VERSION_CODE%% --"
     android:versionName="-- %%INSERT_VERSION_NAME%% --">
-    <!-- %%INSERT_PERMISSIONS -->
+    <!-- Private storage and local resources need no Android data permissions.
+         Deliberately omit Qt's generic permission insertion placeholder. -->
+    @qshopper_android_permissions@
     <!-- %%INSERT_FEATURES -->
     <supports-screens
         android:anyDensity="true"

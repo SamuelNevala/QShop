@@ -66,6 +66,7 @@ qt_add_qml_module(QShopper
         Menu.qml
         View.qml
         OpacityAnimation.qml
+        PrivacyDialog.qml
         Pulley.qml
         ShopView.qml
         Slider.qml
@@ -87,6 +88,7 @@ qt_add_qml_module(QShopper
     RESOURCES
         ${qshopper_qt_notices}
         licenses/FontAwesome.txt
+        privacy-policy.txt
         logos/qt.svg
         logos/font-awesome.svg
         ${qshopper_keyboard_resource}
@@ -156,8 +158,14 @@ if(ANDROID)
 
     # Stage only app customizations; Qt supplies the matching Gradle tooling.
     set(android_package_dir "${CMAKE_CURRENT_BINARY_DIR}/android-package")
+    set(qshopper_android_permissions "")
+    if(QT_ENABLE_QML_DEBUG AND NOT CMAKE_BUILD_TYPE MATCHES "^(Release|MinSizeRel)$")
+        # Explicit opt-in remote tooling needs sockets; ordinary builds do not.
+        set(qshopper_android_permissions
+            "<uses-permission android:name=\"android.permission.INTERNET\" />")
+    endif()
     configure_file("${PROJECT_SOURCE_DIR}/android/AndroidManifest.xml"
-        "${android_package_dir}/AndroidManifest.xml" COPYONLY)
+        "${android_package_dir}/AndroidManifest.xml" @ONLY)
     file(GLOB android_icon_dirs "${PROJECT_SOURCE_DIR}/android/res/drawable*")
     file(COPY ${android_icon_dirs} DESTINATION "${android_package_dir}/res")
     if(CMAKE_BUILD_TYPE MATCHES "^(Release|MinSizeRel)$")

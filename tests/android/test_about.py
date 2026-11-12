@@ -29,6 +29,7 @@ def main():
     parser.add_argument("--adb", default="adb")
     parser.add_argument("--serial", default="emulator-5580")
     parser.add_argument("--output", type=Path, default=Path("out/android-about"))
+    parser.add_argument("--privacy", action="store_true", help="Exercise the bundled privacy policy instead of licenses")
     args = parser.parse_args()
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator is allowed")
@@ -110,6 +111,44 @@ def main():
     def visible_text(ui):
         return [(node.get("text") or node.get("content-desc", "")).replace("\u2029", "\n").replace("\u2028", "\n").strip()
                 for node in ui.iter("node")]
+
+    def privacy_policy(ui):
+        button = named(ui, "Privacy policy")
+        assert button is not None, "Drawer must provide Privacy policy"
+        tap(button)
+        ui = wait_ui(lambda state: any("samuel.nevala@gmail.com" in text for text in visible_text(state)))
+        check("privacy_offline_text", all(any(marker in text for text in visible_text(ui))
+              for marker in ("Android backup", "Google Play purchases", "samuel.nevala@gmail.com"))
+              and not keyboard(), ui)
+
+        def bar(state):
+            return next(node for node in state.iter("node")
+                        if node.get("resource-id", "").endswith("privacyScrollBar"))
+
+        left, top, right, bottom = bounds(bar(ui))
+        x = left // 2
+        initial = float(bar(ui).get("content-desc", "0"))
+        shell("input", "swipe", x, top + (bottom - top) * 4 // 5,
+              x, top + (bottom - top) // 4, 700)
+        ui = wait_ui(lambda state: float(bar(state).get("content-desc", "0")) > initial)
+        moved = float(bar(ui).get("content-desc", "0"))
+        check("privacy_body_swipe_up", moved > initial and not keyboard(), ui)
+        shell("input", "swipe", x, top + (bottom - top) // 4,
+              x, top + (bottom - top) * 4 // 5, 700)
+        ui = wait_ui(lambda state: float(bar(state).get("content-desc", "0")) < moved)
+        check("privacy_body_swipe_down", not keyboard(), ui)
+        for edge in ("left", "right"):
+            back(edge)
+            ui = wait_ui(lambda state: named(state, "Licenses") is not None
+                         and not any("samuel.nevala@gmail.com" in text for text in visible_text(state)))
+            check(edge + "_back_only_privacy", named(ui, "Privacy policy") is not None and not keyboard(), ui)
+            tap(named(ui, "Privacy policy"))
+            ui = wait_ui(lambda state: any("samuel.nevala@gmail.com" in text for text in visible_text(state)))
+        tap(named(ui, "Close"))
+        ui = wait_ui(lambda state: named(state, "Licenses") is not None
+                     and not any("samuel.nevala@gmail.com" in text for text in visible_text(state)))
+        check("privacy_close_preserves_drawer", named(ui, "Privacy policy") is not None and not keyboard(), ui)
+        return ui
 
     def select_notice(ui, tab, filename):
         expected = (ROOT / "app/licenses" / filename).read_text(encoding="utf-8").split("\n\n")[0].strip()
@@ -210,7 +249,16 @@ def main():
             ui = wait_ui(lambda state: editor(state) is not None
                          and editor(state).get("text") == "licensedraft")
             before = saved()
-            ui = open_about(open_drawer(ui))
+            ui = open_drawer(ui)
+            if args.privacy:
+                ui = privacy_policy(ui)
+                check("privacy_keeps_saved_items", saved() == before, ui)
+                back("right")
+                ui = wait_ui(lambda state: editor(state) is not None and named(state, "Licenses") is None)
+                check("privacy_keeps_draft", editor(ui).get("text") == "licensedraft"
+                      and saved() == before and not keyboard(), ui)
+                continue
+            ui = open_about(ui)
             display = shell("dumpsys", "window", "displays")
             top_safe, bottom_safe = 0, height
             for kind, _, top, _, bottom in re.findall(

@@ -155,6 +155,86 @@ Item {
             compare(snapshot(), before);
         }
 
+        function test_privacy_policy_data() {
+            return [
+                        {
+                            tag: "light",
+                            theme: Material.Light
+                        },
+                        {
+                            tag: "dark",
+                            theme: Material.Dark
+                        }
+                    ];
+        }
+
+        function test_privacy_policy(data) {
+            Theme.theme = data.theme;
+            const before = snapshot();
+            const privacy = findChild(view, "privacyDialog");
+            verify(privacy !== null, "The app must offer an offline privacy policy");
+            mouseClick(field, field.height / 2, field.height / 2);
+            tryCompare(drawer, "opened", true);
+            drawer.contentItem.positionViewAtEnd();
+            const last = drawer.contentItem.count - 1;
+            tryVerify(() => drawer.contentItem.itemAtIndex(last) !== null);
+            const button = findChild(drawer.contentItem.itemAtIndex(last), "privacyButton");
+            verify(button !== null);
+            compare(button.text, "Privacy policy");
+            wait(100);
+            const started = Date.now();
+            mouseClick(button, button.width / 2, button.height / 2);
+            tryCompare(privacy, "opened", true);
+            verify(Date.now() - started < 1000);
+            const policy = findChild(privacy, "privacyText");
+            verify(policy !== null);
+            tryVerify(() => policy.text.includes("samuel.nevala@gmail.com"));
+            verify(policy.text.includes("Android backup"));
+            verify(policy.text.includes("Google Play purchases"));
+            verify(policy.readOnly);
+            compare(policy.selectByMouse, false);
+            compare(policy.selectByKeyboard, false);
+            compare(Qt.inputMethod.visible, false);
+            const scroll = findChild(privacy, "privacyScroll");
+            const initial = scroll.contentY;
+            mouseDrag(scroll, scroll.width / 2, scroll.height * .8, 0, -scroll.height * .6);
+            tryVerify(() => scroll.contentY > initial);
+            compare(policy.selectedText, "");
+            const margins = app.contentItem.SafeArea.additionalMargins;
+            margins.top = 18;
+            margins.bottom = 22;
+            margins.left = 12;
+            margins.right = 16;
+            for (const size of [[360, 650], [500, 800]]) {
+                app.width = size[0];
+                app.height = size[1];
+                wait(80);
+                const point = privacy.parent.mapToItem(app.contentItem, privacy.x, privacy.y);
+                verify(point.x >= margins.left);
+                verify(point.y >= margins.top);
+                verify(point.x + privacy.width <= app.width - margins.right);
+                verify(point.y + privacy.height <= app.height - margins.bottom);
+                scroll.contentY = scroll.contentHeight - scroll.height;
+                const end = policy.positionToRectangle(policy.length);
+                const visibleEnd = policy.mapToItem(scroll, end.x, end.y);
+                verify(visibleEnd.y >= 0);
+                verify(visibleEnd.y + end.height <= scroll.height + 1,
+                       "The final policy line must be reachable within the reader");
+            }
+            compare(snapshot(), before);
+            keyClick(Qt.Key_Back);
+            tryCompare(privacy, "visible", false);
+            compare(drawer.opened, true);
+            compare(snapshot(), before);
+            mouseClick(button, button.width / 2, button.height / 2);
+            tryCompare(privacy, "opened", true);
+            const close = findChild(privacy, "closePrivacyButton");
+            mouseClick(close, close.width / 2, close.height / 2);
+            tryCompare(privacy, "visible", false);
+            compare(drawer.opened, true);
+            compare(snapshot(), before);
+        }
+
         function test_scroll_and_resize_with_safe_areas() {
             const margins = app.contentItem.SafeArea.additionalMargins;
             margins.top = 18;

@@ -6,7 +6,7 @@ a **personal developer account**, created on **8 November 2026**. Samuel
 confirmed Play Console account verification on **12 November 2026**, following
 the pending identity/address checks. The separate physical-device task has not
 been reported individually. No production/upload key exists yet.
-The app is currently **0.1.0, Android code 3**. Signing-key enrolment, uploads
+The app is currently **0.1.0, Android code 4**. Signing-key enrolment, uploads
 and publication have not been performed.
 
 ## 1. Create your personal Play Console account
@@ -47,7 +47,7 @@ declarations. Confirm availability/ownership of **`shopper.nevala.com`** before
 the first upload: this is the existing package ID, and Play package names are
 permanent. The owner selected payment for the official ready-to-install build
 while keeping the source public. A one-time EUR 2.99 price is proposed, not yet
-selected. Countries, target audience and public support details also need the
+selected. Countries and target audience also need the
 owner's choices.
 
 See [Create and set up your app](https://support.google.com/googleplay/android-developer/answer/9859152).
@@ -152,7 +152,8 @@ aligned. A universal bundletool APK is not the device-targeted split layout.
 | ARM64 package | Bytes | Native libraries |
 | --- | ---: | ---: |
 | Original Release baseline, code 2 | 63,317,333 | 53 |
-| Final standalone Release APK, code 3, unsigned | 24,585,386 | 40 |
+| Size-optimization milestone, code 3, unsigned | 24,585,386 | 40 |
+| Privacy-policy candidate, code 4, unsigned | 24,604,514 | 40 |
 
 This is about a **61% APK reduction** with the ten full-size backgrounds and
 existing UI features retained. Java DEX shrank from 5,298,532 to 267,312 bytes.
@@ -212,8 +213,8 @@ Keep signing a separate step from ordinary local builds.
 
 - Review the [English listing draft](store/google-play/README.md): copy-ready
   title, short/full descriptions, first-test release notes, store icon and
-  screenshot/feature-graphic direction. Public contact details and privacy
-  declarations remain separate owner/audit work.
+  screenshot/feature-graphic direction. The owner selected
+  `samuel.nevala@gmail.com` for public support/privacy enquiries.
 - Prepare the app name, short/full description, support contact and category.
   Supply a 512 x 512 store icon, feature graphic and current phone screenshots.
   The store icon needs the [Play icon specifications](https://developer.android.com/distribute/google-play/resources/icon-design-specifications);
@@ -221,17 +222,46 @@ Keep signing a separate step from ordinary local builds.
   See [store asset requirements](https://support.google.com/googleplay/android-developer/answer/9866151).
 - Complete app access, ads, age/content rating, target audience and regional
   declarations from the actual product and the owner's decisions.
-- Audit the final permissions, local SQLite/settings, Android backup policy and
-  third-party code before answering Data safety. Qt currently auto-adds Internet,
-  network-state and legacy external-storage permissions. Native network libraries
-  in the payload do not by themselves establish data collection.
-- Prepare a public privacy-policy URL and consistent in-app access. Even an app
+- Review the [privacy/data audit](reviews/REL-001-privacy.md) and
+  [Data safety draft](store/google-play/data-safety.md) against the final artifact.
+  Code 4 removes Qt's default Internet, network-state and legacy storage
+  permissions through the supported manifest configuration. Only the AndroidX
+  internal signature permission remains. Explicit development QML debugging
+  adds Internet access; Release excludes it. Android backup remains enabled.
+- Review the [canonical policy](app/privacy-policy.txt), also available offline
+  from **About → Privacy policy**, and its [public HTML](docs/privacy-policy.html).
+  The owner selected GitHub Pages; follow the publication steps below.
+  Even an app
   declaring no collection still needs the applicable Data safety form/privacy
   policy for closed/production distribution. Follow [Data safety guidance](https://support.google.com/googleplay/android-developer/answer/10787469).
 - Follow [LICENSING.md](LICENSING.md): exact corresponding project/Qt source,
   notices and required installation/relinking information must accompany the
   distributed build arrangement. Publish the matching source revision before
   distributing public binaries; review the actual GPL/LGPL obligations there.
+
+### Publish the prepared privacy page
+
+After policy review, commit and push the accepted files to `master`. In the
+repository's **Settings → Pages → Build and deployment**, choose **Deploy from
+a branch**, branch **master**, folder **/docs**, and save. This is preparation;
+Pages has not been enabled or the policy published by this change.
+
+The intended URL is
+`https://samuelnevala.github.io/QShop/privacy-policy.html`. Wait for the Pages
+deployment, then check it while signed out, on mobile, without a download or
+login requirement. Confirm the contact and final paragraph match the accepted
+policy before entering the URL in Console. Do not enter an unverified planned URL.
+See [GitHub's publishing-source instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+
+Keep the public and bundled copies synchronized:
+
+```powershell
+python tools/export-privacy-policy.py
+python tools/export-privacy-policy.py --check
+```
+
+The generator reads `app/privacy-policy.txt`; edit that canonical text rather
+than the generated page. The page has no JavaScript, trackers or remote fonts.
 
 ## 9. Test through Play, then request production access
 
