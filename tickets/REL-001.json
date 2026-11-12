@@ -129,7 +129,7 @@
       "Owner creates/backs up production upload identity and enrolls Play App Signing; no production credentials or keys are committed.",
       "Resolve and test migration of existing debug-signed phone lists before moving to the incompatible production signing identity; no public export/import flow exists yet.",
       "Monday 2026-11-09 shopping succeeded overall, reported on 2026-11-11. UI-035 long-list/IME is phone-confirmed fixed on 2026-11-11. UX-007 110% sensitivity remains, along with detailed QA-002 physical checks, actual 16 KB runtime, minimum/API 37 device coverage and real Play-generated delivery/update.",
-      "Review/publish and verify the prepared privacy policy and finalize Data safety. Finish Java/Maven/license/source/install-arrangements audit, listing assets and owner audience/country/pricing choices. Public contact/Pages hosting are selected.",
+      "Public privacy policy is published and exact HTML verified. Save its URL in Console and finalize Data safety. Finish Java/Maven/license/source/install arrangements audit, listing assets and owner audience/country/pricing choices.",
       "Complete internal/closed testing (new personal account: at least 12 continuously opted-in testers for 14 days), apply for production access, then obtain owner approval for submission/publication."
     ],
     "status": "Preparation implemented and locally verified; REL-001 stays in_progress. The user confirmed personal-account verification on 2026-11-12. No production key, tag, Play upload or store publication has been created."
@@ -164,7 +164,7 @@
     "date": "2026-11-12",
     "request": "User asks whether QShopper meets the three Create app declarations.",
     "review": "reviews/REL-001-declarations.md",
-    "policy_status": "Initial missing-policy/permission findings are addressed locally by the code-4 privacy implementation. Public policy publication/verification, final Data safety and other Console declarations, distribution-license/source and export review remain. No overall Play compliance certification or declaration acceptance.",
+    "policy_status": "Privacy implementation and minimized permissions are locally accepted; public policy publication and anonymous exact-HTML verification are complete. Console privacy-policy field, final Data safety and other declarations, source/license and export review remain. No overall Play compliance certification or declaration acceptance.",
     "signing_status": "Technical APK/AAB compatibility established; owner acceptance of Play App Signing terms and production key setup remain separate.",
     "export_status": "No explicit application encryption feature found. Qt publishes a framework classification but requires customer-product classification; QShopper export compliance is not certified by the scan.",
     "artifact_evidence": "SDK aapt2 inspection of retained ARM64 Release APK confirms INTERNET, ACCESS_NETWORK_STATE, WRITE_EXTERNAL_STORAGE and generated AndroidX receiver permission. Source manifest enables Android backup. Retained Release artifact predates UI-035; repeat final artifact review before upload.",
@@ -192,7 +192,7 @@
       "Finish feature graphic/current screenshots and remaining listing declarations",
       "Signed final bundle and Play testing/release gates"
     ],
-    "status": "Authorized scope implemented locally; verification and evidence are recorded in privacy_preparation. Policy publication, Console declarations and submission were not performed."
+    "status": "Privacy implementation committed as ee96496 and pushed to master. The owner enabled Pages; public policy HTTP 200 and exact HTML are verified. Console field, final answers and remaining release gates are open; no Play submission or app publication."
   },
   "versioning": {
     "date": "2026-11-08",
@@ -208,7 +208,7 @@
     "policy": "app/privacy-policy.txt is canonical; tools/export-privacy-policy.py exports/checks docs/privacy-policy.html. Offline About > Privacy policy uses built-in TextDocument source, TextArea/Flickable, standard Back/Close and preserved drawer/draft/items. Existing virtualized license reader is unchanged.",
     "public_contact": "samuel.nevala@gmail.com",
     "planned_url": "https://samuelnevala.github.io/QShop/privacy-policy.html",
-    "hosting": "GitHub Pages from master /docs; files and owner instructions prepared. Not enabled/pushed/published or checked as a live policy URL.",
+    "hosting": "Accepted commit ee96496 pushed to master; owner enabled GitHub Pages from master /docs. On 2026-11-12 the public HTTPS policy returned 200 and exactly matched accepted HTML, including contact/final section. Console field and browser/mobile layout review remain.",
     "data_safety": "store/google-play/data-safety.md maps proposed no app-side collection/sharing answers to audited behavior; separately explains backup, IME, Play, support and hosting. Not submitted.",
     "regression": {
       "before": "Original APK fails actual permission contract for INTERNET, ACCESS_NETWORK_STATE and WRITE_EXTERNAL_STORAGE. Original desktop app fails both privacy-access cases; installed original Android Debug fails missing Privacy policy button.",
@@ -217,7 +217,7 @@
       "intermittent_result": "Initial Windows timed comfortable-swipe(edit_left) assertion failed. Unchanged focused suite then passed 11/11 and full UI rerun passed 214/214; no threshold/default/assertion was changed or waived. Cause was not established; failed and passing evidence retained."
     },
     "owner_acceptance": "On 2026-11-12 the user accepted the prepared changes and requested a Git commit.",
-    "remaining": "Public policy publication and verified public URL; live Console answers; physical-phone review of new policy screen; source/license/export/signing/listing and store testing gates. REL-001 stays in_progress.",
+    "remaining": "Save verified public policy URL in Console; finalize live Console answers; browser/mobile layout and physical-phone review; source/license/export/signing/listing and store testing gates. REL-001 stays in_progress.",
     "artifacts": {
       "version": "0.1.0 / Android code 4",
       "arm64_unsigned_apk_bytes": 24604514,
@@ -227,5 +227,24 @@
       "signing": "Compatible shared debug key only; no production signing identity created.",
       "evidence": "out/rel001/privacy: Windows/Android logs, dependency reports, before failures, hashes, signer and verified temporary-emulator cleanup. Final APK/AAB package reports in dist/."
     }
+  },
+  "privacy_publication": {
+    "date": "2026-11-12",
+    "source_revision": "ee96496f650130d7dcade76a9740bbd8add7cc59",
+    "url": "https://samuelnevala.github.io/QShop/privacy-policy.html",
+    "hosting": "User confirmed GitHub Pages setup after instructions for master /docs.",
+    "verification": "Unauthenticated HTTPS returned 200, text/html; charset=utf-8. Full HTML exactly matches accepted docs/privacy-policy.html; contact and final section present.",
+    "evidence": "out/rel001/pages/live-check.json, published-privacy-policy.html and publication.json",
+    "console_status": "Owner confirmed on 2026-11-12 that no Play Console app entry exists because the creation declarations are unresolved. No app entry, terms acceptance or Console field changes were performed.",
+    "console_app_entry_created": false,
+    "remaining": "Browser/mobile layout review, Console and broader REL-001 release gates."
+  },
+  "declaration_follow_up": {
+    "date": "2026-11-12",
+    "owner_report": "App entry has not been created because accepting the declarations requires clearer evidence of compliance.",
+    "current_evidence": "Public policy HTTP 200/exact HTML verified; app has offline policy and minimized permissions. This does not establish overall Developer Programme Policy or export compliance, or accept signing terms.",
+    "recommended_priority": "Finish Android license and source-delivery audit: actual Release Java/Maven/Qt/font/artwork notices, project GPL notice, exact corresponding source and build/install or relinking arrangements. Then complete app-specific export and remaining Data safety/content/listing decisions before owner declaration acceptance.",
+    "review": "reviews/REL-001-declarations.md",
+    "actions": "Recorded verified policy publication and reviewed official GNU/Qt/Google guidance. No app code changes, key creation, Console entry, agreement acceptance or Play submission."
   }
 }

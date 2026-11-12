@@ -128,6 +128,10 @@ Lists and settings are stored locally using SQLite and Qt settings. QShopper has
 no account or cloud-sync service. Dictation is supplied by the selected Android
 keyboard, whose own permissions and privacy settings apply.
 
+The [privacy policy](https://samuelnevala.github.io/QShop/privacy-policy.html)
+explains local storage, Android backup, keyboard services and support enquiries.
+It is also bundled offline under **About → Privacy policy**.
+
 ## License
 
 QShopper project code, tooling and documentation are licensed under

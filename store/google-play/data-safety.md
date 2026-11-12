@@ -14,7 +14,7 @@ before submission. Nothing in this file has been submitted to Google.
 | Account creation | No QShopper account | A Play/Android/keyboard account belongs to that service, not QShopper |
 | Account deletion URL | Not applicable to QShopper account creation | Users can remove local data in the app or Android storage settings; support/privacy enquiries use the published email |
 | Encryption in transit | No app-side collected data; follow the form's applicable questions | Do not invent an app TLS connection or answer as though unencrypted personal data is sent |
-| Privacy-policy URL | Planned: `https://samuelnevala.github.io/QShop/privacy-policy.html` | Prepared in `docs/privacy-policy.html`; not a working public policy until Pages publication is verified |
+| Privacy-policy URL | [Published policy](https://samuelnevala.github.io/QShop/privacy-policy.html) | Anonymous HTTPS fetch returned 200 and exactly matched the accepted `docs/privacy-policy.html` on 12 November 2026; saving the Console field is pending |
 
 Google defines collection as transmitting data off the device, including through
 bundled libraries. These answers apply to the official permission-minimized

@@ -9,14 +9,41 @@ offline policy access and prepared the public page and Data safety answers.
 Fresh code-4 packages remove the three unnecessary permissions. The initial
 findings below preserve the original code-3 review; the table records current
 remaining work.
-Publication/verification of the policy URL, final Console answers and the
-source/license/export/signing gates remain open.
+The policy is now publicly served and its exact HTML is verified. Final Console
+answers and the source/license/export/signing gates remain open.
+
+The owner confirmed on 12 November 2026 that **no Play Console app entry has
+been created**, because the declarations are not yet clear enough to accept.
+Saving the policy URL therefore follows the remaining declaration review.
+No app entry was created and no terms or declarations were accepted.
 
 | Declaration | Assessment | Remaining work |
 | --- | --- | --- |
-| Developer Programme Policies | Not yet established as fully compliant | Publish/verify the prepared policy URL; finalize Data safety and remaining Console declarations; complete source/distribution-license review |
+| Developer Programme Policies | Not yet established as fully compliant | Save the verified policy URL in Console; finalize Data safety and remaining declarations; complete source/distribution-license review |
 | Play App Signing terms | Technically compatible; owner acceptance of terms | Read/accept terms, then establish the upload key and Play app-signing identity for the accepted bundle |
 | US export laws | No app-purpose encryption feature found; application-specific compliance not established | Review the complete distributed product and intended destinations using current export guidance; Qt's classification does not classify QShopper |
+
+## Next bounded audit
+
+Complete the Android **license and source-delivery audit** first. Check the
+actual Release dependency inventory, including the AndroidX/Kotlin/Maven runtime
+code, against the notices currently bundled for Qt and Font Awesome. Prepare the
+project's GPL notice, exact corresponding project/Qt source access and practical
+build/install or relinking information for the selected distribution arrangement.
+Record any artifact changes and their verification before claiming this gate is
+complete. The current in-app notice reader alone does not establish that result.
+
+Charging for a GPL-covered build is permitted subject to the GPL's distribution
+conditions; see the [GNU FAQ](https://www.gnu.org/licenses/gpl-faq.en.html#DoesTheGPLAllowMoney).
+Qt's [licensing overview](https://doc.qt.io/qt-6/licensing.html) describes its
+license choices and separately licensed third-party code.
+
+Then complete the app-specific export assessment and remaining Data safety,
+audience/content and listing decisions. Play App Signing is an agreement and
+key-management arrangement for the owner to review; Google's handling of the
+app-signing key is described in the linked official guidance. Creating upload
+keys is a separate implementation step. A technical build pass does not accept
+the agreement or settle the app's export classification.
 
 ## Initial code-3 app findings
 
@@ -70,8 +97,8 @@ scan. No export notification or filing has been made.
 - [Google export guidance](https://support.google.com/googleplay/android-developer/answer/113770): developer responsibility and distribution through US servers.
 - [Qt 6.12 export guidance](https://doc.qt.io/qt-6/exportcontrols.html): framework classification and its limits for customer products.
 
-The privacy/data/permission implementation is now prepared locally; see the
-linked audit for verification and policy-publication steps. Next finish the
-remaining release declarations and source/license delivery checks before
-seeking publication.
+The privacy implementation is committed/pushed, and the policy is live with
+exact content verified. Next finish the remaining release declarations and
+source/license delivery checks before creating the Console entry and seeking
+app publication.
 Creating a Console draft is separate from uploading or publishing a release.

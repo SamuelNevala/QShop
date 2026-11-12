@@ -38,7 +38,7 @@ see the [metadata policy](https://support.google.com/googleplay/android-develope
 | Website | Existing public source project: https://github.com/SamuelNevala/QShop |
 | Tags | Choose available tags that describe shopping lists; no keyword padding |
 | Public support email | samuel.nevala@gmail.com (owner-selected 12 November 2026) |
-| Privacy-policy URL | Prepared: `https://samuelnevala.github.io/QShop/privacy-policy.html`; publish and verify before entering it in Console |
+| Privacy-policy URL | [Published policy](https://samuelnevala.github.io/QShop/privacy-policy.html); anonymous HTTP 200 and exact accepted HTML verified 12 November 2026; app entry/Console field pending the declaration review |
 | Countries and target audience | Owner decisions still required |
 
 The owner selected the address and GitHub Pages hosting. Review the
@@ -104,7 +104,7 @@ The four 1080 x 1920 captures also follow Google's recommended portrait format.
 ## Content checks before upload
 
 - Review the proposed title, descriptions, screenshot captions and test notes.
-- Review the policy and Data safety draft; publish and verify the public policy URL.
+- Save the verified policy URL in Console and review the Data safety draft before submission.
 - Finish the feature graphic and capture the real phone screenshots.
 - Review all visuals at phone size and verify text/image dimensions and formats.
 - Recheck copy against the exact accepted build and selected test track.

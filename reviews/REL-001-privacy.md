@@ -84,9 +84,13 @@ technology preview; recheck it with kit upgrades.
 `tools/export-privacy-policy.py` creates the public HTML from the same canonical
 text; `--check` rejects a stale public copy. The static page contains no scripts,
 third-party fonts or trackers. `docs/index.html` provides the Pages entry point.
-Planned direct URL: `https://samuelnevala.github.io/QShop/privacy-policy.html`.
-The page is prepared locally; publishing and a successful public fetch still
-need to occur before entering that URL as a working policy in Console.
+The owner enabled GitHub Pages from **master → /docs** after commit `ee96496`
+was pushed. The [public policy](https://samuelnevala.github.io/QShop/privacy-policy.html)
+was verified on 12 November 2026: unauthenticated HTTPS returned **200**, UTF-8
+HTML exactly matches the accepted local file, and the contact/final section are
+present. Evidence: `out/rel001/pages/live-check.json`. The Console field has not
+yet been saved; browser/mobile layout review remains separate from this content
+and HTTP verification.
 
 The [Data safety draft](../store/google-play/data-safety.md) maps proposed form
 answers to these paths. It is not a submitted or approved label. Final provider
@@ -120,7 +124,7 @@ Before/after evidence is retained under `out/rel001/privacy`:
 - The public HTML's extracted reader text exactly matches the bundled policy;
   export `--check`, Python syntax, ticket JSON and QML format checks pass.
   Browser rendering of the local file was blocked by the browser URL policy;
-  the live published page still needs browser/mobile review. No workaround was
+  the published page still needs browser/mobile layout review. No workaround was
   attempted. Generated HTML uses basic responsive system-font styling.
 
 An initial Windows run failed the existing timed
@@ -140,7 +144,7 @@ production-signed store artifact. Signer checks, artifact SHA-256 hashes and
 verified task-owned emulator cleanup are retained alongside the test reports.
 
 The owner accepted the prepared changes and requested a commit on 12 November 2026.
-Pending: publication of the policy page, live Console answers,
+Pending: saving the verified policy URL and remaining live Console answers,
 final production-key/source-license/export/release gates and physical phone
 confirmation of the new screen. A prepared policy is not overall Play approval.
 

@@ -7,7 +7,7 @@ confirmed Play Console account verification on **12 November 2026**, following
 the pending identity/address checks. The separate physical-device task has not
 been reported individually. No production/upload key exists yet.
 The app is currently **0.1.0, Android code 4**. Signing-key enrolment, uploads
-and publication have not been performed.
+and Play publication have not been performed.
 
 ## 1. Create your personal Play Console account
 
@@ -230,7 +230,7 @@ Keep signing a separate step from ordinary local builds.
   adds Internet access; Release excludes it. Android backup remains enabled.
 - Review the [canonical policy](app/privacy-policy.txt), also available offline
   from **About → Privacy policy**, and its [public HTML](docs/privacy-policy.html).
-  The owner selected GitHub Pages; follow the publication steps below.
+  The public policy is published through GitHub Pages as recorded below.
   Even an app
   declaring no collection still needs the applicable Data safety form/privacy
   policy for closed/production distribution. Follow [Data safety guidance](https://support.google.com/googleplay/android-developer/answer/10787469).
@@ -239,18 +239,22 @@ Keep signing a separate step from ordinary local builds.
   distributed build arrangement. Publish the matching source revision before
   distributing public binaries; review the actual GPL/LGPL obligations there.
 
-### Publish the prepared privacy page
+### Published privacy page
 
-After policy review, commit and push the accepted files to `master`. In the
-repository's **Settings → Pages → Build and deployment**, choose **Deploy from
-a branch**, branch **master**, folder **/docs**, and save. This is preparation;
-Pages has not been enabled or the policy published by this change.
+The owner enabled GitHub Pages from **master → /docs** after the accepted
+commit `ee96496` was pushed. On **12 November 2026**, an unauthenticated HTTPS
+fetch of the [public policy](https://samuelnevala.github.io/QShop/privacy-policy.html)
+returned **200** and exactly matched the accepted HTML, including the contact
+and final section. The page is served as UTF-8 HTML without a login or download.
 
-The intended URL is
-`https://samuelnevala.github.io/QShop/privacy-policy.html`. Wait for the Pages
-deployment, then check it while signed out, on mobile, without a download or
-login requirement. Confirm the contact and final paragraph match the accepted
-policy before entering the URL in Console. Do not enter an unverified planned URL.
+Use that verified URL in the Play Console privacy-policy field. Browser/mobile
+layout review and saving the Console field remain separate verification steps.
+The owner confirmed on 12 November 2026 that no app entry exists yet because
+the creation declarations are unresolved. Complete the
+[declaration review](reviews/REL-001-declarations.md) before creating the entry;
+no declarations or terms have been accepted by this work.
+Future changes in `docs` deploy from the same branch/folder; recheck the live
+content after deployment before changing any store answers.
 See [GitHub's publishing-source instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 
 Keep the public and bundled copies synchronized:
