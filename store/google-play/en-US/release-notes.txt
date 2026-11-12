@@ -1,0 +1,3 @@
+First Google Play test build of QShopper.
+
+Arrange your shopping list, check items with swipes, and reuse your shopping order. Includes a movable editor, deletion Undo, separate lists, and Light, Dark and System themes.

@@ -6,7 +6,7 @@
   "priority": "unassigned",
   "created": "2026-10-28",
   "reported_by": "user",
-  "scope": "Repository publication is complete. On 2026-11-08 the user selected Google Play with APKs for testing, a new personal developer account and a new production/upload signing setup. Current authorized work prepares the account/release instructions, unsigned production artifacts, size optimization and isolated validation. Account creation/payment, production key creation, store uploads/submissions and publication have not been performed.",
+  "scope": "Repository publication is complete. On 2026-11-08 the user selected Google Play with APKs for testing, a new personal developer account and a new production/upload signing setup. Current authorized work prepares the account/release instructions, unsigned production artifacts, size optimization and isolated validation. The user reports the personal account was created on 2026-11-08 and confirmed account verification on 2026-11-12, following the pending identity/address checks. Production key creation, store uploads/submissions and publication have not been performed.",
   "repository_preparation": {
     "date": "2026-11-08",
     "license_decision": "User selected GPL-3.0-or-later for the Qt 6 project. Root LICENSE is the unmodified GNU GPLv3 text; COPYRIGHT states the or-later grant. Third-party terms and the Qt 5 archive's original LGPLv3 license are retained.",
@@ -66,8 +66,15 @@
     "guide": "RELEASE.md",
     "owner_choices": {
       "store": "Google Play; APKs for testing",
-      "account": "New personal developer account; not yet created",
+      "account": "Personal developer account created 2026-11-08; verified 2026-11-12 (user report)",
       "production_signing": "Plan a new owner-controlled upload key with Play-managed app signing; no key generated"
+    },
+    "account_verification": {
+      "date": "2026-11-12",
+      "source": "User: Ok got google console account verified.",
+      "status": "verified",
+      "previous_status": "Account created; proof of identity and address pending.",
+      "scope": "User confirmation of Play Console account verification; no claim of upload-key creation, app approval, production access or publication."
     },
     "profile": "MinSizeRel (-Os), native ThinLTO, R8/resource shrinking, retained Qt JNI/bootstrap resources. Debug workflow unchanged. Android code advances from 2 to 3; version name stays 0.1.0.",
     "size": {
@@ -90,14 +97,74 @@
       "evidence": "out/rel001/size-report.json, optional-plugins/results.json, release-upgrade-final/results.json, release-device-splits-final/results.json; dist/QShopper-{arm64,x86_64}-release-{apk,aab}.json"
     },
     "remaining": [
-      "Owner creates/verifies personal account, including physical Android-device verification; follow current Console prompts and RELEASE.md.",
+      "Account verification is user-confirmed complete on 2026-11-12. Check remaining Console tasks; the separate physical Android-device verification has not been individually reported.",
       "Owner creates/backs up production upload identity and enrolls Play App Signing; no production credentials or keys are committed.",
       "Resolve and test migration of existing debug-signed phone lists before moving to the incompatible production signing identity; no public export/import flow exists yet.",
       "Monday 2026-11-09 shopping succeeded overall, reported on 2026-11-11. UI-035 long-list/IME is phone-confirmed fixed on 2026-11-11. UX-007 110% sensitivity remains, along with detailed QA-002 physical checks, actual 16 KB runtime, minimum/API 37 device coverage and real Play-generated delivery/update.",
       "Finish privacy/Data safety/permissions and Java/Maven/license/source/install-arrangements audit; prepare public policy, listing assets and owner audience/country/pricing/contact choices.",
       "Complete internal/closed testing (new personal account: at least 12 continuously opted-in testers for 14 days), apply for production access, then obtain owner approval for submission/publication."
     ],
-    "status": "Preparation implemented and locally verified; REL-001 stays in_progress. No production key, account, tag, Play upload or store publication has been created."
+    "status": "Preparation implemented and locally verified; REL-001 stays in_progress. The user confirmed personal-account verification on 2026-11-12. No production key, tag, Play upload or store publication has been created."
+  },
+  "store_listing_draft": {
+    "date": "2026-11-08",
+    "request": "User asked to start creating Google Play entry content.",
+    "directory": "store/google-play/",
+    "locale": "English (United States), draft starting locale",
+    "copy": {
+      "title": "QShopper: Shopping List",
+      "title_characters": 23,
+      "short_description_characters": 70,
+      "full_description_characters": 1541,
+      "release_notes": "First Google Play test build; adapt to the actual accepted track/build"
+    },
+    "positioning": "One-handed shopping, deliberate swipe checks, manual item order, movable editor, continuous keyboard/optional keyboard dictation, reusable lists, pending-action Undo, readable text and themes.",
+    "assets": "512 x 512 RGBA opaque store icon exported from the existing pinned Font Awesome page-and-pen SVG with a full-square green background. Android launcher resources unchanged. Feature graphic brief and four actual phone screenshot directions/captions/alt texts are drafted; those images remain to create.",
+    "verification": "Copy character limits and absence of placeholders checked; SVG parses, native Qt raster export inspected, PNG dimensions/alpha/size checked, and local documentation links resolve. Evidence: out/rel001/store-content-check.json. Existing 1440 x 3120 RGBA README screenshots are references, not Play uploads; recapture at 1080 x 1920 RGB.",
+    "remaining": "Review copy/brand title, create feature graphic and current phone captures, select public support email, complete privacy/backup audit and public policy URL, and confirm category/tags/audience/countries/pricing in Console.",
+    "status": "Local draft only; no Console write, upload or submission performed."
+  },
+  "pricing_direction": {
+    "date": "2026-11-12",
+    "source": "User intends a small payment for the ready-made release build while keeping the source open for self-building.",
+    "model": "Paid download of the official build; one-time purchase proposed. Source availability and existing GPL freedoms remain.",
+    "price_selected": false,
+    "proposed_price_eur": 2.99,
+    "proposal_status": "Agent recommendation; amount requires owner selection. No Console pricing action performed."
+  },
+  "declarations_review": {
+    "date": "2026-11-12",
+    "request": "User asks whether QShopper meets the three Create app declarations.",
+    "review": "reviews/REL-001-declarations.md",
+    "policy_status": "Not yet established as fully compliant. Missing public privacy policy/in-app access, Data safety and permissions/backup/third-party/distribution-license review remain.",
+    "signing_status": "Technical APK/AAB compatibility established; owner acceptance of Play App Signing terms and production key setup remain separate.",
+    "export_status": "No explicit application encryption feature found. Qt publishes a framework classification but requires customer-product classification; QShopper export compliance is not certified by the scan.",
+    "artifact_evidence": "SDK aapt2 inspection of retained ARM64 Release APK confirms INTERNET, ACCESS_NETWORK_STATE, WRITE_EXTERNAL_STORAGE and generated AndroidX receiver permission. Source manifest enables Android backup. Retained Release artifact predates UI-035; repeat final artifact review before upload.",
+    "actions_performed": "Read-only source/artifact review and local documentation only; no code changes, Console acceptance, legal filing, signing-key creation, upload or publication."
+  },
+  "next_work": {
+    "selected_for_proposal_on": "2026-11-12",
+    "task": "Privacy, data handling and Android permissions",
+    "reason": "First confirmed Developer Programme Policies gap: no public privacy policy or in-app access; final Data safety answers and permission/backup review remain.",
+    "ordered_scope": [
+      "Audit application and bundled Android dependencies, local database/settings, backup behavior, keyboard dictation and actual manifest permissions. Record what can leave the device and under whose control.",
+      "Remove permissions confirmed unnecessary using the supported deployment/manifest mechanism, with a failing-before/passing-after APK permission regression and affected native behavior checks. Do not remove needed Qt backing libraries.",
+      "Draft an app-specific privacy policy and Data safety answers from the findings. Include platform backup, optional keyboard dictation, retention/deletion and a public privacy contact; avoid unsupported no-data-ever-leaves-device claims.",
+      "Add readable in-app policy access consistent with the drawer and Back behavior. Cover opening/closing, readable content, offline availability if bundled, and retained draft/list state with automated regression tests.",
+      "Prepare the public policy page for owner review and the chosen hosting destination. Publication, Console declarations and submissions require their own authorized action."
+    ],
+    "owner_inputs_when_needed": [
+      "Public support/privacy email address",
+      "Public policy hosting URL or destination",
+      "Final sale price; EUR 2.99 is still only a proposal"
+    ],
+    "acceptance": "Fresh final APK permission inventory agrees with the audit; public-policy content and in-app access agree; affected Windows/native Android tests pass; draft Data safety answers map to actual behavior. This milestone does not certify export compliance or complete store publication.",
+    "following_milestones": [
+      "Complete source/license delivery and export assessment for the actual distribution arrangement",
+      "Production upload-key ownership and Play signing setup, with safe migration of existing debug-signed phone lists",
+      "Finish feature graphic/current screenshots and remaining listing declarations",
+      "Signed final bundle and Play testing/release gates"
+    ]
   },
   "versioning": {
     "date": "2026-11-08",

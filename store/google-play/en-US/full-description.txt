@@ -1,0 +1,21 @@
+QShopper is a shopping list built for one-handed use in the shop. Write items as they come to mind, put them in your shopping order, and check them off with deliberate swipes.
+
+Follow your route
+Move the editor to add an item where it belongs, or rearrange existing items. Keep your list in the order you walk through the shop.
+
+Swipe to check and correct
+Check and uncheck items with horizontal swipes. Checked items move below the remaining list, with the most recently checked item closest at hand for a quick correction. Adjust swipe sensitivity to suit your touch.
+
+Keep adding items
+Press Return to add the next item while keeping the keyboard open. You can also use your Android keyboard's voice typing when it is available. Voice input is provided by your keyboard.
+
+Reuse your shopping order
+Reset checkmarks for your next trip. Previously checked items return in the order you collected them, with any items you left unchecked staying first. Keep separate lists for different shopping needs.
+
+Recover a mistaken removal
+An animated Undo bar lets you restore the latest deletion action. You can work back through earlier pending removals, with a fresh 15-second window each time an earlier action becomes available.
+
+Read at a glance
+Large item text adapts and wraps for longer entries. Choose Light, Dark or System theme and your own primary and accent colors, with illustrated backgrounds and animated feedback.
+
+Your lists work offline. Voice typing availability and connectivity depend on your keyboard. QShopper is open source.

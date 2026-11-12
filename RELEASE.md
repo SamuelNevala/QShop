@@ -2,9 +2,12 @@
 
 Checked against official guidance on **8 November 2026**. The selected target
 is **Google Play**, with APKs for development/testing. Samuel will publish through
-a **new personal developer account**. No production/upload key exists yet.
-The app is currently **0.1.0, Android code 3**. Account creation, signing-key
-enrolment, uploads and publication have not been performed.
+a **personal developer account**, created on **8 November 2026**. Samuel
+confirmed Play Console account verification on **12 November 2026**, following
+the pending identity/address checks. The separate physical-device task has not
+been reported individually. No production/upload key exists yet.
+The app is currently **0.1.0, Android code 3**. Signing-key enrolment, uploads
+and publication have not been performed.
 
 ## 1. Create your personal Play Console account
 
@@ -34,12 +37,18 @@ References: [account registration and fee](https://support.google.com/googleplay
 
 ## 2. Create the QShopper app entry
 
+The [declaration review](reviews/REL-001-declarations.md) records the current
+privacy/permissions gaps and distinguishes owner acceptance of signing/export
+terms from technical release readiness.
+
 In Play Console, use **Create app**. Select QShopper, its default language,
-**App**, the intended free/paid choice and a support email. Complete the displayed
+**App**, **Paid** and a support email. Complete the displayed
 declarations. Confirm availability/ownership of **`shopper.nevala.com`** before
 the first upload: this is the existing package ID, and Play package names are
-permanent. Pricing, countries, target audience and public support details still
-need the owner's choices.
+permanent. The owner selected payment for the official ready-to-install build
+while keeping the source public. A one-time EUR 2.99 price is proposed, not yet
+selected. Countries, target audience and public support details also need the
+owner's choices.
 
 See [Create and set up your app](https://support.google.com/googleplay/android-developer/answer/9859152).
 
@@ -201,6 +210,10 @@ Keep signing a separate step from ordinary local builds.
 
 ## 8. Complete the store and distribution material
 
+- Review the [English listing draft](store/google-play/README.md): copy-ready
+  title, short/full descriptions, first-test release notes, store icon and
+  screenshot/feature-graphic direction. Public contact details and privacy
+  declarations remain separate owner/audit work.
 - Prepare the app name, short/full description, support contact and category.
   Supply a 512 x 512 store icon, feature graphic and current phone screenshots.
   The store icon needs the [Play icon specifications](https://developer.android.com/distribute/google-play/resources/icon-design-specifications);
