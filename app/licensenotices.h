@@ -13,15 +13,18 @@ class LicenseNotices : public QObject
     QML_SINGLETON
     Q_PROPERTY(QStringList qt READ qt CONSTANT)
     Q_PROPERTY(QStringList fontAwesome READ fontAwesome CONSTANT)
+    Q_PROPERTY(QStringList application READ application CONSTANT)
 
 public:
     explicit LicenseNotices(QObject *parent = nullptr);
     [[nodiscard]] const QStringList &qt() const { return m_qt; }
     [[nodiscard]] const QStringList &fontAwesome() const { return m_fontAwesome; }
+    [[nodiscard]] const QStringList &application() const { return m_application; }
 
 private:
     QStringList m_qt;
     QStringList m_fontAwesome;
+    QStringList m_application;
 };
 
 #endif // LICENSENOTICES_H

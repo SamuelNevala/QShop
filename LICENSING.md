@@ -17,7 +17,9 @@ versions. The archived `qt5/qshopper` tree retains its original LGPLv3 license.
 
 | Material | Terms and records |
 | --- | --- |
-| Qt runtime libraries | Qt and bundled third-party licenses, selected for the actual platform payload. Complete offline notices are in [app/licenses](app/licenses/README.md) |
+| Qt runtime libraries | Official Android builds select Qt's GPLv3 option. Bundled third-party terms remain applicable. Complete offline notices are in [app/licenses](app/licenses/README.md) |
+| Android Maven runtime | AndroidX, Kotlin/coroutines, Guava, JSpecify and JetBrains artifacts, with Apache 2.0 notices; the actual resolved graph and hashes are recorded in [android-runtime.json](app/licenses/android-runtime.json) |
+| Android NDK C++ runtime | `libc++_shared.so` from the selected NDK, with its upstream LLVM notice retained conservatively in [AndroidRuntime.txt](app/licenses/AndroidRuntime.txt) |
 | Qt Virtual Keyboard | Commercial or GPLv3; used by the optional desktop development keyboard, not the Android build. See [Qt's module documentation](https://doc.qt.io/qt-6/qtvirtualkeyboard-index.html#licenses-and-attributions) |
 | Font Awesome Free Solid 7.3.1 font | SIL Open Font License 1.1. Unmodified desktop OTF; full notice in [FontAwesome.txt](app/licenses/FontAwesome.txt) |
 | Font Awesome brand SVG | CC BY 4.0, with fill changed to blue. Attribution and full license in [FontAwesome.txt](app/licenses/FontAwesome.txt); source/hash in [logos/sources.json](app/logos/sources.json) |
@@ -37,6 +39,12 @@ Provide the corresponding source and build/install information required by the
 app's GPL and the licenses of its actual dependencies. A GitHub source checkout
 and in-app notice reader are useful parts of that work; they do not, by
 themselves, complete every binary-distribution obligation.
+
+Follow [SOURCE_DISTRIBUTION.md](SOURCE_DISTRIBUTION.md) to prepare matching
+project/Qt source archives, runtime source metadata and build/install directions.
+The in-app App tab includes the full project GPL grant/license and source link.
+Local candidate archives are preparation; publish and verify the accepted source
+set alongside the distributed version before treating delivery as complete.
 
 Record the exact source revision, Qt kit and packaged dependencies for each
 released build. Qt's [open-source obligations](https://www.qt.io/development/open-source-lgpl-obligations)

@@ -89,6 +89,26 @@ private Q_SLOTS:
         QCOMPARE(paragraphs.join(QStringLiteral("\n\n")), QString::fromUtf8(file.readAll()));
     }
 
+    static void application_license_preserves_project_terms()
+    {
+        const LicenseNotices notices;
+        const auto paragraphs = notices.property("application").toStringList();
+        QVERIFY2(!paragraphs.isEmpty(),
+                 "The app must expose its own license and source information");
+        const auto text = paragraphs.join(QStringLiteral("\n\n"));
+        QFile bundled(QStringLiteral(":/qt/qml/QShopper/licenses/Application.txt"));
+        QVERIFY(bundled.open(QIODevice::ReadOnly));
+        QCOMPARE(text, QString::fromUtf8(bundled.readAll()));
+        for (const auto &path : { QFINDTESTDATA("../COPYRIGHT"), QFINDTESTDATA("../LICENSE") }) {
+            QFile source(path);
+            QVERIFY(source.open(QIODevice::ReadOnly));
+            const auto expected = QString::fromUtf8(source.readAll())
+                                          .replace(QStringLiteral("\r\n"), QStringLiteral("\n"));
+            QVERIFY(text.contains(expected.trimmed()));
+        }
+        QVERIFY(text.contains(QStringLiteral("SOURCE_DISTRIBUTION.md")));
+    }
+
     void init()
     {
         // Fresh default connection per test; never opens the user's database.

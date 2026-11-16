@@ -29,7 +29,7 @@ Controls.Dialog {
 
                 objectName: "qtLicenseTab"
                 text: qsTr("Qt")
-                display: Controls.AbstractButton.TextBesideIcon
+                display: Controls.AbstractButton.TextUnderIcon
                 implicitHeight: Math.max(Theme.pixels(9.27), implicitContentHeight + topPadding
                                          + bottomPadding)
 
@@ -58,6 +58,8 @@ Controls.Dialog {
                         text: qtTab.text
                         fontSizeMode: Text.Fit
                         minimumPixelSize: Theme.pixels(2.5)
+                        wrapMode: Text.WordWrap
+                        maximumLineCount: 2
                         horizontalAlignment: Text.AlignHCenter
                         color: qtTab.checked ? Theme.readableInk(Controls.Material.accentColor,
                                                                  Controls.Material.backgroundColor) :
@@ -71,7 +73,7 @@ Controls.Dialog {
 
                 objectName: "fontAwesomeLicenseTab"
                 text: qsTr("Font Awesome")
-                display: Controls.AbstractButton.TextBesideIcon
+                display: Controls.AbstractButton.TextUnderIcon
                 implicitHeight: Math.max(Theme.pixels(9.27), implicitContentHeight + topPadding
                                          + bottomPadding)
 
@@ -100,11 +102,35 @@ Controls.Dialog {
                         text: fontTab.text
                         fontSizeMode: Text.Fit
                         minimumPixelSize: Theme.pixels(2.5)
+                        wrapMode: Text.WordWrap
+                        maximumLineCount: 2
                         horizontalAlignment: Text.AlignHCenter
                         color: fontTab.checked ? Theme.readableInk(Controls.Material.accentColor,
                                                                    Controls.Material.backgroundColor) :
                                                  Controls.Material.primaryTextColor
                     }
+                }
+            }
+
+            Controls.TabButton {
+                id: applicationTab
+
+                objectName: "applicationLicenseTab"
+                text: qsTr("App")
+                display: Controls.AbstractButton.TextOnly
+                implicitHeight: Math.max(Theme.pixels(9.27), implicitContentHeight + topPadding
+                                         + bottomPadding)
+
+                contentItem: Controls.Label {
+                    visible: applicationTab.display !== Controls.AbstractButton.IconOnly
+                    text: applicationTab.text
+                    fontSizeMode: Text.Fit
+                    minimumPixelSize: Theme.pixels(2.5)
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    color: applicationTab.checked ? Theme.readableInk(Controls.Material.accentColor,
+                                                                      Controls.Material.backgroundColor) :
+                                                    Controls.Material.primaryTextColor
                 }
             }
         }
@@ -123,7 +149,9 @@ Controls.Dialog {
             flickableDirection: Flickable.VerticalFlick
             spacing: root.font.pixelSize
             model: !root.visible ? null : tabs.currentIndex === 0 ? LicenseNotices.qt :
-                                                                    LicenseNotices.fontAwesome
+                                                                    tabs.currentIndex === 1
+                                                                    ? LicenseNotices.fontAwesome :
+                                                                      LicenseNotices.application
 
             delegate: Text {
                 required property string modelData

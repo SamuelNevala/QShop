@@ -25,12 +25,17 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def main():
+    global PACKAGE
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--adb", default="adb")
     parser.add_argument("--serial", default="emulator-5580")
     parser.add_argument("--output", type=Path, default=Path("out/android-about"))
     parser.add_argument("--privacy", action="store_true", help="Exercise the bundled privacy policy instead of licenses")
+    parser.add_argument("--application", action="store_true", help="Exercise the App license and Android runtime notices")
+    parser.add_argument("--package", default=PACKAGE, help="Package ID, including a separately named source rebuild")
     args = parser.parse_args()
+    assert re.fullmatch(r"[A-Za-z]\w*(?:\.[A-Za-z]\w*)+", args.package), "Invalid Android package ID"
+    PACKAGE = args.package
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator is allowed")
     args.output.mkdir(parents=True, exist_ok=True)
@@ -178,7 +183,7 @@ def main():
         check("body_swipe_down", position(ui) < moved and not keyboard(), ui)
         return ui
 
-    def scroll_end(ui, label, filename):
+    def scroll_end(ui, label, filename=None):
         bars = [node for node in ui.iter("node") if node.get("class") == "android.widget.Scroller"
                 and "licenseScroll" in node.get("resource-id", "")
                 and bounds(node)[3] - bounds(node)[1] > bounds(node)[2] - bounds(node)[0]]
@@ -198,7 +203,8 @@ def main():
         background = Counter(column).most_common(1)[0][0]
         thumb_pixels = [top + 4 + y for y, pixel in enumerate(column)
                         if max(abs(a - b) for a, b in zip(pixel, background)) > 10]
-        ending = (ROOT / "app/licenses" / filename).read_text(encoding="utf-8").strip().rsplit("\n\n", 1)[-1].strip()
+        ending = ((ROOT / "app/licenses" / filename).read_text(encoding="utf-8").strip().rsplit("\n\n", 1)[-1].strip()
+                  if filename else "END OF QSHOPPER LICENSE AND SOURCE INFORMATION")
         check(label + "_scroll_end", bool(thumb_pixels) and max(thumb_pixels) >= bottom - 9,
               ui, thumb_bottom=max(thumb_pixels) if thumb_pixels else None, track_bottom=bottom)
         assert any(ending in text for text in visible_text(ui)), "Last notice paragraph must be accessible"
@@ -272,16 +278,38 @@ def main():
                   and bounds(named(ui, "Open-source licenses"))[1] >= top_safe
                   and bounds(named(ui, "Open-source licenses"))[3] <= bottom_safe, ui,
                   safe_top=top_safe, safe_bottom=bottom_safe)
-            ui = select_notice(ui, "Qt", "Qt-Android.txt")
+            if args.application:
+                tab = named(ui, "App")
+                check("application_tab_available", tab is not None, ui)
+                tap(tab)
+                ui = wait_ui(lambda state: any("LICENSE AND SOURCE INFORMATION" in text for text in visible_text(state)))
+                code = re.search(r"QSHOPPER_ANDROID_VERSION_CODE (\d+)", (ROOT / "CMakeLists.txt").read_text()).group(1)
+                markers = ("Samuel Nevala", "GNU General Public License", "any later version", "Android code " + code)
+                check("application_offline_header", all(any(marker in text for text in visible_text(ui))
+                      for marker in markers) and not keyboard(), ui)
+            else:
+                ui = select_notice(ui, "Qt", "Qt-Android.txt")
             image = Image.open(BytesIO(adb("exec-out", "screencap", "-p"))).convert("RGB")
             left, top, right, _ = bounds(named(ui, "Open-source licenses"))
             surface = image.getpixel(((left + right) // 2, top + 20))
             check("theme_surface", min(surface) > 200 if theme == 0 else max(surface) < 110,
                   ui, rgb=surface)
             ui = body_swipes(ui)
-            ui = scroll_end(ui, "qt", "Qt-Android.txt")
-            ui = select_notice(ui, "Font Awesome", "FontAwesome.txt")
-            ui = scroll_end(ui, "font", "FontAwesome.txt")
+            if args.application:
+                for _ in range(4):
+                    if any("SOURCE_DISTRIBUTION.md" in text for text in visible_text(ui)):
+                        break
+                    left, top, right, bottom = bounds(named(ui, "License text"))
+                    shell("input", "swipe", (left + right) // 2, top + (bottom - top) * 3 // 4,
+                          (left + right) // 2, top + (bottom - top) // 3, 600)
+                    ui = tree()
+                check("application_source_directions", any("SOURCE_DISTRIBUTION.md" in text
+                      for text in visible_text(ui)), ui)
+                ui = scroll_end(ui, "application")
+            else:
+                ui = scroll_end(ui, "qt", "Qt-Android.txt")
+                ui = select_notice(ui, "Font Awesome", "FontAwesome.txt")
+                ui = scroll_end(ui, "font", "FontAwesome.txt")
             check("reading_preserves_data", saved() == before and not keyboard(), ui)
             back("left")
             ui = wait_ui(lambda state: named(state, "License text") is None)

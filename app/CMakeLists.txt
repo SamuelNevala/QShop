@@ -37,6 +37,24 @@ else()
 endif()
 set_source_files_properties(${qshopper_qt_notices} PROPERTIES QT_RESOURCE_ALIAS licenses/Qt.txt)
 
+file(READ "${PROJECT_SOURCE_DIR}/COPYRIGHT" qshopper_project_copyright)
+file(READ "${PROJECT_SOURCE_DIR}/LICENSE" qshopper_project_gpl)
+string(REPLACE "\r\n" "\n" qshopper_project_copyright "${qshopper_project_copyright}")
+string(REPLACE "\r\n" "\n" qshopper_project_gpl "${qshopper_project_gpl}")
+set(qshopper_notice_version "${PROJECT_VERSION}")
+set(qshopper_android_runtime_notice "")
+if(ANDROID)
+    string(APPEND qshopper_notice_version " (Android code ${QSHOPPER_ANDROID_VERSION_CODE})")
+    file(READ licenses/AndroidRuntime.txt qshopper_android_runtime_notice)
+endif()
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    "${PROJECT_SOURCE_DIR}/COPYRIGHT" "${PROJECT_SOURCE_DIR}/LICENSE"
+    "${CMAKE_CURRENT_SOURCE_DIR}/licenses/AndroidRuntime.txt")
+set(qshopper_application_notice "${CMAKE_CURRENT_BINARY_DIR}/generated/Application.txt")
+configure_file(licenses/Application.txt.in "${qshopper_application_notice}" @ONLY NEWLINE_STYLE UNIX)
+set_source_files_properties("${qshopper_application_notice}" PROPERTIES
+    QT_RESOURCE_ALIAS licenses/Application.txt)
+
 qt_add_library(QShopper STATIC)
 qt_add_qml_module(QShopper
     URI QShopper
@@ -88,6 +106,7 @@ qt_add_qml_module(QShopper
     RESOURCES
         ${qshopper_qt_notices}
         licenses/FontAwesome.txt
+        "${qshopper_application_notice}"
         privacy-policy.txt
         logos/qt.svg
         logos/font-awesome.svg

@@ -1,0 +1,20 @@
+QShopper @qshopper_notice_version@
+
+LICENSE AND SOURCE INFORMATION
+
+@qshopper_project_copyright@
+
+Source code and build/install information:
+https://github.com/SamuelNevala/QShop/blob/master/SOURCE_DISTRIBUTION.md
+
+Release source manifests identify the exact source and dependency versions for each official build. You may modify and rebuild the app using your own signing key. A separately named Android package lets you try a modified build without replacing the installed app or its shopping data.
+
+The Android distribution uses Qt's GNU GPL version 3 licensing option. Qt, Font Awesome and other third-party components retain their notices and license terms; see their tabs and the Android runtime notices below. Trademark rights are retained by their owners.
+
+COMPLETE QSHOPPER GPL LICENSE TEXT
+
+@qshopper_project_gpl@
+
+@qshopper_android_runtime_notice@
+
+END OF QSHOPPER LICENSE AND SOURCE INFORMATION

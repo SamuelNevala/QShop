@@ -1,5 +1,26 @@
 # Offline license notices
 
+The App tab contains QShopper's complete copyright/GPL text and source/build
+directions, generated from the root files by CMake. Android additionally includes
+`AndroidRuntime.txt`: the 21 resolved Maven runtime artifacts and the NDK C++
+runtime notices. These complement the existing Qt and Font Awesome tabs.
+Official Android builds select Qt's GPLv3 option, consistent with the application's
+GPL-3.0-or-later license; bundled third-party terms remain in force.
+
+`tools/android-license-inventory.gradle` exports the actual runtime graph.
+`tools/update-android-license-notices.py --inventory <inventory.json> --ndk <ndk>`
+regenerates the runtime notice and hash/source inventory in `android-runtime.json`.
+It preserves upstream legal files from the binary/source artifacts, including
+the matching upstream Kotlin coroutines license absent from its source JAR.
+The full NDK toolchain NOTICE is retained conservatively; only its C++ runtime
+is shipped. Python/network access is needed for regeneration, not normal builds.
+
+`build-android.ps1 -VerifyPackage` checks resolved artifacts and the packaged
+C++ runtime against this inventory, then binds the binary hash to its tracked
+build inputs. See [SOURCE_DISTRIBUTION.md](../../SOURCE_DISTRIBUTION.md) for source
+archives and modified-build installation. A local candidate is not a published
+source delivery or an accepted store release.
+
 UI-012 provides the Qt and Font Awesome notices requested by the user. Full
 license texts and copyright notices are bundled; the app never downloads them.
 UX-004 retained Font Awesome after the Tabler comparison. DEV-012 upgrades the

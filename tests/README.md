@@ -1,5 +1,36 @@
 # QShopper verification
 
+## Release license/source checks (REL-001)
+
+`qshopper_tests` checks the complete generated App notice against its bundled
+resource and project copyright/GPL text. The offscreen/native About suites cover
+the third tab, exact draft/data retention and the complete virtualized reader.
+`qshopper_source_delivery_tests` is registered when CMake finds Python; it can
+also run directly with `python tests/test_source_delivery.py`.
+
+Verified Android builds now check the real Gradle runtime artifact hashes and
+NDK C++ runtime build ID against the offline inventory, and bind the output hash
+to unchanged tracked build inputs. Regenerate notices only when that inventory
+changes; see [app/licenses/README.md](../app/licenses/README.md).
+
+With the Debug APK installed on an isolated emulator, run serially:
+
+```powershell
+python tests/android/test_about.py --application --output out/android-app-notices
+python tests/android/test_about.py --output out/android-qt-font-notices
+```
+
+The App mode checks both themes, grant/version/source directions, body swipes,
+the final paragraph and preserved draft/items through both Back edges and Close.
+`test_release.py --disposable-device` additionally checks the App/runtime notice
+in a genuine non-debuggable Release install. Use a task-owned fresh userdata disk
+for Release; never use a physical phone or normal app data.
+
+Source-set preparation and safe modified builds are described in
+[SOURCE_DISTRIBUTION.md](../SOURCE_DISTRIBUTION.md). Local candidates are not
+published release sources. The evidence and remaining gate are in
+[reviews/REL-001-licensing.md](../reviews/REL-001-licensing.md).
+
 Production sources are under `app/`; the QShopper URI and resource URLs are
 unchanged. Build outputs remain under `out/` or the Android build directory.
 Android package regression commands are in [ANDROID.md](../ANDROID.md#package-regression-dev-008).

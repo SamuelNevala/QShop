@@ -27,7 +27,7 @@ def main():
     parser.add_argument("--adb", default="C:/android/sdk/platform-tools/adb.exe")
     parser.add_argument("--serial", default="emulator-5580")
     parser.add_argument("--disposable-device", action="store_true", required=True)
-    parser.add_argument("--smoke", action="store_true", help="Only startup, native entry and both offline notice tabs")
+    parser.add_argument("--smoke", action="store_true", help="Only startup, native entry and offline notices")
     parser.add_argument("--apk", type=Path, help="Install this signed Release test APK")
     parser.add_argument("--upgrade-from", type=Path, help="Seed this same-key Debug APK, then update to --apk")
     parser.add_argument("--output", type=Path, default=Path("out/android-release"))
@@ -196,6 +196,33 @@ def main():
                                       for n in state.iter("node")))
         check("font_awesome_notice", named(ui, "Open-source licenses") is not None)
         capture("font-awesome-notice")
+        tap(named(ui, "App"))
+        ui = wait_ui(lambda state: any("GNU General Public License" in (n.get("text", "") + n.get("content-desc", ""))
+                                      for n in state.iter("node")))
+        check("application_gpl_notice", any("Samuel Nevala" in (n.get("text", "") + n.get("content-desc", ""))
+                                          for n in ui.iter("node")))
+        for _ in range(4):
+            if any("SOURCE_DISTRIBUTION.md" in (n.get("text", "") + n.get("content-desc", "")) for n in ui.iter("node")):
+                break
+            left, top, right, bottom = bounds(named(ui, "License text"))
+            shell("input", "swipe", (left + right) // 2, top + (bottom - top) * 3 // 4,
+                  (left + right) // 2, top + (bottom - top) // 3, 600)
+            ui = tree()
+        check("application_source_directions", any("SOURCE_DISTRIBUTION.md" in (n.get("text", "") + n.get("content-desc", ""))
+                                                 for n in ui.iter("node")))
+        bar = next(n for n in ui.iter("node") if "licenseScroll" in n.get("resource-id", "")
+                   and n.get("class") == "android.widget.Scroller"
+                   and bounds(n)[3] - bounds(n)[1] > bounds(n)[2] - bounds(n)[0])
+        left, top, right, bottom = bounds(bar)
+        thumb = (right - left) * 9.27 / 3
+        position = float(bar.get("content-desc", "0")) / 100
+        shell("input", "swipe", (left + right) // 2, round(top + thumb / 2 + position * (bottom - top - thumb)),
+              (left + right) // 2, bottom - 2, 700)
+        ui = wait_ui(lambda state: any("END OF QSHOPPER LICENSE AND SOURCE INFORMATION" in
+                                      (n.get("text", "") + n.get("content-desc", "")) for n in state.iter("node")))
+        check("android_runtime_notice_end", any("END OF ANDROID RUNTIME NOTICES" in
+                                               (n.get("text", "") + n.get("content-desc", "")) for n in ui.iter("node")))
+        capture("application-runtime-notice-end")
         shell("input", "keyevent", "KEYCODE_BACK")
         ui = wait_ui(lambda state: named(state, "Open-source licenses") is None)
         tap(named(ui, "Privacy policy"))

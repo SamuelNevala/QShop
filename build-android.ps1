@@ -1,6 +1,8 @@
 param(
     [string]$QtRoot = 'C:\Qt',
     [string]$QtVersion = '6.12.0',
+    [string]$AndroidQtPrefix = '',
+    [string]$HostQtPrefix = '',
     [string]$SdkRoot = "$env:LOCALAPPDATA\Android\Sdk",
     [string]$NdkVersion = '27.2.12479018',
     [string]$JavaHome = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot',
@@ -32,10 +34,12 @@ $buildFolder = if ($Configuration -ne 'Debug') {
 $buildDir = Join-Path $PSScriptRoot $buildFolder
 $appBuildDir = Join-Path $buildDir 'app'
 $qtKit = if ($Architecture -eq 'arm64') { 'android_arm64_v8a' } else { 'android_x86_64' }
-$qtCmake = Join-Path $QtRoot "$QtVersion\$qtKit\bin\qt-cmake.bat"
+if (-not $AndroidQtPrefix) { $AndroidQtPrefix = Join-Path $QtRoot "$QtVersion\$qtKit" }
+$qtCmake = Join-Path $AndroidQtPrefix 'bin/qt-cmake.bat'
 $cmake = Join-Path $QtRoot 'Tools\CMake_64\bin\cmake.exe'
 $ninja = Join-Path $QtRoot 'Tools\Ninja\ninja.exe'
-$hostQt = Join-Path $QtRoot "$QtVersion\msvc2022_64"
+if (-not $HostQtPrefix) { $HostQtPrefix = Join-Path $QtRoot "$QtVersion\msvc2022_64" }
+$hostQt = $HostQtPrefix
 $ndk = Join-Path $SdkRoot "ndk\$NdkVersion"
 foreach ($path in @($qtCmake, $cmake, $ninja, $hostQt, $SdkRoot, $ndk, "$JavaHome\bin\java.exe")) {
     if (!(Test-Path -LiteralPath $path)) { throw "Missing build prerequisite: $path" }
@@ -49,6 +53,11 @@ if ($DebugKeystore) {
 
 $previousJavaHome = $env:JAVA_HOME
 $previousGradleOptions = $env:GRADLE_OPTS
+if ($VerifyPackage) {
+    & $Python (Join-Path $PSScriptRoot 'tools/source_inputs.py') `
+        --write (Join-Path $appBuildDir 'source-inputs-before.json')
+    if ($LASTEXITCODE -ne 0) { throw 'Android source-input capture failed.' }
+}
 try {
     $env:JAVA_HOME = $JavaHome
     # Do not leave a persistent Gradle daemon holding the command open.
@@ -125,6 +134,24 @@ try {
                 --report (Join-Path $outputDir "QShopper-$Architecture-release-$extension.json")
         }
         if ($LASTEXITCODE -ne 0) { throw 'Android package verification failed.' }
+        $licenseInventory = Join-Path $appBuildDir 'runtime-license-inventory.json'
+        $licenseConfiguration = if ($Configuration -eq 'Debug') { 'debugRuntimeClasspath' } else { 'releaseRuntimeClasspath' }
+        Push-Location (Join-Path $appBuildDir 'android-build')
+        try {
+            & ./gradlew.bat --offline --no-daemon -I (Join-Path $PSScriptRoot 'tools/android-license-inventory.gradle') `
+                qshopperLicenseInventory "-PlicenseInventoryOutput=$licenseInventory" `
+                "-PlicenseConfiguration=$licenseConfiguration"
+            if ($LASTEXITCODE -ne 0) { throw 'Android license inventory failed.' }
+        } finally {
+            Pop-Location
+        }
+        & $Python (Join-Path $PSScriptRoot 'tests/test_android_licenses.py') `
+            --inventory $licenseInventory --ndk $ndk --artifact $outputApk --abi $abi
+        if ($LASTEXITCODE -ne 0) { throw 'Android license verification failed.' }
+        & $Python (Join-Path $PSScriptRoot 'tools/source_inputs.py') `
+            --check (Join-Path $appBuildDir 'source-inputs-before.json') --artifact $outputApk `
+            --output "$outputApk.source-inputs.json"
+        if ($LASTEXITCODE -ne 0) { throw 'Android build source inputs changed.' }
     }
     Write-Output "Package: $outputApk"
 } finally {

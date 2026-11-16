@@ -155,6 +155,25 @@ Item {
             compare(snapshot(), before);
         }
 
+        function test_application_license() {
+            const before = snapshot();
+            const text = openAbout();
+            const tab = findChild(about, "applicationLicenseTab");
+            verify(tab !== null,
+                   "The license reader must offer QShopper's own license/source information");
+            mouseClick(tab, tab.width / 2, tab.height / 2);
+            tryVerify(() => text.model.join("\n\n").includes("QShopper is free software"));
+            verify(text.model.join("\n\n").includes("2014-2026 Samuel Nevala"));
+            verify(text.model.join("\n\n").includes("GNU GENERAL PUBLIC LICENSE"));
+            verify(text.model.join("\n\n").includes("SOURCE_DISTRIBUTION.md"));
+            scrollToEnd(text);
+            compare(snapshot(), before);
+            keyClick(Qt.Key_Back);
+            tryCompare(about, "visible", false);
+            compare(drawer.opened, true);
+            compare(snapshot(), before);
+        }
+
         function test_privacy_policy_data() {
             return [
                         {
@@ -448,8 +467,10 @@ Item {
             if (Qt.fontFamilies().some(family => !family.startsWith("Font Awesome"))) {
                 for (const name of ["qtTabCaption", "fontAwesomeTabCaption"]) {
                     const caption = findChild(about, name);
-                    verify(caption.contentWidth <= caption.width + 1,
-                           "Tab caption must fit beside its logo");
+                    verify(caption.contentWidth <= caption.width + 1, name
+                           + " must fit in its tab: content=" + caption.contentWidth + ", width="
+                           + caption.width + ", font=" + caption.font.pixelSize + ", lines="
+                           + caption.lineCount);
                 }
             }
             const close = findChild(about, "closeAboutButton");

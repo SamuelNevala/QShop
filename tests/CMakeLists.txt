@@ -1,5 +1,11 @@
 find_package(Qt6 REQUIRED COMPONENTS Test QuickTest)
 
+find_package(Python3 QUIET COMPONENTS Interpreter)
+if(Python3_Interpreter_FOUND)
+    add_test(NAME qshopper_source_delivery_tests COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_source_delivery.py)
+endif()
+
 add_executable(qshopper_iconfont_tests test_iconfont.cpp)
 target_link_libraries(qshopper_iconfont_tests PRIVATE QShopper Qt6::Test Qt6::Gui)
 add_test(NAME qshopper_iconfont_tests COMMAND qshopper_iconfont_tests
