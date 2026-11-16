@@ -6,8 +6,27 @@ a **personal developer account**, created on **8 November 2026**. Samuel
 confirmed Play Console account verification on **12 November 2026**, following
 the pending identity/address checks. The separate physical-device task has not
 been reported individually. No production/upload key exists yet.
-The app is currently **0.1.0, Android code 4**. Signing-key enrolment, uploads
+The app is currently **0.1.0, Android code 5**. Signing-key enrolment, uploads
 and Play publication have not been performed.
+
+The [Android license/source audit](reviews/REL-001-licensing.md) prepares complete
+offline App/runtime notices and exact candidate source archives. Publish and
+verify the accepted build's complete source set using
+[SOURCE_DISTRIBUTION.md](SOURCE_DISTRIBUTION.md) before treating source delivery
+as complete. Local candidates are not published release sources.
+
+The [15 November export review](reviews/REL-001-export.md) supports ordinary
+shopping-list software for code 5, with likely EAR99 treatment if subject to US
+EAR. The owner confirmed Finland and all eligible Google Play markets on
+15 November. No encryption-specific Finnish/EU authorization requirement was
+identified for this candidate. Final market eligibility, regional requirements
+and owner declaration acceptance remain; no declaration has been submitted.
+
+The [app terms draft](store/google-play/TERMS_DRAFT.md) is prepared for review
+on 16 November, with GPL and mandatory consumer rights preserved. Public contact
+fields and final wording need owner completion/acceptance before creating the
+public page. See the [terms review](reviews/REL-001-terms.md). No terms page has
+been published or used in Console.
 
 ## 1. Create your personal Play Console account
 
@@ -47,8 +66,15 @@ declarations. Confirm availability/ownership of **`shopper.nevala.com`** before
 the first upload: this is the existing package ID, and Play package names are
 permanent. The owner selected payment for the official ready-to-install build
 while keeping the source public. A one-time EUR 2.99 price is proposed, not yet
-selected. Countries and target audience also need the
-owner's choices.
+selected. The publishing country is **Finland**, and the owner chose **all
+eligible Google Play markets** for the initial launch. Verify the current paid-app
+country roster, applicable restrictions and Google's
+[regional requirements](https://support.google.com/googleplay/android-developer/answer/6223646?hl=en)
+before rollout. The owner selected **adults 18+ doing household shopping** as the
+intended audience on 15 November; the IARC content rating remains separate.
+Follow the [regional checklist](store/google-play/REGIONAL_CHECKLIST.md) for
+trader/contact/terms requirements, Japan payment tasks and outstanding age-related
+applicability checks. No Console answer has been submitted.
 
 See [Create and set up your app](https://support.google.com/googleplay/android-developer/answer/9859152).
 
@@ -154,6 +180,7 @@ aligned. A universal bundletool APK is not the device-targeted split layout.
 | Original Release baseline, code 2 | 63,317,333 | 53 |
 | Size-optimization milestone, code 3, unsigned | 24,585,386 | 40 |
 | Privacy-policy candidate, code 4, unsigned | 24,604,514 | 40 |
+| License/source candidate, code 5, unsigned | 24,627,266 | 40 |
 
 This is about a **61% APK reduction** with the ten full-size backgrounds and
 existing UI features retained. Java DEX shrank from 5,298,532 to 267,312 bytes.
@@ -222,6 +249,10 @@ Keep signing a separate step from ordinary local builds.
   See [store asset requirements](https://support.google.com/googleplay/android-developer/answer/9866151).
 - Complete app access, ads, age/content rating, target audience and regional
   declarations from the actual product and the owner's decisions.
+- Complete the [regional checklist](store/google-play/REGIONAL_CHECKLIST.md).
+  Adult targeting is confirmed. Trader declaration, public merchant contacts,
+  app terms URL, Japan payment tasks and applicable age rules remain separate
+  checks. No SDK or extra permission is added by this planning work.
 - Review the [privacy/data audit](reviews/REL-001-privacy.md) and
   [Data safety draft](store/google-play/data-safety.md) against the final artifact.
   Code 4 removes Qt's default Internet, network-state and legacy storage
@@ -288,7 +319,7 @@ package reports, native symbols and R8 mapping. Use a Git tag for an accepted
 release, following [README versioning](README.md#versions). Repeat affected tests
 after any artifact-changing edit; do not reuse an old binary's pass.
 
-Before production, resolve the readiness gaps above, select countries/rollout
+Before production, resolve the readiness gaps above, confirm final countries/rollout
 and release notes, inspect the exact Console review summary and obtain the
 owner's go-ahead for submission/publication. Keep a tested update procedure and
 a response plan for data-loss/crash reports. REL-001 remains open while these

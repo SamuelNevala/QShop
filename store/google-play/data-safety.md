@@ -4,6 +4,14 @@ Prepared for the permission-minimized 0.1.0/code-4 Android candidate on
 12 November 2026. Review the exact accepted artifact and the live Console form
 before submission. Nothing in this file has been submitted to Google.
 
+On 15 November the owner selected adults 18+ doing household shopping as the
+intended audience. That does not add age collection or assign a content rating.
+The code-5 licensing work adds offline notices without new app data transfers;
+the export review confirms unchanged minimized permissions. The
+[regional checklist](REGIONAL_CHECKLIST.md) keeps age-related applicability open.
+If an age-signals SDK or other integration is later required, reassess these
+answers against the resulting build rather than treating this draft as approval.
+
 ## Proposed answers
 
 | Question or topic | Proposed answer | Reason |

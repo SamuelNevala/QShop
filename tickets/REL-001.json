@@ -246,5 +246,74 @@
     "recommended_priority": "Finish Android license and source-delivery audit: actual Release Java/Maven/Qt/font/artwork notices, project GPL notice, exact corresponding source and build/install or relinking arrangements. Then complete app-specific export and remaining Data safety/content/listing decisions before owner declaration acceptance.",
     "review": "reviews/REL-001-declarations.md",
     "actions": "Recorded verified policy publication and reviewed official GNU/Qt/Google guidance. No app code changes, key creation, Console entry, agreement acceptance or Play submission."
+  },
+  "licensing_preparation": {
+    "date": "2026-11-13",
+    "status": "Implemented and verified locally; pending owner review and final accepted-source publication. REL-001 remains in_progress.",
+    "review": "reviews/REL-001-licensing.md",
+    "version": "0.1.0 / Android code 5",
+    "inventory": "Actual optimized payload: 40 native libraries; Qt SPDX closure has 45 covered attributions. Added full notices/source hashes for 21 real Maven runtime artifacts and the selected NDK C++ runtime. Official Android Qt GPLv3 option retained alongside permissive third-party terms.",
+    "application": "Virtualized App license tab includes exact project copyright/GPL and source/build directions, plus Android runtime notices. Existing Qt and Font Awesome notices retained.",
+    "source_delivery": "tools/create-source-set.py prepares a hash-bound candidate project archive, complete exact Qt module archives, Maven sources/legal metadata and kit configuration. SOURCE_DISTRIBUTION.md documents independent builds and separately named modified-app installation. Final accepted manifest/source files must be published and verified before store distribution.",
+    "regression": "Original desktop and Android code-4 APK fail missing App-tab tests. Final Windows: model 105, About offscreen 14/native 14 and four source-tool cases pass. Native Android App and existing Qt/Font reader suites each pass 26 checks across both themes. Verified Debug x86_64 and MinSizeRel x86_64/ARM64 APK plus ARM64 AAB pass package, actual-runtime/NDK and unchanged-source contracts. Independently rebuilt source archive passes 26 additional native checks under shopper.nevala.modified; both packages coexist and six original isolated databases are unchanged. Genuine non-debuggable Release passes all 19 normal-flow/notice/privacy/Undo/restart checks.",
+    "signing": "Compatible shared debug certificate used only for Release test APK copies. No new production/upload signing identity.",
+    "remaining": "Owner review; publish verified source set for accepted final build; app-specific export assessment; remaining Console policy/content/audience answers, signing and store gates. No app entry, terms acceptance, upload or public release.",
+    "source_candidate": "out/rel001/licensing/source-candidate-final/source-manifest.json (unpublished ARM64 AAB candidate)"
+  },
+  "export_review": {
+    "date": "2026-11-15",
+    "review": "reviews/REL-001-export.md",
+    "status": "Technical assessment prepared for confirmed Finland/all-eligible-Play-market scope. No encryption-specific Finnish/EU authorization requirement identified for this fixed candidate. Final country eligibility/regional requirements and owner declaration acceptance remain. REL-001 stays in_progress.",
+    "scope": "Retained 0.1.0/code-5 ARM64 optimized APK/AAB. App/build inputs and artifact hashes unchanged; all 40 native libraries match between APK and AAB.",
+    "working_assessment": "Ordinary shopping-list software; likely EAR99 if subject to the US EAR and no other CCL entry applies. No basis for encryption filing identified for this fixed candidate. This is an inference for owner review, not an agency ruling or worldwide export authorization.",
+    "findings": "No app confidentiality-encryption calls or feature; ordinary QSQLITE storage. Qt Core hash/HMAC and Qt Network SSL APIs remain. No TLS provider or OpenSSL/SQLCipher library in payload. Actual DEX certificate/trust-manager references traced to QtNative.getSSLCertificates system trust-store enumeration. APK signing serves authentication/integrity. Absence of names/permissions alone is not treated as proof.",
+    "guidance": "Current BIS Category 5/5D002/5D992/EAR99 and section 742.15(b), BIS confidentiality/end-use guidance, Google export guidance and Qt vendor record reviewed. Current source-notification requirement is specific to the defined non-standard cryptography; no such functionality identified.",
+    "owner_decisions_pending": [
+      "Final production country roster and regional publishing requirements, subject to applicable destination/end-user restrictions",
+      "Owner acceptance of actual export declaration after reviewing the evidence"
+    ],
+    "evidence": "out/rel001/export: artifact-evidence.json, read-only artifact inspection, source/API searches, exact Qt source excerpts. No app changes, rebuild, UI rerun, Console action, message/filing or terms acceptance.",
+    "source_snapshot": "Existing unpublished source candidate predates these documentation updates. Regenerate after acceptance of the final source revision before publication.",
+    "owner_confirmed": {
+      "date": "2026-11-15",
+      "publishing_country": "Finland",
+      "initial_market_preference": "All eligible Google Play markets",
+      "interpretation": "All markets where this paid app can lawfully be distributed, with current paid-app availability and regional requirements met; not unrestricted worldwide export or automatic authorization of later expansions. No Console settings changed."
+    },
+    "finland_follow_up": "Reviewed Ministry for Foreign Affairs export-control/sanctions guidance and EU 2021/821 Annex I consolidated 2026-09-21, including 5A002/5D002 and authentication/signature/integrity treatment. App evidence identifies no confidentiality-encryption feature or other specialized controlled purpose; no blanket transaction/recipient authorization is inferred. Google regional and paid-app availability guidance added to release preparation."
+  },
+  "regional_preparation": {
+    "date": "2026-11-15",
+    "review": "store/google-play/REGIONAL_CHECKLIST.md",
+    "status": "Checklist prepared; owner confirmed audience. Live merchant/trader/region tasks and final submission remain open; REL-001 stays in_progress.",
+    "owner_choices": {
+      "publisher": "Finland, personal developer account",
+      "markets": "All eligible Google Play markets",
+      "target_audience": "Adults 18+ doing household shopping",
+      "payment_model": "One-time paid download; amount not selected"
+    },
+    "audience_interpretation": "Intended design/marketing audience, not an automatically assigned 18+ content rating. No in-app age gate or Console under-18 exclusion option was requested or implemented. IARC questionnaire remains separate.",
+    "priority_actions": [
+      "Owner reviews accurate trader status; commercial paid-app sales support a Trader recommendation, not automatic submission",
+      "Prepare app terms-of-service URL and required public phone/address information; verified identity is not completion of these tasks",
+      "Check Japan PSA authorization invitation/deadline; October 29 notice announces December 1, 2026. Review separate ISA disclosures for new sellers and first Japanese sale",
+      "Check Brazil merchant verification and Digital ECA/age-related applicability; no automatic age-SDK requirement inferred",
+      "Select final paid-app country roster after applicable regional/restriction checks; retain completion evidence"
+    ],
+    "scope_dispositions": "Regional map distinguishes paid-app Japan/Brazil checks from Korean-developer-only details, Israeli-billing-address KYC and gaming/investment/location rules that do not describe the fixed Finnish shopping app. No blanket worldwide clearance.",
+    "verification": "Local Markdown links, ticket JSON and whitespace checks. Documentation only; no app rebuild/UI rerun. No Console change, consent, legal-history answer, personal contact collection or SDK/permission change."
+  },
+  "terms_preparation": {
+    "date": "2026-11-16",
+    "draft": "store/google-play/TERMS_DRAFT.md",
+    "review": "reviews/REL-001-terms.md",
+    "status": "Owner-review draft and local HTML preview prepared; missing public trader address/phone, final wording acceptance and public page/Console URL remain open. REL-001 stays in_progress.",
+    "scope": "One-time paid Play build; GPL-3.0-or-later and third-party rights, local data/privacy, support/necessary updates, refunds/withdrawal/defect remedies and consumer advice/ADR. No price set, subscription, age gate, redistribution restriction or blanket consumer-warranty exclusion introduced.",
+    "contact": "Samuel Nevala, Finland and approved samuel.nevala@gmail.com. Public postal address and customer-service phone are visible TO COMPLETE fields; no private profile information was collected or guessed.",
+    "preview": "out/rel001/terms/terms-draft.html. Text/HTML consistency check passes: 26 blocks and 8 links. Browser appearance not checked.",
+    "planned_url": "https://samuelnevala.github.io/QShop/terms.html (not live/verified)",
+    "publication": "No docs/terms.html or landing-page terms link added, no push, no Console change or declaration. Existing accepted public/offline privacy policy remains unchanged.",
+    "remaining": "Owner completes public contact fields and reviews wording/trader facts. Check actual seller/checkout, withdrawal/confirmation and applicable registry/contact disclosures. Publish accepted terms and verify URL before Console use; regenerate final source set after accepted revision.",
+    "verification": "Local links/JSON, exact HTML/text comparison and Git whitespace checks; artifact/source identity checked separately. Documentation only, app/UI tests not rerun."
   }
 }

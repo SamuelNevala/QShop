@@ -12,6 +12,19 @@ remaining work.
 The policy is now publicly served and its exact HTML is verified. Final Console
 answers and the source/license/export/signing gates remain open.
 
+The subsequent [license/source audit](REL-001-licensing.md) adds the missing
+App/Android runtime notices and prepares exact source archives and build/install
+directions. Accepted-source publication and the final distribution arrangement
+remain release gates; the historical findings below are retained.
+
+On 15 November, the [app-specific export review](REL-001-export.md) checked the
+retained code-5 ARM64 APK/AAB, Qt source, native symbols and Android bytecode.
+Its working assessment supports ordinary shopping-list software, with EAR99
+likely if subject to the EAR. The owner confirmed Finland and all eligible Play
+markets. The Finland/EU follow-up found no encryption-specific authorization
+requirement for this candidate; final country eligibility/regional requirements
+and owner declaration acceptance remain. This is not an agency ruling.
+
 The owner confirmed on 12 November 2026 that **no Play Console app entry has
 been created**, because the declarations are not yet clear enough to accept.
 Saving the policy URL therefore follows the remaining declaration review.
@@ -19,27 +32,38 @@ No app entry was created and no terms or declarations were accepted.
 
 | Declaration | Assessment | Remaining work |
 | --- | --- | --- |
-| Developer Programme Policies | Not yet established as fully compliant | Save the verified policy URL in Console; finalize Data safety and remaining declarations; complete source/distribution-license review |
+| Developer Programme Policies | Not yet established as fully compliant | Save the verified policy URL in Console; finalize Data safety and remaining declarations; publish/verify the accepted sources prepared by the license audit |
 | Play App Signing terms | Technically compatible; owner acceptance of terms | Read/accept terms, then establish the upload key and Play app-signing identity for the accepted bundle |
-| US export laws | No app-purpose encryption feature found; application-specific compliance not established | Review the complete distributed product and intended destinations using current export guidance; Qt's classification does not classify QShopper |
+| US export laws | Code-5 review supports an ordinary app/likely EAR99 if subject to EAR; Finland and all eligible Play markets are confirmed | Validate the final country roster/regional requirements and destination/end-user restrictions, then owner reviews the declaration; see the export assessment |
 
-## Next bounded audit
+## Current preparation and next decisions
 
-Complete the Android **license and source-delivery audit** first. Check the
-actual Release dependency inventory, including the AndroidX/Kotlin/Maven runtime
-code, against the notices currently bundled for Qt and Font Awesome. Prepare the
-project's GPL notice, exact corresponding project/Qt source access and practical
-build/install or relinking information for the selected distribution arrangement.
-Record any artifact changes and their verification before claiming this gate is
-complete. The current in-app notice reader alone does not establish that result.
+The Android **license and source-delivery audit** has prepared the missing
+App/Maven/NDK notices, exact source archives and practical build/install directions.
+The candidate rebuild and reader/package checks pass; owner acceptance and final
+source publication remain. The [export review](REL-001-export.md) now supplies
+app-specific evidence for the confirmed Finland/all-eligible-market scope. Finish
+the [regional checklist](../store/google-play/REGIONAL_CHECKLIST.md) and remaining
+Data safety, content-rating and listing work before owner acceptance of
+the actual creation declarations. Neither local source preparation nor an in-app
+notice reader by itself completes binary/source delivery.
+
+The owner selected **adults 18+ doing household shopping** on 15 November.
+This is the intended audience, not an IARC rating or an age-gate instruction.
+The regional review identifies separate trader/contact/terms and Japan payment
+tasks; those have not been satisfied merely by account identity verification.
+
+The [app terms draft](../store/google-play/TERMS_DRAFT.md) was prepared on
+16 November. Public trader contacts, wording acceptance and publication remain;
+the [terms review](REL-001-terms.md) distinguishes draft preparation from a live
+terms URL or completed trader declaration.
 
 Charging for a GPL-covered build is permitted subject to the GPL's distribution
 conditions; see the [GNU FAQ](https://www.gnu.org/licenses/gpl-faq.en.html#DoesTheGPLAllowMoney).
 Qt's [licensing overview](https://doc.qt.io/qt-6/licensing.html) describes its
 license choices and separately licensed third-party code.
 
-Then complete the app-specific export assessment and remaining Data safety,
-audience/content and listing decisions. Play App Signing is an agreement and
+Play App Signing is an agreement and
 key-management arrangement for the owner to review; Google's handling of the
 app-signing key is described in the linked official guidance. Creating upload
 keys is a separate implementation step. A technical build pass does not accept

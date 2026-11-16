@@ -39,7 +39,10 @@ see the [metadata policy](https://support.google.com/googleplay/android-develope
 | Tags | Choose available tags that describe shopping lists; no keyword padding |
 | Public support email | samuel.nevala@gmail.com (owner-selected 12 November 2026) |
 | Privacy-policy URL | [Published policy](https://samuelnevala.github.io/QShop/privacy-policy.html); anonymous HTTP 200 and exact accepted HTML verified 12 November 2026; app entry/Console field pending the declaration review |
-| Countries and target audience | Owner decisions still required |
+| App terms | [Owner-review draft](TERMS_DRAFT.md) prepared 16 November; public contacts, acceptance and publication remain. Planned URL is https://samuelnevala.github.io/QShop/terms.html — not live/verified |
+| Publishing country | Finland (owner-confirmed 15 November 2026) |
+| Initial markets | All eligible Google Play markets (owner-selected 15 November); final paid-app availability, regional requirements and applicable restrictions must be checked before rollout |
+| Target audience | Adults 18+ doing household shopping (owner-confirmed 15 November); content rating is a separate questionnaire |
 
 The owner selected the address and GitHub Pages hosting. Review the
 [privacy policy](../../app/privacy-policy.txt) and [Data safety draft](data-safety.md)
@@ -47,6 +50,14 @@ before submission. Content rating and regional declarations are separate
 Console tasks. The offline-list claim is about core list operations;
 it is not a claim that Android backup or keyboard dictation never transfers
 data. See [release preparation](../../RELEASE.md#8-complete-the-store-and-distribution-material).
+
+The [regional checklist](REGIONAL_CHECKLIST.md) records the audience/market choices,
+trader/contact/terms requirements, Japan payment tasks and outstanding regional
+checks. These live account tasks have not been marked complete.
+
+The [terms preparation review](../../reviews/REL-001-terms.md) records the draft's
+source/legal references and publication checks. Its local HTML preview is in
+`out/rel001/terms`; no draft page or new link is added to the live Pages site.
 
 ## Visual assets
 
