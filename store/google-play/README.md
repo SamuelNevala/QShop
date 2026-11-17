@@ -28,7 +28,7 @@ Keep factual metadata without ranking/price slogans or keyword repetition.
 | Website | [Public project](https://github.com/SamuelNevala/QShop) |
 | Support | samuel.nevala@gmail.com |
 | Privacy | [Published policy](https://samuelnevala.github.io/QShop/privacy-policy.html), exact anonymous HTTP 200 verified 12 November; Console field pending |
-| Terms | [Draft](TERMS_DRAFT.md): public contacts supplied 17 November; wording acceptance/publication pending, no live terms page |
+| Terms | [Canonical terms](TERMS.md), version 18 November; public page prepared, deployment verification/Console field pending |
 | Publisher/markets | Finland / all eligible paid-app markets; final roster/regional checks pending |
 | Audience | Adults 18+ household shoppers; separate IARC questionnaire, no rating assigned |
 

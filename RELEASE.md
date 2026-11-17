@@ -18,8 +18,9 @@ markets and adult household shoppers. EUR 2.99 is proposed, not selected.
   trader declaration, merchant profile, public contacts/terms, Japan payment tasks,
   age-rule applicability and final eligible country roster. Identity verification
   does not complete these. [App setup](https://support.google.com/googleplay/android-developer/answer/9859152).
-- Review the [app terms](store/google-play/TERMS_DRAFT.md). Contact details are
-  supplied; wording acceptance, effective date and public terms page remain pending.
+- The [app terms](store/google-play/TERMS.md), version 18 November 2026, now have
+  a generated public page and landing link. Deployment verification is pending;
+  use the live URL in Console only after verification. Trader/checkout tasks remain.
 
 The [export review](reviews/REL-001-export.md) supports ordinary shopping-list
 software, likely EAR99 if subject to the EAR, and identifies no encryption-specific
@@ -107,7 +108,9 @@ physical details and UX-007's 110% sensitivity trip remain separate.
   after acceptance and inspect before publishing.
 
 GitHub Pages serves `master:/docs`; changing that folder on a pushed commit deploys
-it. The terms draft is outside docs and has no live page/link yet.
+it. Terms are generated from store/google-play/TERMS.md with
+`python tools/export-terms.py`; `--check` verifies the HTML matches. Recheck the
+live page after deployment before using its URL in Console.
 
 ## 5. Sign, test through Play, then submit
 

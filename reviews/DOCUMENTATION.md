@@ -12,8 +12,9 @@ remains in Git at 73ada02 and structured tickets. No ticket is closed by this cl
 - Generalized the physical display inventory without changing rendering tests
   or the application's existing density correction.
 - Public contact details were explicitly supplied for the
-  [canonical terms draft](../store/google-play/TERMS_DRAFT.md). They are intentional
-  disclosures, not copied account-verification records. Terms remain unpublished.
+  [canonical terms](../store/google-play/TERMS.md). They are intentional
+  disclosures, not copied account-verification records. Terms were unpublished at this review; the later publication
+  is tracked in [REL-001 terms](REL-001-terms.md).
 - Pattern checks found no remaining user-home paths, private-key material,
   supported token formats or credential-bearing URLs in current source files.
   UTF-8, UTF-16 and decoded JSON strings were checked. Generic SDK paths, emulator

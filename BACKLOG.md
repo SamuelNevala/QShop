@@ -7,14 +7,14 @@ their status, regressions and acceptance history in `tickets/`.
 
 | Ticket | Remaining work |
 | --- | --- |
-| [REL-001](tickets/REL-001.json) | Google Play release: accept/publish terms and exact sources; finish trader/payment/regional tasks, signing, migration and store testing |
+| [REL-001](tickets/REL-001.json) | Google Play release: publish exact sources; finish trader/payment/regional tasks, signing, migration and store testing |
 | [QA-001](tickets/QA-001.json) | Remaining physical shopping/dictation validation; do not reopen already accepted subcases |
 | [QA-002](tickets/QA-002.json) | Physical sizing, touch comfort and display measurements |
 | [UX-007](tickets/UX-007.json) | Real-shopping trial at 110% sensitivity; defaults remain unchanged |
 
 Finland, all eligible Play markets and adult household shoppers are confirmed.
 [Release guide](RELEASE.md), [regional checklist](store/google-play/REGIONAL_CHECKLIST.md)
-and [terms draft](store/google-play/TERMS_DRAFT.md) describe the remaining decisions.
+and [app terms](store/google-play/TERMS.md) describe the remaining decisions.
 No production key, Console submission or public app release is claimed.
 
 ## Intake and closure

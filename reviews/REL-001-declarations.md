@@ -29,8 +29,9 @@ Finland, all eligible markets, adult household audience and paid download are
 selected; price remains undecided. Adult targeting is not an IARC rating or an
 age-gate instruction. Accurate trader declaration, merchant/payment tasks and
 regional applicability remain under the [checklist](../store/google-play/REGIONAL_CHECKLIST.md).
-Public contacts are supplied in the [terms draft](../store/google-play/TERMS_DRAFT.md);
-wording acceptance and publication remain open.
+The [app terms](../store/google-play/TERMS.md) have a dated public page prepared
+under the owner's 18 November instruction. Verify deployment and enter the URL
+in Console; this does not submit or accept the separate trader declarations.
 
 Read the [privacy](REL-001-privacy.md), [licensing/source](REL-001-licensing.md),
 [export](REL-001-export.md) and [terms](REL-001-terms.md) reviews, then review the

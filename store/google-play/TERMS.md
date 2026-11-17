@@ -1,6 +1,6 @@
 # QShopper app terms
 
-**Draft for owner review — 17 November 2026. Not published or effective.**
+Version: **18 November 2026**.
 
 ## Developer and contact
 

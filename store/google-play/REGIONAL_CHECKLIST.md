@@ -39,8 +39,8 @@ account, public contact phone/address information. Separately, Google's
 [account guidance](https://support.google.com/googleplay/android-developer/answer/13634081?hl=en)
 requires monetizing merchant accounts to display their payments-profile address.
 The approved email is `samuel.nevala@gmail.com`. The
-[app terms draft](TERMS_DRAFT.md) has owner-supplied public contacts as of 17 November; wording
-acceptance and a live terms URL remain open. Enter private verification details directly in
+[app terms](TERMS.md) have owner-supplied public contacts and a dated page
+prepared on 18 November. Deployment verification and the Console URL remain open. Enter private verification details directly in
 Console/Payments Center, not repository files. Identity verification does not
 establish completion of these separate tasks.
 

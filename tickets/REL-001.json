@@ -295,7 +295,7 @@
     "audience_interpretation": "Intended design/marketing audience, not an automatically assigned 18+ content rating. No in-app age gate or Console under-18 exclusion option was requested or implemented. IARC questionnaire remains separate.",
     "priority_actions": [
       "Owner reviews accurate trader status; commercial paid-app sales support a Trader recommendation, not automatic submission",
-      "Review and publish the app terms-of-service URL using the explicitly supplied public contacts in the canonical draft; verified identity is not completion of trader/merchant tasks",
+      "Verify the published app terms URL and save it in Console; complete accurate trader/merchant declarations separately",
       "Check Japan PSA authorization invitation/deadline; October 29 notice announces December 1, 2026. Review separate ISA disclosures for new sellers and first Japanese sale",
       "Check Brazil merchant verification and Digital ECA/age-related applicability; no automatic age-SDK requirement inferred",
       "Select final paid-app country roster after applicable regional/restriction checks; retain completion evidence"
@@ -305,15 +305,16 @@
   },
   "terms_preparation": {
     "date": "2026-11-16",
-    "draft": "store/google-play/TERMS_DRAFT.md",
+    "draft": "store/google-play/TERMS.md",
     "review": "reviews/REL-001-terms.md",
-    "status": "Owner-review draft and local HTML preview prepared; owner supplied public address/phone for inclusion on 2026-11-17. Final wording acceptance and public page/Console URL remain open. REL-001 stays in_progress.",
+    "status": "Owner authorized terms-page preparation/publication on 2026-11-18. Canonical Markdown and matching public HTML/landing link prepared; deployment verification and Console use pending. REL-001 stays in_progress.",
     "scope": "One-time paid Play build; GPL-3.0-or-later and third-party rights, local data/privacy, support/necessary updates, refunds/withdrawal/defect remedies and consumer advice/ADR. No price set, subscription, age gate, redistribution restriction or blanket consumer-warranty exclusion introduced.",
-    "contact": "Samuel Nevala, Finland and approved samuel.nevala@gmail.com. Public postal address and customer-service phone are visible TO COMPLETE fields; no private profile information was collected or guessed.",
-    "preview": "out/rel001/terms/terms-draft.html. Text/HTML consistency check passes: 26 blocks and 8 links. Browser appearance not checked.",
-    "planned_url": "https://samuelnevala.github.io/QShop/terms.html (not live/verified)",
-    "publication": "No docs/terms.html or landing-page terms link added, no push, no Console change or declaration. Existing accepted public/offline privacy policy remains unchanged.",
-    "remaining": "Owner reviews wording/trader facts. Check actual seller/checkout, withdrawal/confirmation and applicable registry/contact disclosures. Publish accepted terms and verify URL before Console use; regenerate final source set after accepted revision. Public contact details are canonical only in store/google-play/TERMS_DRAFT.md.",
-    "verification": "Local links/JSON, exact HTML/text comparison and Git whitespace checks; artifact/source identity checked separately. Documentation only, app/UI tests not rerun."
+    "contact": "Explicitly supplied public contacts are retained only in the canonical terms and generated public page; no private account-verification record was copied.",
+    "preview": "Browser-reviewed at 390px and 1280px: readable wrapping, no horizontal overflow, final paragraph reachable. Exact HTML/text/link check covers 19 canonical blocks and nine links.",
+    "planned_url": "https://samuelnevala.github.io/QShop/terms.html (deployment verification pending)",
+    "publication": "docs/terms.html and landing-page link prepared. GitHub Pages deployment/anonymous content check pending. Accepted privacy content is unchanged; no Console declaration or app release.",
+    "remaining": "Verify live page and use its URL in Console. Check actual trader/seller/checkout, withdrawal/confirmation and applicable registry/contact disclosures. Publish matching sources and finish signing/store testing. Public contact source is store/google-play/TERMS.md.",
+    "verification": "Canonical-body preservation, exact HTML/text/links, responsive browser checks, local links/JSON, exporter Check and Git whitespace checks. Documentation only; no app behavior or runtime-test claim.",
+    "version": "2026-11-18"
   }
 }

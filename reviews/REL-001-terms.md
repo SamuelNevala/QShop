@@ -1,27 +1,35 @@
-# App terms review
+# App terms publication
 
-The [canonical draft](../store/google-play/TERMS_DRAFT.md) is **unpublished and
-not effective**. Public address/phone were explicitly supplied for inclusion on
-17 November 2026. Wording acceptance and publication remain open.
+Version **18 November 2026**. The owner authorized the terms-page preparation and
+publication after the draft/contact review. The wording is unchanged except for
+its dated version line; public contacts were explicitly supplied on 17 November.
 
-The draft covers the one-time paid build, GPL freedoms, dependency notices,
-local data, support, necessary updates, refunds/withdrawal, faults and complaints.
-It adds no subscription, age gate, copying restriction, blanket no-refund rule,
-liability cap or exclusive Finnish jurisdiction. Price remains undecided.
+Canonical [TERMS.md](../store/google-play/TERMS.md) generates
+[docs/terms.html](../docs/terms.html). The landing page links to it.
+Deployment and anonymous live-content verification are pending; no Console
+field, agreement, signing key or app release is completed by this work.
 
-## Before publication
+## Maintenance and checks
 
-1. Owner accepts the actual wording and confirms trader/payment-profile details.
-   Check basic-rate contract-support contact and any applicable registry disclosures.
-2. Verify the actual Play seller, checkout terms, immediate-supply consent,
-   withdrawal route/confirmation and applicable consumer information.
-3. Publish matching sources; preserve the accepted privacy policy.
-4. Set the effective version, prepare docs/terms.html and its landing-page link,
-   publish and verify it, then use the live URL in Console. No terms page exists yet.
+Run `python tools/export-terms.py`, then `python tools/export-terms.py --check`.
+The exporter uses only Python's standard library; ordinary app builds need neither
+Python nor this page. Privacy HTML and bundled policy remain unchanged.
 
-Local preview: `out/rel001/terms/terms-draft.html`. Existing source snapshots
-predate the cleanup; regenerate from the accepted revision. Local checks establish
-text/link consistency, not legal sufficiency or completion of Console tasks.
+Local HTML text/links match all 19 canonical blocks and nine links. Phone-width
+(390 px) and desktop (1280 px) browser review found no horizontal overflow;
+the final paragraph is reachable. Styling matches the privacy page, without
+scripts, remote assets or trackers. Details: out/rel001/terms/publication-check.json.
+Trader, regional refunds and Finnish digital-content guidance were rechecked
+18 November; the text is not an overall compliance certificate.
+
+## Remaining release work
+
+- Confirm accurate trader/payment-profile/registry facts and basic-rate support.
+- Verify actual Play seller, checkout terms, immediate-supply consent and
+  withdrawal route/confirmation before sales.
+- Publish matching sources from the accepted revision. Existing local archives
+  predate cleanup; none is presented as published Corresponding Source.
+- Verify the deployed terms URL, then enter it in Console. REL-001 stays open.
 
 ## References checked 16 November 2026
 
