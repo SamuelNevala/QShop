@@ -1,126 +1,77 @@
-# QShopper Google Play listing draft
+# Google Play listing draft
 
-English draft for the first Play test listing, prepared on 8 November 2026.
-The message is one-handed shopping, deliberate swipes and the shopper's own
-item order. Public copy describes the current app. Samuel confirmed Play
-Console account verification on 12 November 2026. Nothing in this directory has
-been uploaded to Play Console.
+Prepared 8 November 2026; still **not uploaded**. Copy describes current
+one-handed shopping, deliberate swipes and the shopper's own order.
 
-## Text to paste into Console
+## Copy for Console
 
 | Field | File | Limit |
 | --- | --- | ---: |
-| App name | [title.txt](en-US/title.txt) | 30 characters |
-| Short description | [short-description.txt](en-US/short-description.txt) | 80 characters |
-| Full description | [full-description.txt](en-US/full-description.txt) | 4,000 characters |
-| Test release notes | [release-notes.txt](en-US/release-notes.txt) | Check the selected track's field |
+| Name | [title.txt](en-US/title.txt) | 30 |
+| Short description | [short-description.txt](en-US/short-description.txt) | 80 |
+| Full description | [full-description.txt](en-US/full-description.txt) | 4,000 |
+| Test notes | [release-notes.txt](en-US/release-notes.txt) | Track-specific |
 
-Paste each file's contents, without its filename. The text is plain text;
-headings in the full description do not require Markdown. The proposed title
-is **QShopper: Shopping List**. The shorter **QShopper** remains an option if
-you prefer the brand name alone. English (United States) is the starting locale;
-translations should follow the accepted English copy.
+Paste contents as plain text. Proposed title: **QShopper: Shopping List**;
+QShopper alone remains an option. Starting locale: en-US; translate accepted copy.
+Keep factual metadata without ranking/price slogans or keyword repetition.
+[Setup/limits](https://support.google.com/googleplay/android-developer/answer/9859152),
+[metadata policy](https://support.google.com/googleplay/android-developer/answer/9898842).
 
-Character limits and contact requirements follow Google's
-[app setup guidance](https://support.google.com/googleplay/android-developer/answer/9859152).
-Keep claims factual and avoid ranking, pricing slogans or repeated keywords;
-see the [metadata policy](https://support.google.com/googleplay/android-developer/answer/9898842).
+## Settings
 
-## Suggested listing settings
-
-| Setting | Draft |
+| Field | Prepared position |
 | --- | --- |
-| Type | App |
-| Payment model | Paid app: one-time purchase of the official build; public source remains available |
-| Price | Amount not selected; EUR 2.99 proposed as a starting price, awaiting owner decision |
-| Category | Shopping; confirm in Console |
-| Package ID | `shopper.nevala.com` |
-| Website | Existing public source project: https://github.com/SamuelNevala/QShop |
-| Tags | Choose available tags that describe shopping lists; no keyword padding |
-| Public support email | samuel.nevala@gmail.com (owner-selected 12 November 2026) |
-| Privacy-policy URL | [Published policy](https://samuelnevala.github.io/QShop/privacy-policy.html); anonymous HTTP 200 and exact accepted HTML verified 12 November 2026; app entry/Console field pending the declaration review |
-| App terms | [Owner-review draft](TERMS_DRAFT.md) prepared 16 November; public contacts, acceptance and publication remain. Planned URL is https://samuelnevala.github.io/QShop/terms.html — not live/verified |
-| Publishing country | Finland (owner-confirmed 15 November 2026) |
-| Initial markets | All eligible Google Play markets (owner-selected 15 November); final paid-app availability, regional requirements and applicable restrictions must be checked before rollout |
-| Target audience | Adults 18+ doing household shopping (owner-confirmed 15 November); content rating is a separate questionnaire |
+| Type/category | App / Shopping (confirm category) |
+| Payment | One-time paid build; public GPL source. Price undecided, EUR 2.99 proposed |
+| Package | shopper.nevala.com; confirm availability before first upload |
+| Website | [Public project](https://github.com/SamuelNevala/QShop) |
+| Support | samuel.nevala@gmail.com |
+| Privacy | [Published policy](https://samuelnevala.github.io/QShop/privacy-policy.html), exact anonymous HTTP 200 verified 12 November; Console field pending |
+| Terms | [Draft](TERMS_DRAFT.md): public contacts supplied 17 November; wording acceptance/publication pending, no live terms page |
+| Publisher/markets | Finland / all eligible paid-app markets; final roster/regional checks pending |
+| Audience | Adults 18+ household shoppers; separate IARC questionnaire, no rating assigned |
 
-The owner selected the address and GitHub Pages hosting. Review the
-[privacy policy](../../app/privacy-policy.txt) and [Data safety draft](data-safety.md)
-before submission. Content rating and regional declarations are separate
-Console tasks. The offline-list claim is about core list operations;
-it is not a claim that Android backup or keyboard dictation never transfers
-data. See [release preparation](../../RELEASE.md#8-complete-the-store-and-distribution-material).
-
-The [regional checklist](REGIONAL_CHECKLIST.md) records the audience/market choices,
-trader/contact/terms requirements, Japan payment tasks and outstanding regional
-checks. These live account tasks have not been marked complete.
-
-The [terms preparation review](../../reviews/REL-001-terms.md) records the draft's
-source/legal references and publication checks. Its local HTML preview is in
-`out/rel001/terms`; no draft page or new link is added to the live Pages site.
+Account identity is verified; app creation/declarations remain open. Follow the
+[regional checklist](REGIONAL_CHECKLIST.md), [Data safety](data-safety.md),
+[terms review](../../reviews/REL-001-terms.md) and [release steps](../../RELEASE.md).
+Core offline lists do not imply that Android backup/keyboard services never transfer data.
 
 ## Visual assets
 
-Use the existing green page-and-pen identity and the app's illustrated shop
-backgrounds. Preserve their provenance and
-[Font Awesome attribution](../../artwork/UX-006/README.md). Follow Google's
-[preview-asset requirements](https://support.google.com/googleplay/android-developer/answer/9866151).
+Use the green page-and-pen identity and accepted illustrated backgrounds;
+retain [artwork attribution](../../artwork/UX-006/README.md).
 
-| Asset | Draft direction | Status |
+| Asset | Requirement / state |
+| --- | --- |
+| Store icon | 512 × 512 RGBA: [PNG](assets/icon.png), [editable SVG](assets/icon.svg), prepared |
+| Feature graphic | 1024 × 500 RGB PNG/JPEG; brief only |
+| Phone screenshots | Four actual 1080 × 1920 portrait RGB PNG/JPEG captures; pending |
+
+Store icon is a full square without baked mask/shadow; Play supplies its treatment.
+SVG keeps launcher paths/placement and replaces its circular backdrop. Regenerate
+at 512 px through Qt SVG/grabToImage, as in the [launcher exporter](../../artwork/UX-006/export.qml).
+[Icon specifications](https://developer.android.com/distribute/google-play/resources/icon-design-specifications),
+[asset requirements](https://support.google.com/googleplay/android-developer/answer/9866151).
+
+Feature graphic: existing market illustration, clear focal area, **Your list.
+Your shopping order.** Check crop/readability at phone size.
+
+### Screenshot sequence
+
+Use the same disposable groceries/palette; exclude real lists and notifications.
+
+| Order | Caption | Real capture / alt text |
 | --- | --- | --- |
-| Store icon | 512 x 512 RGBA PNG, green square with the existing dark page-and-pen art | [icon.png](assets/icon.png); [editable SVG](assets/icon.svg) |
-| Feature graphic | 1024 x 500 RGB PNG/JPEG; existing market illustration with a clear central focal area and the line below | Brief only |
-| Phone screenshots | Four actual 1080 x 1920 portrait captures, RGB PNG/JPEG | Capture after copy review |
+| 1 | Swipe through your shopping | Large item names, two checked items below remaining groceries |
+| 2 | Add it where it belongs | Movable editor between groceries, Android keyboard open |
+| 3 | Correct a mistaken removal | Edit mode with removed item and visible Undo countdown |
+| 4 | Choose your colors | Same list in Dark theme, drawer theme/primary/accent choices |
 
-The store icon uses a full square with no baked corner mask or outer shadow;
-Play applies its own treatment. This is a separate export, preserving the round
-Android launcher icon. See [Play icon design](https://developer.android.com/distribute/google-play/resources/icon-design-specifications).
+Existing [Light](../../docs/images/shopping-light.png)/[Dark](../../docs/images/shopping-dark.png)
+captures are references, not upload-ready: 1440 × 3120 RGBA exceeds the 2:1 ratio
+and uses alpha. Recapture rather than stretching. Screenshots must show actual
+features, not simulated interfaces. Review copy/assets against the accepted build.
 
-`icon.svg` retains the launcher artwork's path and placement, replacing only
-the circular green backdrop with a full square. Export it through Qt's SVG
-renderer at 512 x 512 to regenerate the RGBA PNG. The initial export used the
-same `Image`/`grabToImage` approach as
-[the launcher exporter](../../artwork/UX-006/export.qml); its temporary harness
-and validation report are under `out/rel001/store-export` and
-`out/rel001/store-content-check.json`.
-
-Feature graphic copy: **Your list. Your shopping order.** Keep the name and
-message readable when cropped. Use the existing illustration as artwork;
-screenshots should show the real app rather than a simulated interface.
-
-## Screenshot sequence
-
-Use the same disposable list and palette so the sequence reads as one trip:
-Bananas, Tomatoes, Wholegrain bread, Oat milk, Eggs, Coffee and Pasta.
-Exclude personal list data and notifications. Text overlays are optional;
-the captions below are proposed headlines and the last column supplies alt text.
-
-| Order | Caption | Capture | Alt text |
-| --- | --- | --- | --- |
-| 1 | Swipe through your shopping | Shopping mode with several large names and two checked items | Shopping list with large item names and checked items below the remaining groceries. |
-| 2 | Add it where it belongs | Movable editor between existing items, native keyboard open | Editor between grocery items, with the Android keyboard open for the next entry. |
-| 3 | Correct a mistaken removal | Edit mode with one removed item and a clearly visible Undo countdown | Undo bar offering to restore a removed grocery item. |
-| 4 | Choose your colors | Same list in Dark theme; show the drawer's Light, Dark and System choices | Dark shopping list with theme, primary color and accent color choices in the drawer. |
-
-Capture a real frame of a swipe for image 1 if it stays legible; keep the item
-names the focus. Do not fabricate a hand, gesture overlay or unsupported feature.
-For image 2, place the editor deliberately rather than showing an empty list.
-
-The existing [Light](../../docs/images/shopping-light.png) and
-[Dark](../../docs/images/shopping-dark.png) captures are references, not upload
-assets: they are 1440 x 3120 RGBA, exceeding Play's 2:1 screenshot ratio and using
-an alpha channel. Recapture at the intended geometry; do not stretch them.
-The four 1080 x 1920 captures also follow Google's recommended portrait format.
-
-## Content checks before upload
-
-- Review the proposed title, descriptions, screenshot captions and test notes.
-- Save the verified policy URL in Console and review the Data safety draft before submission.
-- Finish the feature graphic and capture the real phone screenshots.
-- Review all visuals at phone size and verify text/image dimensions and formats.
-- Recheck copy against the exact accepted build and selected test track.
-
-Undo is limited to pending actions and does not survive a reload/list switch;
-the draft does not promise permanent recovery. Voice typing belongs to the
-Android keyboard. Do not add cloud sharing, automatic aisle sorting, barcode
-scanning or price tracking to the description without implementing them.
+Undo is temporary and does not survive reload/list switch. Voice typing belongs
+to the keyboard. Do not claim sharing, automatic aisles, barcode/price tracking.

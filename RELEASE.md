@@ -1,102 +1,39 @@
-# QShopper release preparation
+# Release QShopper on Google Play
 
-Checked against official guidance on **8 November 2026**. The selected target
-is **Google Play**, with APKs for development/testing. Samuel will publish through
-a **personal developer account**, created on **8 November 2026**. Samuel
-confirmed Play Console account verification on **12 November 2026**, following
-the pending identity/address checks. The separate physical-device task has not
-been reported individually. No production/upload key exists yet.
-The app is currently **0.1.0, Android code 5**. Signing-key enrolment, uploads
-and Play publication have not been performed.
+Current candidate: **0.1.0 / Android code 5**. Account identity verification is
+confirmed; no app entry, production/upload key, store upload or public app release
+has been completed. REL-001 stays open until the remaining steps below are done.
 
-The [Android license/source audit](reviews/REL-001-licensing.md) prepares complete
-offline App/runtime notices and exact candidate source archives. Publish and
-verify the accepted build's complete source set using
-[SOURCE_DISTRIBUTION.md](SOURCE_DISTRIBUTION.md) before treating source delivery
-as complete. Local candidates are not published release sources.
+Selected: personal account, Finland, a one-time paid build, all eligible Play
+markets and adult household shoppers. EUR 2.99 is proposed, not selected.
 
-The [15 November export review](reviews/REL-001-export.md) supports ordinary
-shopping-list software for code 5, with likely EAR99 treatment if subject to US
-EAR. The owner confirmed Finland and all eligible Google Play markets on
-15 November. No encryption-specific Finnish/EU authorization requirement was
-identified for this candidate. Final market eligibility, regional requirements
-and owner declaration acceptance remain; no declaration has been submitted.
+## 1. Finish account and app setup
 
-The [app terms draft](store/google-play/TERMS_DRAFT.md) is prepared for review
-on 16 November, with GPL and mandatory consumer rights preserved. Public contact
-fields and final wording need owner completion/acceptance before creating the
-public page. See the [terms review](reviews/REL-001-terms.md). No terms page has
-been published or used in Console.
+- Complete any remaining physical-device verification shown in Console; an
+  emulator cannot replace that task. [Account/device guidance](https://support.google.com/googleplay/android-developer/answer/14316361).
+- Review the [creation declarations](reviews/REL-001-declarations.md), then create
+  **QShopper**, **App**, **Paid**. Confirm package availability before the first
+  upload: `shopper.nevala.com` is the existing permanent package identity.
+- Finish the [regional checklist](store/google-play/REGIONAL_CHECKLIST.md): accurate
+  trader declaration, merchant profile, public contacts/terms, Japan payment tasks,
+  age-rule applicability and final eligible country roster. Identity verification
+  does not complete these. [App setup](https://support.google.com/googleplay/android-developer/answer/9859152).
+- Review the [app terms](store/google-play/TERMS_DRAFT.md). Contact details are
+  supplied; wording acceptance, effective date and public terms page remain pending.
 
-## 1. Create your personal Play Console account
+The [export review](reviews/REL-001-export.md) supports ordinary shopping-list
+software, likely EAR99 if subject to the EAR, and identifies no encryption-specific
+Finnish/EU authorization requirement for this candidate. It is not unrestricted
+destination clearance or an agency ruling. The owner accepts the actual declarations.
 
-1. Sign in with the Google account you intend to own QShopper long term. Open
-   [Play Console registration](https://play.google.com/console/signup).
-2. Choose **Personal** when asked for the account type. Enter your developer
-   display name, legal identity/address and the requested contact details.
-3. Review the Developer Distribution Agreement and pay the **one-time US$25
-   registration fee**. Google requires an adult account owner and a supported
-   payment card. Follow the actual signup prompts if their order differs.
-4. Complete the identity checks shown in the account dashboard. Google may ask
-   for a government ID. Verify your contact email/phone and developer email.
-5. Complete the Android-device task: on the Console Home page, open **Verify
-   that you have access to an Android mobile device**, scan its QR code, install
-   the Play Console app on your physical phone and sign in as the same owner.
-   Select the developer account and follow **Verify**. The device must be a
-   non-rooted physical Android 10+ device; the emulator cannot do this step.
+## 2. Set up production signing
 
-Use an email address suitable for public app support. For personal accounts,
-Google displays the legal name, country and developer email; monetization or
-regional requirements can expose additional address/contact information. Review
-the profile preview and regional declarations before completing them.
+Use [Play App Signing](https://support.google.com/googleplay/android-developer/answer/9842756)
+for the store-delivered identity and a separate owner-controlled upload key.
+Keep private keys outside the checkout/shared source tree, with encrypted backups;
+keep passwords out of Git/scripts. Retain labelled public certificate fingerprints.
 
-References: [account registration and fee](https://support.google.com/googleplay/android-developer/answer/6112435),
-[personal-account identity/contact details](https://support.google.com/googleplay/android-developer/answer/13628312),
-[physical-device verification](https://support.google.com/googleplay/android-developer/answer/14316361).
-
-## 2. Create the QShopper app entry
-
-The [declaration review](reviews/REL-001-declarations.md) records the current
-privacy/permissions gaps and distinguishes owner acceptance of signing/export
-terms from technical release readiness.
-
-In Play Console, use **Create app**. Select QShopper, its default language,
-**App**, **Paid** and a support email. Complete the displayed
-declarations. Confirm availability/ownership of **`shopper.nevala.com`** before
-the first upload: this is the existing package ID, and Play package names are
-permanent. The owner selected payment for the official ready-to-install build
-while keeping the source public. A one-time EUR 2.99 price is proposed, not yet
-selected. The publishing country is **Finland**, and the owner chose **all
-eligible Google Play markets** for the initial launch. Verify the current paid-app
-country roster, applicable restrictions and Google's
-[regional requirements](https://support.google.com/googleplay/android-developer/answer/6223646?hl=en)
-before rollout. The owner selected **adults 18+ doing household shopping** as the
-intended audience on 15 November; the IARC content rating remains separate.
-Follow the [regional checklist](store/google-play/REGIONAL_CHECKLIST.md) for
-trader/contact/terms requirements, Japan payment tasks and outstanding age-related
-applicability checks. No Console answer has been submitted.
-
-See [Create and set up your app](https://support.google.com/googleplay/android-developer/answer/9859152).
-
-## 3. Establish signing ownership
-
-Recommended setup for this new Play app:
-
-- Let **Play App Signing** generate/manage the app-signing identity used for
-  APKs delivered by Google Play. Follow the current new-app enrolment prompts.
-- Create a separate **upload key** owned by Samuel. It signs AAB uploads; it
-  is different from the Play app-signing key and the existing debug key.
-- Keep the keystore outside the repository/shared OneDrive source tree, with an
-  encrypted backup and recoverable owner-controlled credentials. Record its
-  alias and public certificate fingerprint; keep passwords out of scripts/Git.
-- Register the upload certificate in Console. Keep the Play app-signing and
-  upload certificate fingerprints separately labelled in the release record.
-
-[Play App Signing](https://support.google.com/googleplay/android-developer/answer/9842756)
-explains the key roles, new-app enrolment and upload-key recovery.
-
-When ready to create the upload key, run this locally and answer its interactive
-password/identity prompts. This command has not been run by the agent:
+Run locally when ready; choose a new filename if a key already exists:
 
 ```powershell
 $keyFolder = Join-Path $env:USERPROFILE '.android/keys'
@@ -106,221 +43,90 @@ $uploadKey = Join-Path $keyFolder 'QShopper-upload.jks'
 & "$env:JAVA_HOME/bin/keytool.exe" -exportcert -rfc -keystore $uploadKey -alias qshopper-upload -file (Join-Path $keyFolder 'QShopper-upload-certificate.pem')
 ```
 
-Use a new filename if a keystore already exists; never overwrite an established
-identity. See the [JDK keytool reference](https://docs.oracle.com/en/java/javase/21/docs/specs/man/keytool.html).
+These commands have not been run. Register the upload certificate in Console.
 
-## 4. Preserve existing development lists
+### Preserve existing lists
 
-The current phone installation uses the shared **debug certificate**. An APK
-signed with the new production identity cannot directly update it. Neither the
-upload key nor changing the version code bridges that certificate difference.
-See [Android update signing](https://developer.android.com/studio/publish/app-signing).
+The current phone uses a debug certificate. A production/Play-signed build cannot
+directly update it; a higher version code does not bridge different certificates.
+Keep the compatible debug build until a tested migration exists. There is no
+public export/import flow; a SQLite backup alone does not prove restore into a
+non-debuggable app. Do not uninstall to bypass this error.
 
-Use the compatible debug-signed build for ongoing physical shopping tests.
-Before moving that phone to the Play installation, prepare and verify a list
-export/import or another explicitly tested migration route. QShopper currently
-has no public export/import flow. A private SQLite backup alone does not prove
-that the non-debuggable production app can restore it. Preserve the installed
-app and its data until this is resolved; do not uninstall it as a signing fix.
+## 3. Build and verify
 
-Local **Release test APKs** can use the existing debug certificate while keeping
-Release code and a non-debuggable manifest. Those are test artifacts, never Play
-production signing. Builds downloaded from a Play test track use Play's signing
-identity and test the real distribution/update path.
-
-## 5. Build and validate unsigned release artifacts
-
-Use the normal installed Qt 6.12 Android kits, SDK/NDK and JDK 21 described in
-[ANDROID.md](ANDROID.md). The size profile is **MinSizeRel** with native ThinLTO,
-R8 Java optimization and Android resource shrinking. Debug builds retain their
-existing behavior. Production preparation always starts unsigned.
+Install the kit in [BUILDING.md](BUILDING.md)/[ANDROID.md](ANDROID.md).
+MinSizeRel uses ThinLTO, R8 and resource shrinking:
 
 ```powershell
-./build-android.ps1 -Architecture arm64 -Configuration MinSizeRel -SdkRoot C:/android/sdk -VerifyPackage
-./build-android.ps1 -Architecture arm64 -Configuration MinSizeRel -AppBundle -SdkRoot C:/android/sdk -VerifyPackage -Bundletool out/rel001/bundletool-all-1.18.3.jar
+$sdk = Join-Path $env:LOCALAPPDATA 'Android/Sdk'
+./build-android.ps1 -Architecture arm64 -Configuration MinSizeRel -SdkRoot $sdk -VerifyPackage
+./build-android.ps1 -Architecture arm64 -Configuration MinSizeRel -AppBundle -SdkRoot $sdk -VerifyPackage -Bundletool /path/to/bundletool.jar
 ```
 
-Outputs are `dist/QShopper-arm64-release-unsigned.apk` and
-`dist/QShopper-arm64-release-unsigned.aab`. They are not install/upload-ready.
-The helper uses separate caches, keeping the normal Debug APKs intact. Use
-`-Python` to select an interpreter, `-Jobs` to limit build load and
-`-Configuration Release` for the ordinary optimized-speed baseline.
+Outputs: `dist/QShopper-arm64-release-unsigned.apk` and `.aab`. They need signing
+before installation/upload. Obtain bundletool from [Google](https://github.com/google/bundletool/releases);
+the validated version is 1.18.3. Use `-Python` to select the verification interpreter.
 
-Obtain bundletool from [Google's official release](https://github.com/google/bundletool/releases/tag/1.18.3).
-The checked 1.18.3 JAR SHA-256 is
-`a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29`.
-It is a local verification tool, not an app dependency.
+Checks cover payload/dependency closure, unwanted modules/tooling, manifest,
+permissions, native stripping and 16 KB ELF/ZIP alignment. Recheck generated
+metadata on SDK upgrades: this kit emits target **37**, compile **36**.
+Alignment is not a 16 KB runtime test. Retain API 28, API 37 and 16 KB runtime
+checks as gaps until exercised; see [Android page-size guidance](https://developer.android.com/guide/practices/page-sizes).
 
-Verification checks the actual manifest/version, non-debuggable state, native
-dependency closure, absence of unused/test/QML-tooling payload, stripped delivered
-libraries, ELF and APK ZIP 16 KB alignment, and AAB configuration/structure.
-The installed kit currently emits target SDK **37** with compile SDK **36**;
-this pass preserves that existing target behavior. Check the generated metadata
-again on kit/SDK upgrades. The current Play minimum for new phone apps is API 36;
-see [target-API policy](https://support.google.com/googleplay/android-developer/answer/11926878).
-[Android's 16 KB guidance](https://developer.android.com/guide/practices/page-sizes)
-also requires native-runtime testing on a 16 KB device/image before claiming
-full compatibility; binary alignment alone is not that runtime test.
+The code-5 ARM64 APK is **24,627,266 bytes / 40 native libraries**, down about
+61% from the 63,317,333-byte baseline. Ten backgrounds remain. Required backing
+libraries and seven QML/style plugins stay; 13 optional wrappers were removed and
+tested cumulatively. The explicit inventory is `android/runtime-libraries.txt`.
+Repeat the optional-plugin matrix on a Qt upgrade. APK, installed and Play
+download sizes are different measurements.
 
-Qt's [Android deployment tool](https://doc.qt.io/qt-6/android-deploy-qt-tool.html)
-builds the packages; [R8 guidance](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization)
-describes Java/resource optimization. Qt JNI entry points and dynamically named
-bootstrap resources are explicitly retained.
+Run [Windows and Android tests](tests/README.md), including genuine non-debuggable
+Release on disposable emulator data. Release blocks Debug redirection/run-as;
+debug-key-signed Release test APKs are test artifacts, not production signing.
+The 9 November shopping trip succeeded. UI-035 is phone-confirmed; QA-001/QA-002
+physical details and UX-007's 110% sensitivity trip remain separate.
 
-Standalone Release APKs compress native libraries, which Android extracts during
-installation. This minimizes the APK file at the cost of extra installed storage
-and extraction work. Play bundles use the independent Gradle variant policy to
-keep their generated native APK splits uncompressed/mmap-friendly and 16 KB
-aligned. A universal bundletool APK is not the device-targeted split layout.
+## 4. Complete public material
 
-### Measured size and required libraries
+- Accept the [listing copy](store/google-play/README.md), price, feature graphic
+  and actual phone screenshots. Store icon is prepared. Complete access, ads,
+  intended audience and the separate IARC rating questionnaire.
+- Review [privacy evidence](reviews/REL-001-privacy.md)/[Data safety](store/google-play/data-safety.md)
+  against the final package. Unneeded Internet/network/storage permissions are
+  removed; Android backup remains enabled. No collection is not an exemption
+  from applicable policy/form requirements.
+- Use the [public privacy policy](https://samuelnevala.github.io/QShop/privacy-policy.html),
+  anonymously verified against accepted HTML on 12 November. Saving it in Console
+  is pending. Canonical text is app/privacy-policy.txt; regenerate/check with
+  `python tools/export-privacy-policy.py --check` after generating changes.
+- Publish and verify **all matching source-set files** under
+  [SOURCE_DISTRIBUTION.md](SOURCE_DISTRIBUTION.md)/[LICENSING.md](LICENSING.md).
+  Local archives and a moving master branch do not complete source delivery.
+  Existing candidate snapshots predate this documentation cleanup: regenerate
+  after acceptance and inspect before publishing.
 
-| ARM64 package | Bytes | Native libraries |
-| --- | ---: | ---: |
-| Original Release baseline, code 2 | 63,317,333 | 53 |
-| Size-optimization milestone, code 3, unsigned | 24,585,386 | 40 |
-| Privacy-policy candidate, code 4, unsigned | 24,604,514 | 40 |
-| License/source candidate, code 5, unsigned | 24,627,266 | 40 |
+GitHub Pages serves `master:/docs`; changing that folder on a pushed commit deploys
+it. The terms draft is outside docs and has no live page/link yet.
 
-This is about a **61% APK reduction** with the ten full-size backgrounds and
-existing UI features retained. Java DEX shrank from 5,298,532 to 267,312 bytes.
-The remaining native inventory is explicit in `android/runtime-libraries.txt`.
-Network, WorkerScript and vector-generator backing libraries remain because
-retained Qt libraries need them. Seven required QML/style plugins also remain.
+## 5. Sign, test through Play, then submit
 
-Each of 13 Qt-declared optional wrapper plugins was removed cumulatively and
-tested on native Android, followed by a final combined smoke test. A deliberately
-removed required Material plugin makes that same test fail. The wrappers can be
-omitted because their backing libraries are already loaded; see Qt's
-[optional plugin semantics](https://doc.qt.io/qt-6/qtqml-modules-qmldir.html#plugin-declaration).
-The Release artifact check fails the original extra-wrapper payload and enforces
-the final required-library inventory. Repeat the removal matrix on a Qt upgrade.
-
-The APK is not a claim of the theoretical smallest Qt build. Larger reductions
-would need a separate custom/static Qt build assessment or product/asset changes.
-
-## 6. Verify behavior and size
-
-- Run the normal Windows workflow and affected native Android interactions.
-- Test genuine non-debuggable Release code on a disposable emulator, including
-  entry, Return, drawer/themes, offline notices/logos, swipes, Undo and restart.
-  Release blocks `run-as` and Qt debug intent environment injection. Its harness
-  therefore uses a fresh temporary emulator userdata disk and only its own app
-  data, without adding a production test backdoor.
-- Retain the native-library inventory and measured before/after size report.
-  Preserve ELF dependencies and required QML/style plugins. Recheck any optional
-  plugin removal one at a time and verify the final combination.
-- Keep 16 KB runtime coverage and API 28 compatibility as explicit readiness
-  checks if only the API 36/4 KB emulator has run. Include an API 37 device run
-  matching the current target SDK before declaring the production matrix complete.
-- The **Monday, 9 November 2026** shopping run succeeded overall, reported on
-  11 November. UI-035 is fixed with phone confirmation; UX-007 awaits
-  the next trip at 110% sensitivity. Natural-speech details and QA-002's specific
-  physical measurement/readability checks remain separate.
-
-AAB upload size, locally installed APK size and Play's compressed download size
-are different measurements. Native symbols/R8 maps can be retained in bundle
-metadata for diagnostics without being delivered as app runtime payload.
-
-## 7. Sign the accepted AAB for upload
-
-After creating/registering the upload key, sign a copy of the verified unsigned
-bundle. Keep the original and let jarsigner prompt for the secret:
+Sign a copy with the registered upload key; let jarsigner prompt for its password:
 
 ```powershell
 & "$env:JAVA_HOME/bin/jarsigner.exe" -keystore $uploadKey -sigalg SHA256withRSA -digestalg SHA-256 -signedjar dist/QShopper-arm64-release-upload.aab dist/QShopper-arm64-release-unsigned.aab qshopper-upload
 & "$env:JAVA_HOME/bin/jarsigner.exe" -verify -verbose -certs dist/QShopper-arm64-release-upload.aab
 ```
 
-Check the resulting signer fingerprint against the registered upload certificate.
-See the [JDK jarsigner reference](https://docs.oracle.com/en/java/javase/21/docs/specs/man/jarsigner.html).
-Keep signing a separate step from ordinary local builds.
+Verify the signer fingerprint, then use the internal track to inspect Play's
+generated APKs, certificates and device report. For this new personal account,
+the documented production-access route requires **12 closed-test testers opted
+in continuously for 14 days**, real feedback and a production-access application;
+approval is not automatic. Follow the actual Console eligibility prompts and
+[current testing guidance](https://support.google.com/googleplay/android-developer/answer/14151465).
 
-## 8. Complete the store and distribution material
-
-- Review the [English listing draft](store/google-play/README.md): copy-ready
-  title, short/full descriptions, first-test release notes, store icon and
-  screenshot/feature-graphic direction. The owner selected
-  `samuel.nevala@gmail.com` for public support/privacy enquiries.
-- Prepare the app name, short/full description, support contact and category.
-  Supply a 512 x 512 store icon, feature graphic and current phone screenshots.
-  The store icon needs the [Play icon specifications](https://developer.android.com/distribute/google-play/resources/icon-design-specifications);
-  it is a separate export from the round Android launcher artwork.
-  See [store asset requirements](https://support.google.com/googleplay/android-developer/answer/9866151).
-- Complete app access, ads, age/content rating, target audience and regional
-  declarations from the actual product and the owner's decisions.
-- Complete the [regional checklist](store/google-play/REGIONAL_CHECKLIST.md).
-  Adult targeting is confirmed. Trader declaration, public merchant contacts,
-  app terms URL, Japan payment tasks and applicable age rules remain separate
-  checks. No SDK or extra permission is added by this planning work.
-- Review the [privacy/data audit](reviews/REL-001-privacy.md) and
-  [Data safety draft](store/google-play/data-safety.md) against the final artifact.
-  Code 4 removes Qt's default Internet, network-state and legacy storage
-  permissions through the supported manifest configuration. Only the AndroidX
-  internal signature permission remains. Explicit development QML debugging
-  adds Internet access; Release excludes it. Android backup remains enabled.
-- Review the [canonical policy](app/privacy-policy.txt), also available offline
-  from **About → Privacy policy**, and its [public HTML](docs/privacy-policy.html).
-  The public policy is published through GitHub Pages as recorded below.
-  Even an app
-  declaring no collection still needs the applicable Data safety form/privacy
-  policy for closed/production distribution. Follow [Data safety guidance](https://support.google.com/googleplay/android-developer/answer/10787469).
-- Follow [LICENSING.md](LICENSING.md): exact corresponding project/Qt source,
-  notices and required installation/relinking information must accompany the
-  distributed build arrangement. Publish the matching source revision before
-  distributing public binaries; review the actual GPL/LGPL obligations there.
-
-### Published privacy page
-
-The owner enabled GitHub Pages from **master → /docs** after the accepted
-commit `ee96496` was pushed. On **12 November 2026**, an unauthenticated HTTPS
-fetch of the [public policy](https://samuelnevala.github.io/QShop/privacy-policy.html)
-returned **200** and exactly matched the accepted HTML, including the contact
-and final section. The page is served as UTF-8 HTML without a login or download.
-
-Use that verified URL in the Play Console privacy-policy field. Browser/mobile
-layout review and saving the Console field remain separate verification steps.
-The owner confirmed on 12 November 2026 that no app entry exists yet because
-the creation declarations are unresolved. Complete the
-[declaration review](reviews/REL-001-declarations.md) before creating the entry;
-no declarations or terms have been accepted by this work.
-Future changes in `docs` deploy from the same branch/folder; recheck the live
-content after deployment before changing any store answers.
-See [GitHub's publishing-source instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
-
-Keep the public and bundled copies synchronized:
-
-```powershell
-python tools/export-privacy-policy.py
-python tools/export-privacy-policy.py --check
-```
-
-The generator reads `app/privacy-policy.txt`; edit that canonical text rather
-than the generated page. The page has no JavaScript, trackers or remote fonts.
-
-## 9. Test through Play, then request production access
-
-Start with the internal test track and inspect Play's generated APKs, report,
-signing certificates and device catalog. Then set up a **closed test** and invite
-at least **12 testers**. They must stay opted in **continuously for 14 days**;
-the Console must show eligibility before applying for production access. Testers
-should actually use QShopper and provide feedback. An internal test or emulator
-run does not replace this requirement for the new personal account.
-
-After eligibility, complete the production-access application, including the
-testing/feedback/readiness questions. Approval is not automatic after day 14.
-See [new-personal-account testing](https://support.google.com/googleplay/android-developer/answer/14151465).
-
-## 10. Retain evidence and publish only the accepted build
-
-Before upload, increase the Android code for each new shared update, retain
-the source revision/toolchain, artifact hashes, public signer fingerprints,
-package reports, native symbols and R8 mapping. Use a Git tag for an accepted
-release, following [README versioning](README.md#versions). Repeat affected tests
-after any artifact-changing edit; do not reuse an old binary's pass.
-
-Before production, resolve the readiness gaps above, confirm final countries/rollout
-and release notes, inspect the exact Console review summary and obtain the
-owner's go-ahead for submission/publication. Keep a tested update procedure and
-a response plan for data-loss/crash reports. REL-001 remains open while these
-account, signing, migration, validation and submission steps are incomplete.
+For each shared update, increase Android code and keep the revision, toolchain,
+hashes, source manifest, public certificates, test/package reports, symbols and R8
+map. Tag accepted releases under [versioning](README.md#versions). Revalidate
+artifact-changing edits. Review the final country/rollout/submission summary and
+obtain owner publication approval. Retain an update and data-loss/crash response plan.

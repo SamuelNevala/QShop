@@ -387,7 +387,7 @@
       },
       "app_startup": {
         "passed": true,
-        "isolated_data": "C:\\Users\\samue\\OneDrive\\code\\Qt6\\QShopper\\out\\dev005\\cleanup\\app-smoke-b0e6729283cc4ac18a8f54999a609d70",
+        "isolated_data": "out\\dev005\\cleanup\\app-smoke-b0e6729283cc4ac18a8f54999a609d70",
         "database_created": true,
         "alive_after_seconds": 5,
         "platform": "offscreen",

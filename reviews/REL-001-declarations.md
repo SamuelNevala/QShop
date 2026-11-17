@@ -1,128 +1,46 @@
-# Play Console declaration review
+# Play creation declarations
 
-Reviewed 12 November 2026 against the local app, retained Release APK and current
-official guidance. This is a readiness review, not Google approval or an export
-classification. No declarations have been accepted on the owner's behalf.
+Reviewed 12–16 November 2026. No app entry or declaration has been submitted;
+technical checks do not accept agreements for the owner.
 
-Later on the same day, the [privacy implementation](REL-001-privacy.md) added
-offline policy access and prepared the public page and Data safety answers.
-Fresh code-4 packages remove the three unnecessary permissions. The initial
-findings below preserve the original code-3 review; the table records current
-remaining work.
-The policy is now publicly served and its exact HTML is verified. Final Console
-answers and the source/license/export/signing gates remain open.
-
-The subsequent [license/source audit](REL-001-licensing.md) adds the missing
-App/Android runtime notices and prepares exact source archives and build/install
-directions. Accepted-source publication and the final distribution arrangement
-remain release gates; the historical findings below are retained.
-
-On 15 November, the [app-specific export review](REL-001-export.md) checked the
-retained code-5 ARM64 APK/AAB, Qt source, native symbols and Android bytecode.
-Its working assessment supports ordinary shopping-list software, with EAR99
-likely if subject to the EAR. The owner confirmed Finland and all eligible Play
-markets. The Finland/EU follow-up found no encryption-specific authorization
-requirement for this candidate; final country eligibility/regional requirements
-and owner declaration acceptance remain. This is not an agency ruling.
-
-The owner confirmed on 12 November 2026 that **no Play Console app entry has
-been created**, because the declarations are not yet clear enough to accept.
-Saving the policy URL therefore follows the remaining declaration review.
-No app entry was created and no terms or declarations were accepted.
-
-| Declaration | Assessment | Remaining work |
+| Declaration | Prepared position | Remaining action |
 | --- | --- | --- |
-| Developer Programme Policies | Not yet established as fully compliant | Save the verified policy URL in Console; finalize Data safety and remaining declarations; publish/verify the accepted sources prepared by the license audit |
-| Play App Signing terms | Technically compatible; owner acceptance of terms | Read/accept terms, then establish the upload key and Play app-signing identity for the accepted bundle |
-| US export laws | Code-5 review supports an ordinary app/likely EAR99 if subject to EAR; Finland and all eligible Play markets are confirmed | Validate the final country roster/regional requirements and destination/end-user restrictions, then owner reviews the declaration; see the export assessment |
+| Developer Programme Policies | Privacy/minimized permissions and offline licence notices are implemented | Save live policy URL/form answers; publish accepted exact sources; finish regional/listing/content tasks |
+| Play App Signing | Compatible with planned AAB distribution | Owner reviews/accepts terms, creates upload key and enrolls store signing |
+| US export laws | Code-5 review supports ordinary shopping app / likely EAR99 if subject to EAR | Finish actual country/regional/end-use checks; owner reviews declaration |
 
-## Current preparation and next decisions
+## What changed since the initial code-3 review
 
-The Android **license and source-delivery audit** has prepared the missing
-App/Maven/NDK notices, exact source archives and practical build/install directions.
-The candidate rebuild and reader/package checks pass; owner acceptance and final
-source publication remain. The [export review](REL-001-export.md) now supplies
-app-specific evidence for the confirmed Finland/all-eligible-market scope. Finish
-the [regional checklist](../store/google-play/REGIONAL_CHECKLIST.md) and remaining
-Data safety, content-rating and listing work before owner acceptance of
-the actual creation declarations. Neither local source preparation nor an in-app
-notice reader by itself completes binary/source delivery.
+- Missing policy/access was fixed: local/offline reader and accepted public
+  [privacy page](https://samuelnevala.github.io/QShop/privacy-policy.html), exact
+  anonymous HTML verified 12 November. Console field remains unsaved.
+- Unneeded Internet/network-state/storage permissions were removed in code 4;
+  code 5 retains only AndroidX's internal signature receiver permission. Backup
+  remains enabled. Explicit development QML debugging is separate from Release.
+- Code 5 added complete App/Maven/NDK notices and exact source-set preparation.
+  Local candidate archives are not published source delivery.
+- No app account, network client, ad/analytics SDK, camera/microphone access or
+  billing integration was found. Keyboard dictation/platform backup are separate
+  services, not a promise that nothing leaves the device.
 
-The owner selected **adults 18+ doing household shopping** on 15 November.
-This is the intended audience, not an IARC rating or an age-gate instruction.
-The regional review identifies separate trader/contact/terms and Japan payment
-tasks; those have not been satisfied merely by account identity verification.
+## Next owner decisions
 
-The [app terms draft](../store/google-play/TERMS_DRAFT.md) was prepared on
-16 November. Public trader contacts, wording acceptance and publication remain;
-the [terms review](REL-001-terms.md) distinguishes draft preparation from a live
-terms URL or completed trader declaration.
+Finland, all eligible markets, adult household audience and paid download are
+selected; price remains undecided. Adult targeting is not an IARC rating or an
+age-gate instruction. Accurate trader declaration, merchant/payment tasks and
+regional applicability remain under the [checklist](../store/google-play/REGIONAL_CHECKLIST.md).
+Public contacts are supplied in the [terms draft](../store/google-play/TERMS_DRAFT.md);
+wording acceptance and publication remain open.
 
-Charging for a GPL-covered build is permitted subject to the GPL's distribution
-conditions; see the [GNU FAQ](https://www.gnu.org/licenses/gpl-faq.en.html#DoesTheGPLAllowMoney).
-Qt's [licensing overview](https://doc.qt.io/qt-6/licensing.html) describes its
-license choices and separately licensed third-party code.
+Read the [privacy](REL-001-privacy.md), [licensing/source](REL-001-licensing.md),
+[export](REL-001-export.md) and [terms](REL-001-terms.md) reviews, then review the
+actual Console summary. App creation, source publication, signing and store
+rollout are distinct actions. No production key/upload is claimed.
 
-Play App Signing is an agreement and
-key-management arrangement for the owner to review; Google's handling of the
-app-signing key is described in the linked official guidance. Creating upload
-keys is a separate implementation step. A technical build pass does not accept
-the agreement or settle the app's export classification.
-
-## Initial code-3 app findings
-
-- Core lists are stored in local SQLite and preferences. No application-level
-  HTTP client, analytics/ad SDK or microphone/camera access was found in the
-  production C++/QML search. Keyboard dictation belongs to the user's IME.
-  This is source-review evidence, not a complete third-party traffic audit.
-- The manifest enables Android backup (`allowBackup=true`). Privacy wording
-  must account for platform backup rather than promise that shopping data can
-  never leave the device.
-- The retained ARM64 Release APK declares `INTERNET`, `ACCESS_NETWORK_STATE`
-  and `WRITE_EXTERNAL_STORAGE`, plus the generated AndroidX receiver permission.
-  They were verified using SDK `aapt2 dump permissions`, not inferred solely
-  from the source manifest. Review/remove permissions that the app does not need;
-  their presence alone does not prove data collection or a policy violation.
-- No privacy-policy file, URL or in-app privacy entry was found. About currently
-  shows the offline Qt/Font Awesome notices. Google's User Data policy requires
-  privacy-policy access in the app and Console even without sensitive-data access.
-- Root GPL project notices and the third-party notice reader exist. Exact
-  corresponding-source and Qt installation/relinking arrangements, and the
-  remaining Android Java/Maven notices, are still release-audit work described
-  in [LICENSING.md](../LICENSING.md). Open source and charging for a build are
-  not themselves evidence of a Play policy violation.
-- The Release APK/AAB preparation has passed its structural/package tests, but
-  production/upload keys have not been created. Accepting Play App Signing's
-  terms is a separate owner action from supplying the eventual signing keys.
-
-The APK reviewed here is the retained 0.1.0/code-3 Release preparation artifact
-from 8 November. UI-035 was subsequently fixed and phone-confirmed in commit
-`0dbad9f`; repeat the final artifact/manifest review when rebuilding for upload.
-
-## Export assessment limits
-
-No explicit app-level encryption functionality was found. The package retains
-Qt Network as a native dependency and omits optional TLS provider plugins.
-Absence of an OpenSSL/TLS plugin is not a blanket claim that all bundled code
-or platform calls lack cryptographic capability.
-
-Qt's current documentation lists its framework libraries as not controlled,
-while explicitly requiring customers to classify their own exported products.
-Google also explains that hosting/distribution from its US servers can bring
-an app under US export rules, including open-source apps. Do not infer an ECCN,
-exemption, filing requirement or unrestricted destination list from this source
-scan. No export notification or filing has been made.
-
-## Sources and next work
-
-- [Google User Data policy](https://support.google.com/googleplay/android-developer/answer/10144311): privacy-policy and data-handling requirements.
-- [Google permissions policy](https://support.google.com/googleplay/android-developer/answer/16558241): permissions must support current advertised functionality.
-- [Play App Signing](https://support.google.com/googleplay/android-developer/answer/9842756): Google-managed signing and the separate upload key.
-- [Google export guidance](https://support.google.com/googleplay/android-developer/answer/113770): developer responsibility and distribution through US servers.
-- [Qt 6.12 export guidance](https://doc.qt.io/qt-6/exportcontrols.html): framework classification and its limits for customer products.
-
-The privacy implementation is committed/pushed, and the policy is live with
-exact content verified. Next finish the remaining release declarations and
-source/license delivery checks before creating the Console entry and seeking
-app publication.
-Creating a Console draft is separate from uploading or publishing a release.
+References: [User Data](https://support.google.com/googleplay/android-developer/answer/10144311),
+[permissions](https://support.google.com/googleplay/android-developer/answer/16558241),
+[Play signing](https://support.google.com/googleplay/android-developer/answer/9842756),
+[Google export](https://support.google.com/googleplay/android-developer/answer/113770),
+[Qt export](https://doc.qt.io/qt-6/exportcontrols.html),
+[GPL paid distribution](https://www.gnu.org/licenses/gpl-faq.en.html#DoesTheGPLAllowMoney).
+Original code-3 findings: `git show 73ada02:reviews/REL-001-declarations.md`.

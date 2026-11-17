@@ -1,242 +1,99 @@
-# QShopper design principles
+# QShopper design
 
-QShopper is optimized for shopping in a store with one hand. The main design
-choices support that situation: deliberate actions, quick correction, comfortable
-touch targets, and a list that follows the shopper's route.
+Optimize for **one-handed shopping in the shop**: deliberate actions, nearby
+correction, readable text and the shopper's own route. The phone app is portrait;
+Android's large-screen overrides are a platform limit, not a landscape redesign.
 
-Use this document as a reference when changing the app's behavior or appearance.
+## Deliberate gestures
 
-The Android phone app is portrait-only. Keep shopping, editing, keyboard entry
-and drawer interactions in portrait when the phone rotates. Android platform
-overrides on large displays are documented in ANDROID.md; portrait-only use is
-the product intent, rather than a request to redesign the landscape interface.
+Horizontal swipes with pullback replace small checkboxes. A right swipe checks
+in shopping mode and deletes in edit mode; preserve the working left correction
+path. Trigger through sufficient velocity **or more than half the row width**, so
+slow deliberate drags work too. Higher sensitivity makes activation easier.
 
-When the drawer opens, its resolved Material dimming must extend across the
-exposed system-bar safe areas. Preserve their normal 80%-opacity row surface
-underneath, and restore it on close. Side insets beneath the drawer retain the
-native panel/shadow treatment. System-bar icons follow the effective dimmed
-palette; the user's stored Light/Dark/System selection remains unchanged.
+Gravity is **666.67 mm/s²** at the current 100% default, matching the accepted
+150%-effort trial of the previous setting. Keep these defaults until the separate
+[110% real-shopping trial](tickets/UX-007.json) is accepted.
 
-## One-handed use and deliberate gestures
+Green check/uncheck and red delete feedback stay independent of primary/accent.
+Cart/bin shapes, direction and pullback carry meaning without relying on color
+alone. Black bodies and outlined white arrows preserve contrast. Animations and
+translucent feedback are intentional, not decoration to remove during cleanup.
 
-Small buttons and checkboxes are easy to hit by mistake when using a phone with
-one hand while shopping. Checking an item should be easy to do deliberately and
-hard to do accidentally.
+## Ordering and correction
 
-Horizontal swipes with a pullback motion are the primary interaction for checking
-items. The movement and return of the row provide feedback about the action.
-Preserve this interaction when changing the list; a tap on a small checkbox is
-not an equivalent replacement.
+Checked items form a first-in/last-out stack: the newest stays nearest unchecked
+items. Reset reverses only the checked group into collection order, leaving
+unchecked entries first. For unchecked A,B and checked C,D, Reset gives A,B,D,C.
+Reset twice must not reverse again. Pending edits retain their item identity/text;
+a free editor insertion point stays in place. Persist the resulting order.
 
-A deliberate swipe can trigger the item action in either of two ways: enough
-velocity, or travel beyond half the delegate's width. The distance trigger must
-work even for a slow drag. Right swipes select items in shopping mode and delete
-them in edit mode; preserve the distinct actions and the working left-swipe path.
+Undo reverses **one deletion action** at a time: one swipe, Remove checked or
+Clear list. Each new deletion and each Undo that exposes an earlier action
+restarts one shared **15-second** window. Expiry clears remaining recovery;
+undoing the last step hides/stops it. A new deletion replaces undone future steps
+while preserving earlier pending steps. There is no Undo-all/history screen.
 
-Keep red deletion and green checking/unchecking feedback separate from the user's
-primary/accent choices. Cart/bin silhouettes and directional arrows communicate
-the action without relying on color alone. UI-028 uses black cart/bin bodies and
-white arrows with black outlines in both themes, preserving their contrast over
-the translucent action strips without changing the existing swipe animations.
+Typing, submission, scrolling, checks and editor movement preserve recovery.
+Pause the clock while the drawer blocks input or the app is inactive. Successful
+list reload/switch ends recovery; failed loads preserve it. Restore by identities
+and neighbors without overwriting later edits or surviving order.
 
-The velocity trigger should work with a comfortable one-handed stroke. Higher
-swipe sensitivity must make the same gesture easier to activate, while the
-half-width fallback and deliberate pullback remain independent of that setting.
+The floating Undo bar stays reachable above the IME/bottom safe area, independent
+of the editor. Its entire area is tappable. Keep its text/icon/outer geometry
+fixed while the opaque accent countdown recedes over a fully opaque, normal
+unchecked-row background. Preserve normal text color and readable fill contrast;
+do not let checked rows show through. Use the ProgressBar as Popup.background.
 
-Phone-tested reference: on 2026-10-29, the user reported that **150% sensitivity**
-felt good on the Pixel 10 Pro XL after the gravity adjustment to 1000 mm/s².
-At the user's request, gravity is now **666.67 mm/s²**, making **100% sensitivity**
-match that tested effort. Keep the existing sensitivity preference and half-width
-fallback unchanged. The reference is not proof of the same feel on every device.
+## Sizing and text
 
-The Monday 2026-11-09 shopping trial was successful overall. On 2026-11-11 the
-user requested a further real-shopping trial at **110% sensitivity** before any
-default adjustment. Keep gravity and the existing default unchanged pending
-that result; [UX-007](tickets/UX-007.json) records the follow-up.
+Reference row/touch height: **9.27 mm**. Use `Theme.pixels(mm)` for geometry and
+`Theme.millimeters(px)` for gesture distances. The window's Screen.pixelDensity
+is authoritative; do not multiply/divide by devicePixelRatio. Android/Release use
+scale 1. Desktop Debug preview scale is adjustable and persisted separately.
 
-## Keep mistakes close enough to correct
+Item names start large/bold at **7 mm** for glanceability. Qt `Text.Fit` shrinks
+and normally wraps to two lines, with a **three-line cap** and existing ellipsis
+fallback. Stored names stay intact. Do not add a separate font scaler, uniformly
+shrink short names or enlarge the fixed row for long entries.
 
-Android Back closes one layer per gesture: an open About/licenses view or
-drawer selector popup first (leaving the drawer open), then the drawer, then the keyboard
-while editing, then edit mode. From shopping mode it backgrounds the app and
-keeps the list and process available for returning. Hiding the keyboard preserves
-the draft; leaving edit mode follows the existing policy of discarding unsubmitted
-text and restoring the original item when cancelling an unfinished edit.
+## Entry and navigation
 
-Accidental actions will still happen. The correction should require little
-movement and no search through the list.
+The shopper remembers items in any order and moves the editor to insert them in
+route order. Do not impose categories or shop-layout sorting. Catalog sorting is
+separate from shopping order. Keep the editor accessible above the keyboard and
+retained when scrolled away: the list caches about 40 reference rows per side.
 
-Accepted Undo visual design, 2026-11-03 (UI-023): use a
-floating bar above the keyboard or bottom safe area, independent of the movable
-editor. An opaque accent-color fill recedes across the whole background to show
-time remaining; do not blend the fill with a translucent tint. The user's
-2026-11-06 refinement (UI-027) replaces the earlier 20%-opacity surface: the
-background is fully opaque and uses the normal unchecked row's resolved
-Material.backgroundColor. Checked rows beneath Undo must not obscure its text
-or icon. Use the ProgressBar itself as Popup.background, without the default
-popup surface/elevation shadow. The accent countdown remains visible above the
-solid neutral surface.
-Keep the message, Font Awesome Undo arrow, outer shape and full touch area fixed.
-UI-025 preserves normal TextItem foreground colors on Undo and uses a compatible,
-fully opaque tone from the chosen accent color when the vivid fill would obscure
-that text. The global accent shade is unchanged.
-Filled current-day circles and selected buttons instead use a contrasting dark
-or light foreground; captions outside the button circle keep normal theme text.
-The whole bar is tappable to Undo; the Font Awesome arrow is its visual cue.
-A short message identifies the removed item/count.
-Use a brief slide/settle animation and keep recovery reachable while scrolling.
-UX-005, selected for implementation on 2026-11-07, replaces UI-023's original
-restore-all batch policy with one Undo step per deletion action. A swipe removes
-one item; each explicit Remove checked or Clear list action is one bulk step.
-One tap reverses only the latest action. Further taps reverse earlier pending
-actions in reverse order; the message always identifies the next action to undo.
-This lets a shopper correct one mistaken removal after intentionally deleting
-non-recurring items following Reset checks.
+Return submits, clears the input and keeps the native keyboard open for continued
+typing/dictation. Support composition from the selected keyboard; the app does
+not activate the microphone itself.
 
-Keep one shared 15-second window, restarted by each new deletion and whenever
-Undo exposes an earlier pending action. The user selected this refinement on
-2026-11-08 (UI-032), so an earlier mistake still gets time for correction after a
-near-expiry Undo. Expiry discards every remaining recovery step. Undoing the last step
-hides the bar and stops its clock. A new deletion after Undo replaces the undone
-future steps while preserving earlier pending actions. There is no separate
-Undo-all action, history screen or per-item timer.
+Back closes one layer: foremost About/privacy/selector popup, drawer, keyboard,
+then edit mode; in shopping mode it backgrounds the app. Hiding the keyboard
+keeps the draft. Leaving edit mode discards unsubmitted text and restores an
+original item if its replacement was unfinished.
 
-Scrolling, typing, submission, checking and editor movement preserve recovery.
-The clock pauses while the drawer blocks the action or the app is inactive.
-Recovery belongs to the current loaded list and app process; successful reload/
-list switching ends recovery, while a failed load preserves it. Preserve newer
-edits and the surviving rows' order when restoring removed items by identity and
-their neighboring items. Physical one-handed shopping acceptance remains a
-separate complement to automated touch tests.
+## Theme and visual continuity
 
-Checked items follow first-in, last-out order: the most recently checked item
-stays nearest the unchecked items. This puts the most likely mistake within easy
-reach. Preserve that ordering and the ability to reverse a check quickly.
+Keep vivid primary/accent choices and all 19 color families. Light/Dark/System
+remain independent; foreground/background are derived, without separate pickers
+or a Custom theme. Use the owning control's resolved Material.theme, not raw
+System, for palette decisions. Proposed coordinated presets remain optional.
 
-Resetting checks should restore the chronological checking order for the next use,
-without requiring the shopper to arrange the list again. For example, starting
-with `1, 2, 3` and checking `3, 1, 2` produces a checked stack `2, 1, 3`;
-Reset reverses that stack to unchecked `3, 1, 2`. Within that group, the first
-item checked becomes the first after Reset. Persist this order when reopened.
+Maintain readable colored text/meaningful icons against their actual surface,
+including translucent photographs. Adjust local ink/fill pairs rather than
+flattening the global palette. Day circles, swatches, sliders and tab underlines
+retain vivid fills; selected popup captions use normal readable ink and bold.
 
-Leave unchecked entries first. For unchecked `A, B` followed by checked `C, D`,
-Reset produces `A, B, D, C`. Reverse only checked positions, leaving a free
-editor insertion point in place. An item being edited participates through its
-original checked state: its editor follows that item's reordered position,
-retaining unfinished text and identity. Reset clears every checked flag, and a
-second Reset does not reverse the already-reset items again.
+Safe borders match normal/inverse row surfaces and theme. An open drawer dims
+the exposed top/bottom safe areas with its resolved Material treatment, while
+side insets retain native panel/shadow behavior. System-bar icons follow the
+effective surface. Closing restores the normal 80%-opacity row surface.
 
-## Design in millimeters
+Short and long lists must look continuous. Empty-area fill below delegates must
+not appear between rows while scrolling. Preserve legibility, responsiveness,
+animation and the original shopping-themed background series.
 
-Android has too many screen sizes and densities to design a separate layout for
-each display. Touch targets should retain a consistent physical size across
-devices.
-
-The reference list row height is **9.27 mm**. Use physical dimensions to guide
-touch targets, spacing, and control geometry. A larger screen can show more
-content; a smaller screen should not make the main interactions too small to use
-comfortably.
-
-In QML, use `Theme.pixels(millimeter)` for geometry and
-`Theme.millimeters(pixels)` when interpreting gesture distances. The goal is
-consistent physical usability, rather than matching pixel counts or fitting the
-same number of rows on every screen.
-
-## Large text that adapts to the entry
-
-Item names in the shopping view start with a large, bold font so short entries
-are easy to read at a glance while shopping. `TextItem` uses a reference font
-size of **7 mm**.
-
-Shrinking the text and normally wrapping it across two lines are deliberate parts
-of the design. A third line is allowed for exceptionally long entries. Short
-names stay large; long entries gain room without enlarging the
-reference row or requiring the user to shorten what they write. The intended
-presentation accommodates both short and very long entries within the same
-shopping list.
-
-Preserve this balance when changing typography or row layout. A uniformly small
-font would sacrifice glanceability, while a fixed large font with early
-truncation would sacrifice the useful detail in longer entries.
-
-Use Qt's `Text.Fit` with the large reference size and `maximumLineCount: 3`.
-Rely on Qt's built-in fitting and existing right-ellipsis fallback; do not add a
-separate font scaler. The saved name remains intact when display text is elided.
-
-## Write in recall order, insert in shopping order
-
-People remember items in an arbitrary order. That should not force the shopping
-list into the same order or require a separate rearranging step after every
-entry.
-
-The editor is movable. Put it where an item belongs, enter the item, then move it
-to the next insertion point as needed. Keep this workflow quick and keep the
-editor reachable while the keyboard is open.
-
-The shopper controls the list order. After a few visits, they know the store's
-layout and can arrange the list along their route. Shop mapping, categories, or
-automatic sorting should not be required to achieve that order, and should not
-override the user's arrangement.
-
-## Keep entry fast and continuous
-
-Use the virtual keyboard's dictation to enter items quickly. The app should work
-with the keyboard's text composition and voice input.
-
-Submitting an item keeps the keyboard open, clears the editor for the next item,
-and leaves the insertion point accessible. Repeatedly reopening the keyboard
-interrupts entry. The user should still be able to dismiss it deliberately.
-
-## Keep the visual character
-
-A flashy look, animation, and opacity are intentional parts of QShopper's design.
-Movement makes checking, reordering, and pulling a row back understandable.
-Opacity helps show state and interaction feedback.
-
-Short and long lists should have a unified appearance. The background fill below
-the delegates is intentional: it covers otherwise empty viewport space, but must
-not appear as an intrusive block or boundary while scrolling a long list.
-
-Preserve that character while keeping item names legible, touch targets usable,
-and actions responsive. Visual changes should support the shopping interaction
-without making entry or correction slower.
-
-The vivid primary/accent treatment is intentional. On 2026-11-05 the user
-explained that Qt's standard Material colors look bleak and that the shade shift
-in Theme.qml was introduced to give the app stronger colors. Evaluate that shift
-and its foreground/background pairings while preserving the intended vivid look;
-matching muted defaults is not itself a design goal. The analysis and separate
-contrast follow-ups are recorded in [UX-001](reviews/UX-001.md).
-
-Keep System, Light and Dark independent of the selected primary/accent families.
-Foreground/background colors are derived automatically; do not add independent
-foreground/background pickers or a separate Custom theme mode. Keep all 19 color
-families. Coordinated primary/accent presets are only a possible future convenience.
-UI-026 uses readable normal popup captions with a bold current entry, preserving
-the vivid swatches rather than using potentially unreadable accent-colored text.
-
-UX-003 keeps vivid primary/accent fills separate from colored ink. When a small
-label or meaningful icon needs more contrast, tint its selected color toward
-black on a light neutral surface or white on a dark one. Use the owning surface,
-including its opacity over photographs, rather than changing the global palette.
-The current-day circle, swatches, slider fill and tab underline keep their vivid
-colors. The slider thumb has a small neutral outline, thicker with keyboard
-focus. A custom drawer surface must also propagate through Material.background
-so descendant controls use the surface that is actually painted.
-
-## Applying these principles
-
-When evaluating a change, consider whether it:
-
-- Works comfortably with one hand in a store.
-- Makes deliberate actions easy and accidental actions unlikely.
-- Keeps the most recent mistake nearby and quick to correct.
-- Preserves physical touch sizes across displays.
-- Keeps short names large and lets long entries shrink and wrap, with a three-line cap.
-- Respects the user's list order and movable insertion point.
-- Supports continuous keyboard and voice entry.
-- Keeps the app's animation and visual character useful and responsive.
-
-An implementation shortcut or a familiar UI pattern is not, by itself, a reason
-to give up these choices. If a change needs a different tradeoff, make that
-tradeoff explicit and discuss it with the user.
+Decisions/evidence: [backlog](BACKLOG.md), [theme review](reviews/UX-001.md),
+[color feedback](reviews/UX-002.md), [custom colors](reviews/UX-003.md),
+[Undo](reviews/UX-005.md) and [interaction tests](tests/INTERACTIONS.md).

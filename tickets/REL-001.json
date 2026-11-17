@@ -295,7 +295,7 @@
     "audience_interpretation": "Intended design/marketing audience, not an automatically assigned 18+ content rating. No in-app age gate or Console under-18 exclusion option was requested or implemented. IARC questionnaire remains separate.",
     "priority_actions": [
       "Owner reviews accurate trader status; commercial paid-app sales support a Trader recommendation, not automatic submission",
-      "Prepare app terms-of-service URL and required public phone/address information; verified identity is not completion of these tasks",
+      "Review and publish the app terms-of-service URL using the explicitly supplied public contacts in the canonical draft; verified identity is not completion of trader/merchant tasks",
       "Check Japan PSA authorization invitation/deadline; October 29 notice announces December 1, 2026. Review separate ISA disclosures for new sellers and first Japanese sale",
       "Check Brazil merchant verification and Digital ECA/age-related applicability; no automatic age-SDK requirement inferred",
       "Select final paid-app country roster after applicable regional/restriction checks; retain completion evidence"
@@ -307,13 +307,13 @@
     "date": "2026-11-16",
     "draft": "store/google-play/TERMS_DRAFT.md",
     "review": "reviews/REL-001-terms.md",
-    "status": "Owner-review draft and local HTML preview prepared; missing public trader address/phone, final wording acceptance and public page/Console URL remain open. REL-001 stays in_progress.",
+    "status": "Owner-review draft and local HTML preview prepared; owner supplied public address/phone for inclusion on 2026-11-17. Final wording acceptance and public page/Console URL remain open. REL-001 stays in_progress.",
     "scope": "One-time paid Play build; GPL-3.0-or-later and third-party rights, local data/privacy, support/necessary updates, refunds/withdrawal/defect remedies and consumer advice/ADR. No price set, subscription, age gate, redistribution restriction or blanket consumer-warranty exclusion introduced.",
     "contact": "Samuel Nevala, Finland and approved samuel.nevala@gmail.com. Public postal address and customer-service phone are visible TO COMPLETE fields; no private profile information was collected or guessed.",
     "preview": "out/rel001/terms/terms-draft.html. Text/HTML consistency check passes: 26 blocks and 8 links. Browser appearance not checked.",
     "planned_url": "https://samuelnevala.github.io/QShop/terms.html (not live/verified)",
     "publication": "No docs/terms.html or landing-page terms link added, no push, no Console change or declaration. Existing accepted public/offline privacy policy remains unchanged.",
-    "remaining": "Owner completes public contact fields and reviews wording/trader facts. Check actual seller/checkout, withdrawal/confirmation and applicable registry/contact disclosures. Publish accepted terms and verify URL before Console use; regenerate final source set after accepted revision.",
+    "remaining": "Owner reviews wording/trader facts. Check actual seller/checkout, withdrawal/confirmation and applicable registry/contact disclosures. Publish accepted terms and verify URL before Console use; regenerate final source set after accepted revision. Public contact details are canonical only in store/google-play/TERMS_DRAFT.md.",
     "verification": "Local links/JSON, exact HTML/text comparison and Git whitespace checks; artifact/source identity checked separately. Documentation only, app/UI tests not rerun."
   }
 }

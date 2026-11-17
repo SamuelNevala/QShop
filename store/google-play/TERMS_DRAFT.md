@@ -1,51 +1,64 @@
 # QShopper app terms
 
-**Draft for owner review — 16 November 2026. Not published or effective. Complete the marked public contact fields and the release review before publication.**
+**Draft for owner review — 17 November 2026. Not published or effective.**
 
 ## Developer and contact
 
-QShopper is developed by Samuel Nevala, Finland.
+Samuel Nevala, Oikopolku 4, 33470 Ylöjärvi, Finland.
 
 Email: [samuel.nevala@gmail.com](mailto:samuel.nevala@gmail.com)
 
-Public postal address: **[TO COMPLETE: public trader postal address]**
+Telephone: [+358 40 868 5458](tel:+358408685458)
 
-Public telephone: **[TO COMPLETE: public customer-service phone number]**
+## The official build
 
-## The app and the official download
+QShopper is an offline shopping-list app with no developer-operated account or
+cloud service. The official Google Play download is a one-time purchase, with
+no subscription or in-app purchases. Play shows the price, taxes, compatibility,
+seller and purchase terms before payment. These app terms supplement those
+purchase terms and preserve mandatory consumer rights.
 
-QShopper is a shopping-list app for use in the shop. Its core list features work offline. It has no QShopper account or developer-operated cloud service.
+## Open-source rights
 
-The official Google Play offer is a one-time paid download, not a subscription. The price, applicable taxes and device compatibility are shown by Google Play before purchase. The app has no in-app purchases.
+QShopper is GPL-3.0-or-later: you may run, study, copy, modify and redistribute
+it under that licence, including building your own copy. Payment adds no
+restriction to those rights. The GPL governs covered software; dependencies
+retain their own licences. See the [project and licence](https://github.com/SamuelNevala/QShop),
+[matching-source/build guide](https://github.com/SamuelNevala/QShop/blob/master/SOURCE_DISTRIBUTION.md)
+and the app's offline Licenses reader.
 
-Google Play's checkout identifies the seller and purchase terms that apply. These app terms describe QShopper and developer support; they do not replace Google's purchase terms or reduce your mandatory consumer rights.
+## Lists, privacy and support
 
-## Your open-source rights
+Lists and preferences are stored on your device. Uninstalling or clearing storage
+can remove them. Android backup and your keyboard, including voice typing, use
+their providers' settings and terms. The [privacy policy](https://samuelnevala.github.io/QShop/privacy-policy.html)
+explains these services, purchases and support correspondence; it is also in the app.
 
-QShopper is licensed under the GNU General Public License, version 3 or, at your option, any later version. You may run, study, copy, modify and redistribute it under that licence, including building your own copy. Paying for the official build does not restrict those rights. These app terms add no restrictions to the GPL grant; the GPL governs use and distribution of the covered software.
-
-The [project and full licence](https://github.com/SamuelNevala/QShop) identify the applicable terms. The [source and build guide](https://github.com/SamuelNevala/QShop/blob/master/SOURCE_DISTRIBUTION.md) explains matching release sources and modified builds. Third-party components retain their own terms; their notices are available through the app's Licenses reader and source distribution.
-
-## Your lists and privacy
-
-Shopping lists and preferences are stored on your device. Clearing app storage or uninstalling can remove local data. Android backup and your selected keyboard, including voice typing, operate under their own settings and providers' terms.
-
-The [privacy policy](https://samuelnevala.github.io/QShop/privacy-policy.html) explains app data, platform services, purchases and support correspondence. It is also available offline in the app.
-
-## Updates and support
-
-Contact the email above for help, purchase issues or faults. Describe the problem and, where useful, include the app version and Android version. Share only information you want the developer to receive.
-
-Necessary updates and information about them will be provided as required by applicable consumer law. The store listing and release information describe the official build and relevant changes.
+For help, faults or purchase issues, use the contact details above. Include the
+app/Android version where useful and only information you intend to share.
+Necessary updates and information about them will be provided as required by
+applicable consumer law. The listing and release notes describe supported builds.
 
 ## Refunds, withdrawal and faults
 
-For a Google Play purchase, you can use [Google Play's refund process](https://support.google.com/googleplay/answer/2479637?hl=en) or contact the developer. A receipt or order reference can help identify the purchase. Applicable refund and cancellation rights depend on your location and purchase; a store procedure does not remove rights provided by law.
+Use [Google Play's refund process](https://support.google.com/googleplay/answer/2479637?hl=en)
+or contact the developer; an order reference helps identify a purchase. Store
+procedures do not remove statutory rights.
 
-Where a statutory withdrawal right applies to an EEA digital-content purchase, the usual period is 14 days from the contract. Immediate digital supply can end that right only when the required legal conditions, including express consent and acknowledgement, are met. These app terms do not themselves obtain that consent or waive a withdrawal right. You can send a clear withdrawal notice to the contact email above; the relevant checkout and [regional Google Play information](https://support.google.com/googleplay/answer/7659581) explain the applicable process.
+Where an EEA statutory withdrawal right applies, the usual period is 14 days
+from the contract. Immediate digital supply ends it only when legal conditions,
+including express consent and acknowledgement, are met. These terms neither
+obtain that consent nor waive withdrawal. Send a clear withdrawal notice to the
+email above; check the checkout and [regional Play information](https://support.google.com/googleplay/answer/7659581)
+for the applicable process.
 
-If the paid app is faulty or does not match what was agreed, applicable law may entitle you to correction, a price reduction, cancellation/refund or compensation. Contact the developer or the seller identified in your purchase record. These terms and the GPL's warranty/liability provisions do not remove mandatory consumer rights.
+For faults or a product that differs from what was agreed, applicable law may
+provide correction, price reduction, cancellation/refund or compensation. Contact
+the developer or seller shown on your purchase record. These terms and GPL
+warranty/liability provisions do not remove mandatory consumer rights.
 
 ## Complaints
 
-Please contact the developer about a complaint so it can be addressed. In Finland, [Consumer Advisory Services](https://www.kkv.fi/en/consumer-affairs/consumer-advisory-services/) provide advice, and an eligible consumer dispute can be referred to the [Consumer Disputes Board](https://www.kuluttajariita.fi/en/). Other rights and remedies available in your country remain unaffected, including access to competent courts.
+Contact the developer first. In Finland, [Consumer Advisory Services](https://www.kkv.fi/en/consumer-affairs/consumer-advisory-services/)
+offer advice; eligible disputes can go to the [Consumer Disputes Board](https://www.kuluttajariita.fi/en/).
+Other remedies in your country, including competent courts, remain available.

@@ -1,442 +1,89 @@
-# Android APK
+# Android builds
 
-The project requires Qt 6.12+. Production sources and the app target now live
-under `app/`; Android's import scan sees only production QML and this build's
-generated keyboard gate, not tests or old build trees. Qt's standard deployment
-tools still assemble the package. Plugin selection uses `qt_import_plugins`.
+Install/configure the tools in [BUILDING.md](BUILDING.md). The app package is
+`shopper.nevala.com`, version **0.1.0 / code 5**, minimum Android 9/API 28.
+Compile SDK is 36; the current APK targets API 37. Gradle downloads dependencies
+on the first build.
 
-DEV-008 removes unused Canvas, Qt Virtual Keyboard, Qt Test/QuickTest/Widgets,
-Imagine/Universal/Fluent styles, extra image/vector plugins, optional network/TLS
-plugins and the 3D profiler adapter. Material/Basic and the intentionally used
-Fusion text field remain; core Qt dependencies stay present. QML tooling defaults off, can be explicitly
-enabled for development builds, and is always excluded from Release/MinSizeRel.
-Qt Network/OpenGL are native dependencies of Qt Quick and are not removed merely
-because the shopping UI does not call them directly. The app uses local assets
-and SQLite; its current user flows do not require Qt TLS/network-information
-providers. JPEG is the only image plugin; PNG decoding is built into Qt Gui.
+## Build and install
 
-Code 4 opts out of Qt's generic permission injection: ordinary Debug and
-Release declare only AndroidX's generated internal signature permission.
-Internet, network-state and external-storage access are not needed. Explicit
-development `-QmlDebug` adds Internet permission; Release excludes it. The
-actual APK/AAB permission set is checked by `-VerifyPackage`. Android backup
-remains enabled; see the [privacy audit](reviews/REL-001-privacy.md).
-
-Build an installable ARM64 debug APK from PowerShell:
+From PowerShell in the checkout:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build-android.ps1
+./build-android.ps1 -Architecture arm64
+$sdk = Join-Path $env:LOCALAPPDATA 'Android/Sdk'
+& "$sdk/platform-tools/adb.exe" devices
+& "$sdk/platform-tools/adb.exe" -s YOUR_DEVICE_SERIAL install -r dist/QShopper-arm64-debug.apk
 ```
 
-Output: `dist/QShopper-arm64-debug.apk`.
+Replace `YOUR_DEVICE_SERIAL` with the entry shown by `adb devices`. Enable USB
+debugging and authorize the computer on the phone. Qt Creator can build and
+install directly from the Android kit's Run configuration.
 
-The script defaults to Qt 6.12.0 in `C:\Qt`, the Android SDK in
-`%LOCALAPPDATA%\Android\Sdk`, NDK 27.2.12479018, and the installed Adoptium
-JDK 21. Override `-QtRoot`, `-QtVersion`, `-SdkRoot`, `-NdkVersion`, or
-`-JavaHome` for other installations. This build uses compile SDK 36; Qt selects an installed SDK build-tools revision. Gradle downloads build dependencies on the first run.
+Defaults: Qt in `C:/Qt`, SDK under `%LOCALAPPDATA%/Android/Sdk`, NDK
+27.2.12479018, Adoptium JDK 21. Override script parameters for other locations.
+Use `-Architecture x86_64` for an emulator APK at `dist/QShopper-x86_64-debug.apk`.
 
-The APK uses package `shopper.nevala.com`, version 0.1.0 (code 5), and supports
-ARM64 Android devices running Android 9 (API 28) or later. By default it is signed
-with the local Android debug key. To update an existing installation built on
-another machine, supply the original debug keystore:
+## Updating an existing installation
+
+Use the same signing certificate. When moving between development computers,
+pass the original debug key stored **outside** the checkout:
 
 ```powershell
-./build-android.ps1 -Architecture arm64 -DebugKeystore ../debug.keystore
+./build-android.ps1 -Architecture arm64 -DebugKeystore /path/to/debug.keystore
 ```
 
-This re-signs and verifies the output APK using the standard `androiddebugkey`
-alias and `android` debug passwords. The keystore stays outside the repository.
-The supplied key must match the installed app's certificate; the shared source
-folder alone does not share each machine's default `~/.android/debug.keystore`.
-Store publication requires a release build
-signed with the production keystore.
+This option expects the standard Android debug alias/password. Source sharing
+does not share each computer's default debug key. Production uses a separate
+signing setup; preserve existing lists before a signing migration. Do not commit
+keystores or passwords.
 
-## Release APKs and Google Play bundles
-
-[RELEASE.md](RELEASE.md) gives the account/signing/publication steps. The helper
-also supports unsigned Release artifacts in separate build directories:
+## Release and Play bundle
 
 ```powershell
-./build-android.ps1 -Architecture arm64 -Configuration MinSizeRel -SdkRoot C:/android/sdk -VerifyPackage
-./build-android.ps1 -Architecture arm64 -Configuration MinSizeRel -AppBundle -SdkRoot C:/android/sdk -VerifyPackage -Bundletool out/rel001/bundletool-all-1.18.3.jar
+./build-android.ps1 -Architecture arm64 -Configuration MinSizeRel -VerifyPackage
+./build-android.ps1 -Architecture arm64 -Configuration MinSizeRel -AppBundle -VerifyPackage -Bundletool /path/to/bundletool.jar
 ```
 
-Use `-Python` for a specific interpreter. Outputs are
-`dist/QShopper-arm64-release-unsigned.apk` and `.aab`; they need test/upload
-signing before use. `Release` is also supported; `MinSizeRel` adds native
-size optimization and ThinLTO. Both enable R8/resource shrinking and omit 13
-individually validated optional wrappers. `android/runtime-libraries.txt` records
-the 40 required Release libraries. The default Debug workflow keeps 53 libraries.
-
-Standalone APK libraries are compressed/extracted at install time for a smaller
-file. Play-generated native splits remain uncompressed for direct loading.
-The actual Release APK/AAB checks cover manifest/version, non-debuggable state,
-dependency closure, required inventory, stripped delivered libraries and 16 KB
-alignment. The ARM64 unsigned APK is 24,585,386 bytes versus the original
-63,317,333-byte Release baseline. Production signing is separate; the helper
-rejects DebugKeystore/QmlDebug for Release configurations.
-
-CMake stages the manifest and launcher icons from `android/`; Qt supplies
-the Gradle configuration and wrapper appropriate to the installed Qt version.
-The older Gradle files in `android/` are not used by this build.
-
-Install on an attached device with USB debugging enabled:
-
-```powershell
-& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" install -r .\dist\QShopper-arm64-debug.apk
-```
-
-Qt command-line build reference:
-<https://doc.qt.io/qt-6/android-building-projects-from-commandline.html>
-
-## About and offline notices (UI-012)
-
-Drawer → About → Licenses provides complete local Qt and Font Awesome notices.
-The Qt resource follows the retained Android runtime inventory; desktop keyboard
-notices are excluded. Source selection and updates are documented in
-[app/licenses/README.md](app/licenses/README.md).
-
-After installing the x86_64 test APK on the isolated gesture-navigation emulator:
-
-```powershell
-python tests/android/test_about.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --output out/android-about
-```
-
-Requires Pillow. This emulator-only script uses disposable data and temporarily
-disables Wi-Fi/mobile data, restoring both in `finally`. It checks complete
-offline documents, both themes, native scrollbar endpoints, safe-area bounds,
-both Back edges and Close, retaining the drawer/draft and exact saved list.
-It force-stops its app launch afterward. Run serially with other native tests.
-The reader uses a standalone ListView with attached scrollbar and accessible List/ListItem
-roles. Its sole header is Open-source licenses, with a centred footer close icon.
-Both upward/downward body swipes work; logos use CurveRenderer antialiasing.
-Native checks compare the visible header and final paragraph; QTest checks
-the complete resource strings. Reports and XML/PNG frames are under `out/ui012/`.
-The two tab logos intentionally add Qt Svg/VectorImage/Helpers/Effects; both signed
-APK contracts contain 53 native libraries, with no QML tooling. The ARM64 review build is
-`dist/QShopper-arm64-debug.apk`, signed with the shared debug key.
-
-## QML tooling in APKs
-
-A Debug build does not need `qmltooling` libraries for ordinary operation or
-C++ debugging. They are omitted by default. For Qt Creator QML debugging,
-profiling or live preview, build explicitly with `-QmlDebug`:
-
-```powershell
-./build-android.ps1 -Architecture x86_64 -QmlDebug -VerifyPackage
-```
-
-That switch uses Qt's `QT_ENABLE_QML_DEBUG` setting; direct CMake/Qt Creator
-builds can set it to ON for Debug/RelWithDebInfo. Release and MinSizeRel always
-exclude both the tooling plugins and the target's QML-debug setting, even if
-ON was requested. A manual `-DQT_QML_DEBUG` compiler flag is outside this helper's
-configuration contract. The package checker expects no tooling unless passed
-`--qml-debug`, which the build helper adds for the opt-in development build.
-
-Qt's deployment tool can leave old `.so` files behind when dependencies change.
-Android reconfiguration therefore regenerates its task-owned `app/android-build`
-staging tree before packaging, with resolved-path checks; it never prunes
-individual libraries from a completed APK. Keep customizations in `android/`,
-not in generated staging. The regression covers switching tooling off in an
-existing build as well as fresh Release/default/opt-in builds.
+Outputs are `dist/QShopper-arm64-release-unsigned.apk` and `.aab`. They need
+appropriate test/upload signing. The helper deliberately rejects debug signing
+and QML debugging for Release. `MinSizeRel` uses ThinLTO, R8 and resource shrinking;
+`Release` is also available. See [RELEASE.md](RELEASE.md) for signing/publication.
 
 ## Package regression (DEV-008)
 
-The optional verification switch uses Python 3's standard library plus the
-NDK's `llvm-readelf`; it does not add a Python dependency to ordinary builds:
+`-VerifyPackage` needs Python (`-Python` chooses the interpreter); bundle checks
+also need the official bundletool JAR. It checks actual permissions, version,
+native dependency closure, QML scan roots, 16 KB alignment, the selected runtime
+inventory/notices and unchanged source inputs. Configuration alone is not proof
+of the delivered payload.
 
-```powershell
-./build-android.ps1 -Architecture arm64 -DebugKeystore ../debug.keystore -VerifyPackage
-./build-android.ps1 -Architecture x86_64 -VerifyPackage
-```
+Production lives in `app/`; tests and build copies must stay outside it. The
+optimized payload keeps 40 required native libraries, JPEG, SQLite and Android's
+platform/IME. Material, its Basic fallback and the Fusion editor are retained.
+Optional TLS, image, desktop-keyboard, unused style and profiling plugins are
+excluded through Qt's deployment API. Ordinary Debug/Release need no Internet or
+storage permission; explicit development `-QmlDebug` is the only Internet opt-in.
+Android backup remains enabled. Notices remain complete and offline.
 
-Use `-Python` for a specific interpreter. The checker verifies required runtime
-libraries and ABI, absence of the excluded payload, every bundled Qt/C++ native
-ELF dependency, and the generated QML scan roots. It does not certify runtime
-features by itself: run the native entry/Undo workflows below using disposable
-emulator data. The original APK fails this contract; keep that baseline evidence
-rather than deleting old source/build copies to make the scan look clean.
+## Emulator tests
 
-Standalone inspection of an APK built with a custom build directory:
+Create a dedicated API-36 x86_64 phone AVD with a Google Play image, English
+QWERTY Gboard and gesture navigation. Use host GPU rendering. Find its serial
+with `adb devices`; install the x86_64 Debug APK there, then follow
+[tests/README.md](tests/README.md#android-tests). Tests use disposable app data;
+never run destructive Release tests on normal phone data.
 
-```powershell
-python tests/test_android_package.py dist/QShopper-arm64-debug.apk --abi arm64-v8a --readelf C:/android/sdk/ndk/27.2.12479018/toolchains/llvm/prebuilt/windows-x86_64/bin/llvm-readelf.exe --deployment-settings build-android-arm64/app/android-application-deployment-settings.json --report out/package-arm64.json
-```
+## Platform behavior
 
-## Android emulator
+- Android Back closes the foremost About/privacy/popup layer, then drawer,
+  keyboard, and edit mode. Shopping-mode Back backgrounds the app. Hiding the
+  keyboard keeps the draft; leaving edit mode discards it/restores its original.
+- `adjustResize` keeps the movable editor above the system IME. Return keeps
+  entry open. A 40-row cache plus retained editor supports long-list scrolling.
+- The phone app requests portrait. Android can override this on large displays;
+  API-37 targeting has no API-36 large-screen opt-out. Phone testing does not
+  certify tablet/foldable or multi-window behavior.
 
-A local virtual phone named `QShopper_API_36` is registered with the Android SDK.
-It uses the installed Android 16 (API 36) Google Play x86_64 image and Pixel 6 Pro
-hardware profile. Its data is in `out/android-emulator/QShopper_API_36.avd`.
-It is separate from physical phones and their app data. The profile does not
-reproduce the Pixel 10 Pro XL's exact physical dimensions.
-
-Start its visible window from PowerShell:
-
-```powershell
-& "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd QShopper_API_36 -port 5580 -gpu host -memory 3072 -scale 0.3
-```
-
-Host GPU rendering works on this PC; the emulator's software SwiftShader mode
-produced rendering artifacts in Qt Quick. No production rendering override was added.
-
-Build the emulator APK using the installed Qt Android x86_64 kit:
-
-```powershell
-./build-android.ps1 -Architecture x86_64
-& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s emulator-5580 install -r ./dist/QShopper-x86_64-debug.apk
-```
-
-The emulator build uses `out/android-emulator-build`. The default `arm64`
-architecture continues to produce `dist/QShopper-arm64-debug.apk` for phones.
-Generated Android settings and Gradle output now live under `app/` inside each
-build directory; the public `dist/` filenames are unchanged.
-The CMake target explicitly selects compile SDK 36 because automatic SDK selection
-picked the older android-33-ext5, which fails the current AndroidX requirements.
-
-For automated launches, Qt's debug intent extras can set QSHOPPER_DATA_DIR without
-changing the application's regular storage:
-
-```powershell
-$probeData = '/data/user/0/shopper.nevala.com/files/agent-testing/' + [guid]::NewGuid().ToString('N')
-& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s emulator-5580 shell am start -n shopper.nevala.com/org.qtproject.qt.android.bindings.QtActivity --es extraenvvars_QSHOPPER_DATA_DIR $probeData
-```
-
-Start this way with the app stopped so main.cpp receives the new environment.
-
-Verified on 2026-10-27 with the real Android Gboard IME: typing Milk using on-screen
-keys and tapping its Return key adds the item, clears the editor, and keeps Gboard
-visible. Empty Return also keeps it open. Opening the drawer hides Gboard, and
-closing the drawer then tapping the editor reopens it. Android dumpsys reports
-`imeOptions=0x40000000` (IME_FLAG_NO_ENTER_ACTION) for the editor. Screenshots and
-inspection output are in `out/android-emulator`; the check used a unique isolated
-data directory. This is an emulator check, not a physical Pixel device check.
-
-## Catalog proxy migration verification (DEV-007)
-
-The drawer uses QtQml.Models.SortFilterProxyModel; the Android package must deploy
-the QtQml.Models plugin as well as the native QmlModels library. On 2026-11-03,
-the fresh Qt 6.12 x86_64 APK at
-`out/dev007/android/android-build/build/outputs/apk/debug/android-build-debug.apk`
-contained both and passed ten list-selector/cold-restart checks and 28 native
-entry/catalog lifecycle checks on QShopper_API_36. Those checks use unique
-QSHOPPER_DATA_DIR values and target only emulator-5580:
-
-```powershell
-python tests/android/test_popups.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --selector lists --restart --output out/dev007/android-popups
-python tests/android/test_entry.py --adb C:/android/sdk/platform-tools/adb.exe --serial emulator-5580 --gesture-jar out/dev007/gesture-helper/gesture.jar --output out/dev007/android-entry
-```
-
-The test-only gesture helper was built with `tools/build-android-gesture-test.ps1`.
-Results include actual create/rename/delete/Undo, preserved UUIDs/list contents,
-selection after process restart, Gboard entry and Back. The headless emulator was
-stopped afterward. No physical phone was installed; Qt 6.10/6.11 and ARM64 runtime
-were not retested. The model property preserves the older documented QML API,
-retained as an alias in the validated Qt 6.12 kit.
-
-## Keyboard resize verification
-
-The activity manifest explicitly sets `android:windowSoftInputMode="adjustResize"`.
-Qt's default had selected adjustPan for the editor, leaving the bottom of a long
-list behind the keyboard. Native resizing keeps the final list item and editor
-reachable above the IME without adding a second keyboard-height padding in QML.
-
-Verified on 2026-10-27 with Qt 6.12.0, Android 16, Gboard, and host GPU rendering:
-
-- A fresh isolated 35-item list could be scrolled away from and back to its final
-  item and editor with Gboard open.
-- Ten keyboard hide/show cycles passed, including reopening the editor after each
-  resize. Its center moved from screen y=2933 with the IME hidden to above Gboard
-  when visible.
-- A 39.96-second screen recording contained 975 captured frames. Automated analysis
-  found no near-black app frames in the region above the keyboard; visual checks
-  also showed no broken rendering. This checks this emulator configuration, not
-  every device/GPU. Analysis thresholds are recorded alongside the video.
-- Tapping Gboard Return added another item and retained the keyboard.
-- The Windows verification script passed all three CTest entries after the change.
-
-Artifacts are `out/android-emulator/resize-transitions.mp4`, `resize-cycles.json`,
-`resize-frame-analysis.json`, and `resize-final.png`. The rebuilt emulator APK is
-`dist/QShopper-x86_64-debug.apk`. The updated app remains running on the emulator.
-
-## Android Back navigation (UI-006)
-
-The view and drawer handle Back using Android-only window shortcuts. The drawer
-owns a separate shortcut because its modal popup blocks the view's shortcut.
-Each gesture closes an open selector popup first, then the drawer, hides the
-keyboard while editing, or leaves edit mode, in that priority. Selector popups
-are modal and dismiss on outside release: an initial edge press must survive
-until Android recognizes Back and cancels its touch stream (UI-016). Outside
-taps still dismiss the popup on release without activating controls below it. In shopping mode both shortcuts are disabled: the validated
-Qt 6.12 Android platform backgrounds the task and keeps its process alive.
-`Window.onClosing` is not used. This backgrounding behavior is documented in
-[Qt's Android platform notes](https://doc.qt.io/qt-6/android-platform-notes.html#back-key-and-back-gesture).
-Older Qt 6.10/6.11 background behavior has not been certified by these tests.
-
-Hiding the keyboard keeps the draft. Leaving edit mode uses the existing policy
-selected by the user: discard unsubmitted text and restore an original item if
-its replacement was unfinished.
-
-With the x86_64 debug APK installed on the unlocked English QShopper_API_36
-emulator, Gboard enabled and gesture navigation selected, run:
-
-```powershell
-python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui006-after
-```
-
-The script permits only an emulator, seeds a unique QSHOPPER_DATA_DIR and drives
-native screen-edge swipes. It checks keyboard/editor/drawer priority, task
-backgrounding, unchanged process ID after return, and saved list order/state.
-It saves screenshots, UI XML, SQLite and results under the output directory, and
-stops the test app afterward. It never installs an APK or touches a physical phone.
-
-## Back gesture cancellation (UI-007)
-
-UI-007 covers cancelled touches and immediate interaction recovery. Compile its
-test-only continuous-touch injector, then run the matrix against the installed
-emulator APK:
-
-```powershell
-./tools/build-android-gesture-test.ps1
-python tests/android/test_back.py --adb C:/android/sdk/platform-tools/adb.exe --matrix --gesture-jar out/android-emulator/back-gesture/gesture.jar --output out/android-emulator/ui007-matrix-after
-```
-
-The helper requires JDK 21, Android SDK platform 36 and build-tools 36.0.0;
-`-JavaHome` and `-SdkRoot` override the script defaults. It runs under the emulator
-shell and is not packaged with QShopper. Unlike separate `input motionevent`
-calls, it preserves one pointer and one downTime for the whole gesture.
-
-The matrix covers both screen edges, keyboard open/closed, cancelled gestures
-with 0 or 150 ms initial holds, and completed gestures with a 150 ms initial
-hold. Each holds for a full second after Back recognition to expose a leaked
-long-press timer. Android rejects a Back gesture when the initial stationary
-hold exceeds its roughly 250 ms recognition timeout; such a hold is an app long
-press rather than a Back cancellation test.
-
-Checks cover row parenting, unchanged saved items, Back priority, and immediate
-long-press reordering followed by checking/correction after every gesture. A
-reorder/restore control precedes the matrix. Screenshots, accessibility XML,
-SQLite and results are saved under the output directory. The default command
-without `--matrix` still runs the seven UI-006 checks without needing the helper.
-
-The continuous-touch reproduction failed before the fix: a row was orphaned
-and the next checking swipe deleted it. Preventing only the late long-press
-callback kept the row visible but still broke the next reorder. The final fix
-replaces only a cancelled, still-pressed tap recognizer and rejects cancelled
-swipes as actions. All 69 checks in the final matrix passed on 2026-10-29.
-The Android 16/API 36 matrix is automated coverage. On 2026-10-29 the user also
-confirmed that the fix works on the affected Pixel 10 Pro XL running Android 17.
-This phone confirmation does not imply an exhaustive physical-device matrix.
-
-## Selector safe areas (UI-010)
-
-Long Lists, Accent and Primary popups use the full-window safe-area margins plus
-the existing 2 mm spacing. They live in the window overlay, so the drawer's own
-safe-area padding cannot constrain them. Option rows remain 9.27 mm high.
-
-With the x86_64 debug APK installed on the English API 36 emulator, run:
-
-```powershell
-python tests/android/test_popups.py --adb C:/android/sdk/platform-tools/adb.exe --matrix --output out/android-emulator/ui010-matrix-after
-```
-
-The script seeds 30 saved lists and two shopping items in unique isolated data
-directories. Native swipes reach both scroll limits, endpoint bounds are checked
-against Android's reported system-bar/cutout bounds, and taps must persist the
-expected list or color. SQLite checks that the shopping items remain intact.
-The current matrix covers portrait, opening Gboard before the drawer (which
-dismisses it and resizes the window), and requesting a rotated-device orientation
-while the phone app remains portrait. Display and accessibility rotation are
-asserted. Sensor-driven auto-rotation is covered separately by UI-011 below.
-Rotation settings are restored and
-the test app is stopped afterward. The script only accepts emulator serials and
-does not install an APK. Use `--selector accent --endpoint first` for a narrow run.
-
-On the original APK, both Accent endpoints failed the safe-bounds assertions;
-evidence is in `out/android-emulator/ui010-regression-before` and
-`ui010-last-before`. The first row overlapped the status bar and the last row
-extended into the navigation-bar area.
-
-The original UI-010 validation, before the UI-011 portrait restriction, uses the
-portrait checks in `ui010-after`, the completed
-`ui010-after-keyboard` profile and the rotation-asserted
-`ui010-landscape-verified` profile. Their combined results and source paths are
-recorded under `ui010-matrix-after`. Those true-landscape results are historical
-coverage for that build. The current harness uses `--profile keyboard_resize`
-or `--profile rotated` to run profiles separately.
-All 54 checks passed on 2026-10-29. The shared-key ARM64 debug APK was rebuilt
-and its signature verified. The user confirmed the fix on the affected Android 17
-phone on 2026-10-29; this complements the automated emulator coverage.
-
-## Portrait-only phone orientation (UI-011)
-
-QtActivity requests `android:screenOrientation="portrait"` in the manifest.
-Shopping, editing, the native keyboard and the drawer stay portrait when the
-phone rotates. The request does not need a runtime orientation handler.
-
-With the x86_64 APK installed on the English QShopper_API_36 phone emulator:
-
-```powershell
-python tests/android/test_portrait.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui011-after
-python tests/android/test_popups.py --adb C:/android/sdk/platform-tools/adb.exe --profile rotated --output out/android-emulator/ui011-popups-after
-```
-
-The orientation test enables auto-rotate and changes the emulator's actual
-acceleration sensors. Android Settings is a control that must rotate to landscape
-before QShopper is tested. Cold launches held portrait/landscape, shopping
-rotation in both directions, edit mode with keyboard hidden/visible, an
-unfinished draft, and the open drawer are checked. Saved item order/checked
-state and process continuity must survive. Display geometry is inspected before
-and after accessibility dumps, with a bounded wait for activity launch
-transitions. This avoids counting a system rotation lock as an app orientation
-fix. The test uses isolated data, restores sensors/rotation settings, stops the
-app, and only accepts an emulator serial.
-
-The original APK fails `launch_held_landscape` at 3120x1440, rotation 1, after
-the sensor control passes. Before/after artifacts are under
-`out/android-emulator/ui011-before` and `ui011-after`.
-
-On 2026-10-29 all 11 orientation/state checks and all 18 updated selector checks
-passed. The Windows build and all three CTest entries also passed. The shared-key
-ARM64 APK was rebuilt and its signature verified. The user waived physical
-Android 17 phone testing and requested the commit; no physical-phone test is claimed.
-
-Android can override orientation restrictions on large displays and in some
-windowing/user configurations. In particular, the platform ignores these
-restrictions on displays of at least sw600dp for apps targeting API 36 or newer;
-the temporary API 36 opt-out does not apply when targeting API 37. The APK
-currently targets API 37. Phone-emulator coverage uses sw411dp and does not
-certify tablets, foldable inner displays or multi-window behavior. See the
-[Android orientation restriction guidance](https://developer.android.com/about/versions/16/behavior-changes-16#large-screens).
-
-## Reset checks ordering (UI-009)
-
-Reset reverses the checked stack into the order in which items were checked.
-Starting with `1,2,3` and checking `3,1,2` produces checked `2,1,3`; Reset must
-produce unchecked `3,1,2`. For unchecked `A,B` before checked `C,D`, Reset produces
-`A,B,D,C`. Unchecked entries stay in place. An edited checked item participates
-through its pending original, and its draft follows that item's new position.
-A free insertion point stays in place. A second Reset must not reverse again.
-
-With the current x86_64 APK installed on the English API 36 phone emulator:
-
-```powershell
-python tests/android/test_reset.py --adb C:/android/sdk/platform-tools/adb.exe --output out/android-emulator/ui009-revised-after
-```
-
-The three isolated cases use actual left swipes, double taps and the drawer's
-Reset checks button. They check chronological order and cleared flags, repeated
-Reset, retained edit text and cold-restart persistence of order, flags and item
-identities. The test only accepts emulator serials and stops the app afterward.
-
-The corrected expectation fails against the previous APK: `2,1,3` stays `2,1,3`
-instead of becoming `3,1,2`. Its evidence is in
-`out/android-emulator/ui009-revised-before`. Earlier `ui009-*` reports without
-`revised` refer to the superseded preserve-visible-order instruction, and are
-not evidence for the final chronological-order requirement.
-
-On 2026-10-30 all 13 revised native checks pass. The seven ResetChecks records
-also pass with native Windows rendering; full Windows verification passes
-92 UI, 6 keyboard and 61 model records. The updated shared-key ARM64 APK was
-rebuilt and its signature verified. The user confirmed the supplied test APK
-works and requested closure on 2026-10-30.
+Expected behavior: [DESIGN.md](DESIGN.md). Regression evidence and resolved dates
+remain in [tickets](tickets/) and the [interaction inventory](tests/INTERACTIONS.md).

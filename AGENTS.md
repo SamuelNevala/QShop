@@ -1,308 +1,110 @@
-# QShopper agent workflow
+# Agent workflow
 
-QShopper uses C++20, Qt 6.12 or newer, and CMake 3.25 or newer.
-The validated Windows development kit is Qt 6.12.0 MSVC 2022 x64.
-Qt Creator and its MCP server are optional; all verification runs from PowerShell.
+Human build instructions are in [BUILDING.md](BUILDING.md); tests are in
+[tests/README.md](tests/README.md). This file contains automation constraints.
 
-## Source layout and Android packaging
+## Project and change scope
 
-Production C++, QML, images, font and keyboard templates live under `app/`.
-The root CMake file sets up the project and tests; `app/CMakeLists.txt` owns the
-application and QML module. Keep build output outside `app/` so Android's QML
-scan cannot discover tests or historical build copies. The QShopper module URI
-and resource URLs remain unchanged; QML output stays in the build's `QShopper/`.
-Production controls explicitly import Material, with Fusion retained for the
-editor's plain text field and Basic as Qt's Material/Fusion fallback.
-Android plugin deployment is selected through `qt_import_plugins`, not file
-removal. JPEG plus built-in PNG, SQLite and the native Android platform/IME are
-retained. QML tooling is opt-in for development builds and is excluded from
-Release/MinSizeRel. Desktop keyboard support remains conditional.
-`build-android.ps1 -VerifyPackage -Python python` checks the actual APK for
-unwanted payload, native dependency closure and isolated QML scan roots.
+- C++20, Qt 6.12+, CMake 3.25+. Validated desktop: Qt 6.12.0 MSVC 2022 x64.
+- Production C++/QML/assets are in `app/`; root CMake owns project/tests and
+  app/CMakeLists owns the app/module. Build outside app/ so Android scans cannot
+  include tests or historical build copies. Keep QShopper URI/resource URLs and
+  build/QShopper module output unchanged.
+- Read [DESIGN.md](DESIGN.md) before changing UI, gestures, ordering, sizing or
+  entry. Preserve deliberate pullback, 9.27 mm rows, large fitting text, movable
+  editor/continuous IME, checked-stack order and animated visual character.
+- KISS is a standing preference. [CODING_GUIDELINES.md](CODING_GUIDELINES.md) is
+  authoritative; accepted formatter settings take precedence over blanket style
+  adoption. Use braces for all edited if bodies; no new/edited C++ continue.
+- Reports and feature requests enter [BACKLOG.md](BACKLOG.md)/tickets until the
+  user selects implementation. Distinguish bugs, review candidates and validation
+  gaps. Preserve resolved history and later successful acceptance.
 
-## Product design
+## Review and formatting
 
-Read [DESIGN.md](DESIGN.md) before changing UI, gestures, list ordering, sizing,
-or text entry. It records the user's design intent for one-handed shopping:
-deliberate horizontal swipes with pullback, nearby correction through first-in,
-last-out checked-item ordering, 9.27 mm reference rows, large item text that
-shrinks and wraps for long entries (normally two lines, with a three-line cap), a movable editor,
-user-controlled shopping order, continuous keyboard/dictation entry, and an
-animated visual style. Evaluate proposed changes against these principles and
-make any tradeoffs explicit.
+- Review QML one file at a time, tracing definition, base/content, derivation,
+  callers, dynamic loaders and tests. Reading a caller is not its independent
+  review. Record justified no-change decisions. Preserve DEV-006 coverage.
+- Trace implicit size versus parent allocation/position/Layout hints. Prefer
+  Layouts over positioning-only Item/Row/Column wrappers. Custom button content
+  honors inherited display modes and declares its intentional default.
+- Bounded test-asset findings may be fixed directly during review; keep behavior
+  changes separate. Do not invent regressions for unused-code deletion.
+- Use format-qml.ps1 and format-cpp.ps1, then their -Check modes. New sources
+  must be tracked. QML imports stay sorted; qualify overlapping types. Retain
+  include/child order; inspect inserted braces. Keep formatting separate from
+  behavior/analyzer refactors and require a stable second formatting pass.
+- Analyze with analyze-cpp.ps1; -SkipBuild requires current generated headers.
+  Use the committed broad profile and local named exceptions. Do not blindly
+  apply exported fixes, patch the SDK or suppress QML warnings globally.
 
-## Simplicity
+## Verification and isolation
 
-KISS is a standing user preference for QML, C++, CMake, and development tooling.
-Prefer clear, direct implementations. Add abstraction or generalization only when
-it makes the actual code easier to understand and maintain. Fewer lines alone do
-not make a design simpler; preserve necessary safety, error handling, and product
-behavior. The full code review and coding-guide task is tracked as DEV-006.
+- Every bug fix needs an automated test of the actual failure: fail before,
+  pass after. Record name/location/results in its ticket. Manual acceptance adds
+  evidence; it cannot replace the regression. Blocked reproduction stays open.
+- Choose model QTest, production-control Qt Quick Test, native rendering or
+  Android coverage appropriate to the trigger. Offscreen does not certify fonts,
+  system bars, IME or native edge gestures. Report exactly what ran and any gap.
+- verify-windows.ps1 configures/builds/runs CTest from PowerShell and initializes
+  MSVC. -Action Build/Test selects a phase; Qt/CMake/Ninja parameters allow other
+  installs. Each checkout has its own out/windows-agent build/cache.
+- Full-app automated launches use unique QSHOPPER_DATA_DIR/settings. QML/model
+  fixtures use memory/temporary data. Parallel tests need separate data.
+- Use a dedicated, explicitly identified emulator only. Never install on a
+  physical device without authorization. Genuine Release tests require fresh
+  disposable userdata because Debug redirection/run-as do not apply.
+- Hold gestures/animated Undo need rendered targets/receiver checks, not idle-only
+  accessibility snapshots. Settled flows wait for readiness; test interruptions
+  separately. Do not hide failures with XFAIL/skip or weaker assertions.
+- English QWERTY Gboard is the native entry baseline. Ordinary entry tests never
+  activate a microphone. Restore altered OS settings and stop owned fixtures.
 
-Use [CODING_GUIDELINES.md](CODING_GUIDELINES.md) for the project coding guide
-and [reviews/DEV-006.md](reviews/DEV-006.md) for review coverage and decisions.
-Google's C++ Style Guide is the starting point, assessed against Qt, the existing
-project conventions and KISS; do not adopt its rules wholesale or replace the
-accepted formatter configuration. Review QML one file at a time. Trace each
-component's definition, base/content dependencies, derived components and actual
-instantiation points, including dynamic loading and tests. In particular, identify
-who owns implicit size, actual width/height, positioning, anchors and Layout hints.
-Reading a caller does not mean that caller's own review is complete. Record
-"no changes needed" when justified; a review does not require a code change.
-Implement bounded test-asset improvements directly during review; do not stop
-for approval of each test-only finding. Keep application behavior changes separate.
-For new or revised arrangements, prefer RowLayout, ColumnLayout, GridLayout or
-FlexboxLayout over Row/Column positioners and plain Item wrappers used only for
-manual positioning. Choose the simplest suitable Layout. Custom button content
-must honor the inherited display mode; declare any intentional default explicitly.
+## Platform contracts
 
-Use braces for every `if` body in QML/JavaScript and C++, including single-line
-bodies. Apply this to new or edited code; keep broad formatting in DEV-002/DEV-003.
-Do not use `continue` in new or edited C++ code; prefer structured conditionals.
+- Theme.pixels/mm uses the attached window Screen.pixelDensity without a DPR
+  adjustment. Theme is parented to window.contentItem. No Dimensions passing.
+  Android/Release scale=1; desktop Debug scale 0.25–4, default 2, persists in
+  QtCore.Settings. Page Up/Down adjusts 0.1; Ctrl+0 resets. Queue window resizing
+  with Qt.callLater; no view reload. Preserve the existing debug density correction.
+- Window size follows the 76.6 × 162.8 mm reference; x/y settings persist under
+  Window. LoaderWindow and DefaultAnimation belong to QShopper.
+- Resolved owning Material.theme controls effective colors; Theme.theme retains
+  the user's Light/Dark/System choice for selection indicators.
+- Drawer catalog alone uses QtQml.Models.SortFilterProxyModel, ValueFilter on
+  checked=false and RoleSorter on name. Its model alias is valid for Qt 6.12;
+  recheck this preview API on upgrades. Shopping order remains in Model.
+- Android Back closes only the foremost selector/About/privacy layer, then
+  drawer, IME, edit mode; shopping mode backgrounds. Selector dismissal waits
+  for outside release so a cancelled edge press cannot prematurely close it.
+- Desktop keyboard option AUTO/ON/OFF: AUTO enables single-config desktop Debug;
+  multi-config requires explicit ON/OFF. Android always uses its native IME.
+  Desktop InputPanel sizes once from window width, not Theme.scale twice. Return
+  keeps entry open; drawer/hide closes it and tapping the editor reopens it.
+- The desktop keyboard .qml.in resource/imports are conditional. Keep Qt's known
+  PopupList contentWidth override warning visible (DEV-001).
+- About uses cached exact UTF-8 paragraph lists, a virtualized non-selectable
+  ListView and attached scrollbar. Do not replace it with a full-license TextArea.
+  View owns safe geometry; Close is a centered accessible Font Awesome icon button;
+  logos use VectorImage.CurveRenderer. Drawer entries use the existing model and
+  About GroupBox. Preserve draft/data and drawer on close/Back.
+- Keep App/Qt/Font Awesome notices and provenance complete. Qt notices follow the
+  actual platform runtime/keyboard selection; ordinary builds need no network or
+  Python regeneration. Changes to dependencies require refreshed inventory/checks.
+- Deployment uses qt_import_plugins, not deleting SDK files. Preserve Android
+  platform/IME, JPEG/built-in PNG, SQLite, Material/Basic and Fusion editor. QML
+  tooling is explicit opt-in and absent from Release/MinSizeRel. Verify the actual
+  APK/AAB with build-android.ps1 -VerifyPackage, not only source configuration.
 
-The drawer catalog uses QtQml.Models.SortFilterProxyModel with ValueFilter on
-checked=false and RoleSorter on name. Its model property preserves the Qt 6.10
-API (a retained alias in Qt 6.12). Keep this sorting confined to the catalog;
-shopping order belongs to Model. QtQml.Models is an explicit module dependency.
-tests/qml/tst_catalogproxy.qml characterizes filtering, locale-independent name
-order, duplicate names, live changes and UUID selection. Recheck this preview API
-when upgrading Qt; validated migration kits are Qt 6.12 Windows/Android x86_64.
+## Parallel work and publishing
 
-## QML formatting
+If coding workers are requested, give each a worktree and bounded task. Inspect
+uncommitted changes first; agree a committed baseline or transfer edits explicitly.
+Use separate build caches, cap build jobs, coordinate shared interfaces/CMake and
+integrate one result at a time, then verify the combined tree.
 
-Use the repository .qmlformat.ini with Qt 6.12.0 qmlformat. Run
-`./tools/format-qml.ps1` and `./tools/format-qml.ps1 -Check` from PowerShell;
-see tests/README.md for configuration choices and Qt Creator setup.
-The script formats tracked QML sources, tests and .qml.in keyboard templates,
-excluding generated/external files. Add new source files to Git before running it.
-Template copies are temporary and outside the checkout; retain their .qml.in suffix.
-
-Imports are sorted at the user's request. Qualify types where overlapping imports
-could select a different control after sorting. Group attributes without alphabetic
-normalization, retain child order, and keep formatting separate from behavior changes.
-
-## C++ formatting
-
-Use the root .clang-format with Qt Creator's clang-format 22.1.8. Run
-`./tools/format-cpp.ps1` and `./tools/format-cpp.ps1 -Check` from PowerShell;
-override `-ClangFormat` for another compatible executable. The helper covers
-tracked .cpp/.h files, including tests, and excludes generated/external sources.
-Add new source files to Git before running it. See tests/README.md for the style
-choices and Qt Creator setup. Formatting is separate from analyzer fixes/refactors.
-
-Includes retain their order. Braces are inserted for control statements to honor
-the project rule; inspect that diff because clang-format has no full semantic
-model. Do not reintroduce continue, remove checks or modernize code during a
-formatting pass. Repeated formatting must be unchanged before committing.
-
-## Static analysis
-
-Run `./tools/analyze-cpp.ps1` for the optional clang-tidy/Clazy workflow. It builds
-the Windows preset first, then checks all tracked C++ translation units using its
-exported compilation database. Use `-SkipBuild` only with current generated headers.
-Checks, scope, Android usage and diagnostic dispositions are documented in
-`tests/STATIC_ANALYSIS.md`. Do not apply exported fixes automatically or treat a
-warning as a confirmed bug without reproduction. Keep suppressions local and named.
-The baseline is the user's Samuel profile in `.clang-tidy` and
-`tools/clazy-checks.txt`; its captured findings remain open for triage/correction.
-
-## Backlog
-
-Use [BACKLOG.md](BACKLOG.md) to collect bugs and missing features, with linked reports in `tickets/`.
-The current phase is backlog gathering; do not implement fixes until the user asks
-to start fixing. Newly reported feature and code-quality requests also remain
-backlog items unless the user explicitly asks for immediate implementation.
-Distinguish user reports, observed bugs, source-review candidates,
-and validation gaps. Record evidence, reproduction details, expected behavior, and
-severity when known. Keep resolved history and avoid reopening old issues solely
-because an earlier verification note predates a later successful check.
-
-## Verification
-
-Every bug fix must include an automated regression test that reproduces the
-reported failure. Add or strengthen the test first, confirm it fails with the
-original bug, then confirm it passes with the fix. Test observable behavior and
-the real trigger, not just the replacement implementation.
-
-Use the appropriate level: QTest for model behavior, Qt Quick Test for QML
-interactions, and platform/rendering coverage for Android gestures, native IME,
-safe areas, and visual defects that desktop/offscreen tests cannot establish.
-Manual verification complements regression coverage; it does not replace it.
-Use isolated data. Keep regression tests in the normal repeatable verification
-workflow where possible and document any additional platform-specific command.
-
-This applies to all existing and future bug tickets, including bugs found during
-static analysis or cleanup. Record the test name/location and before/after
-results in the ticket resolution. Do not close a bug without its regression test;
-if reproduction or automation is blocked, keep the ticket open and record the gap.
-
-Run `./tools/verify-windows.ps1` to configure, build the app and model tests, and run CTest.
-Use `-Action Build` for configure/build or `-Action Test` to run already-built tests.
-Override `-QtRoot`, `-CMakeBin`, and `-Ninja` for another local installation.
-The script initializes the Visual Studio x64 environment when necessary.
-Build products are in `out/windows-agent` relative to each checkout.
-The preset requires CMake 3.25 or newer.
-
-The suites test model behavior and seven ShopView interaction scenarios with in-memory SQLite.
-Two additional QML scenarios verify Theme conversion using the real attached Screen density
-and component sizing without a Dimensions reference. Four preview scenarios verify build/platform
-gating, reactive geometry, limits, keyboard zoom, and preserved list data. Two persistence scenarios verify scale restoration in a fresh engine and window position restoration in a new window.
-A popup regression opens all three drawer selectors while scrolling, resizing, and zooming; binding-loop warnings fail the test.
-A list-background regression samples rendered row interiors while scrolling
-34/35/80-item lists and checks empty/short lists, both themes, touch flicks,
-viewport resizing, checks, editor movement and removal. Its native Android
-companion compares actual frames between slideshow transitions with isolated data;
-see tests/README.md for commands and the Pillow requirement.
-A list-selection regression covers fresh default display, switching contents,
-drawer/model refresh and settings restoration in a fresh engine/new window.
-The native popup script's --restart option verifies actual cold-restart selection.
-A safe-border regression compares actual pixels across all four safe areas,
-normal/inverse rows, themes and viewport changes. Its native companion covers
-Android System-mode changes, system-bar icon contrast, resume and IME with
-isolated data; see tests/README.md. The UI suite timeout is 300 seconds.
-The native theme harness's --drawer mode covers Android-only UI-014 by comparing
-System drawer pixels with matching explicit Light/Dark references, including live
-OS changes and reopening. Desktop passing results do not establish its reproduction.
-A text-fitting regression checks the production TextDelegate at three widths and
-two preview scales, including shrink/wrap, content retention, checked styling and
-reuse/resizing. Its Android companion counts actual screenshot text bands in both
-themes. Offscreen's dummy font does not certify typography; run the focused test
-with native Windows rendering and the Android script documented in tests/README.md.
-A button-layout regression preserves the six drawer captions at two preview scales
-and checks all four inherited display modes, live mode changes and enabled/disabled
-click delivery. It uses the production IconButton; native Windows runs establish
-actual text-font/line behavior that offscreen's fallback font cannot certify.
-The general Qt Quick Tests run offscreen/software. UI-023's UndoBar.qml uses
-Qt Quick Controls Popup and ProgressBar; recovery and its clock belong to the
-view, independently of the editor. The separate Windows
-qshopper_undo_rendering_tests entry uses a native window and D3D11 WARP. It checks
-the full-background fill in both themes at two preview scales/widths, fixed touch
-geometry, drawer pause/restart, and preserved draft/text focus after Undo.
-Harness rendering does not certify the full app's menu or Android appearance.
-tests/android/test_undorecovery.py checks native offscreen-editor recovery,
-scrolling, per-action Undo, IME placement/retention, expiry and background/resume with
-disposable data. It uses rendered frames while the countdown is active;
-UiAutomator's idle-only dump cannot reliably snapshot a continuously animated bar.
-Coverage is optional and separate from the normal verification command.
-
-The current interaction inventory and platform gaps are in tests/INTERACTIONS.md.
-The separate qshopper_flow_tests entry drives actual editor/drawer/list controls,
-undo/expiry, reordering, settings and mode pulls. For settled-path tests, wait for
-whole-list readiness; test intentional animation interruptions separately.
-Current flow assertions have no XFAIL/skip markers. UI-015's separate fast-Undo
-suite covers transition-time input with rendered targets and receiver checks;
-its Android companion enforces the native press deadline. See tests/README.md.
-Native entry tests use the configured English QWERTY Gboard layout; they never activate the microphone.
-Android selector-popup Back must close only the popup, preserving the drawer.
-The optional test_back.py --selector-back regression covers UI-016 from either
-edge. Selector popups wait for an outside release (with modal delivery), so an
-edge press cancelled by Android does not dismiss the popup before Back arrives.
-
-## QML sizing
-
-Use Theme.pixels(millimeter) for component geometry and Theme.millimeters(pixels)
-for converting logical pixel distances back to millimeters. main.qml attaches the Theme
-singleton Item to window.contentItem so its Screen attached properties follow the app window.
-Theme uses Screen.pixelDensity without a devicePixelRatio adjustment. Android and release builds
-always use preview scale 1 with no desktop density correction. Non-Android Debug builds allow
-Theme.scale (0.25 to 4.0), restored from settings with a fresh-install default of 2. main.cpp enables Theme.scaleable directly on the existing singleton. Page Up/Down adjust
-it by 0.1; Ctrl+0 resets it. The LG TV SSCR2 has a debug-only density correction of 1.5.
-QML bindings calling Theme.pixels() update automatically; main.qml queues window resizing
-with Qt.callLater() to avoid re-entering screen/DPI handling. Do not reload the view for zoom.
-Do not divide or multiply this density by devicePixelRatio. Do not pass Dimensions through components.
-LoaderWindow loads the view without creating or passing Dimensions.
-Dimensions-based scale, orientation and geometry persistence are unused. QtCore.Settings
-persists Theme.scale at key scale, and main.qml persists x/y under the Window category.
-Window dimensions remain calculated from the 76.6 by 162.8 millimeter reference size
-using Theme.pixels().
-QShopper supplies LoaderWindow and DefaultAnimation in its own QML module.
-
-For theme-derived colors, use the owning control's resolved Material.theme;
-Theme.theme records the user's Light/Dark/System choice and is appropriate for
-selection indicators. A raw System value is not the effective Light/Dark palette.
-
-## Desktop virtual keyboard
-
-QSHOPPER_DESKTOP_KEYBOARD is a CMake cache string: AUTO (default), ON, or OFF.
-AUTO enables Qt Virtual Keyboard in non-Android single-configuration Debug builds.
-For multi-configuration generators choose ON or OFF explicitly. Android always uses
-its system keyboard, regardless of this option. Enabled builds require the Qt Virtual
-Keyboard module in the selected desktop kit. main.cpp selects the embedded input
-plugin before QGuiApplication; no manual runtime environment setup is needed.
-
-View reserves space below ShopView for DevelopmentKeyboard. InputPanel sizes itself
-from the preview window width; do not apply Theme.scale to it again. Enter submits
-without dismissing the keyboard. InputDelegate also sets EnterKey.type to
-Qt.EnterKeyReturn for the native Android IME; InputPanel settings do not affect Android.
-Its hide button and opening the drawer dismiss it;
-tapping the editor reopens it. LoaderWindow and DefaultAnimation belong to QShopper.
-The desktop-only InputPanel is a conditional resource from a .qml.in source so whole-tree
-QML deployment scans do not pull it into disabled builds. CMake declares its imports
-as module dependencies only when enabled.
-
-The separate qshopper_keyboard_tests CTest entry runs with the real keyboard plugin
-and isolated data. It checks virtual-key submission, composed text, hide/reopen,
-preview resizing, and drawer dismissal. Ordinary UI tests also verify the build gate.
-DEV-001 identifies the PopupList contentWidth override warning as upstream Qt.
-Keep it visible; do not patch the SDK or suppress QML warnings globally. The
-optional standalone Qt source repro and upgrade recheck are in reviews/DEV-001.md.
-
-## About and offline notices
-
-AboutDialog opens from the drawer and closes before it on Android Back. Keep
-the drawer and unfinished editor state intact. Parent View owns the dialog's
-actual geometry within its safe padding. The reader uses Material Dialog/TabBar
-and a standalone ListView with an attached scrollbar and non-selectable Text
-paragraphs. Body dragging must work with touch and mouse. LicenseNotices caches
-the two local UTF-8 notices as paragraph lists on first use; joining with two
-newlines must reproduce every original character. Do not lay out the entire
-document in TextArea again. The sole header is Open-source licenses. The footer
-centres an accessible Font Awesome icon-only close IconButton with standard click handling and keyboard
-support; tab logos use VectorImage.CurveRenderer for antialiasing.
-The drawer's About entry belongs to its ListModel/DelegateChooser. Use the existing
-GroupBox titled "About" with an information IconButton captioned "Licenses".
-
-Qt/Font Awesome notice sources, versions, hashes and regeneration are documented
-in app/licenses/README.md. CMake packages the Android or Windows notice variant
-under one Qt.txt resource alias; Android excludes desktop keyboard notices.
-Update the inventory with the kit/font/deployment set. The developer generation
-tool is optional; ordinary builds and offline viewing need no Python/network.
-
-The separate qshopper_about_tests CTest entry covers actual drawer activation,
-document markers, Back, both themes, scroll-to-end, safe-area/viewport changes,
-open/switch latency, no selection, logo readiness and preserved draft/items.
-QTest compares both reconstructed notices with their exact bundled resources.
-qshopper_about_rendering_tests runs the same tests with native D3D11 WARP,
-including actual edge-pixel comparisons with the default geometry renderer.
-The suite covers body swipes, header/footer geometry and inherited display modes.
-tests/android/test_about.py covers offline headers and accessible final paragraphs,
-both palettes, native scrollbar endpoints, both Back edges, Close, IME state and
-unchanged isolated data; it restores networking. Paragraphs use accessible ListItem
-roles inside an accessible List so newly visible text remains exposed on Android.
-
-## Parallel development
-
-Give each coding worker a separate Git worktree and a bounded task.
-Use separate build directories per worktree; never reuse a CMake cache from another checkout.
-Inspect local changes first: Git worktrees do not copy uncommitted changes, including submodule edits.
-Agree on a committed baseline or explicitly transfer required changes before dispatching work.
-Coordinate edits to shared CMake files and changes to public C++/QML interfaces.
-Integrate worker results one at a time, then rerun verification on the combined tree.
-Limit each worker's build jobs to avoid oversubscribing the machine.
-
-## Android emulator
-
-See ANDROID.md for QShopper_API_36 and the x86_64 emulator build. Use
-./build-android.ps1 -Architecture x86_64, host GPU rendering, and a unique
-QSHOPPER_DATA_DIR via Qt debug intent extras for automated launches. Target only
-the isolated emulator serial (currently emulator-5580); do not install test APKs
-on connected physical devices without user authorization.
-
-## App testing
-
-Set QSHOPPER_DATA_DIR to a unique temporary directory before automated app launches.
-This redirects the app database and default QSettings storage; normal launches retain their usual data.
-The QML harness uses an in-memory database and temporary settings without launching main.cpp.
-Each parallel UI test must use separate data. Model tests already use in-memory storage.
-Use Qt Quick Test for QML interactions and a real Windows rendering check for visual behavior.
-Report exactly which checks ran and distinguish passing model tests from unverified UI behavior.
+Do not publish placeholders, keys, normal app data or workstation paths. Public
+contact details belong only in the explicitly approved terms/contact locations.
+Keep actual notices/licences unchanged during prose cleanup. Source artifacts
+need the accepted revision, matching binary and verified public downloads;
+local preparation is not publication. Follow [RELEASE.md](RELEASE.md).
