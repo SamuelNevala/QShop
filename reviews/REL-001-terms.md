@@ -1,8 +1,9 @@
 # App terms publication
 
-Version **18 November 2026**. The owner authorized the terms-page preparation and
-publication after the draft/contact review. The wording is unchanged except for
-its dated version line; public contacts were explicitly supplied on 17 November.
+Version **18 November 2026**. The page is prepared from the reviewed draft. The wording
+is unchanged except for its dated version line; public contacts were explicitly
+supplied on 17 November. Explicit approval to publish those contacts on GitHub
+Pages is pending after automatic approval review blocked the push.
 
 Canonical [TERMS.md](../store/google-play/TERMS.md) generates
 [docs/terms.html](../docs/terms.html). The landing page links to it.
@@ -29,7 +30,8 @@ Trader, regional refunds and Finnish digital-content guidance were rechecked
   withdrawal route/confirmation before sales.
 - Publish matching sources from the accepted revision. Existing local archives
   predate cleanup; none is presented as published Corresponding Source.
-- Verify the deployed terms URL, then enter it in Console. REL-001 stays open.
+- Obtain explicit publication approval, verify the deployed terms URL, then
+  enter it in Console. REL-001 stays open.
 
 ## References checked 16 November 2026
 
