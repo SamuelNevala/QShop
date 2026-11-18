@@ -8,8 +8,10 @@ automatic approval review blocked the push.
 
 Canonical [TERMS.md](../store/google-play/TERMS.md) generates
 [docs/terms.html](../docs/terms.html). The landing page links to it.
-Deployment and anonymous live-content verification are pending; no Console
-field, agreement, signing key or app release is completed by this work.
+Published at [the terms URL](https://samuelnevala.github.io/QShop/terms.html) on 18 November 2026.
+Unauthenticated HTTPS returned 200 and exactly matched the approved HTML; the
+landing link and unchanged privacy page also matched. Evidence: out/rel001/terms/live-check.json.
+No Console field, agreement, signing key or app release is completed by this work.
 
 ## Maintenance and checks
 
@@ -31,7 +33,7 @@ Trader, regional refunds and Finnish digital-content guidance were rechecked
   withdrawal route/confirmation before sales.
 - Publish matching sources from the accepted revision. Existing local archives
   predate cleanup; none is presented as published Corresponding Source.
-- Verify the deployed terms URL, then enter it in Console. REL-001 stays open.
+- Enter the verified terms URL in Console. REL-001 stays open.
 
 ## References checked 16 November 2026
 

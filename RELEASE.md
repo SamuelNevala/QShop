@@ -18,9 +18,10 @@ markets and adult household shoppers. EUR 2.99 is proposed, not selected.
   trader declaration, merchant profile, public contacts/terms, Japan payment tasks,
   age-rule applicability and final eligible country roster. Identity verification
   does not complete these. [App setup](https://support.google.com/googleplay/android-developer/answer/9859152).
-- The [app terms](store/google-play/TERMS.md), version 18 November 2026, now have
-  a generated public page and landing link. Deployment verification is pending;
-  use the live URL in Console only after verification. Trader/checkout tasks remain.
+- The [app terms](store/google-play/TERMS.md), version 18 November 2026, are
+  [published](https://samuelnevala.github.io/QShop/terms.html). Anonymous HTTP 200 and exact HTML
+  were verified on 18 November, including the landing link and unchanged privacy
+  page. Enter the URL in Console; trader/checkout tasks remain.
 
 The [export review](reviews/REL-001-export.md) supports ordinary shopping-list
 software, likely EAR99 if subject to the EAR, and identifies no encryption-specific
