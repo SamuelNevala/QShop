@@ -1,0 +1,36 @@
+{
+  "id": "UI-037",
+  "title": "Catalog Undo can remain behind a continuously open Android keyboard",
+  "status": "open",
+  "type": "observed_bug",
+  "severity": "major",
+  "severity_source": "Agent triage: recovery is inaccessible until the keyboard is hidden, while its expiry timer continues.",
+  "created": "2026-11-19",
+  "source": "Native regression validation for UI-036; independently reproduced on the original APK without pressing Clear.",
+  "environment": "Qt 6.12.0, isolated API-36 x86_64 emulator, English Gboard; no physical-phone reproduction claimed.",
+  "reproduction": [
+    "Use disposable data: the emulator fixture has default and weekly lists. On a phone, create an unused temporary list; never delete a real list for this test.",
+    "Open the drawer, select Light theme, select Lists in the list selector, and close the drawer. The visible rows must be list names, not items inside a shopping list.",
+    "Double-tap the temporary list row. Its unchanged name must appear in the movable editor with Gboard open; tap the text field only if needed to open Gboard now.",
+    "Press the native Gboard Return key without changing the name. Confirm the named row returns and Gboard remains open.",
+    "From this point do not press Clear, Back, open the drawer, or tap the editor to reopen Gboard. If Gboard closes, the continuously-open-IME precondition was not met.",
+    "While Gboard is still open, swipe the temporary list row RIGHT far enough to activate deletion. Release and inspect Undo immediately, before its 15-second countdown expires.",
+    "Expected: Undo is visible and tappable above Gboard. Emulator failure: no Undo above Gboard. In the failing case, hide Gboard with one Back promptly; Undo then appears at the bottom. Tap it to restore the list before expiry."
+  ],
+  "actual": "Undo is absent above the visible IME. Hiding Gboard reveals it at y=2788..2991; it was behind the keyboard rather than already expired.",
+  "expected": "Undo stays visible and tappable above the native IME while its timer runs, and restores the exact catalog identities/order and contents.",
+  "evidence": "Original-APK comparison: out/ui036/catalog-original-no-clear-probe/probe.json and screenshots. Clear/reopen on the original APK instead places Undo at y=1696..1899, above IME top 1944. Retaining focus in UI-036 exposes the continuous-IME path too.",
+  "source_review": "Read-only instrumentation found the Qt window/View stayed full height while the native IME was visible. The platform resize/inset cause is not established. Temporary instrumentation and unsuccessful focus/commit/show experiments were removed; do not add guessed keyboard padding or change Theme density.",
+  "regression": "tests/android/test_entry.py --catalog-ime-only retains the no-Clear trigger and catalog_undo_reachable_above_ime assertion. The full entry driver checks the same visible target after rename/delete. This is an explicit failing reproduction, not an XFAIL or a passing acceptance test.",
+  "related_tickets": [
+    "UI-036",
+    "UI-033",
+    "UI-023"
+  ],
+  "scope": "Backlog only. UI-036 fixes Clear focus; this separate native layout bug remains open. A fix needs failing-before/passing-after native coverage, normal keyboard hide/reopen and reachable Undo checks.",
+  "verification_before": "Original APK: tests/android/test_entry.py --catalog-ime-only passes catalog_accept_preserves_rows_and_ime and fails catalog_undo_reachable_above_ime. Exact observations and frames: out/ui036/android-catalog-before. The precondition uses canonical UUIDs and compares saved rows exactly.",
+  "verification_current": "Final UI-036 APK repeats the same no-Clear failure: precondition passes, catalog_undo_reachable_above_ime fails (out/ui036/android-catalog-final/results.json). UI-037 remains open; no native broad-pass claim.",
+  "phone_report": "2026-11-19: user tried the ticket steps but could not reproduce on Android, then requested more precise steps. Expanded catalog/Return/continuous-IME/direction/timing instructions supplied; exact phone retest pending. Known failing scope remains the tested API-36 emulator configuration.",
+  "classification": "Confirmed rendered symptom on the API-36 emulator, reproduced on original and fixed APKs. Application-versus-Qt/platform/test-environment cause remains unconfirmed. Keep open for platform investigation; no layout workaround selected.",
+  "proposed_margin_review": "Windows already reserves DevelopmentKeyboard.occupiedHeight in View.bottomPadding. ListView.bottomMargin provides scrollable room but does not move the viewport-anchored UndoBar. Android normally uses native window resizing; adding the entire keyboard height without measuring actual overlap risks double reservation. No geometry change made."
+}

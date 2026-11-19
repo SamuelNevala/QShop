@@ -1,0 +1,54 @@
+{
+  "id": "UI-036",
+  "title": "Editor clear button dismisses the virtual keyboard",
+  "status": "resolved",
+  "type": "user_reported_bug",
+  "severity": "minor",
+  "severity_source": "Agent triage: interrupts continuous text entry and requires reopening the keyboard; no saved-data loss reported. User did not assign severity.",
+  "reported_by": "user",
+  "created": "2026-11-19",
+  "source": "User reports that the TextInput clear button hides the virtual keyboard and should not.",
+  "environment": "Reproduced with Qt 6.12.0 desktop virtual keyboard and native English Gboard on the isolated API-36 x86_64 emulator. User phone/build details were not supplied.",
+  "reproduction": [
+    "Enter edit mode and tap the movable editor to open the virtual keyboard.",
+    "Type an unsubmitted entry so the clear button is enabled.",
+    "Tap the editor's clear button."
+  ],
+  "actual": "The virtual keyboard closes when the input is cleared.",
+  "expected": "Clear the input while retaining editor text focus and the already-open virtual keyboard, ready for the next entry. Preserve the insertion point and saved list contents.",
+  "design": "DESIGN.md requires continuous keyboard/dictation entry through the movable editor. Clearing a draft should not interrupt that workflow.",
+  "evidence": "Original production clear button loses text focus in mouse/touch desktop regressions; original APK fails the strengthened native clear/IME check. Screenshots, XML and results are under out/ui036.",
+  "source_review": "The right-hand clear Icon inherits button click-focus behavior; the failing real-keyboard tests confirm focus loss during the actual press.",
+  "verification_plan": [
+    "Add a regression using the production editor and an actual clear-button tap with the virtual keyboard visibly open; establish a failing baseline before changing application code.",
+    "After the press/release and focus transitions settle, assert empty input, retained text focus and visible keyboard. Type and submit the next entry without another editor tap; verify one insertion at the original position and unchanged existing item identities/order/checks.",
+    "Cover repeated clear operations and composed/preedit text where supported. Retain existing deliberate Back, drawer-dismissal and mode-exit behavior.",
+    "Use the real desktop keyboard suite where reproducible and native Android IME coverage for the Android path. Offscreen tests alone cannot establish native keyboard retention. Record exact test names and before/after results before closure."
+  ],
+  "related_tickets": [
+    "QA-001",
+    "UI-033",
+    "UI-035",
+    "UI-037"
+  ],
+  "scope": "UI-036 complete: automated regressions and user phone acceptance passed. Separate UI-037 emulator-only evidence remains under investigation.",
+  "cause": "The embedded clear Icon inherits button click-focus behavior. Pressing it moves active focus away from the text field and dismisses the IME before clearing.",
+  "implementation": "Set focusPolicy: Qt.TabFocus on the clear Icon only. Pointer taps retain the editor focus; Tab navigation remains available. Keep input.clear(), geometry, normal Back/drawer behavior and all other Icon instances unchanged. No forced keyboard reopening, SDK patch or keyboard-padding workaround.",
+  "verification": {
+    "windows_test": "tests/keyboard/tst_keyboard.qml::test_clear_keeps_text_focus_and_keyboard: repeated mouse/touch clears with committed/preedit text, unchanged insertion point/IDs, then virtual keys/Return without refocusing. test_clear_does_not_reopen_hidden_keyboard covers deliberate dismissal.",
+    "windows_before": "All four new committed/preedit pointer cases fail on original code (focus loss or uncleared composition): out/ui036/keyboard-before-final.txt.",
+    "windows_after": "Final Qt.TabFocus code passes all 14 real-keyboard records; actual flow and native input-font rendering entries also pass (3/3 CTest entries): out/ui036/windows-final-checks.txt.",
+    "windows_broader": "Earlier NoFocus candidate passed the complete verify-windows.ps1 workflow: 24/24 CTest entries, 1763 Qt XML records plus source-tool tests. The final TabFocus refinement reruns the affected suites above; the full suite was not repeated.",
+    "android_test": "tests/android/test_entry.py --clear-only: actual Gboard/Return, two clears including a native keyboard draft, retained focus/IME, exact saved rows and continued entry without another editor tap.",
+    "android_before": "Original APK fails clear_editor_keeps_keyboard_and_list: out/ui036/android-clear-before/results.json.",
+    "android_after": "Final Qt.TabFocus APK passes all eight native Clear checks: out/ui036/android-clear-final/results.json. Both committed input and a real Gboard draft clear while preserving focus/IME, exact saved rows and next Return insertion without another editor tap.",
+    "android_broader": "The broader candidate entry run passes the stronger Back/foreground checks and reaches catalog deletion, then cannot reach Undo above the IME. Original-APK/no-Clear control also fails the retained native assertion: UI-037 is an independent open bug, not a passing broad result. Original APK with the unmodified entry driver passed 36/36; dedicated earlier Back suite passed 7/7.",
+    "packages": "Final ARM64 and x86_64 Debug APKs pass payload/dependency closure, all 21 Maven artifacts/offline notices and all 94 tracked Android source-input checks. ARM64: android-final-arm64-build.txt; x86_64: android-final-local-package.txt; hashes: artifact-hashes.json under out/ui036. Existing shared debug key; no physical-phone install.",
+    "build_environment": "OneDrive prevented Gradle from snapshotting generated x86_64 files as regular files. Copied the generated staging project to a fresh system-temp directory, ran standard Gradle, signing and the same package/license/source checks. No build-system or SDK workaround shipped.",
+    "fixture_notes": "Repeated synthetic preedit uses distinct drafts and cleanup. The focused native continuation sends capitalized Unfinished to avoid Gboard changing the injected lowercase fixture on Return; exact saved equality remains required. Native Back now requires the app to remain foreground. UI-037 seeds canonical braced UUIDs so model serialization does not create a false precondition failure.",
+    "quality": "qmlformat and whitespace checks pass; revised native driver parses. Temporary geometry instrumentation and unsuccessful show/commit/refocus experiments were removed.",
+    "android_back_final": "Final APK passes all seven dedicated native Back checks: out/ui036/android-back-final/results.json. Keyboard dismissal, leaving edit mode, live-process background/return, drawer priority and saved rows are preserved."
+  },
+  "resolved": "2026-11-19",
+  "phone_confirmation": "User confirmed the fix works fine and requested closure/commit on 2026-11-19."
+}

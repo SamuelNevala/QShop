@@ -10,6 +10,8 @@ work is QA-001/QA-002 and UX-007.
 | Enter/leave shopping or edit mode | `UserFlows`, preview/keyboard cases | `test_entry.py`, `test_back.py` |
 | Insert at editor; replace by double tap; clear/empty Return | Actual control-driven flow and persistence | `test_entry.py` |
 | Continuous keyboard composition/Return/hide/reopen | Real Qt keyboard suite; isolated settings | `test_entry.py`; `test_recovery_entry.py` |
+| Clear committed/preedit text; retain focus/IME and continue entry | Real keyboard suite with mouse/touch and repeated Clear | `test_entry.py --clear-only` |
+| Catalog Undo above continuously open IME | Native layout gap UI-037; currently failing | `test_entry.py --catalog-ime-only` |
 | Long-press reorder; checked row rejects reorder | Flow/cancellation cases, exact order/identity | `test_back.py --matrix`; entry controls |
 | Slow half-width and velocity swipe thresholds | Swipe matrix in shopping/edit and both directions | `test_swipes.py` |
 | Back cancels edge press without stuck/misclassified row | TouchCancel, next-interaction/parenting checks | `test_back.py --matrix` |

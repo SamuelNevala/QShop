@@ -1,4 +1,4 @@
-"""QA-003: English QWERTY Gboard entry, real Return, drawer and cold settings.
+"""QA-003/UI-036/UI-037: Gboard entry, Clear retention and catalog Undo.
 
 Only the isolated QShopper_API_36 emulator is supported. Requires Pillow.
 Key coordinates are relative to native IME/navigation insets for its configured
@@ -33,7 +33,11 @@ def main():
     parser.add_argument("--serial", default="emulator-5580")
     parser.add_argument("--output", type=Path, default=Path("out/android-entry"))
     parser.add_argument("--gesture-jar", type=Path, default=Path("out/android-emulator/back-gesture/gesture.jar"))
+    parser.add_argument("--clear-only", action="store_true", help="Run the focused clear/IME regression only")
+    parser.add_argument("--catalog-ime-only", action="store_true", help="Reproduce UI-037 without using Clear (currently fails)")
     args = parser.parse_args()
+    if args.clear_only and args.catalog_ime_only:
+        parser.error("Choose one focused scenario")
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator serial is allowed")
     if not args.gesture_jar.is_file():
@@ -64,6 +68,10 @@ def main():
 
     def keyboard():
         return "mInputShown=true" in shell("dumpsys", "input_method")
+
+    def foreground():
+        return any(PACKAGE in line for line in shell("dumpsys", "activity", "activities").splitlines()
+                   if "ResumedActivity" in line)
 
     def tap(node, position="center"):
         left, top, right, bottom = bounds(node)
@@ -196,8 +204,13 @@ def main():
         with closing(sqlite3.connect(fixture)) as db:
             schema = "(id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, checked INTEGER NOT NULL DEFAULT 0)"
             db.execute("CREATE TABLE lists " + schema)
-            db.execute("INSERT INTO lists VALUES (?, 'default', 0)", (TABLE,))
+            initial_id = "{" + TABLE + "}" if args.catalog_ime_only else TABLE
+            db.execute("INSERT INTO lists VALUES (?, 'default', 0)", (initial_id,))
             db.execute(f'CREATE TABLE "{TABLE}" ' + schema)
+            if args.catalog_ime_only:
+                other = "22222222-2222-2222-2222-222222222222"
+                db.execute("INSERT INTO lists VALUES (?, 'weekly', 0)", ("{" + other + "}",))
+                db.execute(f'CREATE TABLE "{other}" ' + schema)
             db.commit()
         staging = "/data/local/tmp/qshopper-entry-" + uuid.uuid4().hex + ".sqlite"
         adb("push", fixture, staging)
@@ -207,6 +220,34 @@ def main():
         shell("run-as", PACKAGE, "cp", staging, data + "/shop_list.sqlite")
         try:
             ui = launch()
+            if args.catalog_ime_only:
+                tap(editor(ui), "left")
+                ui = tree()
+                light = ui.find('.//node[@class="android.widget.Button"][@content-desc="Light"]')
+                assert light is not None
+                tap(light)
+                shell("input", "tap", width - 20, height // 2)
+                ui = select_list(tree(), "lists")
+                catalog = saved("lists")
+                ui = item_tap(ui, "weekly", "lists", twice=True)
+                insets = open_keyboard(ui)
+                # Accept the existing name: no Clear/focus change or IME reopening.
+                gboard_key(.925, .82, insets)
+                ui = tree()
+                actual = saved("lists")
+                ime_open = keyboard()
+                (args.output / "catalog-observations.json").write_text(json.dumps(
+                    dict(expected=catalog, actual=actual, keyboard=ime_open), indent=2), encoding="utf-8")
+                check("catalog_accept_preserves_rows_and_ime", actual == catalog and ime_open, ui)
+                item_swipe(ui, "weekly", "lists", rightward=True)
+                frame = undo_bar_frame(adb("exec-out", "screencap", "-p"), 0)
+                display = shell("dumpsys", "window", "displays")
+                ime = re.search(r"type=ime frame=\[0,(\d+)\]\[\d+,\d+\][^\n]*visible=true", display)
+                check("catalog_undo_reachable_above_ime", frame is not None and keyboard()
+                      and ime is not None and frame["bottom"] <= int(ime[1]), None)
+                shell("input", "tap", frame["action_x"], frame["action_y"])
+                check("catalog_undo_restores_rows", saved("lists") == catalog, tree())
+                return
             insets = open_keyboard(ui)
             check("native_keyboard_open", keyboard(), tree())
             # English QWERTY key centers, relative to native IME insets.
@@ -230,10 +271,30 @@ def main():
             ui = tree()
             tap(editor(ui), "right")
             ui = tree()
-            check("clear_editor_preserves_list", editor(ui).get("text") == "" and saved() == original, ui)
-            tap(editor(ui))
-            shell("input", "text", "unfinished")
+            check("clear_editor_keeps_keyboard_and_list", editor(ui).get("text") == ""
+                  and editor(ui).get("focused") == "true" and keyboard() and saved() == original, ui)
+            for character in "milk":
+                gboard_key(*positions[character], insets)
             ui = tree()
+            assert editor(ui).get("text", "").lower() == "milk", "Gboard draft was not entered"
+            tap(editor(ui), "right")
+            ui = tree()
+            check("clear_gboard_draft_keeps_keyboard_and_list", editor(ui).get("text") == ""
+                  and editor(ui).get("focused") == "true" and keyboard() and saved() == original, ui)
+            draft = "Unfinished" if args.clear_only else "unfinished"
+            shell("input", "text", draft)
+            ui = tree()
+            check("typing_after_clear_needs_no_editor_tap", editor(ui).get("text") == draft
+                  and keyboard() and saved() == original, ui)
+            if args.clear_only:
+                gboard_key(.925, .82, insets)
+                ui = tree()
+                current = saved()
+                check("return_after_clear_preserves_order_and_keyboard", current[:-1] == original
+                      and current[-1][0] == draft and len(current) == len(original) + 1
+                      and editor(ui).get("text") == "" and editor(ui).get("focused") == "true"
+                      and keyboard(), ui)
+                return
             tap(editor(ui), "left")
             ui = tree()
             check("drawer_hides_native_keyboard", not keyboard(), ui)
@@ -259,7 +320,8 @@ def main():
             check("back_hides_keyboard_keeps_draft", not keyboard()
                   and editor(ui).get("text") == "unfinished", ui)
             ui = back()
-            check("back_discards_draft_leaves_edit", editor(ui) is None and saved() == original, ui)
+            check("back_discards_draft_leaves_edit", foreground() and editor(ui) is None
+                  and saved() == original, ui)
             ui = item_tap(ui, original[0][0])
             check("shopping_single_tap_preserves_mode_and_items", editor(ui) is None
                   and saved() == original, ui)
@@ -371,7 +433,10 @@ def main():
             ui = item_swipe(ui, "weekend", "lists", rightward=True)
             check("catalog_delete_through_swipe", all(r[0].lower() != "weekend" for r in saved("lists")), ui)
             frame = undo_bar_frame(adb("exec-out", "screencap", "-p"), 0)
-            assert frame is not None, "Catalog floating Undo action was not found"
+            display = shell("dumpsys", "window", "displays")
+            ime = re.search(r"type=ime frame=\[0,(\d+)\]\[\d+,\d+\][^\n]*visible=true", display)
+            check("catalog_undo_reachable_above_ime", frame is not None and keyboard()
+                  and ime is not None and frame["bottom"] <= int(ime[1]), None)
             shell("input", "tap", frame["action_x"], frame["action_y"])
             ui = tree()
             check("catalog_delete_undo_restores_identity_and_order", saved("lists") == catalog, ui)

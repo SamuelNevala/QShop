@@ -7,6 +7,7 @@ their status, regressions and acceptance history in `tickets/`.
 
 | Ticket | Remaining work |
 | --- | --- |
+| [UI-037](tickets/UI-037.json) | API-36 emulator: catalog Undo hidden behind Gboard; user cannot reproduce on phone; investigate platform scope |
 | [REL-001](tickets/REL-001.json) | Google Play release: publish exact sources; finish trader/payment/regional tasks, signing, migration and store testing |
 | [QA-001](tickets/QA-001.json) | Remaining physical shopping/dictation validation; do not reopen already accepted subcases |
 | [QA-002](tickets/QA-002.json) | Physical sizing, touch comfort and display measurements |
@@ -24,7 +25,7 @@ No production key, Console submission or public app release is claimed.
 - Reports stay in the backlog until selected; this does not authorize implementation.
 - A bug closes only with a failing-before/passing-after automated regression at
   the relevant model/UI/platform level. Manual testing complements it.
-- Keep IDs/status/history stable. Add new UI tickets from UI-036 onward.
+- Keep IDs/status/history stable. Add new UI tickets from UI-038 onward.
 - Update the ticket and index together; follow [DESIGN.md](DESIGN.md).
 
 ## Resolved history
@@ -94,6 +95,7 @@ Each linked report contains its diagnosis, fix, tests and acceptance.
 | [UI-033](tickets/UI-033.json) | Editor stays under the virtual keyboard after moving it to the end of a long list |
 | [UI-034](tickets/UI-034.json) | Android safe-area background should follow drawer dimming |
 | [UI-035](tickets/UI-035.json) | Scrolling a long list destroys the offscreen editor and closes the keyboard |
+| [UI-036](tickets/UI-036.json) | Clear draft without losing editor focus or dismissing the virtual keyboard |
 
 ### UX
 

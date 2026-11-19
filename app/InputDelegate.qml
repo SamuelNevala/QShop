@@ -78,6 +78,7 @@ Delegate {
             color: pressed ? Theme.readableInk(Material.accentColor, input.Material.backgroundColor,
                                                0.8, 3) : Material.backgroundColor
             enabled: input.text || input.preeditText
+            focusPolicy: Qt.TabFocus
             height: parent.height
             width: height
             text: "\uf057"

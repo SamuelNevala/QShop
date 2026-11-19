@@ -53,6 +53,8 @@ All native test scripts expose `--help`. Most accept `--adb`, `--serial` and
 | Behavior | Script / extra options |
 | --- | --- |
 | Entry, insertion, replacement, checked rows | `test_entry.py` |
+| Clear text without closing the IME; continue typing/Return | `test_entry.py --clear-only` |
+| Catalog Undo with continuously open IME (open UI-037; currently fails) | `test_entry.py --catalog-ime-only` |
 | Back layers and backgrounding | `test_back.py` |
 | Back during selector popup | `test_back.py --selector-back` |
 | Cancelled Back/long-press recovery | `test_back.py --matrix --gesture-jar out/android-emulator/back-gesture/gesture.jar` |

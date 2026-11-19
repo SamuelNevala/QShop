@@ -86,6 +86,9 @@ Item {
         }
 
         function cleanup() {
+            if (keyboardApi) {
+                keyboardApi.preedit("");
+            }
             Qt.inputMethod.hide();
             wait(100);
             if (app) {
@@ -151,6 +154,86 @@ Item {
             compare(app.height, windowHeight);
         }
 
+        function test_clear_keeps_text_focus_and_keyboard_data() {
+            return [
+                        {
+                            tag: "mouse_committed",
+                            touch: false,
+                            preedit: false
+                        },
+                        {
+                            tag: "touch_committed",
+                            touch: true,
+                            preedit: false
+                        },
+                        {
+                            tag: "mouse_preedit",
+                            touch: false,
+                            preedit: true
+                        },
+                        {
+                            tag: "touch_preedit",
+                            touch: true,
+                            preedit: true
+                        }
+                    ];
+        }
+
+        function test_clear_keeps_text_focus_and_keyboard(data) {
+            shop.model.insert(0, "Milk");
+            shop.model.insert(shop.count, "Bread");
+            const insertionIndex = shop.model.editorIndex;
+            const field = editor();
+            field.forceActiveFocus();
+            Qt.inputMethod.show();
+            tryCompare(field, "activeFocus", true);
+            tryCompare(panel, "opened", true);
+            const milkId = shop.model.data(shop.model.index(0, 0), Qt.UserRole + 1);
+            const breadId = shop.model.data(shop.model.index(2, 0), Qt.UserRole + 1);
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                if (data.preedit) {
+                    const draft = "Discard " + attempt;
+                    keyboardApi.preedit(draft);
+                    tryCompare(field, "preeditText", draft);
+                } else {
+                    field.text = "Discard";
+                    tryCompare(field, "text", "Discard");
+                }
+                const clear = findKey(field, function (item) {
+                    return item.text === "\uf057" && typeof item.clicked === "function";
+                });
+                verify(clear !== null);
+                if (data.touch) {
+                    const touch = touchEvent(clear);
+                    touch.press(0, clear, clear.width / 2, clear.height / 2).commit();
+                    touch.release(0, clear, clear.width / 2, clear.height / 2).commit();
+                } else {
+                    mouseClick(clear, clear.width / 2, clear.height / 2);
+                }
+                tryCompare(field, "text", "");
+                tryCompare(field, "preeditText", "");
+                wait(300);
+                verify(field.activeFocus, "Clear must retain the editor's text focus");
+                verify(Qt.inputMethod.visible, "Clear must keep the keyboard open");
+                verify(panel.opened);
+                compare(shop.model.editorIndex, insertionIndex);
+                compare(shop.count, 3);
+            }
+            // Continue from the keyboard without tapping or refocusing the editor.
+            for (let code of [Qt.Key_E, Qt.Key_G, Qt.Key_G]) {
+                tapKey(code);
+            }
+            tapKey(Qt.Key_Return);
+            tryCompare(field, "text", "");
+            compare(shop.count, 4);
+            compare(shop.model.data(shop.model.index(insertionIndex, 0), Qt.DisplayRole).toLowerCase(
+                        ), "egg");
+            compare(shop.model.data(shop.model.index(0, 0), Qt.UserRole + 1), milkId);
+            compare(shop.model.data(shop.model.index(3, 0), Qt.UserRole + 1), breadId);
+            verify(field.activeFocus);
+            verify(Qt.inputMethod.visible);
+        }
+
         function test_zoom_and_drawer_dismissal() {
             const firstHeight = panel.height;
             compare(panel.scale, 1);
@@ -175,6 +258,22 @@ Item {
             wait(300);
             mouseClick(editor(), editor().width / 2, editor().height / 2);
             tryCompare(panel, "opened", true);
+        }
+
+        function test_clear_does_not_reopen_hidden_keyboard() {
+            const field = editor();
+            field.text = "Discard";
+            Qt.inputMethod.hide();
+            tryCompare(Qt.inputMethod, "visible", false);
+            const clear = findKey(field, function (item) {
+                return item.text === "\uf057" && typeof item.clicked === "function";
+            });
+            verify(clear !== null);
+            mouseClick(clear, clear.width / 2, clear.height / 2);
+            tryCompare(field, "text", "");
+            wait(300);
+            verify(field.activeFocus);
+            verify(!Qt.inputMethod.visible, "Clear must not reopen a deliberately hidden keyboard");
         }
 
         function test_offscreen_editor_keeps_draft_focus_and_keyboard_data() {

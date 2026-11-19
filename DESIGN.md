@@ -67,6 +67,8 @@ retained when scrolled away: the list caches about 40 reference rows per side.
 Return submits, clears the input and keeps the native keyboard open for continued
 typing/dictation. Support composition from the selected keyboard; the app does
 not activate the microphone itself.
+The editor's clear button empties the draft without taking text focus or closing
+an already-open keyboard.
 
 Back closes one layer: foremost About/privacy/selector popup, drawer, keyboard,
 then edit mode; in shopping mode it backgrounds the app. Hiding the keyboard
