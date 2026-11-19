@@ -9,8 +9,8 @@
   "source": "Native regression validation for UI-036; independently reproduced on the original APK without pressing Clear.",
   "environment": "Qt 6.12.0, isolated API-36 x86_64 emulator, English Gboard; no physical-phone reproduction claimed.",
   "reproduction": [
-    "Use disposable data: the emulator fixture has default and weekly lists. On a phone, create an unused temporary list; never delete a real list for this test.",
-    "Open the drawer, select Light theme, select Lists in the list selector, and close the drawer. The visible rows must be list names, not items inside a shopping list.",
+    "Start in EDIT mode with the movable editor visible. Use disposable data: the emulator fixture has default and weekly lists. On a phone, create an empty temporary list with an unused name; never delete a real list for this test.",
+    "Use English Gboard for the closest emulator comparison. Open the drawer, select Light theme, select Lists in the list selector, and close the drawer. The visible rows must be list names, not items inside a shopping list.",
     "Double-tap the temporary list row. Its unchanged name must appear in the movable editor with Gboard open; tap the text field only if needed to open Gboard now.",
     "Press the native Gboard Return key without changing the name. Confirm the named row returns and Gboard remains open.",
     "From this point do not press Clear, Back, open the drawer, or tap the editor to reopen Gboard. If Gboard closes, the continuously-open-IME precondition was not met.",
