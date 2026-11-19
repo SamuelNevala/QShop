@@ -1,0 +1,34 @@
+{
+  "id": "UX-008",
+  "title": "Add restrained haptic feedback to shopping gestures",
+  "status": "open",
+  "type": "missing_feature",
+  "reported_by": "user",
+  "created": "2026-11-19",
+  "requested": [
+    "Feedback when switching between edit and shopping mode is activated.",
+    "Feedback when deletion, checking or unchecking is activated.",
+    "Identify other useful feedback points."
+  ],
+  "recommendation": {
+    "requested_actions": "One brief cue at an accepted action: a light tick for check/uncheck, a slightly firmer click for deletion, and a short confirmation for a mode change. Deletion is a successful action, not an error/reject effect.",
+    "additional_candidates": [
+      "Undo: a short confirmation after one action is restored.",
+      "Reorder pickup: a light drag-start cue when a long press actually picks up a row; this helps distinguish dragging from ordinary scrolling.",
+      "Mode-pull threshold: optionally one light arming tick. If used, distinguish it from completed mode change and prevent repeated buzzing near the threshold."
+    ],
+    "avoid": "No vibration for every scroll movement, animation frame, key press, slideshow change or Undo countdown tick. Leave keyboard feedback to the IME. Start with the requested actions plus Undo/pickup; assess threshold feedback on a phone."
+  },
+  "technical_review": "For Qt 6.12 Android, use a small Qt/JNI bridge to the native View haptic-feedback API on Android's UI thread. Android recommends this semantic API: it requires no VIBRATE permission and respects system feedback settings. The user's linked XrHapticFeedback controls XR controllers. Qt supports Android-based OpenXR headsets such as Meta Quest; that is not the phone's built-in vibrator. Reuse existing Qt Core/Android support and existing AndroidX compatibility facilities where useful; do not add an XR module or haptic framework.",
+  "constraints": "Preserve current gesture thresholds, pullback, action timing, order and visual feedback. Emit once per actual user action, not on model reload/animation completion or failed/no-op mutation. Respect system settings; unsupported devices and desktop builds should behave normally without haptics. API 28 needs compatible fallbacks for newer semantic effects.",
+  "verification_plan": "Test action-to-effect dispatch through real gestures, Undo and pickup, including rejection, cancellation, duplicate signals and reload/no-op paths. Verify Android UI-thread/API fallback behavior, settings and package permissions/dependencies. A physical phone is required to judge feel and intensity; emulator dispatch tests cannot certify tactile quality.",
+  "references": [
+    "https://developer.android.com/develop/ui/views/haptics/haptic-feedback",
+    "https://developer.android.com/develop/ui/views/haptics/haptics-principles",
+    "https://developer.android.com/reference/androidx/core/view/HapticFeedbackConstantsCompat",
+    "https://doc.qt.io/qt-6/qnativeinterface-qandroidapplication.html",
+    "https://doc.qt.io/qt-6/qml-qtquick3d-xr-xrhapticfeedback.html",
+    "https://doc.qt.io/qt-6.12/qt3dxr-supported-platforms.html"
+  ],
+  "scope": "Research and backlog only; no haptic implementation or new dependency selected. UI-036 remains the active fix."
+}

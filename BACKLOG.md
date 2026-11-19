@@ -12,6 +12,7 @@ their status, regressions and acceptance history in `tickets/`.
 | [QA-001](tickets/QA-001.json) | Remaining physical shopping/dictation validation; do not reopen already accepted subcases |
 | [QA-002](tickets/QA-002.json) | Physical sizing, touch comfort and display measurements |
 | [UX-007](tickets/UX-007.json) | Real-shopping trial at 110% sensitivity; defaults remain unchanged |
+| [UX-008](tickets/UX-008.json) | Haptics for mode/check/delete actions; assess Undo, reorder pickup and mode-pull threshold feedback |
 
 Finland, all eligible Play markets and adult household shoppers are confirmed.
 [Release guide](RELEASE.md), [regional checklist](store/google-play/REGIONAL_CHECKLIST.md)
