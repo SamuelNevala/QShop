@@ -27,8 +27,11 @@ def main():
     parser.add_argument("--serial", default="emulator-5580")
     parser.add_argument("--output", type=Path, default=Path("out/android-swipes"))
     parser.add_argument("--rejections", action="store_true", help="Check short/slow and deliberate pullback rejection")
+    parser.add_argument("--corrections", action="store_true", help="Also uncheck each surviving checked row (UX-008)")
     parser.add_argument("--gesture-jar", type=Path, help="Existing BackGesture helper, required for pullback sequences")
     args = parser.parse_args()
+    if args.rejections and args.corrections:
+        parser.error("Corrections require accepted swipes, not the rejection scenario")
     if not re.fullmatch(r"emulator-\d+", args.serial):
         parser.error("Only an isolated emulator serial is allowed")
     if args.rejections and (args.gesture_jar is None or not args.gesture_jar.is_file()):
@@ -143,13 +146,31 @@ def main():
                         results.append(dict(case=tag, passed=passed, actual=actual, expected=expected, data=data))
                         (args.output / (tag + ".png")).write_bytes(adb("exec-out", "screencap", "-p"))
                         print(("PASS " if passed else "FAIL ") + tag + ": " + str(actual), flush=True)
+                        if args.corrections and not (edit and right) and passed:
+                            # The checked row is last; correct it through the same real swipe direction.
+                            left, top, right_edge, bottom = rows(hierarchy())[-1]
+                            width = right_edge - left
+                            start = left + int(width * (0.12 if right else 0.88))
+                            end = start + int(width * (0.75 if right else -0.75))
+                            shell("input", "swipe", start, (top + bottom) // 2, end, (top + bottom) // 2, 600)
+                            time.sleep(1.2)
+                            correction_snapshot = args.output / (tag + "_correction.sqlite")
+                            correction_snapshot.write_bytes(adb("exec-out", "run-as", PACKAGE, "cat", data + "/shop_list.sqlite"))
+                            with closing(sqlite3.connect(correction_snapshot)) as db:
+                                corrected = db.execute(f'SELECT name, checked FROM "{TABLE}" ORDER BY rowid').fetchall()
+                            expected_correction = [("milk", 0), ("bread", 0)]
+                            correction_passed = corrected == expected_correction
+                            results.append(dict(case=tag + "_correction", passed=correction_passed,
+                                                actual=corrected, expected=expected_correction, data=data))
+                            (args.output / (tag + "_correction.png")).write_bytes(adb("exec-out", "screencap", "-p"))
+                            print(("PASS " if correction_passed else "FAIL ") + tag + "_correction", flush=True)
         finally:
             shell("am", "force-stop", PACKAGE)
             shell("rm", staging + ".sqlite", staging + ".ini")
             if args.rejections:
                 shell("rm", staging + ".jar")
             (args.output / "results.json").write_text(json.dumps(results, indent=2))
-    return 0 if len(results) == 8 and all(result["passed"] for result in results) else 1
+    return 0 if len(results) == (14 if args.corrections else 8) and all(result["passed"] for result in results) else 1
 
 
 if __name__ == "__main__":

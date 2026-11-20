@@ -58,7 +58,7 @@ All native test scripts expose `--help`. Most accept `--adb`, `--serial` and
 | Back layers and backgrounding | `test_back.py` |
 | Back during selector popup | `test_back.py --selector-back` |
 | Cancelled Back/long-press recovery | `test_back.py --matrix --gesture-jar out/android-emulator/back-gesture/gesture.jar` |
-| Swipe thresholds and both modes | `test_swipes.py` |
+| Swipe thresholds, both modes and uncheck corrections | `test_swipes.py --corrections` |
 | Reset order/pending edits/restart | `test_reset.py`; `--case cleanup` checks per-action Undo |
 | Long-list editor and IME | `test_recovery_entry.py --case scroll --count 40`; repeat with 200; `--case keyboard` checks end-editor reveal |
 | Floating Undo, expiry and resume | `test_undorecovery.py` |

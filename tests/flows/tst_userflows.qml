@@ -12,7 +12,15 @@ Item {
         property var shop
         property var drawer
 
+        function verifyFeedback(expected) {
+            tryCompare(hapticsSpy, "count", expected.length);
+            for (let index = 0; index < expected.length; ++index) {
+                compare(hapticsSpy.signalArguments[index][0], expected[index]);
+            }
+        }
+
         function init() {
+            hapticsSpy.clear();
             failOnWarning(/.*Binding loop detected.*/);
             uiSetup.resetDatabase();
             Theme.activeList = "default";
@@ -27,6 +35,7 @@ Item {
                 shop.model.insert(shop.model.editorIndex, name);
             }
             verifyNames(["milk", "bread", "cheese"]);
+            verifyFeedback([]);
         }
 
         function openApp() {
@@ -265,9 +274,19 @@ Item {
 
         function test_insert_edit_and_clear_through_controls() {
             const bread = rowNamed("bread");
+            const editorRow = shop.itemAtIndex(shop.model.editorIndex);
             mouseClick(bread, bread.width / 2, bread.height / 2);
             // A single tap places the editor after the tapped row.
             tryCompare(shop.model, "editorIndex", 2);
+            const destination = shop.originY + editorRow.height * 2;
+            verify(Math.abs(editorRow.y - destination) > 0.5);
+            compare(hapticsSpy.count, 0);
+            tryCompare(editorRow, "y", destination);
+            verifyFeedback([Haptics.GestureEnd]);
+            mouseClick(bread, bread.width / 2, bread.height / 2);
+            wait(600);
+            compare(shop.model.editorIndex, 2);
+            verifyFeedback([Haptics.GestureEnd]);
             submit("butter");
             verifyNames(["milk", "bread", "butter", "cheese"]);
             doubleTap("bread");
@@ -285,13 +304,16 @@ Item {
             wait(0);
             openApp();
             verifyNames(["milk", "oats", "butter", "cheese"]);
+            verifyFeedback([Haptics.GestureEnd]);
         }
 
         function test_delete_and_undo_icon() {
             swipe("bread", true);
             verifyNames(["milk", "cheese"]);
+            verifyFeedback([Haptics.Confirm]);
             undo();
             verifyNames(["milk", "bread", "cheese"]);
+            verifyFeedback([Haptics.Confirm]);
         }
 
         function test_drawer_removal_data() {
@@ -322,17 +344,50 @@ Item {
             verifyNames(["bread", "cheese", "milk"]);
             menuAction(data.text);
             verifyNames(data.remaining);
+            verifyFeedback([Haptics.ToggleOn, Haptics.ToggleOn, Haptics.Confirm]);
             undo(data.touch === true);
             verifyNames(["bread", "cheese", "milk"]);
             compare(rowNamed("bread").checked, false);
             compare(rowNamed("cheese").checked, true);
             compare(rowNamed("milk").checked, true);
+            verifyFeedback([Haptics.ToggleOn, Haptics.ToggleOn, Haptics.Confirm]);
         }
 
         function test_remove_checked_without_checks_is_noop() {
             menuAction("Remove\nchecked");
             verifyNames(["milk", "bread", "cheese"]);
             compare(shop.model.canUndo, false);
+            verifyFeedback([]);
+        }
+
+        function test_clear_pending_only_item_has_feedback() {
+            // The edited row is temporarily absent: clearing it leaves the count unchanged.
+            shop.model.removeAll();
+            app.close();
+            app.destroy();
+            wait(0);
+            openApp();
+            shop.model.insert(0, "milk");
+            doubleTap("milk");
+            shop.forceLayout();
+            const field = shop.itemAtIndex(shop.model.editorIndex).item.contentItem;
+            tryCompare(field, "text", "milk");
+            compare(shop.count, 1);
+            hapticsSpy.clear();
+            mouseClick(field, field.height / 2, field.height / 2);
+            tryCompare(drawer, "opened", true);
+            const button = findControl(menuSection(1), item => item.text === "Clear\nlist"
+                                                               && typeof item.clicked
+                                                               === "function");
+            verify(button !== null);
+            mouseClick(button, button.width / 2, button.height / 2);
+            tryCompare(drawer, "visible", false);
+            verifyNames([]);
+            compare(shop.count, 1);
+            verifyFeedback([Haptics.Confirm]);
+            undo();
+            verifyNames(["milk"]);
+            verifyFeedback([Haptics.Confirm]);
         }
 
         function test_drawer_and_popup_dismissal_preserve_draft() {
@@ -362,18 +417,25 @@ Item {
             return [
                         {
                             tag: "left",
-                            right: false
+                            right: false,
+                            edit: false
                         },
                         {
                             tag: "right",
-                            right: true
+                            right: true,
+                            edit: false
+                        },
+                        {
+                            tag: "edit_left",
+                            right: false,
+                            edit: true
                         }
                     ];
         }
 
         function test_correction(data) {
-            // Shopping-mode fixture; pull navigation is covered separately.
-            shop.setEditMode(false);
+            // Mode fixture; pull navigation is covered separately.
+            shop.setEditMode(data.edit);
             swipe("milk");
             tryCompare(rowNamed("milk"), "checked", true);
             swipe("bread");
@@ -382,6 +444,8 @@ Item {
             verifyNames(["bread", "cheese", "milk"]);
             compare(rowNamed("bread").checked, false);
             compare(rowNamed("milk").checked, true);
+            verifyFeedback(data.edit ? [Haptics.ToggleOn, Haptics.ToggleOn, Haptics.ToggleOff] :
+                                       [Haptics.Confirm, Haptics.Confirm, Haptics.Confirm]);
         }
 
         function test_catalog_create_rename_delete_undo() {
@@ -398,6 +462,7 @@ Item {
             verifyNames(["eggs"]);
             selectList("lists");
             const catalogOrder = names();
+            verifyFeedback([]);
             swipe("weekend", true);
             verifyNames(["default"]);
             undo();
@@ -406,6 +471,7 @@ Item {
             verifyNames(["eggs"]);
             selectList("default");
             verifyNames(["milk", "bread", "cheese"]);
+            verifyFeedback([Haptics.Confirm]);
         }
 
         function test_undo_expires() {
@@ -466,31 +532,51 @@ Item {
                 touch.release(0, shop, point.x, point.y).commit();
             }
             verifyNames(["bread", "cheese", "milk"]);
+            verifyFeedback([Haptics.ToggleOn]);
         }
 
         function test_reorder_drop_persists() {
             const row = rowNamed("milk");
             const destination = rowNamed("cheese");
+            const indexSpy = Qt.createQmlObject('import QtTest; SignalSpy {}', app);
+            indexSpy.target = row;
+            indexSpy.signalName = "indexChanged";
+            verify(indexSpy.valid);
+            const displacedSpy = Qt.createQmlObject('import QtTest; SignalSpy {}', app);
+            displacedSpy.target = destination;
+            displacedSpy.signalName = "indexChanged";
+            verify(displacedSpy.valid);
+            const feedback = [Haptics.DragStart];
             const start = row.mapToItem(shop, row.width / 2, row.height / 2);
             const end = destination.mapToItem(shop, destination.width / 2, destination.height / 2);
             const touch = touchEvent(shop);
             touch.press(0, shop, start.x, start.y).commit();
             try {
                 tryCompare(row, "state", "drag", 2000);
+                verifyFeedback(feedback);
                 for (let step = 1; step <= 6; ++step) {
                     touch.move(0, shop, start.x, start.y + (end.y - start.y) * step / 6).commit();
                     wait(50);
                 }
+                verify(indexSpy.count > 0);
+                verify(displacedSpy.count > 0);
+                for (let index = 0; index < indexSpy.count; ++index) {
+                    feedback.push(Haptics.SegmentTick);
+                }
+                verifyFeedback(feedback);
             } finally {
                 touch.release(0, shop, end.x, end.y).commit();
             }
             tryCompare(row, "state", "");
+            feedback.push(Haptics.GestureEnd);
+            verifyFeedback(feedback);
             verifyNames(["bread", "cheese", "milk"]);
             app.close();
             app.destroy();
             wait(0);
             openApp();
             verifyNames(["bread", "cheese", "milk"]);
+            verifyFeedback(feedback);
         }
 
         function test_settings_through_controls() {
@@ -559,7 +645,7 @@ Item {
             // Leave enough blank space for a full resisted pull on desktop.
             app.height = Theme.pixels(250);
             waitForRendering(shop);
-            function pull(millimeters) {
+            function pull(millimeters, pullBack = false) {
                 tryCompare(shop, "moving", false);
                 const x = shop.width / 2;
                 const start = shop.height * 0.3;
@@ -568,41 +654,81 @@ Item {
                 const pulley = findControl(shop, function (item) {
                     return item instanceof Pulley;
                 });
+                const originalMode = shop.editMode;
+                const originalFeedbackCount = hapticsSpy.count;
                 touch.press(0, shop, x, start).commit();
-                for (let step = 1; step <= 6; ++step) {
-                    wait(30);
-                    touch.move(0, shop, x, start + distance * step / 6).commit();
+                try {
+                    for (let step = 1; step <= 6; ++step) {
+                        wait(30);
+                        touch.move(0, shop, x, start + distance * step / 6).commit();
+                    }
+                    wait(50);
+                    if (millimeters > 30) {
+                        verify(pulley.height >= pulley.treshold);
+                        verify(shop.dragging);
+                        // The cue must arrive while the finger is still down, before mode exit.
+                        tryCompare(hapticsSpy, "count", originalFeedbackCount + 1, 500);
+                        compare(shop.editMode, originalMode);
+                        touch.move(0, shop, x, start + distance * 1.05).commit();
+                        wait(80);
+                        verify(pulley.height >= pulley.treshold);
+                        compare(hapticsSpy.count, originalFeedbackCount + 1);
+                        if (pullBack) {
+                            for (let crossing = 0; crossing < 2; ++crossing) {
+                                touch.move(0, shop, x, start).commit();
+                                tryVerify(function () {
+                                    return pulley.height < pulley.treshold;
+                                });
+                                touch.move(0, shop, x, start + distance).commit();
+                                tryVerify(function () {
+                                    return pulley.height >= pulley.treshold;
+                                });
+                                compare(hapticsSpy.count, originalFeedbackCount + crossing + 2);
+                            }
+                            touch.move(0, shop, x, start).commit();
+                            tryVerify(function () {
+                                return pulley.height < pulley.treshold;
+                            });
+                        }
+                    } else {
+                        compare(hapticsSpy.count, originalFeedbackCount);
+                    }
+                } finally {
+                    touch.release(0, shop, x, pullBack ? start : start + distance).commit();
                 }
-                wait(50);
-                if (millimeters > 30) {
-                    verify(pulley.height >= pulley.treshold, JSON.stringify({
-                                                                                height: shop.height,
-                                                                                start: start,
-                                                                                distance: distance,
-                                                                                contentY: shop.contentY,
-                                                                                pulley: pulley.height,
-                                                                                threshold:
-                                                                                pulley.treshold
-                                                                            }));
-                }
-                touch.release(0, shop, x, start + distance).commit();
                 tryCompare(shop, "moving", false);
                 // The pulley defers mode changes by 450 ms after dragEnded.
                 wait(500);
             }
             pull(10);
             compare(shop.editMode, true);
+            verifyFeedback([]);
+            pull(120, true);
+            compare(shop.editMode, true);
+            verifyFeedback([Haptics.Confirm, Haptics.Confirm, Haptics.Confirm]);
             pull(120);
             tryCompare(shop, "editMode", false);
+            verifyFeedback([Haptics.Confirm, Haptics.Confirm, Haptics.Confirm, Haptics.Confirm]);
             verifyNames(["milk", "bread", "cheese"]);
             pull(120);
             tryCompare(shop, "editMode", true);
+            verifyFeedback([Haptics.Confirm, Haptics.Confirm, Haptics.Confirm, Haptics.Confirm,
+                            Haptics.Confirm]);
             pull(10);
             compare(shop.editMode, true);
             verifyNames(["milk", "bread", "cheese"]);
+            verifyFeedback([Haptics.Confirm, Haptics.Confirm, Haptics.Confirm, Haptics.Confirm,
+                            Haptics.Confirm]);
         }
 
         name: "UserFlows"
         when: windowShown
+
+        SignalSpy {
+            id: hapticsSpy
+
+            target: Haptics
+            signalName: "requested"
+        }
     }
 }

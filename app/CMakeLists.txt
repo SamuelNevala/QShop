@@ -98,6 +98,7 @@ qt_add_qml_module(QShopper
         Weekdays.qml
         YAnimation.qml
     SOURCES
+        haptics.h haptics.cpp
         logging.h logging.cpp
         licensenotices.h licensenotices.cpp
         model.h model.cpp

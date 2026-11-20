@@ -8,6 +8,8 @@ ListView {
 
     property string fontFamily
     property bool editMode: false
+    property Item movingEditor: null
+    property bool deletingBySwipe: false
 
     signal openMenu
 
@@ -16,6 +18,7 @@ ListView {
             return;
         }
         editMode = mode;
+        movingEditor = null;
         if (editMode) {
             itemModel.addEditor();
             return;
@@ -56,6 +59,7 @@ ListView {
         required property bool editor
         required property int index
         required property string name
+        property bool moving: false
 
         input: editor
         height: Theme.pixels(9.27)
@@ -80,11 +84,46 @@ ListView {
                 if (checked) {
                     return;
                 }
+                const previousIndex = itemModel.editorIndex;
+                const editor = shopView.itemAtIndex(previousIndex);
                 itemModel.moveEditor(index);
+                if (itemModel.editorIndex !== previousIndex) {
+                    shopView.movingEditor = editor;
+                }
+            }
+            onSwipeStarted: function (direction) {
+                if (itemModel.readOnly) {
+                    return;
+                }
+                if (!shopView.editMode || direction === SwipeHandler.Direction.Right) {
+                    Haptics.play(Haptics.Confirm);
+                } else {
+                    Haptics.play(checked ? Haptics.ToggleOff : Haptics.ToggleOn);
+                }
+            }
+            onPickedUp: {
+                if (!itemModel.readOnly) {
+                    Haptics.play(Haptics.DragStart);
+                }
+            }
+            onDropped: {
+                if (!itemModel.readOnly) {
+                    Haptics.play(Haptics.GestureEnd);
+                }
+            }
+            onReordered: {
+                if (!itemModel.readOnly) {
+                    Haptics.play(Haptics.SegmentTick);
+                }
             }
             onSwiped: function (direction) {
                 if (shopView.editMode && direction === SwipeHandler.Direction.Right) {
-                    itemModel.remove(index);
+                    shopView.deletingBySwipe = true;
+                    try {
+                        itemModel.remove(index);
+                    } finally {
+                        shopView.deletingBySwipe = false;
+                    }
                 } else {
                     itemModel.toggleChecked(index);
                 }
@@ -108,6 +147,13 @@ ListView {
             }
         }
 
+        onMovingChanged: {
+            if (!moving && editor && shopView.movingEditor === chooser) {
+                shopView.movingEditor = null;
+                Haptics.play(Haptics.GestureEnd);
+            }
+        }
+
         dropArea {
             enabled: !chooser.checked && shopView.editMode
 
@@ -121,6 +167,11 @@ ListView {
 
         activeList: Theme.activeList
 
+        onDeletionRecorded: {
+            if (!shopView.deletingBySwipe) {
+                Haptics.play(Haptics.Confirm);
+            }
+        }
         Component.onCompleted: {
             // Persist the resolved UUID instead of the initial default-list alias.
             if (Theme.activeList === "default") {
@@ -209,6 +260,11 @@ ListView {
         property bool editor: ViewTransition.index == itemModel.editorIndex
 
         SequentialAnimation {
+            PropertyAction {
+                property: "moving"
+                value: true
+            }
+
             SmoothedAnimation {
                 properties: "y"
                 velocity: 400
@@ -218,6 +274,11 @@ ListView {
             DefaultAnimation {
                 properties: "y"
                 duration: move.editor ? 0 : 250
+            }
+
+            PropertyAction {
+                property: "moving"
+                value: false
             }
         }
     }

@@ -20,6 +20,17 @@ Cart/bin shapes, direction and pullback carry meaning without relying on color
 alone. Black bodies and outlined white arrows preserve contrast. Animations and
 translucent feedback are intentional, not decoration to remove during cleanup.
 
+Android haptics mark every below-to-above mode-pull threshold crossing and the start
+of a recognized horizontal swipe. During one held touch, cue again only when the
+row crosses its resting centre into the opposite action; same-side pullback stays
+silent. Shopping check/uncheck and edit-mode delete use
+Confirm; edit-mode check/uncheck use ToggleOn/ToggleOff. A
+pullback can still have its initial cue. Add pickup/drop cues for moving rows, a
+tick for each dragged-row index change, and editor arrival at a tapped destination.
+Displaced neighbours stay silent. Avoid duplicate
+completion cues and startup/reload feedback. Respect system touch-feedback settings;
+keep visual feedback sufficient when vibration is unavailable or disabled.
+
 ## Ordering and correction
 
 Checked items form a first-in/last-out stack: the newest stays nearest unchecked

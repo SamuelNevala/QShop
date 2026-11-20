@@ -7,6 +7,10 @@ Controls.Control {
 
     property bool editMode
     property double treshold: Theme.pixels(30)
+    readonly property bool thresholdReached: {
+        const flickable = parent as Flickable;
+        return flickable !== null && enabled && visible && flickable.dragging && height >= treshold;
+    }
 
     signal action
 
@@ -36,7 +40,7 @@ Controls.Control {
                 dealayAction.restart();
             }
 
-            target: root.visible ? root.parent : null
+            target: root.visible ? root.parent as Flickable : null
         },
         Timer {
             id: dealayAction
@@ -46,6 +50,12 @@ Controls.Control {
             onTriggered: root.action()
         }
     ]
+
+    onThresholdReachedChanged: {
+        if (thresholdReached) {
+            Haptics.play(Haptics.Confirm);
+        }
+    }
 
     font {
         pixelSize: Theme.pixels(7)

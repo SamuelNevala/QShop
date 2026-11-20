@@ -19,6 +19,7 @@ Item {
         property var shop
 
         function init() {
+            hapticsSpy.clear();
             uiSetup.resetDatabase();
             Theme.activeList = "default";
             Theme.scale = 1;
@@ -108,11 +109,25 @@ Item {
                             swipe: true,
                             right: false,
                             edit: false
+                        },
+                        {
+                            tag: "edit_right_long_swipe",
+                            swipe: true,
+                            right: true,
+                            distance: 0.75
+                        },
+                        {
+                            tag: "shop_left_long_swipe",
+                            swipe: true,
+                            right: false,
+                            edit: false,
+                            distance: 0.75
                         }
                     ];
         }
 
         function test_cancel(data) {
+            const feedback = [];
             if (data.edit === false) {
                 shop.setEditMode(false);
             }
@@ -134,15 +149,20 @@ Item {
             try {
                 if (data.held) {
                     tryCompare(item, "state", "drag", 2000);
+                    feedback.push(Haptics.DragStart);
                 }
                 if (data.reorder) {
                     touch.move(0, shop, start.x, start.y + chooser.height / 3).commit();
                 }
                 if (data.swipe) {
+                    feedback.push(data.edit === false || data.right ? Haptics.Confirm :
+                                                                      Haptics.ToggleOn);
                     const sign = data.right ? 1 : -1;
-                    touch.move(0, shop, start.x + sign * item.width * 0.1, start.y).commit();
-                    touch.move(0, shop, start.x + sign * item.width * 0.2, start.y).commit();
-                    touch.move(0, shop, start.x + sign * item.width * 0.3, start.y).commit();
+                    const distance = data.distance || 0.3;
+                    for (let step = 1; step <= 3; ++step) {
+                        touch.move(0, shop, start.x + sign * item.width * distance * step / 3,
+                                   start.y).commit();
+                    }
                     tryVerify(function () {
                         return Math.abs(item.x) > 0;
                     });
@@ -163,6 +183,10 @@ Item {
                 }
                 compare(item.state, "");
                 compare(spy.count, 0);
+                compare(hapticsSpy.count, feedback.length);
+                for (let index = 0; index < feedback.length; ++index) {
+                    compare(hapticsSpy.signalArguments[index][0], feedback[index]);
+                }
                 compare(item.checked, false);
                 compare(shop.count, shop.editMode ? 3 : 2);
             } finally {
@@ -174,10 +198,12 @@ Item {
                 hold.press(0, shop, start.x, start.y).commit();
                 try {
                     tryCompare(item, "state", "drag", 2000);
+                    feedback.push(Haptics.DragStart);
                 } finally {
                     hold.release(0, shop, start.x, start.y).commit();
                 }
                 tryCompare(item, "state", "");
+                feedback.push(Haptics.GestureEnd);
             }
             const next = touchEvent(shop);
             next.press(0, shop, start.x, start.y).commit();
@@ -185,9 +211,21 @@ Item {
             next.move(0, shop, start.x - item.width * 0.4, start.y).commit();
             next.release(0, shop, start.x - item.width * 0.4, start.y).commit();
             tryCompare(item, "checked", true, 2000);
+            feedback.push(shop.editMode ? Haptics.ToggleOn : Haptics.Confirm);
+            tryCompare(hapticsSpy, "count", feedback.length);
+            for (let index = 0; index < feedback.length; ++index) {
+                compare(hapticsSpy.signalArguments[index][0], feedback[index]);
+            }
         }
 
         name: "PointerCancellation"
         when: windowShown
+
+        SignalSpy {
+            id: hapticsSpy
+
+            target: Haptics
+            signalName: "requested"
+        }
     }
 }

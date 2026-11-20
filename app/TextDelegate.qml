@@ -14,6 +14,10 @@ Delegate {
     signal pressed
     signal singleTapped
     signal swiped(int direction)
+    signal swipeStarted(int direction)
+    signal pickedUp
+    signal dropped
+    signal reordered
 
     Drag.active: swipeHandler.active || dragHandler.active
     Drag.hotSpot.y: Math.round(root.height / 2)
@@ -230,8 +234,27 @@ Delegate {
         }
     ]
 
+    onIndexChanged: {
+        if (tapHandler && tapHandler.longPressActive) {
+            reordered();
+        }
+    }
+
     SwipeHandler {
         id: swipeHandler
+
+        property int startedDirection: SwipeHandler.Direction.None
+        readonly property int side: root.x > 0 ? SwipeHandler.Direction.Right : root.x < 0
+                                                 ? SwipeHandler.Direction.Left :
+                                                   SwipeHandler.Direction.None
+
+        function notifyStart(direction) {
+            if (active && direction !== SwipeHandler.Direction.None && direction
+                    !== startedDirection) {
+                startedDirection = direction;
+                root.swipeStarted(direction);
+            }
+        }
 
         function swiped(direction) {
             const temporary = root.index;
@@ -242,6 +265,16 @@ Delegate {
         enabled: !tapHandler.longPressActive
         target: root
 
+        onActiveChanged: {
+            startedDirection = SwipeHandler.Direction.None;
+            if (active) {
+                notifyStart(side !== SwipeHandler.Direction.None ? side : centroid.scenePosition.x
+                                                                   > centroid.scenePressPosition.x
+                                                                   ? SwipeHandler.Direction.Right :
+                                                                     SwipeHandler.Direction.Left);
+            }
+        }
+        onSideChanged: notifyStart(side)
         onSwipe: direction => {
             animateSwipe.to(direction, 0);
         }
@@ -291,7 +324,12 @@ Delegate {
                 root.pressed();
                 if (transition === PointerDevice.UngrabPassive || transition
                         === PointerDevice.CancelGrabPassive) {
+                    const wasPickedUp = tapHandler.longPressActive;
                     tapHandler.longPressActive = false;
+                    if (wasPickedUp && transition === PointerDevice.UngrabPassive && point.state
+                            === EventPoint.Released) {
+                        root.dropped();
+                    }
                     // Qt 6.12 can ungrab a cancelled touch but leave its hold timer pressed.
                     // Replace only that stale recognizer, after this event finishes.
                     if (pressed && point.state !== EventPoint.Released) {
@@ -304,6 +342,7 @@ Delegate {
                     return;
                 }
                 tapHandler.longPressActive = true;
+                root.pickedUp();
             }
             onSingleTapped: root.singleTapped()
         }

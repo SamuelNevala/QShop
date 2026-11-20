@@ -342,6 +342,10 @@ Item {
         }
 
         function test_back_hides_keyboard_then_leaves_edit() {
+            const hapticsSpy = Qt.createQmlObject('import QtTest; SignalSpy {}', app);
+            hapticsSpy.target = Haptics;
+            hapticsSpy.signalName = "requested";
+            verify(hapticsSpy.valid);
             const field = editor();
             field.text = "unfinished";
             const shortcut = findChild(view, "androidBackShortcut");
@@ -355,10 +359,12 @@ Item {
             compare(shop.editMode, true);
             compare(field.text, "unfinished");
             compare(shop.count, 1);
+            compare(hapticsSpy.count, 0);
             verify(app.visible);
             keyClick(Qt.Key_Back);
             tryCompare(shop, "editMode", false);
             compare(shop.count, 0);
+            compare(hapticsSpy.count, 0);
             verify(app.visible);
         }
 
