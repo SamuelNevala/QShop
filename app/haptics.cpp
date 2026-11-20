@@ -28,6 +28,9 @@ void Haptics::play(Feedback feedback)
     case SegmentTick:
         constant = "SEGMENT_TICK";
         break;
+    case Reject:
+        constant = "REJECT";
+        break;
     default:
         return;
     }

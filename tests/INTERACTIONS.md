@@ -19,6 +19,7 @@ work is QA-001/QA-002 and UX-007.
 | Back cancels edge press without stuck/misclassified row | TouchCancel, next-interaction/parenting checks | `test_back.py --matrix` |
 | Popup/About/privacy/drawer/IME/edit Back priority | Window shortcuts and actual popup controls | `test_back.py --selector-back`; `test_about.py` |
 | Individual/bulk delete, sequential Undo, expiry | Model, flow, Undo and native-rendering suites | `test_reset.py`, `test_undorecovery.py`, `test_release.py` |
+| Undo confirmation and one expiry warning | Actual Undo/15-second expiry, drawer pause/resume and cancelled-clock cues | Android bridge/R8 checked with candidate; phone feel pending UX-009 |
 | Immediate Undo during Clear-list retirement | Fast-Undo suites, real target/receiver checks | `test_fastundo.py` with a press deadline |
 | Reset checked stack; pending edits; second Reset | Model and QML identity/order/storage cases | `test_reset.py` |
 | List switching, fresh selection, failed load/reload | Model faults; selected UUID and fresh settings engine | Popup restart and native entry/reset cases |

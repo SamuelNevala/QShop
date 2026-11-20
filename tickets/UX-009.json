@@ -1,0 +1,19 @@
+{
+  "id": "UX-009",
+  "title": "Confirm Undo with haptics and warn once when recovery expires",
+  "status": "awaiting_user_validation",
+  "type": "missing_feature",
+  "reported_by": "user",
+  "created": "2026-11-21",
+  "request": "Add a haptic when Undo is pressed. User explicitly chose one firm warning cue on expiry, then asked to finish this before the release candidate and push.",
+  "expected": "Confirm each successful Undo. Request Android's Reject effect once when a live recovery window expires. Paused timers, completed Undo and empty recovery must not produce expiry cues. Respect system Touch feedback and device-supported effects.",
+  "approach": "Extend the existing AndroidX bridge with Reject and retain its JNI constant through R8. Hook actual recovery actions in View; preserve timing, batching and existing gestures.",
+  "related_tickets": ["UX-008", "UI-023", "UI-032"],
+  "references": ["https://developer.android.com/reference/androidx/core/view/HapticFeedbackConstantsCompat#REJECT"],
+  "regression": {
+    "tests": "UserFlows::test_delete_and_undo_icon and test_undo_expires; test_undo_cancels_expiry_feedback covers touch Undo and absence of a delayed warning, and test_expiry_feedback_waits_for_drawer_close covers pause/resume and one expiry cue. Existing bulk/catalog Undo expectations also require confirmation.",
+    "before": "With Reject registered but the UI hooks absent, both actual Undo and full 15-second expiry fail: 1 request observed versus 2 expected (out/rc001/undo-haptics-before.txt).",
+    "after": "Focused suite: 6 records pass, no skips/failures (out/rc001/undo-haptics-final.txt/xml). An initial test-only failure tapped before the popup was open; the fixture now waits for actual removal and popup readiness. The production fix did not change.",
+    "limits": "Android dispatch uses the existing guarded UI-thread bridge and normal system Touch feedback. Physical feel and older-device fallback remain pending. Semantic Reject requests a firm warning; hardware/settings decide the actual effect. No new dependency, permission or custom vibration waveform."
+  }
+}

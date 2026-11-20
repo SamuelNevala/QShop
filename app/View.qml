@@ -519,12 +519,21 @@ Style.Control {
         enabled: !menu.visible
 
         onUndoRequested: {
+            if (!shopView.model.canUndo) {
+                return;
+            }
             shopView.model.undo();
+            Haptics.play(Haptics.Confirm);
             if (shopView.model.canUndo) {
                 restart();
             }
         }
-        onExpired: shopView.model.clearUndoStack()
+        onExpired: {
+            if (shopView.model.canUndo) {
+                shopView.model.clearUndoStack();
+                Haptics.play(Haptics.Reject);
+            }
+        }
 
         Quick.Connections {
             function onDeletionRecorded() {

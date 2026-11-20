@@ -30,6 +30,8 @@ tick for each dragged-row index change, and editor arrival at a tapped destinati
 Displaced neighbours stay silent. Avoid duplicate
 completion cues and startup/reload feedback. Respect system touch-feedback settings;
 keep visual feedback sufficient when vibration is unavailable or disabled.
+Undo uses Confirm; an actual recovery expiry uses one Reject warning cue.
+Pausing or cancelling the clock must not emit the expiry cue.
 
 ## Ordering and correction
 

@@ -10,6 +10,7 @@
     public static final int DRAG_START;
     public static final int GESTURE_END;
     public static final int SEGMENT_TICK;
+    public static final int REJECT;
 }
 -keep class androidx.core.view.ViewCompat {
     public static boolean performHapticFeedback(android.view.View, int);

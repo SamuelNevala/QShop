@@ -313,7 +313,7 @@ Item {
             verifyFeedback([Haptics.Confirm]);
             undo();
             verifyNames(["milk", "bread", "cheese"]);
-            verifyFeedback([Haptics.Confirm]);
+            verifyFeedback([Haptics.Confirm, Haptics.Confirm]);
         }
 
         function test_drawer_removal_data() {
@@ -350,7 +350,7 @@ Item {
             compare(rowNamed("bread").checked, false);
             compare(rowNamed("cheese").checked, true);
             compare(rowNamed("milk").checked, true);
-            verifyFeedback([Haptics.ToggleOn, Haptics.ToggleOn, Haptics.Confirm]);
+            verifyFeedback([Haptics.ToggleOn, Haptics.ToggleOn, Haptics.Confirm, Haptics.Confirm]);
         }
 
         function test_remove_checked_without_checks_is_noop() {
@@ -387,7 +387,7 @@ Item {
             verifyFeedback([Haptics.Confirm]);
             undo();
             verifyNames(["milk"]);
-            verifyFeedback([Haptics.Confirm]);
+            verifyFeedback([Haptics.Confirm, Haptics.Confirm]);
         }
 
         function test_drawer_and_popup_dismissal_preserve_draft() {
@@ -471,7 +471,7 @@ Item {
             verifyNames(["eggs"]);
             selectList("default");
             verifyNames(["milk", "bread", "cheese"]);
-            verifyFeedback([Haptics.Confirm]);
+            verifyFeedback([Haptics.Confirm, Haptics.Confirm]);
         }
 
         function test_undo_expires() {
@@ -481,10 +481,12 @@ Item {
             const started = Date.now();
             tryCompare(shop.model, "canUndo", false, 17000);
             verify(Date.now() - started >= 14000, "Undo must not expire early without user input");
+            verifyFeedback([Haptics.Confirm, Haptics.Reject]);
             openDrawer();
             mouseClick(app.contentItem, app.width - 2, app.height / 2);
             tryCompare(drawer, "visible", false);
             verifyNames(["milk", "cheese"]);
+            verifyFeedback([Haptics.Confirm, Haptics.Reject]);
         }
 
         function test_other_interaction_preserves_undo() {
@@ -497,6 +499,42 @@ Item {
             verifyNames(["milk", "cheese"]);
             undo();
             verifyNames(["milk", "bread", "cheese"]);
+        }
+
+        function test_undo_cancels_expiry_feedback() {
+            swipe("bread", true);
+            verifyNames(["milk", "cheese"]);
+            const bar = findChild(app, "undoBar");
+            tryCompare(bar, "opened", true);
+            const expiry = findChild(bar, "undoExpiry");
+            verify(expiry !== null);
+            expiry.duration = 2000;
+            bar.restart();
+            undo(true);
+            verifyNames(["milk", "bread", "cheese"]);
+            verifyFeedback([Haptics.Confirm, Haptics.Confirm]);
+            wait(2200);
+            verifyFeedback([Haptics.Confirm, Haptics.Confirm]);
+        }
+
+        function test_expiry_feedback_waits_for_drawer_close() {
+            swipe("bread", true);
+            openDrawer();
+            const bar = findChild(app, "undoBar");
+            const expiry = findChild(bar, "undoExpiry");
+            verify(expiry !== null);
+            expiry.duration = 300;
+            bar.restart();
+            tryCompare(expiry, "paused", true);
+            wait(500);
+            verify(shop.model.canUndo);
+            verifyFeedback([Haptics.Confirm]);
+            mouseClick(app.contentItem, app.width - 2, app.height / 2);
+            tryCompare(drawer, "visible", false);
+            tryCompare(shop.model, "canUndo", false, 2000);
+            verifyFeedback([Haptics.Confirm, Haptics.Reject]);
+            wait(500);
+            verifyFeedback([Haptics.Confirm, Haptics.Reject]);
         }
 
         function test_shopping_taps_are_not_checks() {

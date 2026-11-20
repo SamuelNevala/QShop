@@ -23,7 +23,7 @@ set_tests_properties(qshopper_ui_tests PROPERTIES TIMEOUT 300)
 add_test(NAME qshopper_flow_tests COMMAND qshopper_ui_tests
     -input ${CMAKE_CURRENT_SOURCE_DIR}/flows -import ${CMAKE_BINARY_DIR}
     -platform offscreen -o -,txt -o flow-tests.xml,junitxml)
-set_tests_properties(qshopper_flow_tests PROPERTIES TIMEOUT 120)
+set_tests_properties(qshopper_flow_tests PROPERTIES TIMEOUT 150)
 set(qshopper_qml_tests qshopper_ui_tests qshopper_flow_tests)
 add_test(NAME qshopper_fastundo_tests COMMAND qshopper_ui_tests
     -input ${CMAKE_CURRENT_SOURCE_DIR}/fastundo -import ${CMAKE_BINARY_DIR}

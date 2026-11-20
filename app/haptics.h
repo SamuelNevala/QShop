@@ -11,7 +11,7 @@ class Haptics : public QObject
     QML_SINGLETON
 
 public:
-    enum Feedback { Confirm, ToggleOn, ToggleOff, DragStart, GestureEnd, SegmentTick };
+    enum Feedback { Confirm, ToggleOn, ToggleOff, DragStart, GestureEnd, SegmentTick, Reject };
     Q_ENUM(Feedback)
 
     explicit Haptics(QObject *parent = nullptr) : QObject(parent) { }
