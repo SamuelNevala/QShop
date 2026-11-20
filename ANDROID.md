@@ -1,7 +1,7 @@
 # Android builds
 
 Install/configure the tools in [BUILDING.md](BUILDING.md). The app package is
-`shopper.nevala.com`, version **0.1.0 / code 5**, minimum Android 9/API 28.
+`shopper.nevala.com`, version **0.1.0 / code 6** (candidate `v0.1.0-rc.1`), minimum Android 9/API 28.
 Compile SDK is 36; the current APK targets API 37. Gradle downloads dependencies
 on the first build.
 

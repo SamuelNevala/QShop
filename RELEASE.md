@@ -1,6 +1,18 @@
 # Release QShopper on Google Play
 
-Current candidate: **0.1.0 / Android code 5**. Account identity verification is
+Current candidate: **v0.1.0-rc.1**, app version **0.1.0 / Android code 6**.
+Includes accepted gesture/reorder haptics (UX-008) and editor-focus fixes (UI-038).
+Undo confirmation and expiry-warning haptics (UX-009) await phone feel validation.
+APK/AAB files stay outside Git under ignored `dist/`. The optimized production
+artifacts remain unsigned; a separate APK signed with the existing debug key is
+for testing compatible phone updates. It is not a production-signed Play build.
+Native emulator focus automation remains a gap; the owner accepted it on phone.
+
+Local candidate artifacts: `dist/QShopper-arm64-release-test.apk` for phone testing,
+and `QShopper-arm64-release-unsigned.apk` / `.aab` for production-signing preparation.
+The app version name stays numeric; the Git tag identifies this prerelease.
+
+Account identity verification is
 confirmed; no app entry, production/upload key, store upload or public app release
 has been completed. REL-001 stays open until the remaining steps below are done.
 

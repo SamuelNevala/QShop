@@ -38,7 +38,8 @@ clone when moving from the old history.
 
 ## Versions
 
-Current development version: **0.1.0 / Android code 5**. Root CMake owns both.
+Current candidate: **v0.1.0-rc.1 / Android code 6**. The app version name remains
+**0.1.0**; root CMake owns the app version and Android code.
 Before 1.0, bump PATCH for fixes and MINOR for features. Increase Android code for
 each shared update; keep its signing identity. Tag accepted releases, not local
 rebuilds, and record the tested commit.
