@@ -1,8 +1,8 @@
 {
   "id": "UI-037",
-  "title": "Catalog Undo can remain behind a continuously open Android keyboard",
+  "title": "Investigate catalog Undo overlap on the API-36 Android emulator",
   "status": "open",
-  "type": "observed_bug",
+  "type": "platform_investigation",
   "severity": "major",
   "severity_source": "Agent triage: recovery is inaccessible until the keyboard is hidden, while its expiry timer continues.",
   "created": "2026-11-19",
@@ -27,10 +27,11 @@
     "UI-033",
     "UI-023"
   ],
-  "scope": "Backlog only. UI-036 fixes Clear focus; this separate native layout bug remains open. A fix needs failing-before/passing-after native coverage, normal keyboard hide/reopen and reachable Undo checks.",
+  "scope": "Open emulator/platform investigation only. Physical-phone workflow is confirmed correct. Preserve current application geometry; establish the emulator cause and regression evidence before selecting any workaround.",
   "verification_before": "Original APK: tests/android/test_entry.py --catalog-ime-only passes catalog_accept_preserves_rows_and_ime and fails catalog_undo_reachable_above_ime. Exact observations and frames: out/ui036/android-catalog-before. The precondition uses canonical UUIDs and compares saved rows exactly.",
   "verification_current": "Final UI-036 APK repeats the same no-Clear failure: precondition passes, catalog_undo_reachable_above_ime fails (out/ui036/android-catalog-final/results.json). UI-037 remains open; no native broad-pass claim.",
-  "phone_report": "2026-11-19: user tried the ticket steps but could not reproduce on Android, then requested more precise steps. Expanded catalog/Return/continuous-IME/direction/timing instructions supplied; exact phone retest pending. Known failing scope remains the tested API-36 emulator configuration.",
-  "classification": "Confirmed rendered symptom on the API-36 emulator, reproduced on original and fixed APKs. Application-versus-Qt/platform/test-environment cause remains unconfirmed. Keep open for platform investigation; no layout workaround selected.",
-  "proposed_margin_review": "Windows already reserves DevelopmentKeyboard.occupiedHeight in View.bottomPadding. ListView.bottomMargin provides scrollable room but does not move the viewport-anchored UndoBar. Android normally uses native window resizing; adding the entire keyboard height without measuring actual overlap risks double reservation. No geometry change made."
+  "phone_report": "2026-11-19: user repeated the clarified catalog/edit/Return/continuous-IME steps and confirmed Undo remained visible above the virtual keyboard. Expected behavior passes on the tested physical phone. Phone Android version and keyboard configuration were not reported.",
+  "classification": "Rendered failure confirmed only on the tested API-36 emulator, on both original and UI-036 APKs. The exact clarified workflow passes on the user phone. Application-versus-Qt/platform/test-environment cause remains unconfirmed; do not treat this as a confirmed general Android application defect.",
+  "proposed_margin_review": "Windows already reserves DevelopmentKeyboard.occupiedHeight in View.bottomPadding. ListView.bottomMargin provides scrollable room but does not move the viewport-anchored UndoBar. Android normally uses native window resizing; adding the entire keyboard height without measuring actual overlap risks double reservation. No geometry change made.",
+  "resize_review": "2026-11-19: manifest requests adjustResize, and the pinned Qt 6.12 QtActivityDelegateBase/QtInputDelegate reads and applies that explicit soft-input mode. In the recorded failing run, Qt window/content/View heights stayed 891 logical pixels and ShopView 826 while Gboard was visible, the same as after hiding it. Qt SafeArea reports system bars/cutouts, excluding IME. Another original-APK hide/reopen path places Undo above Gboard. These observations do not establish the native decor/root/window geometry or identify the failing platform layer; no new emulator run or resizing workaround was made."
 }
