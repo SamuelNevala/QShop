@@ -1,0 +1,28 @@
+{
+  "id": "UI-038",
+  "title": "Release editor text focus when the virtual keyboard closes",
+  "status": "resolved",
+  "resolved": "2026-11-21",
+  "acceptance": "User accepted the corrected keyboard dismissal and mode-reentry behavior on phone and requested closure and commit.",
+  "type": "behavior_change",
+  "severity": "untriaged",
+  "created": "2026-11-19",
+  "reported_by": "user",
+  "source": "Initially reported during UX-008 review; selected for implementation after haptics acceptance. User clarified that closing the VKB should release TextInput focus.",
+  "current_behavior": "The keyboard could close while the editor retained activeFocus. Reproduced with the real desktop Qt keyboard through Back, its hide key and direct input-method dismissal during replacement editing. Native Android reproduction remains blocked by emulator instability.",
+  "expected": "Any keyboard dismissal releases editor text focus while preserving its draft, pending replacement and insertion position. Entering edit mode starts with an unfocused editor, including after a prior focused editing session. Tapping restores focus and entry. A subsequent Back leaves edit mode with existing draft-discard/original-item restoration behavior. App-window focus is separate.",
+  "verification_plan": "Before implementation, reproduce through native Back with a draft and visible Gboard. Assert hidden IME, released text focus, unchanged draft/items/editor position and foreground app. Verify the next Back leaves edit mode, and tapping the editor can restore focus/IME and submit. Include pending replacement and drawer/popup priority cases.",
+  "related_tickets": ["UI-006", "UI-036", "UX-008"],
+  "scope": "Implemented and accepted on phone. Repeatable desktop regressions fail before and pass after; native emulator automation remains an infrastructure gap, not a claimed passing run.",
+  "implementation": "InputDelegate observes InputMethod.visibleChanged and clears the text field's focus when the keyboard becomes hidden. Remove the TextField's unconditional focus:true so a recreated editor does not take focus on mode reentry. Explicit tap and item-edit focus requests remain. Back priority and draft-discard rules are unchanged.",
+  "reentry_report": "2026-11-21: start with saved items, pull into edit mode, tap the editor, return to shopping, then pull into edit again. User reports the second editor wrongly has text focus. The new keyboard regression uses actual pulls and a restarted saved list, with separate first-entry, repeat-pull and repeat-Back cases.",
+  "regression": {
+    "tests": "tests/keyboard/tst_keyboard.qml: test_hide_button_and_reopen_preserve_window_and_input, test_back_hides_keyboard_then_leaves_edit, test_keyboard_dismissal_preserves_pending_replacement. Hidden-keyboard Clear now also expects focus to stay released.",
+    "before": "Back and hide-key cases fail with activeFocus true instead of false (out/ui038/keyboard-before.txt). After correcting the replacement fixture to wait for row insertion, pending-replacement dismissal fails on the same focus assertion (out/ui038/replacement-before.txt). Earlier fixture setup errors are not reproduction evidence.",
+    "reentry_before": "test_mode_entry_waits_for_editor_tap reproduces all three cases before removing focus:true. First entry has a retained local focus request despite being inactive; both repeated-pull and repeated-Back cases have activeFocus true instead of false. out/ui038/mode-entry-before.txt: 3 failures, plus passing lifecycle records.",
+    "reentry_after": "All three actual-pull entry/reentry cases pass after removing focus:true (out/ui038/mode-entry-focused-after.txt: 5 records including lifecycle). The final full keyboard suite passes all 18 records (mode-entry-keyboard-final.txt), and main user flows pass all 21 (mode-entry-after.txt). The new test waits for keyboard resizing and restores the list's top position before choosing pull coordinates; its initial full run had one insufficient-pull fixture failure, not a focus assertion failure. User accepted the refinement on phone; native emulator automation remains unverified.",
+    "after": "Real keyboard suite: 15 passing records; user flows: 21; fast Undo: 18; native Windows Undo rendering: 14. No failures/skips. Commands: verify-windows.ps1 -Action Build -Jobs 2; CTest selecting qshopper_keyboard_tests, qshopper_flow_tests, qshopper_fastundo_tests and qshopper_undo_rendering_tests. Logs: out/ui038/keyboard-after.txt and nearby-tests.txt; XML under out/windows-agent/tests.",
+    "android": "tests/android/test_back.py now asserts native text-focus release after an actual Back edge gesture, tap-to-reopen with preserved draft, and repeated dismissal. Run for both edges, optionally --selector-back for drawer/popup priority. Attempts did not reach a valid focus assertion: the read-only emulator repeatedly exited/suspended; one launch returned a null accessibility root and later installs lost the emulator connection. out/ui038/android-before.txt and emulator logs retain infrastructure failures, not an application test result. Only the task-owned read-only emulator was used and it was stopped; no phone installation.",
+    "package": "Current ARM64 Debug APK includes the mode-reentry correction; payload/dependency closure, 21 Maven notices and all 96 current source-input hashes pass (out/ui038/mode-entry-arm64-package.txt and mode-entry-arm64-hash.json). Artifact: dist/QShopper-arm64-debug.apk. Earlier x86_64 package checks predate the reentry correction. QML formatting and diff whitespace checks pass."
+  }
+}

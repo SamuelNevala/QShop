@@ -133,8 +133,101 @@ Item {
             verify(Qt.inputMethod.visible);
         }
 
+        function test_mode_entry_waits_for_editor_tap_data() {
+            return [
+                        {
+                            tag: "first_entry",
+                            rounds: 1,
+                            back: false
+                        },
+                        {
+                            tag: "reentry_after_pull",
+                            rounds: 2,
+                            back: false
+                        },
+                        {
+                            tag: "reentry_after_back",
+                            rounds: 2,
+                            back: true
+                        }
+                    ];
+        }
+
+        function test_mode_entry_waits_for_editor_tap(data) {
+            // Restart with a saved, nonempty list, as in the phone report.
+            shop.model.insert(0, "Original item");
+            app.close();
+            app.destroy();
+            wait(0);
+            const component = Qt.createComponent("qrc:/qt/qml/QShopper/main.qml");
+            app = createTemporaryObject(component, null, {
+                                            asynchronous: false
+                                        });
+            verify(app !== null);
+            app.requestActivate();
+            tryCompare(app, "active", true);
+            view = app.contentItem.children[0].item;
+            shop = view.contentItem;
+            panel = findChild(app, "developmentKeyboard");
+            compare(shop.editMode, false);
+            app.height = Theme.pixels(250);
+            const shortcut = findChild(view, "androidBackShortcut");
+            shortcut.enabled = Qt.binding(function () {
+                return view.backNavigationActive;
+            });
+
+            function pullToMode(mode) {
+                // Let keyboard resizing finish before choosing the gesture coordinates.
+                wait(300);
+                tryCompare(shop, "moving", false);
+                shop.positionViewAtBeginning();
+                tryCompare(shop, "contentY", shop.originY);
+                waitForRendering(shop);
+                const x = shop.width / 2;
+                const y = shop.height * 0.3;
+                const distance = Theme.pixels(120);
+                const touch = touchEvent(shop);
+                touch.press(0, shop, x, y).commit();
+                for (let step = 1; step <= 6; ++step) {
+                    touch.move(0, shop, x, y + distance * step / 6).commit();
+                    wait(30);
+                }
+                touch.release(0, shop, x, y + distance).commit();
+                tryCompare(shop, "editMode", mode);
+                tryCompare(shop, "moving", false);
+                wait(500);
+            }
+
+            for (let round = 0; round < data.rounds; ++round) {
+                pullToMode(true);
+                const field = editor();
+                if (round === data.rounds - 1) {
+                    tryCompare(field, "activeFocus", false);
+                    compare(field.focus, false);
+                    verify(!Qt.inputMethod.visible);
+                }
+                mouseClick(field, field.width / 2, field.height / 2);
+                tryCompare(field, "activeFocus", true);
+                tryCompare(panel, "opened", true);
+                field.text = "Unsubmitted draft";
+                if (data.back) {
+                    keyClick(Qt.Key_Back);
+                    tryCompare(Qt.inputMethod, "visible", false);
+                    keyClick(Qt.Key_Back);
+                    tryCompare(shop, "editMode", false);
+                } else {
+                    pullToMode(false);
+                }
+                tryCompare(Qt.inputMethod, "visible", false);
+                compare(shop.count, 1);
+                compare(shop.model.data(shop.model.index(0, 0), Qt.DisplayRole), "Original item");
+            }
+        }
+
         function test_hide_button_and_reopen_preserve_window_and_input() {
             const field = editor();
+            field.text = "Unfinished draft";
+            const editorIndex = shop.model.editorIndex;
             const windowHeight = app.height;
             const reducedHeight = shop.height;
             const closeKey = findKey(panel, function (item) {
@@ -143,6 +236,10 @@ Item {
             verify(closeKey !== null);
             mouseClick(closeKey, closeKey.width / 2, closeKey.height / 2);
             tryCompare(Qt.inputMethod, "visible", false);
+            tryCompare(field, "activeFocus", false);
+            compare(field.text, "Unfinished draft");
+            compare(shop.model.editorIndex, editorIndex);
+            verify(shop.editMode);
             tryCompare(panel, "visible", false);
             compare(panel.occupiedHeight, 0);
             compare(app.height, windowHeight);
@@ -151,6 +248,8 @@ Item {
             verify(!Qt.inputMethod.visible);
             mouseClick(field, field.width / 2, field.height / 2);
             tryCompare(panel, "opened", true);
+            verify(field.activeFocus);
+            compare(field.text, "Unfinished draft");
             compare(app.height, windowHeight);
         }
 
@@ -272,8 +371,43 @@ Item {
             mouseClick(clear, clear.width / 2, clear.height / 2);
             tryCompare(field, "text", "");
             wait(300);
-            verify(field.activeFocus);
+            verify(!field.activeFocus);
             verify(!Qt.inputMethod.visible, "Clear must not reopen a deliberately hidden keyboard");
+        }
+
+        function test_keyboard_dismissal_preserves_pending_replacement() {
+            shop.model.insert(0, "Original item");
+            shop.forceLayout();
+            wait(800);
+            const row = shop.itemAtIndex(0).item;
+            const point = row.mapToItem(shop, row.width / 2, row.height / 2);
+            const touch = touchEvent(shop);
+            touch.press(0, shop, point.x, point.y).commit();
+            touch.release(0, shop, point.x, point.y).commit();
+            wait(50);
+            touch.press(0, shop, point.x, point.y).commit();
+            touch.release(0, shop, point.x, point.y).commit();
+            const field = editor();
+            tryCompare(field, "text", "Original item");
+            tryCompare(Qt.inputMethod, "visible", true);
+            field.text = "Replacement draft";
+            const editorIndex = shop.model.editorIndex;
+            const count = shop.count;
+            Qt.inputMethod.hide();
+            tryCompare(Qt.inputMethod, "visible", false);
+            tryCompare(field, "activeFocus", false);
+            compare(field.text, "Replacement draft");
+            compare(shop.model.editorIndex, editorIndex);
+            compare(shop.count, count);
+            verify(shop.editMode);
+            mouseClick(field, field.width / 2, field.height / 2);
+            tryCompare(panel, "opened", true);
+            verify(field.activeFocus);
+            tapKey(Qt.Key_Return);
+            tryCompare(field, "text", "");
+            compare(shop.model.data(shop.model.index(0, 0), Qt.DisplayRole), "Replacement draft");
+            compare(shop.count, 2);
+            verify(Qt.inputMethod.visible);
         }
 
         function test_offscreen_editor_keeps_draft_focus_and_keyboard_data() {
@@ -356,6 +490,7 @@ Item {
             }
             keyClick(Qt.Key_Back);
             tryCompare(Qt.inputMethod, "visible", false);
+            tryCompare(field, "activeFocus", false);
             compare(shop.editMode, true);
             compare(field.text, "unfinished");
             compare(shop.count, 1);

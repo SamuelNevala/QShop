@@ -25,7 +25,7 @@ No production key, Console submission or public app release is claimed.
 - Reports stay in the backlog until selected; this does not authorize implementation.
 - A bug closes only with a failing-before/passing-after automated regression at
   the relevant model/UI/platform level. Manual testing complements it.
-- Keep IDs/status/history stable. Add new UI tickets from UI-038 onward.
+- Keep IDs/status/history stable. Add new UI tickets from UI-039 onward.
 - Update the ticket and index together; follow [DESIGN.md](DESIGN.md).
 
 ## Resolved history
@@ -96,6 +96,7 @@ Each linked report contains its diagnosis, fix, tests and acceptance.
 | [UI-034](tickets/UI-034.json) | Android safe-area background should follow drawer dimming |
 | [UI-035](tickets/UI-035.json) | Scrolling a long list destroys the offscreen editor and closes the keyboard |
 | [UI-036](tickets/UI-036.json) | Clear draft without losing editor focus or dismissing the virtual keyboard |
+| [UI-038](tickets/UI-038.json) | Release text focus on keyboard dismissal and wait for a tap on mode reentry |
 
 ### UX
 

@@ -34,7 +34,6 @@ Delegate {
 
         color: Material.primaryTextColor
         placeholderTextColor: Material.secondaryTextColor
-        focus: true
         EnterKey.type: Qt.EnterKeyReturn
         horizontalAlignment: Text.AlignHCenter
         leftPadding: height
@@ -105,4 +104,14 @@ Delegate {
         input.addItem();
     }
     Keys.onEscapePressed: input.focus = false
+
+    Connections {
+        function onVisibleChanged() {
+            if (!InputMethod.visible) {
+                input.focus = false;
+            }
+        }
+
+        target: InputMethod
+    }
 }

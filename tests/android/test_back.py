@@ -168,6 +168,8 @@ def main():
             assert foreground() and len(rows(ui)) == 2, "Shopping fixture did not load"
             original_pid = shell("pidof", PACKAGE)
             ui = enter_edit(ui)
+            check("first_pull_leaves_editor_unfocused", editor(ui).get("focused") == "false"
+                  and not keyboard(), ui)
             left, top, right, bottom = bounds(editor(ui))
             shell("input", "tap", (left + right) // 2, (top + bottom) // 2)
             shell("input", "text", "unfinished")
@@ -176,9 +178,26 @@ def main():
             ui = wait_ui(lambda current: not keyboard())
             check("back_hides_keyboard_only", foreground() and editor(ui) is not None
                   and editor(ui).attrib.get("text") == "unfinished", ui)
+            check("keyboard_back_releases_text_focus", editor(ui).get("focused") == "false"
+                  and not keyboard() and saved_items() == [("milk", 0), ("bread", 0)], ui)
+            left, top, right, bottom = bounds(editor(ui))
+            shell("input", "tap", (left + right) // 2, (top + bottom) // 2)
+            ui = wait_ui(lambda current: keyboard() and editor(current) is not None
+                         and editor(current).get("focused") == "true")
+            check("tap_restores_keyboard_and_draft", keyboard() and editor(ui).get("focused") == "true"
+                  and editor(ui).get("text") == "unfinished", ui)
+            back()
+            ui = wait_ui(lambda current: not keyboard())
+            check("second_dismissal_releases_text_focus", editor(ui) is not None
+                  and editor(ui).get("focused") == "false" and editor(ui).get("text") == "unfinished", ui)
             back()
             ui = wait_ui(lambda current: editor(current) is None)
             check("back_leaves_edit_only", foreground() and editor(ui) is None and len(rows(ui)) == 2, ui)
+            ui = enter_edit(ui)
+            check("repeat_pull_leaves_editor_unfocused", editor(ui).get("focused") == "false"
+                  and not keyboard(), ui)
+            back()
+            ui = wait_ui(lambda current: editor(current) is None)
             back()
             ui = wait_ui(lambda current: not foreground())
             check("shopping_back_backgrounds_live_process", not foreground() and shell("pidof", PACKAGE) == original_pid, ui)

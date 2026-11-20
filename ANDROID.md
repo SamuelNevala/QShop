@@ -78,7 +78,8 @@ never run destructive Release tests on normal phone data.
 
 - Android Back closes the foremost About/privacy/popup layer, then drawer,
   keyboard, and edit mode. Shopping-mode Back backgrounds the app. Hiding the
-  keyboard keeps the draft; leaving edit mode discards it/restores its original.
+  keyboard keeps the draft and releases text focus; tapping the editor reopens
+  entry. Leaving edit mode discards the draft/restores its original.
 - `adjustResize` keeps the movable editor above the system IME. Return keeps
   entry open. A 40-row cache plus retained editor supports long-list scrolling.
 - The phone app requests portrait. Android can override this on large displays;

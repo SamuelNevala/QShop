@@ -80,11 +80,13 @@ typing/dictation. Support composition from the selected keyboard; the app does
 not activate the microphone itself.
 The editor's clear button empties the draft without taking text focus or closing
 an already-open keyboard.
+Entering edit mode leaves the editor unfocused; tap it to start text entry.
 
 Back closes one layer: foremost About/privacy/selector popup, drawer, keyboard,
 then edit mode; in shopping mode it backgrounds the app. Hiding the keyboard
-keeps the draft. Leaving edit mode discards unsubmitted text and restores an
-original item if its replacement was unfinished.
+keeps the draft and releases editor text focus. Any keyboard dismissal releases
+that focus; tapping the editor restores it and reopens entry. Leaving edit mode
+discards unsubmitted text and restores an original item if its replacement was unfinished.
 
 ## Theme and visual continuity
 
