@@ -20,6 +20,7 @@
 #include <QtSql/QSqlError>
 #include <limits>
 #include <QtCore/QFile>
+#include "applanguage.h"
 #include "licensenotices.h"
 #include "model.h"
 #include "weekmodel.h"
@@ -107,6 +108,11 @@ private Q_SLOTS:
             QVERIFY(text.contains(expected.trimmed()));
         }
         QVERIFY(text.contains(QStringLiteral("SOURCE_DISTRIBUTION.md")));
+
+        QFile overview(QStringLiteral(":/qt/qml/QShopper/licenses/ApplicationOverview-fi.txt"));
+        QVERIFY(overview.open(QIODevice::ReadOnly));
+        QCOMPARE(notices.applicationFinnish().join(QStringLiteral("\n\n")),
+                 QString::fromUtf8(overview.readAll()) + QStringLiteral("\n\n") + text);
     }
 
     void init()
@@ -132,6 +138,56 @@ private Q_SLOTS:
             database.close();
         }
         QSqlDatabase::removeDatabase(static_cast<const char *>(QSqlDatabase::defaultConnection));
+    }
+
+    static void app_language_uses_first_supported_system_preference()
+    {
+        QCOMPARE(AppLanguage::systemLocaleName({ "sv-FI", "fi-FI", "en-US" }), "fi_FI");
+        QCOMPARE(AppLanguage::systemLocaleName({ "en-US", "fi-FI" }), "en_GB");
+        QCOMPARE(AppLanguage::systemLocaleName({ "sv-FI", "ja-JP" }), "en_GB");
+        QCOMPARE(AppLanguage::systemLocaleName({ }), "en_GB");
+    }
+
+    static void catalog_display_labels_preserve_reserved_name_and_identity()
+    {
+        Model catalog;
+        catalog.componentComplete();
+        QCOMPARE(catalog.data(catalog.index(0)).toString(), "default");
+        const auto starterId = id(catalog, 0);
+        catalog.insert(catalog.rowCount(), QStringLiteral("default"));
+
+        Model picker;
+        picker.setReadOnly(true);
+        picker.componentComplete();
+        const auto labelRole = picker.roleNames().key(QByteArrayLiteral("displayName"));
+        QVERIFY(labelRole > Qt::UserRole);
+        QCOMPARE(picker.rowCount(), 3);
+        QCOMPARE(picker.data(picker.index(0), labelRole).toString(), "Default");
+        QCOMPARE(picker.data(picker.index(0)).toString(), "default");
+        QCOMPARE(id(picker, 0), starterId);
+        QCOMPARE(picker.data(picker.index(1), labelRole).toString(), "default");
+        QVERIFY(id(picker, 1) != starterId);
+        QCOMPARE(picker.data(picker.index(2), labelRole).toString(), "Manage lists");
+        QCOMPARE(picker.data(picker.index(2)).toString(), "lists");
+        QCOMPARE(id(picker, 2), "00000000-0000-0000-0000-000000000000");
+
+        Model groceries;
+        loadItems(groceries);
+        groceries.insert(0, QStringLiteral("default"));
+        QCOMPARE(groceries.data(groceries.index(0), labelRole).toString(), "default");
+    }
+
+    static void week_model_translates_existing_dates()
+    {
+        TestWeekModel model;
+        model.updateDate(QDate(2026, 11, 2));
+        const auto day = [&model] { return model.data(model.index(0), Qt::UserRole).toString(); };
+        QCOMPARE(day(), "Mon");
+        model.setLocaleName(QStringLiteral("fi_FI"));
+        QCOMPARE(day(), "ma");
+        QCOMPARE(model.data(model.index(0), Qt::UserRole + 1).toString(), "2");
+        model.setLocaleName(QStringLiteral("en_GB"));
+        QCOMPARE(day(), "Mon");
     }
 
     static void week_model_has_no_child_rows()

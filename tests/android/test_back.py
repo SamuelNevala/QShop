@@ -225,7 +225,7 @@ def main():
                     return any("Popup" in n.get("resource-id", "") and bounds(n)[3] > bounds(n)[1]
                                for n in current.iter("node"))
 
-                for selector, label in (("lists", "default"), ("accent", "Green"), ("primary", "Indogo")):
+                for selector, label in (("lists", "Default"), ("accent", "Green"), ("primary", "Indogo")):
                     left, top, right, bottom = bounds(editor(ui))
                     shell("input", "tap", left + (bottom - top) // 2, (top + bottom) // 2)
                     ui = wait_ui(lambda current: any(n.get("content-desc") == "Dark" for n in current.iter("node")))

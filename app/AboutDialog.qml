@@ -148,10 +148,19 @@ Controls.Dialog {
             contentWidth: width
             flickableDirection: Flickable.VerticalFlick
             spacing: root.font.pixelSize
-            model: !root.visible ? null : tabs.currentIndex === 0 ? LicenseNotices.qt :
-                                                                    tabs.currentIndex === 1
-                                                                    ? LicenseNotices.fontAwesome :
-                                                                      LicenseNotices.application
+            model: {
+                if (!root.visible) {
+                    return null;
+                }
+                if (tabs.currentIndex === 0) {
+                    return LicenseNotices.qt;
+                }
+                if (tabs.currentIndex === 1) {
+                    return LicenseNotices.fontAwesome;
+                }
+                return AppLanguage.localeName === "fi_FI" ? LicenseNotices.applicationFinnish :
+                                                            LicenseNotices.application;
+            }
 
             delegate: Text {
                 required property string modelData

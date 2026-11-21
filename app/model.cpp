@@ -9,6 +9,7 @@
 
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QByteArrayView>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QHash>
 #include <QtCore/QList>
@@ -23,6 +24,8 @@
 #include <QtCore/qtmetamacros.h>
 #include <QtGui/QUndoStack>
 #include <QtPreprocessorSupport>
+#include <QtQml/QQmlEngine>
+#include <QtQml/qqml.h>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlQuery>
@@ -33,11 +36,12 @@ constexpr QByteArrayView kChecked{ "checked" };
 constexpr QByteArrayView kEditor{ "editor" };
 constexpr QByteArrayView kId{ "id" };
 constexpr QByteArrayView kName{ "name" };
+constexpr int kDisplayNameRole = Qt::UserRole + 2;
 
 Model::Model(QObject *parent) Q_DECL_NOTHROW : QAbstractListModel(parent)
 {
     connect(&m_stack, &QUndoStack::canUndoChanged, this, &Model::canUndoChanged);
-    connect(&m_stack, &QUndoStack::undoTextChanged, this, &Model::undoMessageChanged);
+    connect(&m_stack, &QUndoStack::indexChanged, this, &Model::undoMessageChanged);
 }
 
 QVariant Model::data(const QModelIndex &index, int role) const
@@ -46,15 +50,27 @@ QVariant Model::data(const QModelIndex &index, int role) const
         return { };
     }
 
+    const auto &item = m_items.at(index.row());
     switch (role) {
     case Qt::DisplayRole:
-        return m_items.at(index.row()).name;
+        return item.name;
     case Qt::CheckStateRole:
-        return m_items.at(index.row()).checked;
+        return item.checked;
     case Qt::EditRole:
         return index.row() == m_editorIndex;
     case Qt::UserRole + 1:
-        return m_items.at(index.row()).uuid.toString(QUuid::WithoutBraces);
+        return item.uuid.toString(QUuid::WithoutBraces);
+    case kDisplayNameRole:
+        if (m_activeListId.isNull()) {
+            if (m_readOnly && item.uuid.isNull() && item.name == SQL::tableLists()) {
+                return QCoreApplication::translate("View", "Manage lists", "Open the list catalog");
+            }
+            if (!m_defaultListId.isNull() && item.uuid == m_defaultListId
+                && item.name == SQL::tableDefault()) {
+                return QCoreApplication::translate("View", "Default", "Built-in shopping list");
+            }
+        }
+        return item.name;
     default:
         return { };
     }
@@ -84,7 +100,8 @@ QHash<int, QByteArray> Model::roleNames() const
     return QHash<int, QByteArray>{ { Qt::DisplayRole, kName.data() },
                                    { Qt::CheckStateRole, kChecked.data() },
                                    { Qt::EditRole, kEditor.data() },
-                                   { Qt::UserRole + 1, kId.data() } };
+                                   { Qt::UserRole + 1, kId.data() },
+                                   { kDisplayNameRole, "displayName" } };
 }
 
 int Model::rowCount(const QModelIndex &parent) const
@@ -404,6 +421,13 @@ void Model::reload()
     load(m_activeListId);
 }
 
+void Model::refreshDisplayNames()
+{
+    if (m_activeListId.isNull() && !m_items.isEmpty()) {
+        Q_EMIT dataChanged(index(0), index(rowCount() - 1), { kDisplayNameRole });
+    }
+}
+
 int Model::editorIndex() const
 {
     return static_cast<int>(m_editorIndex);
@@ -416,7 +440,13 @@ bool Model::canUndo() const
 
 QString Model::undoMessage() const
 {
-    return m_stack.undoText();
+    if (auto *engine = qmlEngine(this)) {
+        engine->markCurrentFunctionAsTranslationBinding();
+    }
+    if (!canUndo()) {
+        return { };
+    }
+    return static_cast<const UndoRemove *>(m_stack.command(m_stack.index() - 1))->message();
 }
 
 QString Model::activeList() const
@@ -647,6 +677,12 @@ bool Model::load(QUuid identifier)
     m_stack.clear();
     removeAll(Save::NO);
     m_activeListId = identifier;
+    if (identifier.isNull()) {
+        // Use the same first reserved name as the legacy default lookup, without changing any row.
+        const auto first = std::ranges::find_if(
+                items, [](const Item &item) { return item.name == SQL::tableDefault(); });
+        m_defaultListId = first == items.end() ? QUuid() : first->uuid;
+    }
     for (auto &item : items) {
         append(std::move(item));
     }

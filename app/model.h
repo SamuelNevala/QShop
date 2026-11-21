@@ -143,6 +143,7 @@ public:
     Q_INVOKABLE void undo();
     Q_INVOKABLE void clearUndoStack();
     Q_INVOKABLE void reload();
+    Q_INVOKABLE void refreshDisplayNames();
     [[nodiscard]] int editorIndex() const;
     [[nodiscard]] bool canUndo() const;
     [[nodiscard]] QString undoMessage() const;
@@ -177,6 +178,7 @@ private:
     void dropRemovedTables() const;
 
     QUuid m_activeListId;
+    QUuid m_defaultListId;
     QList<Item> m_items;
     std::optional<Item> m_pendingEdit;
     QUndoStack m_stack;

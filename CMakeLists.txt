@@ -15,6 +15,12 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR OR build_inside_app)
 endif()
 
 find_package(Qt6 6.12 REQUIRED COMPONENTS Core Qml Quick Sql QuickControls2)
+if(CMAKE_CROSSCOMPILING)
+    find_package(Qt6LinguistTools 6.12 CONFIG REQUIRED
+        HINTS "${QT_HOST_PATH}/lib/cmake/Qt6LinguistTools" NO_CMAKE_FIND_ROOT_PATH)
+else()
+    find_package(Qt6 6.12 REQUIRED COMPONENTS LinguistTools)
+endif()
 
 # Qt 6.12 is the validated Windows and Android baseline.
 qt_standard_project_setup(REQUIRES 6.12)

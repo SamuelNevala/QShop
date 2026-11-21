@@ -110,3 +110,4 @@ Each linked report contains its diagnosis, fix, tests and acceptance.
 | [UX-005](tickets/UX-005.json) | Evaluate Undo granularity during post-reset removal of non-recurring items |
 | [UX-006](tickets/UX-006.json) | Redesign the Android application icon |
 | [UX-008](tickets/UX-008.json) | Gesture, reorder and editor-arrival haptics; accepted on phone |
+| [UX-010](tickets/UX-010.json) | Finnish UI, language picker, list labels, privacy policy and license overview |

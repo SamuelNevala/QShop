@@ -69,14 +69,31 @@ void WeekModel::updateDate(QDate today)
     populateModel(today);
 }
 
+QString WeekModel::localeName() const
+{
+    return m_locale.name();
+}
+
+void WeekModel::setLocaleName(const QString &name)
+{
+    const QLocale locale(name);
+    if (m_locale == locale) {
+        return;
+    }
+    m_locale = locale;
+    populateModel(m_today);
+    Q_EMIT localeNameChanged();
+}
+
 void WeekModel::populateModel(QDate today)
 {
     beginResetModel();
     m_week.clear();
     m_today = today;
     for (qint32 days = 0; days <= kDays; ++days) {
-        m_week.append(Day{ .name = m_today.addDays(days).toString(QStringLiteral("ddd")),
-                           .number = m_today.addDays(days).toString(QStringLiteral("d")) });
+        const auto date = m_today.addDays(days);
+        m_week.append(Day{ .name = m_locale.dayName(date.dayOfWeek(), QLocale::ShortFormat),
+                           .number = date.toString(QStringLiteral("d")) });
     }
     endResetModel();
 }

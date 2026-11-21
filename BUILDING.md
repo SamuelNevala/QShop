@@ -5,7 +5,8 @@
 Use Qt's installer to install **Qt 6.12+**, Qt Creator, CMake and Ninja.
 The validated kit is Qt **6.12.0 MSVC 2022 x64** with Visual Studio's C++ desktop
 tools. Core, Qml, Quick, QuickControls2, Sql and SVG/VectorImage support are
-required. The default desktop Debug build also uses Qt Virtual Keyboard.
+required. Qt Linguist tools in the host kit compile the Finnish catalog. The
+default desktop Debug build also uses Qt Virtual Keyboard.
 
 For Android, install the matching ARM64 Qt kit, Android SDK/NDK and JDK 21.
 The validated SDK platform/build-tools are 36/36.0.0 and NDK is 27.2.12479018.
@@ -54,6 +55,10 @@ installation, signing compatibility, emulator and Release/AAB options.
 | `QSHOPPER_DESKTOP_KEYBOARD=AUTO/ON/OFF` | AUTO enables the embedded keyboard for desktop Debug; Android always uses its system keyboard |
 | `BUILD_TESTING=OFF` | Build the app without desktop tests |
 | `QSHOPPER_MODEL_COVERAGE=ON` | Optional MSVC model coverage run; see the test guide |
+
+To refresh the editable Finnish strings after changing UI copy, build the
+`update_translations` target. The normal build compiles the catalog and fails if
+it contains unfinished entries.
 
 Set cache options in Qt Creator's CMake configuration. For a multi-configuration
 generator, choose the desktop keyboard ON or OFF explicitly.

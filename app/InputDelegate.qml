@@ -57,6 +57,7 @@ Delegate {
         }
 
         Icon {
+            Accessible.name: qsTr("Open menu")
             color: pressed ? Theme.readableInk(Material.accentColor, input.Material.backgroundColor,
                                                0.8, 3) : Material.backgroundColor
             height: parent.height
@@ -74,6 +75,7 @@ Delegate {
         }
 
         Icon {
+            Accessible.name: qsTr("Clear input")
             color: pressed ? Theme.readableInk(Material.accentColor, input.Material.backgroundColor,
                                                0.8, 3) : Material.backgroundColor
             enabled: input.text || input.preeditText

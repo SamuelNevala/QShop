@@ -126,7 +126,7 @@ def main():
             assert field is not None, "Edit mode did not open"
             left, top, _, bottom = bounds(field)
             shell("input", "tap", left + (bottom - top) // 2, (top + bottom) // 2)
-            for selector, wanted in (("lists", "default"), ("accent", accent_name), ("primary", "Indogo")):
+            for selector, wanted in (("lists", "Default"), ("accent", accent_name), ("primary", "Indogo")):
                 combo = None
                 for _ in range(6):
                     ui = tree()

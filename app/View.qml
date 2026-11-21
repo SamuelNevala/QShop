@@ -215,6 +215,39 @@ Style.Control {
                     }
 
                     DelegateChoice {
+                        roleValue: "language"
+
+                        ComboBox {
+                            objectName: "languageSelector"
+                            Quick.Accessible.name: label
+                            label: qsTr("Language")
+                            width: menu.contentItem.width
+                            textRole: "name"
+                            valueRole: "code"
+                            currentValue: AppLanguage.preference
+
+                            model: Quick.ListModel {
+                                Quick.ListElement {
+                                    name: qsTr("System", "Language preference")
+                                    code: "system"
+                                }
+
+                                Quick.ListElement {
+                                    name: "English"
+                                    code: "en"
+                                }
+
+                                Quick.ListElement {
+                                    name: "Suomi"
+                                    code: "fi"
+                                }
+                            }
+
+                            onActivated: AppLanguage.preference = currentValue
+                        }
+                    }
+
+                    DelegateChoice {
                         roleValue: "accent"
 
                         ColorComboBox {
@@ -244,7 +277,7 @@ Style.Control {
 
                         ComboBox {
                             model: sortedModel
-                            textRole: "name"
+                            textRole: "displayName"
                             valueRole: "id"
                             currentValue: Theme.activeList
                             label: qsTr("Lists")
@@ -364,7 +397,7 @@ Style.Control {
                         roleValue: "controls"
 
                         GroupBox {
-                            title: qsTr("Swipe sensitivity ") + Math.round(slider.value * 100) + "%"
+                            title: qsTr("Swipe sensitivity %1%").arg(Math.round(slider.value * 100))
                             width: menu.contentItem.width
                             horizontalPadding: Theme.pixels(2)
                             topPadding: topInset + Theme.pixels(1)
@@ -408,6 +441,10 @@ Style.Control {
 
                     Quick.ListElement {
                         type: "controls"
+                    }
+
+                    Quick.ListElement {
+                        type: "language"
                     }
 
                     Quick.ListElement {
@@ -504,6 +541,14 @@ Style.Control {
 
             readOnly: true
         }
+    }
+
+    Quick.Connections {
+        function onLocaleNameChanged() {
+            listsModel.refreshDisplayNames();
+        }
+
+        target: AppLanguage
     }
 
     UndoBar {

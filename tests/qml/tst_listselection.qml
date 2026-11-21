@@ -116,7 +116,7 @@ Item {
 
         function test_fresh_default_is_selected() {
             compare(shop.model.activeList, defaultId);
-            verifySelection(openSelector(), "default", defaultId);
+            verifySelection(openSelector(), "Default", defaultId);
             tryVerify(function () {
                 return uiSetup.savedSetting("activeList") === defaultId;
             });
@@ -149,30 +149,35 @@ Item {
             verifyItems(["Bread"]);
             const reopened = openSelector();
             verifySelection(reopened, "Weekly", weeklyId);
-            choose(reopened, "default");
+            choose(reopened, "Default");
             verifyItems(["Milk"]);
-            verifySelection(openSelector(), "default", defaultId);
+            verifySelection(openSelector(), "Default", defaultId);
         }
 
         function test_catalog_entry_stays_selected() {
             const combo = openSelector();
-            const id = choose(combo, "lists");
+            const id = choose(combo, "Manage lists");
             compare(shop.model.activeList, "lists");
-            verifySelection(openSelector(), "lists", id);
-            choose(drawer.contentItem.itemAtIndex(0), "default");
+            shop.forceLayout();
+            const starter = shop.itemAtIndex(shop.model.editorIndex === 0 ? 1 : 0);
+            verify(starter !== null);
+            compare(starter.name, "default");
+            tryCompare(starter.item, "name", "Default");
+            verifySelection(openSelector(), "Manage lists", id);
+            choose(drawer.contentItem.itemAtIndex(0), "Default");
             compare(shop.model.activeList, defaultId);
         }
 
         function test_selector_refresh_keeps_active_list() {
             const combo = openSelector();
-            verifySelection(combo, "default", defaultId);
+            verifySelection(combo, "Default", defaultId);
             drawer.close();
             tryCompare(drawer, "visible", false);
             const catalog = createTemporaryObject(catalogComponent, parent);
             catalog.insert(1, "Weekly");
             const reopened = openSelector();
             tryCompare(reopened, "count", 3);
-            verifySelection(reopened, "default", defaultId);
+            verifySelection(reopened, "Default", defaultId);
         }
 
         name: "ListSelection"

@@ -23,7 +23,9 @@ Controls.Control {
         justifyContent: FlexboxLayout.JustifySpaceEvenly
 
         Repeater {
-            model: WeekModel {}
+            model: WeekModel {
+                localeName: AppLanguage.localeName
+            }
 
             Controls.Control {
                 id: day

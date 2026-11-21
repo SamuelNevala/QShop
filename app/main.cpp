@@ -4,13 +4,11 @@
 #include <QtCore/QtTypes>
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
-#include <QtCore/QLocale>
 #include <QtCore/QtLogging>
 #include <QtCore/QObject>
 #include <QtCore/QStandardPaths>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
-#include <QtCore/QTranslator>
 #include <QtCore/qnamespace.h>
 #include <QtCore/QUrl>
 #include <QtCore/QUuid>
@@ -20,6 +18,7 @@
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
 #include <QQuickStyle>
+#include "applanguage.h"
 #include "model.h"
 #include "logging.h"
 #include <QtCore/QLoggingCategory>
@@ -92,16 +91,6 @@ int main(int argc, char *argv[])
     QGuiApplication application(argc, argv);
     qCDebug(qshopperAppLog) << "Starting QShopper" << QCoreApplication::applicationVersion();
 
-    QTranslator translator;
-    const auto uiLanguages = QLocale::system().uiLanguages();
-    for (const auto &locale : uiLanguages) {
-        const auto baseName = QStringLiteral("QShopper_") + QLocale(locale).name();
-        if (translator.load(QStringLiteral(":/i18n/") + baseName)) {
-            QGuiApplication::installTranslator(&translator);
-            break;
-        }
-    }
-
     // Automated runs can use disposable data and settings without touching the user's lists.
     const auto testDataDirectory = qEnvironmentVariable("QSHOPPER_DATA_DIR");
     if (!testDataDirectory.isEmpty()) {
@@ -167,6 +156,7 @@ int main(int argc, char *argv[])
     qputenv("QT_QUICK_CONTROLS_MATERIAL_VARIANT", "Normal");
 
     QQmlApplicationEngine engine;
+    engine.singletonInstance<AppLanguage *>("QShopper", "AppLanguage");
 #if !defined(Q_OS_ANDROID) && !defined(NDEBUG)
     auto *theme = engine.singletonInstance<QObject *>("QShopper", "Theme");
     theme->setProperty("scaleable", true);

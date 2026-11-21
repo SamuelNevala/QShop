@@ -59,6 +59,7 @@ ListView {
         required property bool editor
         required property int index
         required property string name
+        required property string displayName
         property bool moving: false
 
         input: editor
@@ -70,7 +71,7 @@ ListView {
             dragParent: shopView
             editMode: shopView.editMode
             index: chooser.index
-            name: chooser.name
+            name: chooser.displayName
 
             onDoubleTapped: {
                 if (!shopView.editMode) {
@@ -291,6 +292,14 @@ ListView {
         }
 
         target: InputMethod
+    }
+
+    Connections {
+        function onLocaleNameChanged() {
+            itemModel.refreshDisplayNames();
+        }
+
+        target: AppLanguage
     }
 
     Pulley {

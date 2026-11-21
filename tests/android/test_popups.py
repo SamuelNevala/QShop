@@ -234,7 +234,7 @@ def main():
                             ui = tree()
                         assert combo is not None, "Selector was not reachable in drawer"
                         if selector == "lists":
-                            check("initial_selection", combo.get("content-desc") == "default", ui)
+                            check("initial_selection", combo.get("content-desc") == "Default", ui)
                         combo_rect = bounds(combo)
                         tap(combo)
                         x = (combo_rect[0] + combo_rect[2]) // 2
@@ -248,7 +248,7 @@ def main():
                             shell("input", "swipe", x, start, x, end, 250)
                         time.sleep(0.5)
                         ui = tree()
-                        label = ("default" if endpoint == "first" else "lists") if selector == "lists" else (
+                        label = ("Default" if endpoint == "first" else "Manage lists") if selector == "lists" else (
                             "Red" if endpoint == "first" else "Blue grey")
                         candidates = [n for n in ui.iter("node") if "Popup" in n.get("resource-id", "")
                                       and (n.get("text") == label or n.get("content-desc") == label)

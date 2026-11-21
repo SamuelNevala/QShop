@@ -1,0 +1,12 @@
+QShopperin lisenssi ja lähdekoodi
+
+QShopper on vapaata ohjelmistoa. Voit käyttää, tutkia, muokata ja jakaa sitä Free Software Foundationin julkaiseman GNU GPL -lisenssin version 3 tai valintasi mukaan uudemman version ehtojen mukaisesti. Sovellus toimitetaan ilman takuuta. Tarkemmat ehdot ovat alla olevassa alkuperäisessä englanninkielisessä lisenssitekstissä.
+
+Lähdekoodi sekä käännös- ja asennusohjeet löytyvät osoitteesta
+https://github.com/SamuelNevala/QShop/blob/master/SOURCE_DISTRIBUTION.md
+
+Julkaisujen lähdekoodiluetteloissa kerrotaan kunkin virallisen version tarkka lähdekoodiversio ja riippuvuudet. Voit muokata sovellusta, kääntää sen ja allekirjoittaa oman version omalla avaimellasi. Jos annat Android-paketille eri tunnisteen, voit kokeilla muokattua versiota nykyisen sovelluksen rinnalla ja säilyttää nykyiset ostostietosi.
+
+Virallinen Android-versio käyttää Qt:n GNU GPL version 3 lisenssivaihtoehtoa. Qt, Font Awesome ja muut kolmansien osapuolten osat noudattavat omia lisenssiehtojaan. Katso niiden välilehdet ja alla olevat Androidin riippuvuuksia koskevat ilmoitukset. Tavaramerkkioikeudet kuuluvat niiden omistajille.
+
+Alla ovat alkuperäiset lisenssi- ja lähdekooditiedot kokonaisuudessaan.

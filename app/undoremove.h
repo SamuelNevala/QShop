@@ -14,6 +14,7 @@ public:
     explicit UndoRemove(Model &model);
     void undo() override;
     void append(qsizetype index);
+    [[nodiscard]] QString message() const;
 
 private:
     struct RemovedItem
@@ -24,7 +25,6 @@ private:
         QUuid after;
     };
 
-    void updateText();
     [[nodiscard]] qsizetype findRow(QUuid identifier) const;
     [[nodiscard]] qsizetype restoreIndex(const RemovedItem &removed) const;
 

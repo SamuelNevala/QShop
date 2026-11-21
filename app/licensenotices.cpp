@@ -28,6 +28,9 @@ QStringList readNotice(const QString &path)
 LicenseNotices::LicenseNotices(QObject *parent)
     : QObject(parent), m_qt(readNotice(QStringLiteral(":/qt/qml/QShopper/licenses/Qt.txt"))),
       m_fontAwesome(readNotice(QStringLiteral(":/qt/qml/QShopper/licenses/FontAwesome.txt"))),
-      m_application(readNotice(QStringLiteral(":/qt/qml/QShopper/licenses/Application.txt")))
+      m_application(readNotice(QStringLiteral(":/qt/qml/QShopper/licenses/Application.txt"))),
+      m_applicationFinnish(
+              readNotice(QStringLiteral(":/qt/qml/QShopper/licenses/ApplicationOverview-fi.txt"))
+              + m_application)
 {
 }

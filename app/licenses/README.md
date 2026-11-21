@@ -4,6 +4,9 @@ The App tab contains QShopper's complete copyright/GPL text and source/build
 directions, generated from the root files by CMake. Android additionally includes
 `AndroidRuntime.txt`: the 21 resolved Maven runtime artifacts and the NDK C++
 runtime notices. These complement the existing Qt and Font Awesome tabs.
+In Finnish, the App tab starts with `ApplicationOverview-fi.txt` and then shows
+the complete original notice. Update the overview when the source instructions
+in `Application.txt.in` change.
 Official Android builds select Qt's GPLv3 option, consistent with the application's
 GPL-3.0-or-later license; bundled third-party terms remain in force.
 

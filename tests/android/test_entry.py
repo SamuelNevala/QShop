@@ -227,7 +227,7 @@ def main():
                 assert light is not None
                 tap(light)
                 shell("input", "tap", width - 20, height // 2)
-                ui = select_list(tree(), "lists")
+                ui = select_list(tree(), "Manage lists")
                 catalog = saved("lists")
                 ui = item_tap(ui, "weekly", "lists", twice=True)
                 insets = open_keyboard(ui)
@@ -411,7 +411,7 @@ def main():
                   and [r[0].lower() for r in saved()] == ["oats", "bread", "milk"] and saved()[-1][1] == 1, ui)
             ui = item_swipe(ui, "milk")
             check("correction_restores_unchecked_order", saved() == replacement_original, ui)
-            ui = select_list(ui, "lists")
+            ui = select_list(ui, "Manage lists")
             ui = enter_text(ui, "weekly")
             weekly = next(record for record in saved("lists") if record[0].lower() == "weekly")
             weekly_name = weekly[0]
@@ -422,7 +422,7 @@ def main():
             eggs = saved(weekly_id)
             check("new_list_has_independent_contents", len(eggs) == 1 and eggs[0][0].lower() == "eggs"
                   and saved() == replacement_original, ui)
-            ui = select_list(ui, "lists")
+            ui = select_list(ui, "Manage lists")
             ui = item_tap(ui, "weekly", "lists", twice=True)
             assert editor(ui).get("text") == weekly_name, "Catalog rename did not start"
             ui = enter_text(ui, "weekend", replace=True)
@@ -442,7 +442,7 @@ def main():
             check("catalog_delete_undo_restores_identity_and_order", saved("lists") == catalog, ui)
             ui = select_list(ui, renamed[0])
             check("renamed_list_remains_selectable", saved(weekly_id) == eggs, ui)
-            ui = select_list(ui, "default")
+            ui = select_list(ui, "Default")
             check("catalog_workflow_preserves_original_list", saved() == replacement_original, ui)
             tap(editor(ui), "left")
             ui = tree()

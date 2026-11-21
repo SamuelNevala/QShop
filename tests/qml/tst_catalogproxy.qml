@@ -127,12 +127,12 @@ Item {
             catalog.setChecked(sourceRow(hidden), true);
             const combo = selector();
             tryCompare(combo, "count", 15);
-            compare(names(combo), ["10", "2", "Alpha", "Beta", "Zulu", "alpha", "alpha", "default", "lists",
+            compare(names(combo), ["10", "2", "Alpha", "Beta", "Zulu", "alpha", "alpha", "Default", "Manage lists",
                                    "zeta", "Äpple", "Åland", "Örebro", "äther", "éclair"]);
             compare(combo.valueAt(5), ids[1]);
             compare(combo.valueAt(6), ids[4]);
             compare(combo.find("Hidden"), -1);
-            compare(combo.currentText, "default");
+            compare(combo.currentText, "Default");
             compare(combo.currentValue, shop.model.activeList);
             compare(shop.model.data(shop.model.index(0, 0)), "Milk");
             compare(shop.model.data(shop.model.index(1, 0)), "Bread");
@@ -159,7 +159,7 @@ Item {
             catalog.insert(catalog.editorIndex, "0 renamed");
             catalog.removeEditor();
             tryCompare(combo, "count", 3);
-            compare(names(combo), ["0 renamed", "First", "default"]);
+            compare(names(combo), ["0 renamed", "First", "Default"]);
             compare(combo.valueAt(0), second);
             compare(combo.currentValue, selected);
             catalog.remove(sourceRow(first));

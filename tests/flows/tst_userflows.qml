@@ -449,18 +449,18 @@ Item {
         }
 
         function test_catalog_create_rename_delete_undo() {
-            selectList("lists");
+            selectList("Manage lists");
             submit("weekly");
             const weekly = selectList("weekly");
             submit("eggs");
             verifyNames(["eggs"]);
-            selectList("lists");
+            selectList("Manage lists");
             doubleTap("weekly");
             tryCompare(editor(), "text", "weekly");
             submit("weekend", true);
             compare(selectList("weekend"), weekly);
             verifyNames(["eggs"]);
-            selectList("lists");
+            selectList("Manage lists");
             const catalogOrder = names();
             verifyFeedback([]);
             swipe("weekend", true);
@@ -469,7 +469,7 @@ Item {
             verifyNames(catalogOrder);
             compare(selectList("weekend"), weekly);
             verifyNames(["eggs"]);
-            selectList("default");
+            selectList("Default");
             verifyNames(["milk", "bread", "cheese"]);
             verifyFeedback([Haptics.Confirm, Haptics.Confirm]);
         }

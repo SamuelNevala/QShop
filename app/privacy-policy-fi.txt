@@ -1,0 +1,47 @@
+QShopperin tietosuojakäytäntö
+
+Päivitetty viimeksi 12.11.2026
+
+Kuka vastaa tietojen käsittelystä
+
+QShopperin kehittäjä on Samuel Nevala. Tukipyynnöt ja tietosuojaa koskevat kysymykset voi lähettää osoitteeseen samuel.nevala@gmail.com. Tämä tietosuojakäytäntö koskee virallista Android-sovellusta ja kuvaa erilliset palvelut, joita voit halutessasi käyttää sovelluksen kanssa.
+
+Ostostietosi
+
+Tuotteiden nimet, ostoslistat, niiden järjestys ja merkinnät tallennetaan sovelluksen yksityisessä tallennustilassa olevaan tietokantaan. Asetukset, kuten teema, värit ja pyyhkäisyherkkyys, tallennetaan laitteelle. QShopper käyttää näitä tietoja listojen näyttämiseen ja uudelleenkäyttöön. Sovelluksessa ei ole QShopper-käyttäjätiliä, kehittäjän ylläpitämää pilvisynkronointia, mainontaa, seurantaohjelmistoa tai analytiikkapalvelua. Sovellus ei lähetä ostoslistojasi kehittäjälle.
+
+Androidin varmuuskopiointi
+
+Androidin varmuuskopiointi on käytössä. Laitteestasi, Android-versiosta, tilistäsi ja varmuuskopiointiasetuksistasi riippuen käyttöjärjestelmä voi varmuuskopioida sovelluksen tiedot ja asetukset varmuuskopiointipalveluusi sekä palauttaa tai siirtää ne toiseen laitteeseen. Tämä tapahtuu käyttöjärjestelmän ja palveluntarjoajan asetusten ja tietosuojaehtojen mukaisesti. Kehittäjä ei voi lukea tai hallita näitä varmuuskopioita. Tarkista laitteesi varmuuskopiointiasetukset, jos et halua sisällyttää sovelluksen tietoja varmuuskopioihin.
+
+Näppäimistö ja puhekirjoitus
+
+Tekstin syöttämisestä huolehtii valitsemasi Android-näppäimistö. Jos käytät puhekirjoitusta, toiminnon tarjoaa näppäimistö. QShopperissa ei ole omaa mikrofonitoimintoa. Näppäimistö tai sen puhepalvelun tarjoaja voi käsitellä kirjoitettua tekstiä, puhetta tai tallenteita omien asetustensa ja tietosuojakäytäntönsä mukaisesti. Tähän voi kuulua tietojen lähettäminen laitteen ulkopuolelle. QShopper saa tekstin, jonka näppäimistö syöttää editoriin. Sovellus ei pyydä mikrofonin, kameran, yhteystietojen tai sijaintitietojen käyttöoikeutta.
+
+Google Play -ostot ja diagnostiikka
+
+Google Play käsittelee virallisen sovelluksen maksun Googlen ehtojen ja tietosuojakäytännön mukaisesti. Kehittäjä voi käyttää Googlen myyjätyökalujen tilaus- ja tapahtumatietoja ostojen, hyvitysten ja kirjanpidon hoitamiseen. QShopper ei itse pyydä maksukorttitietoja, eikä siihen sisälly sovelluksen sisäistä maksupalvelua.
+
+Android ja Google Play voivat välittää kehittäjälle järjestelmäraportteja sovelluksen kaatumisista, vastaamattomuudesta ja yhteensopivuudesta sekä sovelluskaupan raportteja. QShopperiin ei ole lisätty erillistä kaatumisraportoinnin tai analytiikan ohjelmistopakettia. Alustapalvelujen toimittamia tietoja käsitellään niiden ehtojen ja asetusten mukaisesti.
+
+Yhteydenotto tukeen
+
+Jos lähetät kehittäjälle sähköpostia, kehittäjä saa osoitteesi, viestisi ja liitteet, jotka päätät lähettää. Tietoja käytetään pyyntöösi vastaamiseen, ongelmien selvittämiseen sekä ostoihin tai lakisääteisiin velvoitteisiin liittyvien asioiden hoitamiseen. Älä lähetä ostoslistoja tai muita henkilötietoja, joita et halua jakaa. Viestejä ja tilaustietoja säilytetään vain niin kauan kuin nämä käyttötarkoitukset ja sovellettavat lakisääteiset velvoitteet sitä edellyttävät. Tietoja ei käytetä mainontaan.
+
+Tallennus, säilyttäminen ja poistaminen
+
+Käytössä olevat ostostietosi säilyvät sovelluksessa, kunnes poistat ne tai tyhjennät sovelluksen tallennustilan. Poistot voivat olla tilapäisesti peruttavissa sovelluksen Kumoa-toiminnolla, kunnes palautusaika päättyy tai palautusmahdollisuus muuten poistuu. Sovelluksen asennuksen poistaminen tai tallennustilan tyhjentäminen poistaa paikalliset sovellustiedot Androidin kautta. Tämä ei takaa käyttöjärjestelmän aiempien varmuuskopioiden välitöntä poistumista. Voit hallita niitä varmuuskopiointipalvelusi kautta. Kehittäjällä ei ole ostoslistoistasi etäkopiota, jonka hän voisi poistaa.
+
+Android suojaa sovelluksen yksityistä tallennustilaa käyttöjärjestelmän tietoturvatoiminnoilla. QShopper ei lisää omaa tietokannan salausta eikä lupaa tietojen turvallista poistamista. Laitteen varmuuskopiointi, näppäimistö ja sähköpostipalvelu käyttävät omia tietoturvajärjestelyjään.
+
+Tietosuojaa koskevat pyyntösi
+
+Voit kysyä kehittäjältä tukiviesteihin tai tilaustietoihin tallennetuista henkilötiedoista ja pyytää tietojen tarkastamista, oikaisemista tai poistamista silloin, kun oikeus siihen soveltuu. Sovellettava laki voi antaa sinulle myös oikeuden rajoittaa tai vastustaa käsittelyä, saada kopion tiedoista tai tehdä valituksen tietosuojaviranomaiselle. Joitakin tapahtumatietoja voidaan joutua säilyttämään lakisääteisten velvoitteiden vuoksi. Hallitset paikallisia ostostietoja omalla laitteellasi edellä kuvatulla tavalla.
+
+Verkkosivusto ja lähdekoodi
+
+Julkinen tietosuojakäytäntö ja lähdekoodiprojekti ovat GitHubissa. Kun avaat sivut selaimessa, GitHubille voi välittyä yhteys- ja selaintietoja sen oman tietosuojaselosteen mukaisesti (https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). Tämän sovellukseen sisältyvän tietosuojakäytännön lukeminen ei avaa verkkosivua eikä muodosta yhteyttä GitHubiin.
+
+Muutokset ja yhteystiedot
+
+Tietosuojakäytäntö päivitetään, jos QShopperin tapa käsitellä tietoja muuttuu. Sovellukseen sisältyvä käytäntö kuvaa kyseistä sovellusversiota. Verkossa on viimeisin julkaistu versio. Tietosuojaa koskevat kysymykset ja pyynnöt voi lähettää osoitteeseen samuel.nevala@gmail.com.

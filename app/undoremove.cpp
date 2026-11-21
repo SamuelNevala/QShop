@@ -73,14 +73,12 @@ void UndoRemove::append(qsizetype index)
         }
     }
     m_items.append(std::move(removed));
-    updateText();
 }
 
-void UndoRemove::updateText()
+QString UndoRemove::message() const
 {
-    setText(m_items.size() == 1
-                    ? QCoreApplication::translate("UndoBar", "%1 removed")
-                              .arg(m_items.constFirst().item.name)
-                    : QCoreApplication::translate("UndoBar", "%n items removed", nullptr,
-                                                  static_cast<int>(m_items.size())));
+    return m_items.size() == 1 ? QCoreApplication::translate("UndoBar", "%1 removed")
+                                         .arg(m_items.constFirst().item.name)
+                               : QCoreApplication::translate("UndoBar", "%n items removed", nullptr,
+                                                             static_cast<int>(m_items.size()));
 }

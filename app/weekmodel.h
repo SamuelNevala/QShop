@@ -3,6 +3,7 @@
 
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QDate>
+#include <QtCore/QLocale>
 #include <QtCore/QHash>
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -25,15 +26,21 @@ class WeekModel : public QAbstractListModel
 {
     Q_OBJECT
     QML_ELEMENT
+    Q_PROPERTY(QString localeName READ localeName WRITE setLocaleName NOTIFY localeNameChanged)
 
 public:
     explicit WeekModel(QObject *parent = nullptr) Q_DECL_NOTHROW;
+    [[nodiscard]] QString localeName() const;
+    void setLocaleName(const QString &name);
 
     // from QAbstractListModel
     [[nodiscard]] int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     [[nodiscard]] QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
             Q_DECL_OVERRIDE;
     [[nodiscard]] QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
+
+Q_SIGNALS:
+    void localeNameChanged();
 
 protected:
     // from QObject
@@ -45,6 +52,7 @@ private:
 
     QList<Day> m_week;
     QDate m_today;
+    QLocale m_locale = QLocale::c();
 };
 
 #endif // WEEKMODEL_H

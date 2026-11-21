@@ -8,6 +8,7 @@ work is QA-001/QA-002 and UX-007.
 | Interaction | Desktop coverage | Native Android coverage |
 | --- | --- | --- |
 | Enter/leave shopping or edit mode | `UserFlows`, preview/keyboard cases | `test_entry.py`, `test_back.py` |
+| Switch app language and retain list, draft and Undo | `qshopper_language_tests` covers both privacy policies, the Finnish App license overview and native Windows caption fit. Model tests cover fallback and weekdays. | Language catalog and localized documents verified in the ARM64 APK. Device-side system-locale switching was not exercised for UX-010. |
 | Insert at editor; replace by double tap; clear/empty Return | Actual control-driven flow and persistence | `test_entry.py` |
 | Continuous keyboard composition/Return/hide/reopen | Real Qt keyboard suite; isolated settings | `test_entry.py`; `test_recovery_entry.py` |
 | Haptics at pull threshold, swipe start/opposite-side crossing, row pickup/index/drop and editor arrival | Real held-touch flows observe `Haptics.requested`; same-side pullback is silent; ticks follow only the dragged row's index | Native Back/reorder, editor/IME checks and vibrator history; accepted on phone UX-008 |

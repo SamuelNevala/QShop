@@ -20,6 +20,7 @@
 #include <QtCore/QVariant>
 #include <QtCore/QLocale>
 #include <QtCore/qtmetamacros.h>
+#include "applanguage.h"
 #include "model.h"
 
 namespace {
@@ -31,6 +32,12 @@ class UiSetup : public QObject
 
 public:
     explicit UiSetup(QObject *parent = nullptr) : QObject(parent) { }
+
+    [[nodiscard]] Q_INVOKABLE static QString restoredLanguage()
+    {
+        QQmlEngine engine;
+        return engine.singletonInstance<AppLanguage *>("QShopper", "AppLanguage")->preference();
+    }
 
     [[nodiscard]] Q_INVOKABLE static QString exchangeLocale(const QString &name)
     {

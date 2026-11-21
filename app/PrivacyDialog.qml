@@ -1,3 +1,4 @@
+import QShopper
 import QtQuick
 import QtQuick.Controls.Material as Controls
 import QtQuick.Layouts
@@ -36,7 +37,8 @@ Controls.Dialog {
             activeFocusOnPress: false
             focusPolicy: Qt.NoFocus
             textFormat: TextEdit.PlainText
-            textDocument.source: "privacy-policy.txt"
+            textDocument.source: AppLanguage.localeName === "fi_FI" ? "privacy-policy-fi.txt" :
+                                                                      "privacy-policy.txt"
             wrapMode: TextEdit.Wrap
             font: root.font
             color: Controls.Material.primaryTextColor

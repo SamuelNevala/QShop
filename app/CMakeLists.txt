@@ -98,6 +98,7 @@ qt_add_qml_module(QShopper
         Weekdays.qml
         YAnimation.qml
     SOURCES
+        applanguage.h applanguage.cpp
         haptics.h haptics.cpp
         logging.h logging.cpp
         licensenotices.h licensenotices.cpp
@@ -107,8 +108,10 @@ qt_add_qml_module(QShopper
     RESOURCES
         ${qshopper_qt_notices}
         licenses/FontAwesome.txt
+        licenses/ApplicationOverview-fi.txt
         "${qshopper_application_notice}"
         privacy-policy.txt
+        privacy-policy-fi.txt
         logos/qt.svg
         logos/font-awesome.svg
         ${qshopper_keyboard_resource}
@@ -124,6 +127,18 @@ qt_add_qml_module(QShopper
         backgrounds/10-evening-produce.jpg
         fa-solid-900.otf
     DEPENDENCIES QtCore QtQml.Models QtQuick.VectorImage ${qshopper_keyboard_dependencies}
+)
+
+set_property(TARGET QShopper PROPERTY QT_EXCLUDE_SOURCES_FROM_TRANSLATION
+    "${CMAKE_CURRENT_SOURCE_DIR}/licenses/*"
+    "${CMAKE_CURRENT_SOURCE_DIR}/privacy-policy*.txt"
+    "${qshopper_application_notice}")
+qt_add_translations(QShopper
+    SOURCE_TARGETS QShopper
+    TS_FILES i18n/QShopper_fi.ts
+    NO_GENERATE_PLURALS_TS_FILE
+    LUPDATE_OPTIONS -locations none
+    LRELEASE_OPTIONS -fail-on-unfinished
 )
 
 target_link_libraries(QShopper PUBLIC Qt6::Quick Qt6::Sql Qt6::Core Qt6::Qml Qt6::QuickControls2)

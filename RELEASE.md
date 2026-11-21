@@ -112,8 +112,10 @@ physical details and UX-007's 110% sensitivity trip remain separate.
   from applicable policy/form requirements.
 - Use the [public privacy policy](https://samuelnevala.github.io/QShop/privacy-policy.html),
   anonymously verified against accepted HTML on 12 November. Saving it in Console
-  is pending. Canonical text is app/privacy-policy.txt; regenerate/check with
-  `python tools/export-privacy-policy.py --check` after generating changes.
+  is pending. Canonical English text is `app/privacy-policy.txt`. After a policy
+  update, revise the in-app Finnish translation in `app/privacy-policy-fi.txt`
+  and regenerate the English public page with `python tools/export-privacy-policy.py`.
+  Verify it with `python tools/export-privacy-policy.py --check`.
 - Publish and verify **all matching source-set files** under
   [SOURCE_DISTRIBUTION.md](SOURCE_DISTRIBUTION.md)/[LICENSING.md](LICENSING.md).
   Local archives and a moving master branch do not complete source delivery.
