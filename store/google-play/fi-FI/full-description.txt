@@ -1,0 +1,21 @@
+QShopper on ostoslista, jota voit käyttää kaupassa yhdellä kädellä. Kirjaa ostokset sitä mukaa kuin ne tulevat mieleen, järjestä ne kulkureittisi mukaan ja merkitse ne kerätyiksi pyyhkäisemällä.
+
+Järjestä ostokset reittisi mukaan
+Siirrä syöttökenttä kohtaan, johon haluat lisätä tuotteen. Voit myös vaihtaa olemassa olevien tuotteiden järjestystä.
+
+Merkitse ja korjaa pyyhkäisemällä
+Merkityt tuotteet siirtyvät jäljellä olevien tuotteiden alle. Viimeksi merkitty on niistä ylimpänä, joten virheen voi korjata nopeasti. Voit säätää pyyhkäisyherkkyyttä.
+
+Lisää useita tuotteita peräkkäin
+Lisää tuote painamalla Enter. Näppäimistö jää auki seuraavaa tuotetta varten. Voit käyttää myös Android-näppäimistön puhekirjoitusta, jos se on käytettävissä.
+
+Käytä samaa listaa uudelleen
+Nollaa merkinnät ennen seuraavaa ostoskäyntiä. Merkityt tuotteet palaavat keräysjärjestykseen merkitsemättä jääneiden tuotteiden jälkeen. Voit ylläpitää useita listoja eri tarpeisiin.
+
+Kumoa vahingossa tehty poisto
+Kumoamispalkki palauttaa viimeisimmän poistotoiminnon. Jos aiempia poistoja on vielä palautettavissa, saat seuraavaan kumoamiseen uudet 15 sekuntia.
+
+Lue lista yhdellä silmäyksellä
+Tuotenimet näkyvät suurina ja pitkä teksti mukautuu käytettävään tilaan. Voit valita vaalean, tumman tai järjestelmän teeman, vaihtaa värejä ja käyttää sovellusta suomeksi tai englanniksi.
+
+Ostoslistat toimivat ilman verkkoyhteyttä. Puhekirjoitus ja sen verkkoyhteys riippuvat käyttämästäsi näppäimistöstä. QShopper on avoimen lähdekoodin sovellus.

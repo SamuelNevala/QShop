@@ -3,6 +3,9 @@
 A shopping list for one-handed use in the shop. Built with Qt Quick and C++20,
 primarily for Android.
 
+[Quick-start guide](https://samuelnevala.github.io/QShop/guide.html) ·
+[Pikaopas suomeksi](https://samuelnevala.github.io/QShop/guide-fi.html)
+
 <p>
   <img src="docs/images/shopping-light.png" alt="Shopping list in Light theme" width="260">
   <img src="docs/images/shopping-dark.png" alt="Shopping list in Dark theme" width="260">

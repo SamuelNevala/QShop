@@ -1,0 +1,3 @@
+QShopperin ensimmäinen Google Play -testiversio.
+
+Järjestä ostokset, merkitse tuotteet pyyhkäisemällä ja käytä samaa ostosjärjestystä uudelleen. Mukana ovat siirrettävä syöttökenttä, poistojen kumoaminen, useat listat, kolme teemavaihtoehtoa sekä suomen- ja englanninkielinen käyttöliittymä.

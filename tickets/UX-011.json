@@ -1,0 +1,25 @@
+{
+  "id": "UX-011",
+  "title": "Create an illustrated quick-start guide and reusable store screenshots",
+  "status": "resolved",
+  "resolved": "2026-11-21",
+  "acceptance": "The user accepted the guides after the Undo annotation was changed to point at the tappable bar and requested closure and commit.",
+  "type": "missing_feature",
+  "reported_by": "user",
+  "created": "2026-11-21",
+  "proposal": "Write a short guide on the public project site and link to it from the README. Capture actual Android screens once per language with disposable groceries. Reuse the strongest captures on Google Play, with short captions there and gesture arrows or extra steps in the guide.",
+  "scope": "Cover the quick start and add a short reference for the Lists catalog and drawer. Start with the existing Play screenshot brief. Use the completed Finnish UI for Finnish captures and localize the guide captions and listing text alongside them.",
+  "guide_steps": [
+    "Pull down to switch modes. In edit mode, tap an unchecked row to move the editor beside it, then tap the editor to type. Show an example insertion in shopping order. Explain the difference between tapping a row to place the editor, double-tapping to edit that row, and long-pressing an unchecked row then dragging and releasing it to reorder.",
+    "Swipe to check or correct an item in shopping mode. Show deletion in edit mode and where to tap Undo before it expires.",
+    "Open the drawer from the editor and use the Lists menu to switch lists. Choose Manage lists (Hallitse listoja) to manage saved lists. Add a list with the editor and double-tap a list name to rename it. Checking a list in the catalog archives it by hiding it from the Lists picker while keeping its contents. Return to the catalog and uncheck the list to show it again. Show archiving and deletion as separate actions.",
+    "Explain the drawer actions with an example. Reset checks keeps all entries and puts the previously checked group back in collection order, after unchecked entries. Remove checked deletes only the checked entries. Clear list removes all entries in the current view. The removal actions offer temporary Undo. These actions apply to list names when the catalog is open. Briefly identify Theme, Accent, Primary and Swipe sensitivity. Include Language once UX-010 ships."
+  ],
+  "implementation": "The English and Finnish GitHub Pages guides have seven screen captures each, with localized alt text and separate on-page gesture marks. The website index and repository README link to the guides. The Play listing draft includes English and Finnish copy and links to four clean captures per language.",
+  "verification": "Captured the verified QShopper 0.1.0 Android debug build (code 6, revision fdf7276) on a disposable API 36 x86_64 emulator at native 1080 × 2160. Checked screenshot JPEG dimensions, RGB mode, file links, alt text and both sets of Play text limits. Chrome loaded both pages and all images at 360, 390 and 1100 CSS pixels without horizontal overflow.",
+  "android_workflows": "In both locales, verified checking and correcting an item, pulling into edit mode, tapping to place the editor, inserting with Gboard kept open, long-press reordering, double-tap editing, swipe deletion and Undo, and archive/restore with the same list contents. Verified Reset checks in collection order, Remove checked with Undo, and Clear list with Undo against the disposable database.",
+  "desktop_checks": "The existing Windows flow suite passed all 23 cases, including catalog create, rename, delete and Undo. The language suite passed with QT_QPA_FONTDIR set to the Windows system fonts. Qt's offscreen renderer could not find its default font directory, which made the Finnish caption-fit assertion fail before the retry.",
+  "publication": "The accepted guides and store materials are ready for publication. The site deployment, localized Play uploads and feature graphic remain part of REL-001.",
+  "related_tickets": ["UX-010", "REL-001"],
+  "references": ["https://support.google.com/googleplay/android-developer/answer/9866151", "https://support.google.com/googleplay/android-developer/answer/9844778"]
+}

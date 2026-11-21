@@ -1,19 +1,18 @@
 # Google Play listing draft
 
-Prepared 8 November 2026; still **not uploaded**. Copy describes current
-one-handed shopping, deliberate swipes and the shopper's own order.
+Local draft for the English and Finnish store listings.
 
 ## Copy for Console
 
-| Field | File | Limit |
-| --- | --- | ---: |
-| Name | [title.txt](en-US/title.txt) | 30 |
-| Short description | [short-description.txt](en-US/short-description.txt) | 80 |
-| Full description | [full-description.txt](en-US/full-description.txt) | 4,000 |
-| Test notes | [release-notes.txt](en-US/release-notes.txt) | Track-specific |
+| Field | English (en-US) | Finnish (fi-FI) | Limit |
+| --- | --- | --- | ---: |
+| Name | [English title](en-US/title.txt) | [Finnish title](fi-FI/title.txt) | 30 |
+| Short description | [English short description](en-US/short-description.txt) | [Finnish short description](fi-FI/short-description.txt) | 80 |
+| Full description | [English full description](en-US/full-description.txt) | [Finnish full description](fi-FI/full-description.txt) | 4,000 |
+| Test notes | [English test notes](en-US/release-notes.txt) | [Finnish test notes](fi-FI/release-notes.txt) | Track-specific |
 
 Paste contents as plain text. Proposed title: **QShopper: Shopping List**;
-QShopper alone remains an option. Starting locale: en-US; translate accepted copy.
+QShopper alone remains an option. Use en-US as the default listing and add fi-FI.
 Keep factual metadata without ranking/price slogans or keyword repetition.
 [Setup/limits](https://support.google.com/googleplay/android-developer/answer/9859152),
 [metadata policy](https://support.google.com/googleplay/android-developer/answer/9898842).
@@ -46,7 +45,7 @@ retain [artwork attribution](../../artwork/UX-006/README.md).
 | --- | --- |
 | Store icon | 512 × 512 RGBA: [PNG](assets/icon.png), [editable SVG](assets/icon.svg), prepared |
 | Feature graphic | 1024 × 500 RGB PNG/JPEG; brief only |
-| Phone screenshots | Four actual 1080 × 1920 portrait RGB PNG/JPEG captures; pending |
+| Phone screenshots | Four 1080 × 2160 RGB JPEGs per language, captured in the Android app |
 
 Store icon is a full square without baked mask/shadow; Play supplies its treatment.
 SVG keeps launcher paths/placement and replaces its circular backdrop. Regenerate
@@ -54,24 +53,23 @@ at 512 px through Qt SVG/grabToImage, as in the [launcher exporter](../../artwor
 [Icon specifications](https://developer.android.com/distribute/google-play/resources/icon-design-specifications),
 [asset requirements](https://support.google.com/googleplay/android-developer/answer/9866151).
 
-Feature graphic: existing market illustration, clear focal area, **Your list.
-Your shopping order.** Check crop/readability at phone size.
+For the feature graphic, use the existing market illustration and check the crop
+at phone size. If it includes text, localize it for each listing.
 
 ### Screenshot sequence
 
-Use the same disposable groceries/palette; exclude real lists and notifications.
+Use the clean files below for the matching language in Play Console. The
+[English guide](../../docs/guide.html) and [Finnish guide](../../docs/guide-fi.html)
+use these same screenshots and display gesture marks on the page.
 
-| Order | Caption | Real capture / alt text |
+| Order | English capture and caption | Finnish capture and caption |
 | --- | --- | --- |
-| 1 | Swipe through your shopping | Large item names, two checked items below remaining groceries |
-| 2 | Add it where it belongs | Movable editor between groceries, Android keyboard open |
-| 3 | Correct a mistaken removal | Edit mode with removed item and visible Undo countdown |
-| 4 | Choose your colors | Same list in Dark theme, drawer theme/primary/accent choices |
+| 1 | [Shopping](../../docs/images/guide/en/shopping.jpg) · Check items with a swipe | [Ostokset](../../docs/images/guide/fi/shopping.jpg) · Merkitse ostokset pyyhkäisemällä |
+| 2 | [Editor](../../docs/images/guide/en/editor.jpg) · Add items where they belong | [Muokkaus](../../docs/images/guide/fi/editor.jpg) · Lisää tuote oikeaan kohtaan |
+| 3 | [Undo](../../docs/images/guide/en/undo.jpg) · Undo a mistaken deletion | [Kumoaminen](../../docs/images/guide/fi/undo.jpg) · Kumoa vahingossa tehty poisto |
+| 4 | [Drawer](../../docs/images/guide/en/drawer.jpg) · Choose your theme and colors | [Valikko](../../docs/images/guide/fi/drawer.jpg) · Valitse teema ja värit |
 
-Existing [Light](../../docs/images/shopping-light.png)/[Dark](../../docs/images/shopping-dark.png)
-captures are references, not upload-ready: 1440 × 3120 RGBA exceeds the 2:1 ratio
-and uses alpha. Recapture rather than stretching. Screenshots must show actual
-features, not simulated interfaces. Review copy/assets against the accepted build.
+[Localized graphic assets](https://support.google.com/googleplay/android-developer/answer/9844778).
 
 Undo is temporary and does not survive reload/list switch. Voice typing belongs
 to the keyboard. Do not claim sharing, automatic aisles, barcode/price tracking.
